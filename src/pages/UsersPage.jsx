@@ -44,7 +44,7 @@ const UsersPage = () => {
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 w-[100vw] min-h-screen">
       <h1 className="text-2xl font-bold mb-4">All Users</h1>
 
       {/* Search */}

@@ -17,7 +17,6 @@ const DashboardLayout = () => {
           <Header />
         </header>
 
-        {/* Outlet for nested routes */}
         <main className="pt-20 px-4">
           <Outlet />
         </main>

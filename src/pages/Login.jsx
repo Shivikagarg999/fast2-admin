@@ -26,7 +26,6 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        // Store token in memory for demo (in real app, use proper storage)
         console.log("Login successful:", data);
         // Redirect to dashboard
         window.location.href = "/dashboard";
