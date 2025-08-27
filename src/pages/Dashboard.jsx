@@ -4,7 +4,7 @@ import Header from "../components/dashboard/Header";
 
 const DashboardLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen w-[100vw] bg-gray-100 flex">
       {/* Sidebar */}
       <aside className="hidden lg:block fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-50">
         <Sidebar />

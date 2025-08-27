@@ -34,6 +34,13 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
+  // Auto-expand orders if we're on any order page
+  useEffect(() => {
+    if (pathname.includes("/admin/orders")) {
+      setExpandOrders(true);
+    }
+  }, [pathname]);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
@@ -49,6 +56,11 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
       name: "Users",
       path: "/admin/users",
       icon: <FiUsers className="w-5 h-5" />,
+    },
+     {
+      name: "Products",
+      path: "/admin/products",
+      icon: <FiTruck className="w-5 h-5" />,
     },
     {
       name: "Orders",
@@ -77,141 +89,231 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
     setMobileOpen((prev) => !prev);
   };
 
+  const handleMobileNavClick = () => {
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  };
+
   // Close mobile menu when route changes
   useEffect(() => {
-    if (isMobile) {
+    if (isMobile && mobileOpen) {
       setMobileOpen(false);
     }
   }, [pathname, isMobile]);
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen && isMobile) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileOpen, isMobile]);
+
   return (
     <>
-      {/* Mobile menu button */}
+      {/* Mobile menu button - fixed positioning for better accessibility */}
       {isMobile && (
-        <button
-          onClick={toggleMobileMenu}
-          className="fixed top-4 left-4 z-50 p-2 rounded-md bg-blue-600 text-white shadow-lg lg:hidden"
-          aria-label="Toggle menu"
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-        </button>
+        <div className="lg:hidden">
+          <button
+            onClick={toggleMobileMenu}
+            className={`
+              fixed top-4 left-4 z-[60] p-3 rounded-lg shadow-lg
+              transition-all duration-200 ease-in-out
+              ${mobileOpen 
+                ? 'bg-red-600 hover:bg-red-700 text-white' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }
+              active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            `}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            <div className="relative w-6 h-6">
+              <FiMenu 
+                size={24} 
+                className={`absolute inset-0 transition-all duration-200 ${
+                  mobileOpen ? 'opacity-0 rotate-180' : 'opacity-100 rotate-0'
+                }`} 
+              />
+              <FiX 
+                size={24} 
+                className={`absolute inset-0 transition-all duration-200 ${
+                  mobileOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-180'
+                }`} 
+              />
+            </div>
+          </button>
+        </div>
       )}
 
       {/* Overlay for mobile */}
       {mobileOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-60 z-[45] lg:hidden transition-opacity duration-200"
           onClick={toggleMobileMenu}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-full bg-white dark:bg-gray-800 shadow-lg
-          transition-transform duration-200 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
-          ${mobileOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0 lg:w-64"}
+          fixed top-0 left-0 h-full z-50
+          bg-white dark:bg-gray-900 
+          shadow-xl dark:shadow-2xl
+          border-r border-gray-200 dark:border-gray-700
+          transition-all duration-300 ease-in-out
+          ${isMobile 
+            ? `w-80 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`
+            : 'w-64 translate-x-0'
+          }
         `}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <Link to="/dashboard" className="flex items-center">
+          {/* Header with Logo */}
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <Link 
+              to="/dashboard" 
+              className="flex items-center justify-center lg:justify-start"
+              onClick={handleMobileNavClick}
+            >
               <img
                 src={Logo}
                 alt="Admin Panel Logo"
-                height={30}
-                width={120}
-                className="object-contain dark:filter dark:brightness-0 dark:invert"
+                height={32}
+                width={128}
+                className="object-contain transition-all duration-200 hover:scale-105"
+                style={{
+                  filter: darkMode ? 'brightness(0) invert(1)' : 'none'
+                }}
               />
             </Link>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto py-4">
-            <ul className="space-y-1 px-2">
-              {menuItems.map((item) => {
-                if (item.isParent) {
-                  return (
-                    <li key={item.name}>
-                      <button
-                        onClick={() => setExpandOrders(!expandOrders)}
-                        className={`
-                          w-full flex items-center justify-between px-4 py-3 rounded-lg
-                          text-sm font-medium transition-colors
-                          ${
-                            pathname.includes("/admin/orders")
-                              ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
-                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }
-                        `}
-                      >
-                        <div className="flex items-center">
-                          <span className="mr-3">{item.icon}</span>
-                          <span>{item.name}</span>
-                        </div>
-                        <span>
-                          {expandOrders ? <FiChevronDown /> : <FiChevronRight />}
-                        </span>
-                      </button>
-
-                      {expandOrders && (
-                        <ul className="ml-8 mt-1 space-y-1">
-                          {item.subItems.map((sub) => (
-                            <li key={sub.name}>
-                              <Link
-                                to={sub.path}
-                                className={`
-                                  block px-4 py-2 text-sm rounded-lg transition-colors
-                                  ${
-                                    pathname === sub.path
-                                      ? "bg-blue-50 dark:bg-blue-800/50 text-blue-700 dark:text-blue-200"
-                                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                  }
-                                `}
-                              >
-                                {sub.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  );
-                }
-
+          <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+            {menuItems.map((item) => {
+              if (item.isParent) {
+                const isOrdersActive = pathname.includes("/admin/orders");
+                
                 return (
-                  <li key={item.name}>
-                    <Link
-                      to={item.path}
+                  <div key={item.name} className="space-y-1">
+                    <button
+                      onClick={() => setExpandOrders(!expandOrders)}
                       className={`
-                        flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors
-                        ${
-                          pathname.startsWith(item.path)
-                            ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        w-full flex items-center justify-between px-4 py-3 rounded-lg
+                        text-sm font-medium transition-all duration-200
+                        ${isOrdersActive
+                          ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200 shadow-sm"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                         }
+                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900
+                        active:scale-[0.98]
                       `}
                     >
-                      <span className="mr-3">{item.icon}</span>
-                      <span>{item.name}</span>
-                    </Link>
-                  </li>
+                      <div className="flex items-center">
+                        <span className="mr-3 flex-shrink-0">{item.icon}</span>
+                        <span className="truncate">{item.name}</span>
+                      </div>
+                      <span className={`flex-shrink-0 transition-transform duration-200 ${
+                        expandOrders ? 'rotate-180' : 'rotate-0'
+                      }`}>
+                        <FiChevronDown className="w-4 h-4" />
+                      </span>
+                    </button>
+
+                    <div className={`
+                      overflow-hidden transition-all duration-300 ease-in-out
+                      ${expandOrders ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}
+                    `}>
+                      <div className="ml-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700 space-y-1 py-1">
+                        {item.subItems.map((sub) => {
+                          const isSubActive = pathname === sub.path;
+                          return (
+                            <Link
+                              key={sub.name}
+                              to={sub.path}
+                              onClick={handleMobileNavClick}
+                              className={`
+                                block px-4 py-2.5 text-sm rounded-lg transition-all duration-200
+                                ${isSubActive
+                                  ? "bg-blue-50 dark:bg-blue-800/30 text-blue-700 dark:text-blue-200 font-medium shadow-sm border-l-2 border-blue-500"
+                                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                                }
+                                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900
+                                active:scale-[0.98]
+                              `}
+                            >
+                              <span className="truncate">{sub.name}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 );
-              })}
-            </ul>
+              }
+
+              const isActive = pathname.startsWith(item.path);
+              return (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  onClick={handleMobileNavClick}
+                  className={`
+                    flex items-center px-4 py-3 rounded-lg text-sm font-medium 
+                    transition-all duration-200
+                    ${isActive
+                      ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200 shadow-sm"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                    }
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900
+                    active:scale-[0.98]
+                  `}
+                >
+                  <span className="mr-3 flex-shrink-0">{item.icon}</span>
+                  <span className="truncate">{item.name}</span>
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Bottom section */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <button
-              onClick={handleLogout}
-              className="w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              onClick={() => {
+                handleLogout();
+                handleMobileNavClick();
+              }}
+              className="w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium 
+                text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 
+                transition-all duration-200
+                focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900
+                active:scale-[0.98]"
             >
-              <FiLogOut className="mr-3" />
-              Logout
+              <FiLogOut className="mr-3 flex-shrink-0" />
+              <span>Logout</span>
             </button>
+
+            {/* Theme toggle button */}
+            {toggleTheme && (
+              <button
+                onClick={toggleTheme}
+                className="w-full flex items-center px-4 py-2 mt-2 rounded-lg text-xs
+                  text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
+                  transition-all duration-200
+                  focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+              >
+                <span className="mr-2">🌙</span>
+                <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+              </button>
+            )}
 
             <div className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
               <p>v1.0.0</p>
@@ -220,6 +322,9 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
           </div>
         </div>
       </aside>
+
+      {/* Spacer for desktop to prevent content overlap */}
+      {!isMobile && <div className="w-64 flex-shrink-0" />}
     </>
   );
 };

@@ -8,11 +8,13 @@ import {
   FiBell,
   FiClock,
   FiAlertTriangle,
-  FiCheckCircle
+  FiCheckCircle,
+  FiSun,
+  FiMoon
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Header({ toggleSidebar }) {
+export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
   const [isOpen, setIsOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [adminData, setAdminData] = useState({
@@ -25,7 +27,7 @@ export default function Header({ toggleSidebar }) {
       id: 1,
       type: "unassigned",
       text: "Parcel #DC-2023-07-14-001 unassigned for 35 mins",
-      details: "Pickup: Sharjah Airport • Drop: Sharjah",
+      details: "Pickup: Connaught Place • Drop: Aerocity",
       time: "2 mins ago",
       read: false
     },
@@ -81,7 +83,7 @@ export default function Header({ toggleSidebar }) {
         const newAlert = {
           id: now.getTime(),
           type: Math.random() > 0.5 ? "unassigned" : "delay",
-          text: `Parcel #DC-${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}-${Math.floor(Math.random() * 1000)} ${
+          text: `Parcel #DC-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')} ${
             Math.random() > 0.5 ? "unassigned for 35+ mins" : "facing potential delay"
           }`,
           details:
@@ -93,7 +95,7 @@ export default function Header({ toggleSidebar }) {
           time: "Just now",
           read: false
         };
-        setUrgentAlerts((prev) => [newAlert, ...prev]);
+        setUrgentAlerts((prev) => [newAlert, ...prev.slice(0, 4)]); // Keep only 5 alerts
       }
     }, 300000);
 
@@ -131,40 +133,60 @@ export default function Header({ toggleSidebar }) {
   const getIconForType = (type) => {
     switch (type) {
       case "unassigned":
-        return <FiAlertTriangle className="text-red-500" />;
+        return <FiAlertTriangle className="text-red-500 dark:text-red-400" />;
       case "delay":
-        return <FiClock className="text-yellow-500" />;
+        return <FiClock className="text-yellow-500 dark:text-yellow-400" />;
       case "assigned":
-        return <FiUser className="text-blue-500" />;
+        return <FiUser className="text-blue-500 dark:text-blue-400" />;
       case "delivered":
-        return <FiCheckCircle className="text-green-500" />;
+        return <FiCheckCircle className="text-green-500 dark:text-green-400" />;
       default:
-        return <FiBell className="text-blue-500" />;
+        return <FiBell className="text-blue-500 dark:text-blue-400" />;
     }
   };
 
+  const getInitials = (name) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
-    <header className="sticky top-0 bg-white border-b border-gray-200 shadow-sm relative">
+    <header className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm relative z-40">
       <div className="flex justify-between items-center px-4 md:px-6 py-3">
-        {/* Mobile menu button */}
+        {/* Left section */}
         <div className="flex items-center gap-4">
-          <button onClick={toggleSidebar} className="md:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-700">
+          <button 
+            onClick={toggleSidebar} 
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+            aria-label="Toggle sidebar"
+          >
             <FiMenu size={20} />
           </button>
+          
+          {/* Page title on mobile */}
+          <div className="lg:hidden">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+              Dashboard
+            </h1>
+          </div>
         </div>
 
         {/* Right section */}
-        <div className="flex items-center gap-4">
-          {/* Admin Info */}
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
-              <FiUser size={16} />
-            </div>
-            <div className="hidden md:block">
-              <p className="text-sm font-medium text-gray-900">{adminData.name}</p>
-              <p className="text-xs text-gray-500">Admin</p>
-            </div>
-          </div>
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Theme Toggle */}
+          {toggleTheme && (
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {darkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
+            </button>
+          )}
 
           {/* Notifications */}
           <div className="relative" ref={notificationsRef}>
@@ -173,12 +195,13 @@ export default function Header({ toggleSidebar }) {
                 setNotificationsOpen(!notificationsOpen);
                 setIsOpen(false);
               }}
-              className="p-2 rounded-full relative hover:bg-gray-100 text-gray-700"
+              className="p-2 rounded-lg relative hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+              aria-label="Notifications"
             >
               <FiBell size={20} />
               {unreadCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {unreadCount}
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-pulse">
+                  {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
             </button>
@@ -186,55 +209,83 @@ export default function Header({ toggleSidebar }) {
             <AnimatePresence>
               {notificationsOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50"
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
                 >
-                  <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                    <p className="font-medium text-gray-900">Delivery Alerts</p>
-                    <p className="text-xs text-gray-500">{unreadCount} urgent {unreadCount === 1 ? "alert" : "alerts"}</p>
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">Delivery Alerts</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {unreadCount} urgent {unreadCount === 1 ? "alert" : "alerts"}
+                        </p>
+                      </div>
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={markAllAsRead} 
+                          className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="max-h-96 overflow-y-auto">
+                  <div className="max-h-80 overflow-y-auto">
                     {/* Urgent Alerts */}
                     {urgentAlerts.length > 0 && (
-                      <div className="border-b border-gray-200">
+                      <div>
                         {urgentAlerts.map((alert) => (
-                          <div
+                          <motion.div
                             key={alert.id}
-                            className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${!alert.read ? "bg-red-50" : ""}`}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className={`px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${
+                              !alert.read ? "bg-red-50 dark:bg-red-900/10 border-l-4 border-l-red-500" : ""
+                            }`}
                             onClick={() => markAsRead(alert.id)}
                           >
                             <div className="flex items-start gap-3">
-                              <div className="mt-0.5">{getIconForType(alert.type)}</div>
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-900">{alert.text}</p>
-                                <p className="text-xs text-gray-500 mt-1">{alert.details}</p>
-                                <p className="text-xs text-gray-400 mt-1">{alert.time}</p>
+                              <div className="mt-0.5 flex-shrink-0">{getIconForType(alert.type)}</div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                  {alert.text}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                  {alert.details}
+                                </p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{alert.time}</p>
                               </div>
-                              {!alert.read && <span className="h-2 w-2 rounded-full bg-red-500 mt-1.5"></span>}
+                              {!alert.read && (
+                                <span className="h-2 w-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></span>
+                              )}
                             </div>
-                          </div>
+                          </motion.div>
                         ))}
                       </div>
                     )}
 
                     {/* Regular Notifications */}
                     {regularNotifications.length > 0 && (
-                      <div>
+                      <div className={urgentAlerts.length > 0 ? "border-t border-gray-200 dark:border-gray-700" : ""}>
                         {regularNotifications.map((notification) => (
                           <div
                             key={notification.id}
-                            className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                            className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                           >
                             <div className="flex items-start gap-3">
-                              <div className="mt-0.5">{getIconForType(notification.type)}</div>
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">{notification.text}</p>
-                                <p className="text-xs text-gray-500 mt-1">{notification.details}</p>
-                                <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
+                              <div className="mt-0.5 flex-shrink-0">{getIconForType(notification.type)}</div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                  {notification.text}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                  {notification.details}
+                                </p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{notification.time}</p>
                               </div>
                             </div>
                           </div>
@@ -243,69 +294,100 @@ export default function Header({ toggleSidebar }) {
                     )}
 
                     {urgentAlerts.length === 0 && regularNotifications.length === 0 && (
-                      <div className="px-4 py-6 text-center">
-                        <p className="text-sm text-gray-500">No notifications</p>
+                      <div className="px-4 py-8 text-center">
+                        <FiBell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">No notifications</p>
                       </div>
                     )}
                   </div>
-
-                  {urgentAlerts.some((alert) => !alert.read) && (
-                    <div className="px-4 py-2 border-t border-gray-200 bg-gray-50 text-center">
-                      <button onClick={markAllAsRead} className="text-xs text-blue-600 hover:text-blue-800">
-                        Mark all as read
-                      </button>
-                    </div>
-                  )}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* Admin Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => {
-                setIsOpen(!isOpen);
-                setNotificationsOpen(false);
-              }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200 hover:bg-gray-100 group"
-            >
-              <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <FiChevronDown className="text-gray-500 group-hover:text-gray-700" />
-              </motion.div>
-            </button>
+          {/* Admin Info & Dropdown */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Admin Info - Hidden on very small screens */}
+            <div className="hidden sm:flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium text-sm shadow-sm">
+                {getInitials(adminData.name)}
+              </div>
+              <div className="hidden md:block">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-32">
+                  {adminData.name}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
 
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+            {/* Admin Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => {
+                  setIsOpen(!isOpen);
+                  setNotificationsOpen(false);
+                }}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 group"
+                aria-label="Account menu"
+              >
+                {/* Show avatar on mobile when admin info is hidden */}
+                <div className="sm:hidden w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium text-sm shadow-sm">
+                  {getInitials(adminData.name)}
+                </div>
+                <motion.div 
+                  animate={{ rotate: isOpen ? 180 : 0 }} 
                   transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50"
+                  className="hidden sm:block"
                 >
-                  <div className="px-1 py-1">
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="text-sm font-medium text-gray-900">{adminData.name}</p>
-                      <p className="text-xs text-gray-500">{adminData.email}</p>
-                    </div>
-
-                    <button className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                      <FiSettings className="mr-3 text-gray-500" size={14} />
-                      Settings
-                    </button>
-
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-gray-100 hover:text-red-800 transition-colors"
-                    >
-                      <FiLogOut className="mr-3" size={14} />
-                      Logout
-                    </button>
-                  </div>
+                  <FiChevronDown className="text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
                 </motion.div>
-              )}
-            </AnimatePresence>
+              </button>
+
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
+                  >
+                    <div className="px-1 py-1">
+                      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium">
+                            {getInitials(adminData.name)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                              {adminData.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {adminData.email}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="py-1">
+                        <button className="w-full flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors">
+                          <FiSettings className="mr-3 text-gray-500 dark:text-gray-400" size={16} />
+                          Settings
+                        </button>
+
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-800 dark:hover:text-red-300 transition-colors"
+                        >
+                          <FiLogOut className="mr-3" size={16} />
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
