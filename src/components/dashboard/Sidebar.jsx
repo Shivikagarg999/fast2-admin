@@ -9,7 +9,7 @@ import {
   FiCreditCard,
   FiLogOut,
   FiChevronDown,
-  FiChevronRight,
+  FiShoppingBag,
   FiMenu,
   FiX,
 } from "react-icons/fi";
@@ -19,9 +19,9 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
   const navigate = useNavigate();
   const pathname = location.pathname;
 
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [expandOrders, setExpandOrders] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false); 
 
   // Detect screen size for mobile view
   useEffect(() => {
@@ -57,10 +57,15 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
       path: "/admin/users",
       icon: <FiUsers className="w-5 h-5" />,
     },
-     {
+    {
       name: "Products",
       path: "/admin/products",
-      icon: <FiTruck className="w-5 h-5" />,
+      icon: <FiShoppingBag className="w-5 h-5" />,
+    },
+     {
+      name: "Categories",
+      path: "/admin/categories",
+      icon: <FiShoppingBag className="w-5 h-5" />,
     },
     {
       name: "Orders",
@@ -85,10 +90,6 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
     },
   ];
 
-  const toggleMobileMenu = () => {
-    setMobileOpen((prev) => !prev);
-  };
-
   const handleMobileNavClick = () => {
     if (isMobile) {
       setMobileOpen(false);
@@ -100,7 +101,7 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
     if (isMobile && mobileOpen) {
       setMobileOpen(false);
     }
-  }, [pathname, isMobile]);
+  }, [pathname, isMobile, mobileOpen]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -117,46 +118,22 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
 
   return (
     <>
-      {/* Mobile menu button - fixed positioning for better accessibility */}
-      {isMobile && (
-        <div className="lg:hidden">
-          <button
-            onClick={toggleMobileMenu}
-            className={`
-              fixed top-4 left-4 z-[60] p-3 rounded-lg shadow-lg
-              transition-all duration-200 ease-in-out
-              ${mobileOpen 
-                ? 'bg-red-600 hover:bg-red-700 text-white' 
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }
-              active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-            `}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-          >
-            <div className="relative w-6 h-6">
-              <FiMenu 
-                size={24} 
-                className={`absolute inset-0 transition-all duration-200 ${
-                  mobileOpen ? 'opacity-0 rotate-180' : 'opacity-100 rotate-0'
-                }`} 
-              />
-              <FiX 
-                size={24} 
-                className={`absolute inset-0 transition-all duration-200 ${
-                  mobileOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-180'
-                }`} 
-              />
-            </div>
-          </button>
-        </div>
-      )}
+      {/* Mobile Toggle Button - Fixed position, always rendered */}
+      <button
+        onClick={() => setMobileOpen(!mobileOpen)}
+        className={`fixed top-4 left-4 z-[60] rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+          isMobile ? 'block' : 'hidden'
+        }`}
+        aria-label="Toggle sidebar"
+      >
+        {mobileOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+      </button>
 
       {/* Overlay for mobile */}
       {mobileOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-60 z-[45] lg:hidden transition-opacity duration-200"
-          onClick={toggleMobileMenu}
+          className="fixed inset-0 bg-black bg-opacity-60 z-40 lg:hidden transition-opacity duration-200"
+          onClick={() => setMobileOpen(false)}
           aria-hidden="true"
         />
       )}
@@ -310,7 +287,7 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
                   transition-all duration-200
                   focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
               >
-                <span className="mr-2">🌙</span>
+                <span className="mr-2">{darkMode ? '☀️' : '🌙'}</span>
                 <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
               </button>
             )}

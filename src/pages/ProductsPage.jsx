@@ -1,80 +1,85 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FiEdit, FiTrash2, FiPlus, FiPackage } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiPlus, FiPackage, FiX, FiUpload } from "react-icons/fi";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState({});
+  const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("");
-  const productsPerPage = 10;
+  const [showModal, setShowModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState("");
+  
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    category: "",
+    weight: "",
+    price: "",
+    oldPrice: "",
+    quantity: "",
+    image: null
+  });
 
-  // Sample grocery products data (replace with actual API call)
-  const sampleProducts = [
-    { _id: "1", name: "White Bread", category: "Bakery", price: 35, stock: 50, unit: "piece", status: "active" },
-    { _id: "2", name: "Brown Bread", category: "Bakery", price: 45, stock: 30, unit: "piece", status: "active" },
-    { _id: "3", name: "Potato", category: "Vegetables", price: 25, stock: 100, unit: "kg", status: "active" },
-    { _id: "4", name: "Tomato", category: "Vegetables", price: 40, stock: 80, unit: "kg", status: "active" },
-    { _id: "5", name: "Onion", category: "Vegetables", price: 30, stock: 90, unit: "kg", status: "active" },
-    { _id: "6", name: "Carrot", category: "Vegetables", price: 35, stock: 60, unit: "kg", status: "active" },
-    { _id: "7", name: "Milk", category: "Dairy", price: 60, stock: 40, unit: "liter", status: "active" },
-    { _id: "8", name: "Paneer", category: "Dairy", price: 120, stock: 25, unit: "250g", status: "active" },
-    { _id: "9", name: "Curd", category: "Dairy", price: 45, stock: 35, unit: "500g", status: "active" },
-    { _id: "10", name: "Rice", category: "Grains", price: 80, stock: 70, unit: "kg", status: "active" },
-    { _id: "11", name: "Wheat Flour", category: "Grains", price: 55, stock: 60, unit: "kg", status: "active" },
-    { _id: "12", name: "Basmati Rice", category: "Grains", price: 150, stock: 40, unit: "kg", status: "active" },
-    { _id: "13", name: "Banana", category: "Fruits", price: 60, stock: 50, unit: "dozen", status: "active" },
-    { _id: "14", name: "Apple", category: "Fruits", price: 180, stock: 30, unit: "kg", status: "active" },
-    { _id: "15", name: "Orange", category: "Fruits", price: 100, stock: 45, unit: "kg", status: "active" },
-    { _id: "16", name: "Cooking Oil", category: "Oil & Ghee", price: 140, stock: 35, unit: "liter", status: "active" },
-    { _id: "17", name: "Ghee", category: "Oil & Ghee", price: 480, stock: 20, unit: "500g", status: "active" },
-    { _id: "18", name: "Sugar", category: "Pantry", price: 42, stock: 80, unit: "kg", status: "active" },
-    { _id: "19", name: "Salt", category: "Pantry", price: 20, stock: 100, unit: "kg", status: "active" },
-    { _id: "20", name: "Tea", category: "Beverages", price: 180, stock: 25, unit: "250g", status: "low" },
-    { _id: "21", name: "Coffee", category: "Beverages", price: 250, stock: 15, unit: "200g", status: "low" },
-    { _id: "22", name: "Biscuits", category: "Snacks", price: 25, stock: 60, unit: "pack", status: "active" },
-    { _id: "23", name: "Chips", category: "Snacks", price: 20, stock: 80, unit: "pack", status: "active" },
-    { _id: "24", name: "Detergent", category: "Household", price: 85, stock: 40, unit: "kg", status: "active" },
-    { _id: "25", name: "Soap", category: "Household", price: 35, stock: 70, unit: "piece", status: "active" },
-  ];
+  const productsPerPage = 10;
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('https://fast2-backend.onrender.com/api/category/');
+      setAllCategories(response.data);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      // Replace with actual API call
-      // const token = localStorage.getItem("token");
-      // const res = await axios.get(
-      //   "https://fast2-backend.onrender.com/api/admin/products",
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
-      // setProducts(res.data.products);
       
-      // Simulate API delay
-      setTimeout(() => {
-        setProducts(sampleProducts);
-        setLoading(false);
-      }, 1000);
+      // Fetch products from API
+      const productsResponse = await axios.get('https://fast2-backend.onrender.com/api/product/');
+      const productsData = productsResponse.data;
+      
+      // Fetch categories for all products
+      const categoryIds = [...new Set(productsData.map(product => product.category))];
+      const categoryPromises = categoryIds.map(id => 
+        axios.get(`https://fast2-backend.onrender.com/api/category/${id}`)
+      );
+      
+      const categoriesResponse = await Promise.all(categoryPromises);
+      const categoriesMap = {};
+      categoriesResponse.forEach(response => {
+        const category = response.data;
+        categoriesMap[category._id] = category.name;
+      });
+      
+      setProducts(productsData);
+      setCategories(categoriesMap);
+      setLoading(false);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching products:", err);
       setLoading(false);
     }
   };
 
-  // Get unique categories for filter
-  const categories = [...new Set(products.map(p => p.category))].sort();
+  const availableCategories = [...new Set(Object.values(categories))].sort();
 
-  // Filtered and paginated products
   const filteredProducts = products.filter((product) => {
     const matchesSearch = 
       product.name?.toLowerCase().includes(search.toLowerCase()) ||
-      product.category?.toLowerCase().includes(search.toLowerCase());
+      categories[product.category]?.toLowerCase().includes(search.toLowerCase());
     
-    const matchesCategory = !categoryFilter || product.category === categoryFilter;
+    const matchesCategory = !categoryFilter || categories[product.category] === categoryFilter;
     
     return matchesSearch && matchesCategory;
   });
@@ -85,7 +90,132 @@ const ProductsPage = () => {
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
-  const getStatusBadge = (status, stock) => {
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      category: "",
+      weight: "",
+      price: "",
+      oldPrice: "",
+      quantity: "",
+      image: null
+    });
+    setImagePreview("");
+  };
+
+  const openAddModal = () => {
+    resetForm();
+    setEditingProduct(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = (product) => {
+    setFormData({
+      name: product.name || "",
+      description: product.description || "",
+      category: product.category || "",
+      weight: product.weight || "",
+      price: product.price || "",
+      oldPrice: product.oldPrice || "",
+      quantity: product.quantity || "",
+      image: null
+    });
+    setImagePreview(product.image || "");
+    setEditingProduct(product);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingProduct(null);
+    resetForm();
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setModalLoading(true);
+
+    try {
+      const submitData = new FormData();
+      submitData.append('name', formData.name);
+      submitData.append('description', formData.description);
+      submitData.append('category', formData.category);
+      submitData.append('weight', formData.weight);
+      submitData.append('price', formData.price);
+      submitData.append('oldPrice', formData.oldPrice);
+      submitData.append('quantity', formData.quantity);
+      
+      if (formData.image) {
+        submitData.append('image', formData.image);
+      }
+
+      if (editingProduct) {
+        // Update product
+        await axios.put(`https://fast2-backend.onrender.com/api/product/${editingProduct._id}`, submitData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        alert('Product updated successfully!');
+      } else {
+        // Create product
+        await axios.post('https://fast2-backend.onrender.com/api/product/create', submitData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        alert('Product created successfully!');
+      }
+
+      closeModal();
+      fetchProducts(); // Refresh the products list
+    } catch (error) {
+      console.error('Error saving product:', error);
+      alert('Error saving product: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleDelete = async (productId, productName) => {
+    if (window.confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+      try {
+        await axios.delete(`https://fast2-backend.onrender.com/api/product/${productId}`);
+        alert('Product deleted successfully!');
+        fetchProducts(); // Refresh the products list
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Error deleting product: ' + (error.response?.data?.message || error.message));
+      }
+    }
+  };
+
+  const getStatusBadge = (stock) => {
     if (stock === 0) {
       return (
         <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
@@ -93,7 +223,7 @@ const ProductsPage = () => {
         </span>
       );
     }
-    if (stock < 30 || status === 'low') {
+    if (stock < 10) {
       return (
         <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
           Low Stock
@@ -107,9 +237,18 @@ const ProductsPage = () => {
     );
   };
 
+  // Format price in Indian rupees
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen lg:p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
+      <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center mb-4 sm:mb-0">
@@ -119,7 +258,10 @@ const ProductsPage = () => {
               {filteredProducts.length} items
             </span>
           </div>
-          <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button 
+            onClick={openAddModal}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
             <FiPlus className="w-4 h-4 mr-2" />
             Add Product
           </button>
@@ -147,7 +289,7 @@ const ProductsPage = () => {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               <option value="">All Categories</option>
-              {categories.map(category => (
+              {availableCategories.map(category => (
                 <option key={category} value={category}>{category}</option>
               ))}
             </select>
@@ -161,7 +303,7 @@ const ProductsPage = () => {
               <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Product Name
+                    Product
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Category
@@ -170,10 +312,10 @@ const ProductsPage = () => {
                     Price
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Stock
+                    Weight/Unit
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Status
+                    Stock
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
@@ -210,46 +352,65 @@ const ProductsPage = () => {
                 ) : (
                   currentProducts.map((product) => (
                     <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {product.name || "-"}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <img 
+                            src={product.image} 
+                            alt={product.name}
+                            className="w-10 h-10 rounded-md object-cover mr-3"
+                            onError={(e) => {
+                              e.target.src = "https://via.placeholder.com/40?text=No+Image";
+                            }}
+                          />
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {product.name || "-"}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                              {product.description}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                          {product.category || "-"}
+                          {categories[product.category] || "Uncategorized"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 dark:text-white">
-                          ₹{product.price}
-                          <span className="text-gray-500 dark:text-gray-400 ml-1">
-                            /{product.unit}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          {product.stock} {product.unit}
-                          {product.stock < 30 && product.stock > 0 && (
-                            <span className="text-xs text-yellow-600 dark:text-yellow-400 block">
-                              Running low
-                            </span>
+                          {formatPrice(product.price)}
+                          {product.oldPrice && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400 line-through">
+                              {formatPrice(product.oldPrice)}
+                            </div>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(product.status, product.stock)}
+                        <div className="text-sm text-gray-900 dark:text-white">
+                          {product.weight || product.quantity || "N/A"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(product.quantity)}
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            ({product.quantity})
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button 
+                            onClick={() => openEditModal(product)}
                             className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
                             title="Edit Product"
                           >
                             <FiEdit className="w-4 h-4" />
                           </button>
                           <button 
+                            onClick={() => handleDelete(product._id, product.name)}
                             className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
                             title="Delete Product"
                           >
@@ -320,6 +481,208 @@ const ProductsPage = () => {
               >
                 Next
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h2>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Product Name */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Product Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Category *
+                    </label>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Select Category</option>
+                      {allCategories.map(category => (
+                        <option key={category._id} value={category._id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Weight */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Weight/Unit
+                    </label>
+                    <input
+                      type="text"
+                      name="weight"
+                      value={formData.weight}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 1kg, 500g, 1L"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Price */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Price *
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="0.01"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+
+                  {/* Old Price */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Old Price (Optional)
+                    </label>
+                    <input
+                      type="number"
+                      name="oldPrice"
+                      value={formData.oldPrice}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="0.01"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Quantity */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Quantity/Stock
+                    </label>
+                    <input
+                      type="number"
+                      name="quantity"
+                      value={formData.quantity}
+                      onChange={handleInputChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Image Upload */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Product Image {!editingProduct && '*'}
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required={!editingProduct}
+                        />
+                      </div>
+                      {imagePreview && (
+                        <img 
+                          src={imagePreview} 
+                          alt="Preview"
+                          className="w-16 h-16 rounded-md object-cover border border-gray-300"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form Actions */}
+                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 
+                      bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+                      rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={modalLoading}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 
+                      rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed 
+                      transition-colors flex items-center gap-2"
+                  >
+                    {modalLoading && (
+                      <div className="animate-spin rounded-full h-4 w-4 color-black border-2 border-white border-t-transparent"></div>
+                    )}
+                    {editingProduct ? 'Update Product' : 'Create Product'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
