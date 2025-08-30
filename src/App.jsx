@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import UsersPage from "./pages/UsersPage";
 import ProductsPage from "./pages/ProductsPage";
 import DashboardLayout from "../src/pages/Dashboard";
+import CategoriesPage from "./pages/CategoryPage";
 
 function App() {
   return (
@@ -16,10 +17,11 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin/users" element={<UsersPage />} />
           <Route path="/admin/products" element={<ProductsPage />} />
+          <Route path="/admin/categories" element={<CategoriesPage />} />
         </Route>
       </Routes>
     </Router>
   );
 }
-
+ 
 export default App;

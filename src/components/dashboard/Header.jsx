@@ -19,7 +19,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [adminData, setAdminData] = useState({
     name: "Admin",
-    email: "admin@example.com"
+    // email: "admin@example.com"
   });
 
   const [urgentAlerts, setUrgentAlerts] = useState([

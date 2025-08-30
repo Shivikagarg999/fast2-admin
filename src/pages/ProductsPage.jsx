@@ -260,7 +260,7 @@ const ProductsPage = () => {
           </div>
           <button 
             onClick={openAddModal}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center px-4 py-2 bg-black text-pink rounded-lg "
           >
             <FiPlus className="w-4 h-4 mr-2" />
             Add Product
@@ -672,12 +672,12 @@ const ProductsPage = () => {
                   <button
                     type="submit"
                     disabled={modalLoading}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 
+                    className="px-4 py-2 text-sm font-medium bg-blue-600 
                       rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed 
                       transition-colors flex items-center gap-2"
                   >
                     {modalLoading && (
-                      <div className="animate-spin rounded-full h-4 w-4 color-black border-2 border-white border-t-transparent"></div>
+                      <div className="rounded-full h-4 w-4 color-black border-2 border-white border-t-transparent"></div>
                     )}
                     {editingProduct ? 'Update Product' : 'Create Product'}
                   </button>
