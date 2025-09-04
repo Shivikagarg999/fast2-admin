@@ -40,7 +40,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex flex-col lg:flex-row items-center justify-center lg:justify-between p-4 lg:p-8 overflow-hidden">
+    <div className="min-h-screen w-[100vw] bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex flex-col lg:flex-row items-center justify-center lg:justify-between p-4 lg:p-8 overflow-hidden">
       {/* Background Pattern */}
       <div className="fixed inset-0 overflow-hidden z-0">
         <div className="absolute -top-4 -left-4 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>

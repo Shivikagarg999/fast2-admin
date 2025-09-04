@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { FiEdit, FiTrash2, FiPlus, FiPackage, FiX, FiUpload } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiPlus, FiPackage, FiX } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -14,7 +15,8 @@ const ProductsPage = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
-  
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -26,69 +28,31 @@ const ProductsPage = () => {
     image: null
   });
 
-  const productsPerPage = 10;
-
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get('https://fast2-backend.onrender.com/api/category/');
-      setAllCategories(response.data);
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-    }
-  };
+  const PRODUCTS_PER_PAGE = 10;
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      
-      // Fetch products from API
-      const productsResponse = await axios.get('https://fast2-backend.onrender.com/api/product/');
-      const productsData = productsResponse.data;
-      
-      // Fetch categories for all products
-      const categoryIds = [...new Set(productsData.map(product => product.category))];
-      const categoryPromises = categoryIds.map(id => 
-        axios.get(`https://fast2-backend.onrender.com/api/category/${id}`)
-      );
-      
-      const categoriesResponse = await Promise.all(categoryPromises);
-      const categoriesMap = {};
-      categoriesResponse.forEach(response => {
-        const category = response.data;
-        categoriesMap[category._id] = category.name;
+      const { data: productData } = await axios.get("https://fast2-backend.onrender.com/api/product");
+      setProducts(productData || []);
+      const { data: categoryData } = await axios.get("https://fast2-backend.onrender.com/api/category");
+      setAllCategories(categoryData || []);
+      const categoryMap = {};
+      categoryData.forEach(cat => {
+        categoryMap[cat._id] = cat.name;
       });
-      
-      setProducts(productsData);
-      setCategories(categoriesMap);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching products:", err);
+      setCategories(categoryMap);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      alert("Failed to fetch products");
+    } finally {
       setLoading(false);
     }
   };
 
-  const availableCategories = [...new Set(Object.values(categories))].sort();
-
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = 
-      product.name?.toLowerCase().includes(search.toLowerCase()) ||
-      categories[product.category]?.toLowerCase().includes(search.toLowerCase());
-    
-    const matchesCategory = !categoryFilter || categories[product.category] === categoryFilter;
-    
-    return matchesSearch && matchesCategory;
-  });
-
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const resetForm = () => {
     setFormData({
@@ -105,9 +69,7 @@ const ProductsPage = () => {
   };
 
   const openAddModal = () => {
-    resetForm();
-    setEditingProduct(null);
-    setShowModal(true);
+    navigate("/admin/createProduct");
   };
 
   const openEditModal = (product) => {
@@ -134,24 +96,15 @@ const ProductsPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({
-        ...prev,
-        image: file
-      }));
-      
+      setFormData(prev => ({ ...prev, image: file }));
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
+      reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
     }
   };
@@ -159,92 +112,72 @@ const ProductsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setModalLoading(true);
-
     try {
       const submitData = new FormData();
-      submitData.append('name', formData.name);
-      submitData.append('description', formData.description);
-      submitData.append('category', formData.category);
-      submitData.append('weight', formData.weight);
-      submitData.append('price', formData.price);
-      submitData.append('oldPrice', formData.oldPrice);
-      submitData.append('quantity', formData.quantity);
-      
-      if (formData.image) {
-        submitData.append('image', formData.image);
-      }
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "image" && value) submitData.append(key, value);
+        else if (key !== "image") submitData.append(key, value);
+      });
 
       if (editingProduct) {
-        // Update product
         await axios.put(`https://fast2-backend.onrender.com/api/product/${editingProduct._id}`, submitData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { "Content-Type": "multipart/form-data" }
         });
-        alert('Product updated successfully!');
+        alert("Product updated successfully!");
       } else {
-        // Create product
-        await axios.post('https://fast2-backend.onrender.com/api/product/create', submitData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+        await axios.post("https://fast2-backend.onrender.com/api/product/create", submitData, {
+          headers: { "Content-Type": "multipart/form-data" }
         });
-        alert('Product created successfully!');
+        alert("Product created successfully!");
       }
-
       closeModal();
-      fetchProducts(); // Refresh the products list
+      fetchProducts();
     } catch (error) {
-      console.error('Error saving product:', error);
-      alert('Error saving product: ' + (error.response?.data?.message || error.message));
+      console.error("Error saving product:", error);
+      alert("Error saving product: " + (error.response?.data?.message || error.message));
     } finally {
       setModalLoading(false);
     }
   };
 
   const handleDelete = async (productId, productName) => {
-    if (window.confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+    if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
       try {
         await axios.delete(`https://fast2-backend.onrender.com/api/product/${productId}`);
-        alert('Product deleted successfully!');
-        fetchProducts(); // Refresh the products list
+        alert("Product deleted successfully!");
+        fetchProducts();
       } catch (error) {
-        console.error('Error deleting product:', error);
-        alert('Error deleting product: ' + (error.response?.data?.message || error.message));
+        console.error("Error deleting product:", error);
+        alert("Error deleting product: " + (error.response?.data?.message || error.message));
       }
     }
   };
 
   const getStatusBadge = (stock) => {
-    if (stock === 0) {
-      return (
-        <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
-          Out of Stock
-        </span>
-      );
-    }
-    if (stock < 10) {
-      return (
-        <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-          Low Stock
-        </span>
-      );
-    }
-    return (
-      <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-        In Stock
-      </span>
-    );
+    if (stock === 0) return <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Out of Stock</span>;
+    if (stock < 10) return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Low Stock</span>;
+    return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">In Stock</span>;
   };
 
-  // Format price in Indian rupees
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(price);
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price);
   };
+
+  // Filtering
+  const filteredProducts = useMemo(() => {
+    return products.filter(p =>
+      (p.name?.toLowerCase().includes(search.toLowerCase()) ||
+        categories[p.category]?.toLowerCase().includes(search.toLowerCase())) &&
+      (categoryFilter ? p.category === categoryFilter : true)
+    );
+  }, [products, search, categoryFilter, categories]);
+
+  const availableCategories = useMemo(() => allCategories.map(c => c._id), [allCategories]);
+
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const indexOfLastProduct = currentPage * PRODUCTS_PER_PAGE;
+  const indexOfFirstProduct = indexOfLastProduct - PRODUCTS_PER_PAGE;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
   return (
     <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
@@ -260,7 +193,7 @@ const ProductsPage = () => {
           </div>
           <button 
             onClick={openAddModal}
-            className="flex items-center px-4 py-2 bg-black text-pink rounded-lg "
+            className="flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
           >
             <FiPlus className="w-4 h-4 mr-2" />
             Add Product
@@ -485,13 +418,13 @@ const ProductsPage = () => {
           </div>
         )}
 
-        {/* Modal */}
+        {/* Modal - Only for editing now */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                  Edit Product
                 </h2>
                 <button
                   onClick={closeModal}
@@ -633,7 +566,7 @@ const ProductsPage = () => {
                   {/* Image Upload */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Product Image {!editingProduct && '*'}
+                      Product Image
                     </label>
                     <div className="flex items-center gap-4">
                       <div className="flex-1">
@@ -644,7 +577,6 @@ const ProductsPage = () => {
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                             focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required={!editingProduct}
                         />
                       </div>
                       {imagePreview && (
@@ -672,14 +604,14 @@ const ProductsPage = () => {
                   <button
                     type="submit"
                     disabled={modalLoading}
-                    className="px-4 py-2 text-sm font-medium bg-blue-600 
+                    className="px-4 py-2 text-sm font-medium bg-blue-600 text-white
                       rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed 
                       transition-colors flex items-center gap-2"
                   >
                     {modalLoading && (
-                      <div className="rounded-full h-4 w-4 color-black border-2 border-white border-t-transparent"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     )}
-                    {editingProduct ? 'Update Product' : 'Create Product'}
+                    Update Product
                   </button>
                 </div>
               </form>
