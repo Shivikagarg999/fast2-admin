@@ -80,7 +80,7 @@ const UsersPage = () => {
               {filteredUsers.length} users
             </span>
           </div>
-          <button className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm">
+          <button className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-black rounded-lg transition-colors shadow-sm">
             <FiUserPlus className="w-4 h-4 mr-2" />
             Add User
           </button>

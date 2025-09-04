@@ -10,29 +10,14 @@ import {
   FiLogOut,
   FiChevronDown,
   FiShoppingBag,
-  FiMenu,
-  FiX,
 } from "react-icons/fi";
 
-const Sidebar = ({ darkMode, toggleTheme }) => {
+const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const pathname = location.pathname;
 
   const [expandOrders, setExpandOrders] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false); 
-
-  // Detect screen size for mobile view
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    checkIfMobile();
-    window.addEventListener("resize", checkIfMobile);
-    return () => window.removeEventListener("resize", checkIfMobile);
-  }, []);
 
   // Auto-expand orders if we're on any order page
   useEffect(() => {
@@ -62,7 +47,7 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
       path: "/admin/products",
       icon: <FiShoppingBag className="w-5 h-5" />,
     },
-     {
+    {
       name: "Categories",
       path: "/admin/categories",
       icon: <FiShoppingBag className="w-5 h-5" />,
@@ -90,54 +75,15 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
     },
   ];
 
-  const handleMobileNavClick = () => {
-    if (isMobile) {
-      setMobileOpen(false);
+  const handleLinkClick = () => {
+    // Close sidebar on mobile when a link is clicked
+    if (window.innerWidth < 1024 && onClose) {
+      onClose();
     }
   };
 
-  // Close mobile menu when route changes
-  useEffect(() => {
-    if (isMobile && mobileOpen) {
-      setMobileOpen(false);
-    }
-  }, [pathname, isMobile, mobileOpen]);
-
-  // Prevent body scroll when mobile menu is open
-  useEffect(() => {
-    if (mobileOpen && isMobile) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [mobileOpen, isMobile]);
-
   return (
     <>
-      {/* Mobile Toggle Button - Fixed position, always rendered */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        className={`fixed top-4 left-4 z-[60] rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-          isMobile ? 'block' : 'hidden'
-        }`}
-        aria-label="Toggle sidebar"
-      >
-        {mobileOpen ? <FiX size={20} /> : <FiMenu size={20} />}
-      </button>
-
-      {/* Overlay for mobile */}
-      {mobileOpen && isMobile && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-60 z-40 lg:hidden transition-opacity duration-200"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
       {/* Sidebar */}
       <aside
         className={`
@@ -145,11 +91,10 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
           bg-white dark:bg-gray-900 
           shadow-xl dark:shadow-2xl
           border-r border-gray-200 dark:border-gray-700
-          transition-all duration-300 ease-in-out
-          ${isMobile 
-            ? `w-80 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`
-            : 'w-64 translate-x-0'
-          }
+          transition-transform duration-300 ease-in-out
+          w-64
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0
         `}
       >
         <div className="flex flex-col h-full">
@@ -158,7 +103,7 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
             <Link 
               to="/dashboard" 
               className="flex items-center justify-center lg:justify-start"
-              onClick={handleMobileNavClick}
+              onClick={handleLinkClick}
             >
               <img
                 src={Logo}
@@ -216,7 +161,7 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
                             <Link
                               key={sub.name}
                               to={sub.path}
-                              onClick={handleMobileNavClick}
+                              onClick={handleLinkClick}
                               className={`
                                 block px-4 py-2.5 text-sm rounded-lg transition-all duration-200
                                 ${isSubActive
@@ -242,7 +187,7 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  onClick={handleMobileNavClick}
+                  onClick={handleLinkClick}
                   className={`
                     flex items-center px-4 py-3 rounded-lg text-sm font-medium 
                     transition-all duration-200
@@ -266,7 +211,7 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
             <button
               onClick={() => {
                 handleLogout();
-                handleMobileNavClick();
+                handleLinkClick();
               }}
               className="w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium 
                 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 
@@ -299,9 +244,6 @@ const Sidebar = ({ darkMode, toggleTheme }) => {
           </div>
         </div>
       </aside>
-
-      {/* Spacer for desktop to prevent content overlap */}
-      {!isMobile && <div className="w-64 flex-shrink-0" />}
     </>
   );
 };

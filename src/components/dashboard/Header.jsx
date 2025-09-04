@@ -167,12 +167,6 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
             <FiMenu size={20} />
           </button>
           
-          {/* Page title on mobile */}
-          <div className="lg:hidden">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-              Dashboard
-            </h1>
-          </div>
         </div>
 
         {/* Right section */}
