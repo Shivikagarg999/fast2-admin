@@ -18,7 +18,7 @@ const PromotorsPage = () => {
   const fetchPromotors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/admin/promotor');
+      const response = await axios.get('https://fast2-backend.onrender.com/api/admin/promotor');
       setPromotors(response.data || []);
     } catch (error) {
       console.error("Error fetching promotors:", error);
@@ -51,7 +51,7 @@ const PromotorsPage = () => {
     
     setDeleteLoading(true);
     try {
-      await axios.delete(`http://localhost:5000/api/admin/promotor/${deletingPromotor._id}`);
+      await axios.delete(`https://fast2-backend.onrender.com/api/admin/promotor/${deletingPromotor._id}`);
       alert("Promotor deleted successfully!");
       fetchPromotors();
       closeDeleteModal();

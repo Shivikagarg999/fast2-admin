@@ -88,7 +88,7 @@ const CreatePromotorPage = () => {
       // Remove confirmPassword as it's not needed in the API
       const { confirmPassword, ...submitData } = formData;
       
-      await axios.post('http://localhost:5000/api/admin/promotor', submitData);
+      await axios.post('https://fast2-backend.onrender.com/api/admin/promotor', submitData);
       
       alert('Promotor created successfully!');
       // Reset form

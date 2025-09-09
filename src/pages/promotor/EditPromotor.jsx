@@ -53,7 +53,7 @@ const EditPromotorPage = () => {
     const fetchPromotor = async () => {
       try {
         setFetching(true);
-        const response = await axios.get(`http://localhost:5000/api/admin/promotor/${id}`);
+        const response = await axios.get(`https://fast2-backend.onrender.com/api/admin/promotor/${id}`);
         const promotor = response.data;
         
         setFormData({
@@ -136,7 +136,7 @@ const EditPromotorPage = () => {
     setError("");
 
     try {
-      await axios.put(`http://localhost:5000/api/admin/promotor/${id}`, formData);
+      await axios.put(`https://fast2-backend.onrender.com/api/admin/promotor/${id}`, formData);
       
       // Show success modal
       setShowSuccessModal(true);
