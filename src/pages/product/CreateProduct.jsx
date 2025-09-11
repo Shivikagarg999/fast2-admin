@@ -1,279 +1,173 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus } from 'react-icons/fi';
 
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { FiPlus, FiX, FiUpload, FiDollarSign, FiPackage, FiTruck, FiBox, FiPercent } from "react-icons/fi";
-
-const CreateProductPage = () => {
+const ProductCreate = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
+  const [error, setError] = useState('');
   const [promotors, setPromotors] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [loadingPromotors, setLoadingPromotors] = useState(true);
+  const [loadingWarehouses, setLoadingWarehouses] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   const [formData, setFormData] = useState({
     // Basic Information
-    name: "",
-    description: "",
-    brand: "",
-    
-    // Category Information
-    category: "",
-    subcategory: "",
+    name: '',
+    description: '',
+    brand: '',
+    category: '',
     
     // Pricing Information
-    price: "",
-    oldPrice: "",
-    discountPercentage: "",
-    unit: "piece",
-    unitValue: "",
+    price: '',
+    oldPrice: '',
+    unit: 'piece',
+    unitValue: '',
     
     // Promotor Information
-    promotor: {
-      id: "",
-      commissionRate: "",
-      commissionType: "percentage",
-    },
+    promotor: '',
+    commissionRate: '',
+    commissionType: 'percentage',
     
     // Inventory & Stock
-    quantity: "",
-    minOrderQuantity: "1",
-    maxOrderQuantity: "10",
-    stockStatus: "in-stock",
-    lowStockThreshold: "10",
+    quantity: '',
+    minOrderQuantity: '1',
+    maxOrderQuantity: '10',
     
     // Physical Attributes
-    weight: "",
-    weightUnit: "g",
-    dimensions: {
-      length: "",
-      width: "",
-      height: ""
-    },
-    volume: "",
+    weight: '',
+    weightUnit: 'g',
     
     // Warehouse Information
-    warehouse: {
-      id: "",
-      name: "",
-      location: {
-        address: "",
-        city: "",
-        state: "",
-        pincode: "",
-        coordinates: {
-          lat: "",
-          lng: ""
-        }
-      },
-      storageType: "ambient",
-      aisle: "",
-      rack: "",
-      shelf: ""
-    },
-    
-    // Images
-    images: [],
+    warehouseId: '',
     
     // Delivery Information
-    delivery: {
-      estimatedDeliveryTime: "",
-      deliveryCharges: "0",
-      freeDeliveryThreshold: "0",
-      availablePincodes: ""
-    }
+    estimatedDeliveryTime: '',
+    deliveryCharges: '0',
+    freeDeliveryThreshold: '0',
+    availablePincodes: '',
+    
+    // Image
+    image: null
   });
 
+  // Storage types for warehouse
+  const storageTypes = [
+    { value: 'ambient', label: 'Ambient Storage', icon: FiThermometer, color: 'text-green-500' },
+    { value: 'cold-storage', label: 'Cold Storage', icon: FiThermometer, color: 'text-blue-500' },
+    { value: 'frozen', label: 'Frozen Storage', icon: FiThermometer, color: 'text-indigo-500' },
+  ];
+
+  // Fetch data on component mount
   useEffect(() => {
-    fetchCategories();
     fetchPromotors();
     fetchWarehouses();
+    fetchCategories();
   }, []);
 
-  useEffect(() => {
-    if (selectedCategory) {
-      fetchSubcategories(selectedCategory);
-    }
-  }, [selectedCategory]);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get('https://fast2-backend.onrender.com/api/category/');
-      setCategories(response.data);
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-    }
-  };
-
-  const fetchSubcategories = async (categoryId) => {
-    try {
-      const response = await axios.get(`https://fast2-backend.onrender.com/api/category/${categoryId}/subcategories`);
-      setSubcategories(response.data);
-    } catch (err) {
-      console.error("Error fetching subcategories:", err);
-    }
-  };
-
+  // Fetch promotors from API
   const fetchPromotors = async () => {
     try {
-      const response = await axios.get('https://fast2-backend.onrender.com/api/promotor/');
-      setPromotors(response.data);
-    } catch (err) {
-      console.error("Error fetching promotors:", err);
+      setLoadingPromotors(true);
+      const response = await fetch('https://fast2-backend.onrender.com/api/admin/promotor/');
+      if (!response.ok) throw new Error('Failed to fetch promotors');
+      const data = await response.json();
+      setPromotors(data);
+    } catch (error) {
+      console.error('Error fetching promotors:', error);
+      setError('Failed to load promotors');
+    } finally {
+      setLoadingPromotors(false);
     }
   };
 
+  // Fetch warehouses from API
   const fetchWarehouses = async () => {
     try {
-      const response = await axios.get('https://fast2-backend.onrender.com/api/warehouse/');
-      setWarehouses(response.data);
-    } catch (err) {
-      console.error("Error fetching warehouses:", err);
+      setLoadingWarehouses(true);
+      const response = await fetch('https://fast2-backend.onrender.com/api/admin/warehouse/');
+      if (!response.ok) throw new Error('Failed to fetch warehouses');
+      const data = await response.json();
+      setWarehouses(data);
+    } catch (error) {
+      console.error('Error fetching warehouses:', error);
+      setError('Failed to load warehouses');
+    } finally {
+      setLoadingWarehouses(false);
+    }
+  };
+
+  // Fetch categories from API (assuming endpoint)
+  const fetchCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const response = await fetch('https://fast2-backend.onrender.com/api/category/');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setError('Failed to load categories');
+    } finally {
+      setLoadingCategories(false);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    // Handle nested objects
-    if (name.includes('.')) {
-      const keys = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [keys[0]]: {
-          ...prev[keys[0]],
-          [keys[1]]: keys.length > 2 ? {
-            ...prev[keys[0]][keys[1]],
-            [keys[2]]: keys.length > 3 ? {
-              ...prev[keys[0]][keys[1]][keys[2]],
-              [keys[3]]: value
-            } : value
-          } : value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    
-    if (files.length + formData.images.length > 5) {
-      alert("Maximum 5 images allowed");
-      return;
-    }
-    
-    // Create previews
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews(prev => [...prev, ...newPreviews]);
-    
-    // Add to form data
     setFormData(prev => ({
       ...prev,
-      images: [...prev.images, ...files]
+      [name]: value
     }));
   };
 
-  const removeImage = (index) => {
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  const handleFileChange = (e) => {
     setFormData(prev => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      image: e.target.files[0]
     }));
+  };
+
+  const handleGenerateCode = () => {
+    // Generate a simple product code (in a real app, this would be more sophisticated)
+    const code = 'PROD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    setFormData(prev => ({ ...prev, code }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
-      const submitData = new FormData();
+      const formDataToSend = new FormData();
       
-      // Append all form data
+      // Append all form fields to FormData
       Object.keys(formData).forEach(key => {
-        if (key === 'images') {
-          formData.images.forEach(image => {
-            submitData.append('images', image);
-          });
-        } else if (typeof formData[key] === 'object') {
-          submitData.append(key, JSON.stringify(formData[key]));
-        } else {
-          submitData.append(key, formData[key]);
+        if (key === 'image' && formData[key]) {
+          formDataToSend.append('image', formData[key]);
+        } else if (formData[key] !== null && formData[key] !== undefined) {
+          formDataToSend.append(key, formData[key]);
         }
       });
 
-      await axios.post('https://fast2-backend.onrender.com/api/product/create', submitData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await fetch('https://fast2-backend.onrender.com/api/product/create', {
+        method: 'POST',
+        body: formDataToSend,
       });
-      
-      alert('Product created successfully!');
-      // Reset form
-      setFormData({
-        name: "",
-        description: "",
-        brand: "",
-        category: "",
-        subcategory: "",
-        price: "",
-        oldPrice: "",
-        discountPercentage: "",
-        unit: "piece",
-        unitValue: "",
-        promotor: {
-          id: "",
-          commissionRate: "",
-          commissionType: "percentage",
-        },
-        quantity: "",
-        minOrderQuantity: "1",
-        maxOrderQuantity: "10",
-        stockStatus: "in-stock",
-        lowStockThreshold: "10",
-        weight: "",
-        weightUnit: "g",
-        dimensions: {
-          length: "",
-          width: "",
-          height: ""
-        },
-        volume: "",
-        warehouse: {
-          id: "",
-          name: "",
-          location: {
-            address: "",
-            city: "",
-            state: "",
-            pincode: "",
-            coordinates: {
-              lat: "",
-              lng: ""
-            }
-          },
-          storageType: "ambient",
-          aisle: "",
-          rack: "",
-          shelf: ""
-        },
-        images: [],
-        delivery: {
-          estimatedDeliveryTime: "",
-          deliveryCharges: "0",
-          freeDeliveryThreshold: "0",
-          availablePincodes: ""
-        }
-      });
-      setImagePreviews([]);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create product');
+      }
+
+      const result = await response.json();
+      navigate('/admin/products');
     } catch (error) {
       console.error('Error creating product:', error);
-      alert('Error creating product: ' + (error.response?.data?.message || error.message));
+      setError(error.message || 'Failed to create product');
     } finally {
       setLoading(false);
     }
@@ -287,13 +181,19 @@ const CreateProductPage = () => {
             <FiPackage className="mr-2" /> Create New Product
           </h1>
           
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
             {/* Basic Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Product Name *
                   </label>
@@ -301,22 +201,6 @@ const CreateProductPage = () => {
                     type="text"
                     name="name"
                     value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Brand *
-                  </label>
-                  <input
-                    type="text"
-                    name="brand"
-                    value={formData.brand}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
@@ -340,14 +224,23 @@ const CreateProductPage = () => {
                     required
                   />
                 </div>
-              </div>
-            </div>
-            
-            {/* Category Information Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Category Information</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Brand *
+                  </label>
+                  <input
+                    type="text"
+                    name="brand"
+                    value={formData.brand}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category *
@@ -355,40 +248,17 @@ const CreateProductPage = () => {
                   <select
                     name="category"
                     value={formData.category}
-                    onChange={(e) => {
-                      handleInputChange(e);
-                      setSelectedCategory(e.target.value);
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map(category => (
-                      <option key={category._id} value={category._id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Subcategory
-                  </label>
-                  <select
-                    name="subcategory"
-                    value={formData.subcategory}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                    disabled={loadingCategories}
                   >
-                    <option value="">Select Subcategory</option>
-                    {subcategories.map(subcategory => (
-                      <option key={subcategory._id} value={subcategory._id}>
-                        {subcategory.name}
+                    <option value="">{loadingCategories ? "Loading categories..." : "Select a category"}</option>
+                    {categories.map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
                       </option>
                     ))}
                   </select>
@@ -398,14 +268,12 @@ const CreateProductPage = () => {
             
             {/* Pricing Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                <FiDollarSign className="mr-2" /> Pricing Information
-              </h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Pricing Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Price *
+                    Price (₹) *
                   </label>
                   <input
                     type="number"
@@ -423,7 +291,7 @@ const CreateProductPage = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Old Price
+                    Old Price (₹)
                   </label>
                   <input
                     type="number"
@@ -440,26 +308,6 @@ const CreateProductPage = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Discount Percentage
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      name="discountPercentage"
-                      value={formData.discountPercentage}
-                      onChange={handleInputChange}
-                      min="0"
-                      max="100"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
-                    />
-                    <FiPercent className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Unit *
                   </label>
                   <select
@@ -472,10 +320,10 @@ const CreateProductPage = () => {
                     required
                   >
                     <option value="piece">Piece</option>
-                    <option value="kg">Kilogram</option>
-                    <option value="g">Gram</option>
-                    <option value="l">Liter</option>
-                    <option value="ml">Milliliter</option>
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="g">Gram (g)</option>
+                    <option value="l">Liter (l)</option>
+                    <option value="ml">Milliliter (ml)</option>
                     <option value="pack">Pack</option>
                   </select>
                 </div>
@@ -502,26 +350,31 @@ const CreateProductPage = () => {
             
             {/* Promotor Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Promotor Information</h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                <FiUser className="mr-2" /> Promotor Information
+              </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Promotor *
                   </label>
                   <select
-                    name="promotor.id"
-                    value={formData.promotor.id}
+                    name="promotor"
+                    value={formData.promotor}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
+                    disabled={loadingPromotors}
                   >
-                    <option value="">Select Promotor</option>
-                    {promotors.map(promotor => (
+                    <option value="">
+                      {loadingPromotors ? "Loading promotors..." : "Select a promotor"}
+                    </option>
+                    {promotors.map((promotor) => (
                       <option key={promotor._id} value={promotor._id}>
-                        {promotor.name}
+                        {promotor.name} - {promotor.email}
                       </option>
                     ))}
                   </select>
@@ -532,8 +385,8 @@ const CreateProductPage = () => {
                     Commission Type *
                   </label>
                   <select
-                    name="promotor.commissionType"
-                    value={formData.promotor.commissionType}
+                    name="commissionType"
+                    value={formData.commissionType}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
@@ -551,8 +404,8 @@ const CreateProductPage = () => {
                   </label>
                   <input
                     type="number"
-                    name="promotor.commissionRate"
-                    value={formData.promotor.commissionRate}
+                    name="commissionRate"
+                    value={formData.commissionRate}
                     onChange={handleInputChange}
                     min="0"
                     step="0.01"
@@ -565,11 +418,11 @@ const CreateProductPage = () => {
               </div>
             </div>
             
-            {/* Inventory & Stock Section */}
+            {/* Inventory Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Inventory & Stock</h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Inventory Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Quantity *
@@ -589,26 +442,7 @@ const CreateProductPage = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Stock Status
-                  </label>
-                  <select
-                    name="stockStatus"
-                    value={formData.stockStatus}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="in-stock">In Stock</option>
-                    <option value="out-of-stock">Out of Stock</option>
-                    <option value="low-stock">Low Stock</option>
-                    <option value="discontinued">Discontinued</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Minimum Order Quantity
+                    Min Order Quantity
                   </label>
                   <input
                     type="number"
@@ -624,7 +458,7 @@ const CreateProductPage = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Maximum Order Quantity
+                    Max Order Quantity
                   </label>
                   <input
                     type="number"
@@ -637,22 +471,6 @@ const CreateProductPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Low Stock Threshold
-                  </label>
-                  <input
-                    type="number"
-                    name="lowStockThreshold"
-                    value={formData.lowStockThreshold}
-                    onChange={handleInputChange}
-                    min="0"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
               </div>
             </div>
             
@@ -660,16 +478,18 @@ const CreateProductPage = () => {
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Physical Attributes</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Weight *
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="weight"
                     value={formData.weight}
                     onChange={handleInputChange}
+                    min="0"
+                    step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -679,7 +499,7 @@ const CreateProductPage = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Weight Unit
+                    Weight Unit *
                   </label>
                   <select
                     name="weightUnit"
@@ -688,6 +508,7 @@ const CreateProductPage = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
                   >
                     <option value="g">Gram (g)</option>
                     <option value="kg">Kilogram (kg)</option>
@@ -695,81 +516,13 @@ const CreateProductPage = () => {
                     <option value="l">Liter (l)</option>
                   </select>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Length (cm)
-                  </label>
-                  <input
-                    type="number"
-                    name="dimensions.length"
-                    value={formData.dimensions.length}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Width (cm)
-                  </label>
-                  <input
-                    type="number"
-                    name="dimensions.width"
-                    value={formData.dimensions.width}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Height (cm)
-                  </label>
-                  <input
-                    type="number"
-                    name="dimensions.height"
-                    value={formData.dimensions.height}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Volume (cm³)
-                  </label>
-                  <input
-                    type="number"
-                    name="volume"
-                    value={formData.volume}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
               </div>
             </div>
             
             {/* Warehouse Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                <FiBox className="mr-2" /> Warehouse Information
+                <FiMapPin className="mr-2" /> Warehouse Information
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -778,17 +531,18 @@ const CreateProductPage = () => {
                     Warehouse
                   </label>
                   <select
-                    name="warehouse.id"
-                    value={formData.warehouse.id}
+                    name="warehouseId"
+                    value={formData.warehouseId}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={loadingWarehouses}
                   >
-                    <option value="">Select Warehouse</option>
-                    {warehouses.map(warehouse => (
+                    <option value="">{loadingWarehouses ? "Loading warehouses..." : "Select a warehouse"}</option>
+                    {warehouses.map((warehouse) => (
                       <option key={warehouse._id} value={warehouse._id}>
-                        {warehouse.name}
+                        {warehouse.name} - {warehouse.location?.city}
                       </option>
                     ))}
                   </select>
@@ -799,86 +553,39 @@ const CreateProductPage = () => {
                     Storage Type
                   </label>
                   <select
-                    name="warehouse.storageType"
-                    value={formData.warehouse.storageType}
+                    name="storageType"
+                    value={formData.storageType}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="ambient">Ambient</option>
+                    <option value="ambient">Ambient Storage</option>
                     <option value="cold-storage">Cold Storage</option>
-                    <option value="frozen">Frozen</option>
+                    <option value="frozen">Frozen Storage</option>
                   </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Aisle
-                  </label>
-                  <input
-                    type="text"
-                    name="warehouse.aisle"
-                    value={formData.warehouse.aisle}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Rack
-                  </label>
-                  <input
-                    type="text"
-                    name="warehouse.rack"
-                    value={formData.warehouse.rack}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Shelf
-                  </label>
-                  <input
-                    type="text"
-                    name="warehouse.shelf"
-                    value={formData.warehouse.shelf}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
                 </div>
               </div>
             </div>
             
             {/* Delivery Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                <FiTruck className="mr-2" /> Delivery Information
-              </h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Delivery Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Estimated Delivery Time
                   </label>
                   <input
                     type="text"
-                    name="delivery.estimatedDeliveryTime"
-                    value={formData.delivery.estimatedDeliveryTime}
+                    name="estimatedDeliveryTime"
+                    value={formData.estimatedDeliveryTime}
                     onChange={handleInputChange}
-                    placeholder="e.g., 2-3 days"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., 2-3 days"
                   />
                 </div>
                 
@@ -888,8 +595,8 @@ const CreateProductPage = () => {
                   </label>
                   <input
                     type="number"
-                    name="delivery.deliveryCharges"
-                    value={formData.delivery.deliveryCharges}
+                    name="deliveryCharges"
+                    value={formData.deliveryCharges}
                     onChange={handleInputChange}
                     min="0"
                     step="0.01"
@@ -905,8 +612,8 @@ const CreateProductPage = () => {
                   </label>
                   <input
                     type="number"
-                    name="delivery.freeDeliveryThreshold"
-                    value={formData.delivery.freeDeliveryThreshold}
+                    name="freeDeliveryThreshold"
+                    value={formData.freeDeliveryThreshold}
                     onChange={handleInputChange}
                     min="0"
                     step="0.01"
@@ -916,85 +623,65 @@ const CreateProductPage = () => {
                   />
                 </div>
                 
-                <div>
+                <div className="md:col-span-3">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Available Pincodes
+                    Available Pincodes (comma separated)
                   </label>
                   <input
                     type="text"
-                    name="delivery.availablePincodes"
-                    value={formData.delivery.availablePincodes}
+                    name="availablePincodes"
+                    value={formData.availablePincodes}
                     onChange={handleInputChange}
-                    placeholder="e.g., 110001,110002,110003"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., 110001, 110002, 110003"
                   />
                 </div>
               </div>
             </div>
             
-            {/* Images Section */}
-            <div className="pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                <FiUpload className="mr-2" /> Product Images
-              </h2>
+            {/* Image Upload Section */}
+            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Product Image</h2>
               
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Upload Images (Max 5)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                {imagePreviews.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Image Previews
-                    </label>
-                    <div className="flex flex-wrap gap-4">
-                      {imagePreviews.map((preview, index) => (
-                        <div key={index} className="relative">
-                          <img 
-                            src={preview} 
-                            alt={`Preview ${index + 1}`}
-                            className="w-24 h-24 rounded-md object-cover border border-gray-300"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                          >
-                            <FiX className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Product Image *
+                </label>
+                <input
+                  type="file"
+                  name="image"
+                  onChange={handleFileChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                    focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  accept="image/*"
+                  required
+                />
               </div>
             </div>
             
             {/* Submit Button */}
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-4">
+              <button
+                type="button"
+                onClick={() => navigate('/admin/products')}
+                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-md 
+                  bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300
+                  hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || loadingPromotors || loadingWarehouses || loadingCategories}
                 className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
-                  disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-black"
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin text-black rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Creating...
                   </>
                 ) : (
@@ -1011,4 +698,4 @@ const CreateProductPage = () => {
   );
 };
 
-export default CreateProductPage;
+export default ProductCreate;

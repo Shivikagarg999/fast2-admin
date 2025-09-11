@@ -30,18 +30,67 @@ const ProductsPage = () => {
 
   const PRODUCTS_PER_PAGE = 10;
 
+  // Function to fetch category name by ID
+  const fetchCategoryName = async (categoryId) => {
+    if (!categoryId) return "Uncategorized";
+
+    try {
+      // Check if we already have this category in our cache
+      if (categories[categoryId]) {
+        return categories[categoryId];
+      }
+
+      // Fetch category from API
+      const response = await axios.get(`https://fast2-backend.onrender.com/api/category/${categoryId}`);
+      const categoryName = response.data.name || "Uncategorized";
+
+      // Update categories state
+      setCategories(prev => ({
+        ...prev,
+        [categoryId]: categoryName
+      }));
+
+      return categoryName;
+    } catch (error) {
+      console.error("Error fetching category:", error);
+      return "Uncategorized";
+    }
+  };
+
+  const fetchAllCategories = async () => {
+    try {
+      const response = await axios.get("https://fast2-backend.onrender.com/api/category");
+      setAllCategories(response.data || []);
+
+      // Create a mapping of category IDs to names from the fetched categories
+      const categoryMap = {};
+      response.data.forEach(cat => {
+        categoryMap[cat._id] = cat.name;
+      });
+      setCategories(categoryMap);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const { data: productData } = await axios.get("https://fast2-backend.onrender.com/api/product");
       setProducts(productData || []);
-      const { data: categoryData } = await axios.get("https://fast2-backend.onrender.com/api/category");
-      setAllCategories(categoryData || []);
+
+      // Create category mapping from the products data
       const categoryMap = {};
-      categoryData.forEach(cat => {
-        categoryMap[cat._id] = cat.name;
+      productData.forEach(product => {
+        if (product.category && product.category._id) {
+          categoryMap[product.category._id] = product.category.name;
+        }
       });
+
       setCategories(categoryMap);
+
+      // Fetch all categories for the filter dropdown
+      await fetchAllCategories();
     } catch (error) {
       console.error("Error fetching products:", error);
       alert("Failed to fetch products");
@@ -49,6 +98,11 @@ const ProductsPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
 
   useEffect(() => {
     fetchProducts();
@@ -167,7 +221,7 @@ const ProductsPage = () => {
   const filteredProducts = useMemo(() => {
     return products.filter(p =>
       (p.name?.toLowerCase().includes(search.toLowerCase()) ||
-        categories[p.category]?.toLowerCase().includes(search.toLowerCase())) &&
+        (categories[p.category] || "").toLowerCase().includes(search.toLowerCase())) &&
       (categoryFilter ? p.category === categoryFilter : true)
     );
   }, [products, search, categoryFilter, categories]);
@@ -191,7 +245,7 @@ const ProductsPage = () => {
               {filteredProducts.length} items
             </span>
           </div>
-          <button 
+          <button
             onClick={openAddModal}
             className="flex items-center px-4 py-2 bg-black text-black rounded-lg hover:bg-gray-800 transition-colors"
           >
@@ -222,8 +276,10 @@ const ProductsPage = () => {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               <option value="">All Categories</option>
-              {availableCategories.map(category => (
-                <option key={category} value={category}>{category}</option>
+              {allCategories.map(category => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
               ))}
             </select>
           </div>
@@ -272,7 +328,7 @@ const ProductsPage = () => {
                         <FiPackage className="w-12 h-12 text-gray-400 mb-2" />
                         <span className="text-gray-500 dark:text-gray-400">No products found.</span>
                         {search && (
-                          <button 
+                          <button
                             onClick={() => setSearch("")}
                             className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
                           >
@@ -287,8 +343,8 @@ const ProductsPage = () => {
                     <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center">
-                          <img 
-                            src={product.image} 
+                          <img
+                            src={product.image}
                             alt={product.name}
                             className="w-10 h-10 rounded-md object-cover mr-3"
                             onError={(e) => {
@@ -307,7 +363,9 @@ const ProductsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                          {categories[product.category] || "Uncategorized"}
+                          {product.category && product.category._id
+                            ? (categories[product.category._id] || product.category.name || "Uncategorized")
+                            : "Uncategorized"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -335,14 +393,14 @@ const ProductsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <button 
+                          <button
                             onClick={() => openEditModal(product)}
                             className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
                             title="Edit Product"
                           >
                             <FiEdit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(product._id, product.name)}
                             className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
                             title="Delete Product"
@@ -376,7 +434,7 @@ const ProductsPage = () => {
               >
                 Previous
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
                 if (totalPages <= 5) {
@@ -388,22 +446,21 @@ const ProductsPage = () => {
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
-                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                      currentPage === pageNum
+                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
                         ? "bg-blue-500 text-white border-blue-500"
                         : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    }`}
+                      }`}
                     onClick={() => setCurrentPage(pageNum)}
                   >
                     {pageNum}
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
@@ -580,8 +637,8 @@ const ProductsPage = () => {
                         />
                       </div>
                       {imagePreview && (
-                        <img 
-                          src={imagePreview} 
+                        <img
+                          src={imagePreview}
                           alt="Preview"
                           className="w-16 h-16 rounded-md object-cover border border-gray-300"
                         />
@@ -604,7 +661,7 @@ const ProductsPage = () => {
                   <button
                     type="submit"
                     disabled={modalLoading}
-                    className="px-4 py-2 text-sm font-medium bg-blue-600 text-white
+                    className="px-4 py-2 text-sm font-medium bg-blue-600 text-black
                       rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed 
                       transition-colors flex items-center gap-2"
                   >
