@@ -103,11 +103,6 @@ const ProductsPage = () => {
     fetchProducts();
   }, []);
 
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const resetForm = () => {
     setFormData({
       name: "",
@@ -137,7 +132,7 @@ const ProductsPage = () => {
       quantity: product.quantity || "",
       image: null
     });
-    setImagePreview(product.image || "");
+    setImagePreview((product.images && product.images[0] && product.images[0].url) || "");
     setEditingProduct(product);
     setShowModal(true);
   };
@@ -247,7 +242,7 @@ const ProductsPage = () => {
           </div>
           <button
             onClick={openAddModal}
-            className="flex items-center px-4 py-2 bg-black text-black rounded-lg hover:bg-gray-800 transition-colors"
+            className="flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
           >
             <FiPlus className="w-4 h-4 mr-2" />
             Add Product
@@ -344,7 +339,7 @@ const ProductsPage = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           <img
-                            src={product.image}
+                            src={(product.images && product.images[0] && product.images[0].url) || "https://via.placeholder.com/40?text=No+Image"}
                             alt={product.name}
                             className="w-10 h-10 rounded-md object-cover mr-3"
                             onError={(e) => {
@@ -661,7 +656,7 @@ const ProductsPage = () => {
                   <button
                     type="submit"
                     disabled={modalLoading}
-                    className="px-4 py-2 text-sm font-medium bg-blue-600 text-black
+                    className="px-4 py-2 text-sm font-medium bg-blue-600 text-white
                       rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed 
                       transition-colors flex items-center gap-2"
                   >
