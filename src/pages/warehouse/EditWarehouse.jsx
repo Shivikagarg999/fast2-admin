@@ -42,7 +42,7 @@ const EditWarehouse = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await axios.get('https://fast2-backend.onrender.com/api/admin/promotor');
+      const response = await axios.get('https://api.fast2.in/api/admin/promotor');
       setPromotors(response.data || []);
     } catch (error) {
       console.error("Error fetching promotors:", error);
@@ -55,7 +55,7 @@ const EditWarehouse = () => {
   const fetchWarehouse = async () => {
     try {
       setFetching(true);
-      const response = await axios.get(`https://fast2-backend.onrender.com/api/admin/warehouse/${id}`);
+      const response = await axios.get(`https://api.fast2.in/api/admin/warehouse/${id}`);
       const warehouse = response.data;
       
       setFormData({
@@ -144,7 +144,7 @@ const EditWarehouse = () => {
         }
       };
 
-      await axios.put(`https://fast2-backend.onrender.com/api/admin/warehouse/${id}`, submitData);
+      await axios.put(`https://api.fast2.in/api/admin/warehouse/${id}`, submitData);
       
       // Show success modal
       setShowSuccessModal(true);

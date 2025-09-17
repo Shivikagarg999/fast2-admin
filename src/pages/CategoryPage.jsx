@@ -25,7 +25,7 @@ const CategoriesPage = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const response = await fetch('https://fast2-backend.onrender.com/api/category/');
+            const response = await fetch('https://api.fast2.in//api/category/');
             if (!response.ok) throw new Error('Failed to fetch categories');
             const data = await response.json();
             setCategories(data);
@@ -115,13 +115,13 @@ const CategoriesPage = () => {
             let response;
             if (editingCategory) {
                 // Update category
-                response = await fetch(`https://fast2-backend.onrender.com/api/category/${editingCategory._id}`, {
+                response = await fetch(`https://api.fast2.in//api/category/${editingCategory._id}`, {
                     method: 'PUT',
                     body: submitData,
                 });
             } else {
                 // Create category
-                response = await fetch('https://fast2-backend.onrender.com/api/category/create', {
+                response = await fetch('https://api.fast2.in//api/category/create', {
                     method: 'POST',
                     body: submitData,
                 });
@@ -146,7 +146,7 @@ const CategoriesPage = () => {
     const handleDelete = async (categoryId, categoryName) => {
         if (window.confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone.`)) {
             try {
-                const response = await fetch(`https://fast2-backend.onrender.com/api/category/${categoryId}`, {
+                const response = await fetch(`https://api.fast2.in//api/category/${categoryId}`, {
                     method: 'DELETE',
                 });
 

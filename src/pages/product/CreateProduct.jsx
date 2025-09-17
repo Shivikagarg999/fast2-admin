@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus } from 'react-icons/fi';
+import { Editor } from '@tinymce/tinymce-react';
 
 const ProductCreate = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const ProductCreate = () => {
   const [loadingPromotors, setLoadingPromotors] = useState(true);
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const editorRef = useRef(null);
 
   const [formData, setFormData] = useState({
     // Basic Information
@@ -71,7 +73,7 @@ const ProductCreate = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await fetch('https://fast2-backend.onrender.com/api/admin/promotor/');
+      const response = await fetch('https://api.fast2.in/api/admin/promotor/');
       if (!response.ok) throw new Error('Failed to fetch promotors');
       const data = await response.json();
       setPromotors(data);
@@ -87,7 +89,7 @@ const ProductCreate = () => {
   const fetchWarehouses = async () => {
     try {
       setLoadingWarehouses(true);
-      const response = await fetch('https://fast2-backend.onrender.com/api/admin/warehouse/');
+      const response = await fetch('https://api.fast2.in/api/admin/warehouse/');
       if (!response.ok) throw new Error('Failed to fetch warehouses');
       const data = await response.json();
       setWarehouses(data);
@@ -103,7 +105,7 @@ const ProductCreate = () => {
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await fetch('https://fast2-backend.onrender.com/api/category/');
+      const response = await fetch('https://api.fast2.in/api/category/');
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
@@ -120,6 +122,13 @@ const ProductCreate = () => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleDescriptionChange = (content) => {
+    setFormData(prev => ({
+      ...prev,
+      description: content
     }));
   };
 
@@ -153,7 +162,7 @@ const ProductCreate = () => {
         }
       });
 
-      const response = await fetch('https://fast2-backend.onrender.com/api/product/create', {
+      const response = await fetch('https://api.fast2.in/api/product/create', {
         method: 'POST',
         body: formDataToSend,
       });
@@ -213,15 +222,27 @@ const ProductCreate = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Description *
                   </label>
-                  <textarea
-                    name="description"
+                  <Editor
+                    apiKey="xw0haeefepmen4923ro5m463eb97qhseuprfkpbuan5t10u5" 
+                    onInit={(evt, editor) => editorRef.current = editor}
                     value={formData.description}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
+                    onEditorChange={handleDescriptionChange}
+                    init={{
+                      height: 300,
+                      menubar: 'file edit view insert format tools table help',
+                      plugins: [
+                        'advlist autolink lists link image charmap print preview anchor',
+                        'searchreplace visualblocks code fullscreen',
+                        'insertdatetime media table paste code help wordcount'
+                      ],
+                      toolbar: 'undo redo | formatselect | ' +
+                        'bold italic backcolor | alignleft aligncenter ' +
+                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                        'removeformat | help | image',
+                      content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                      skin: 'oxide-dark',
+                      content_css: 'dark',
+                    }}
                   />
                 </div>
                 

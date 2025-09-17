@@ -36,7 +36,7 @@ const CreateWarehouse = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await axios.get('https://fast2-backend.onrender.com/api/admin/promotor');
+      const response = await axios.get('https://api.fast2.in/api/admin/promotor');
       setPromotors(response.data || []);
     } catch (error) {
       console.error("Error fetching promotors:", error);
@@ -106,7 +106,7 @@ const CreateWarehouse = () => {
         }
       };
 
-      await axios.post('https://fast2-backend.onrender.com/api/admin/warehouse', submitData);
+      await axios.post('https://api.fast2.in/api/admin/warehouse', submitData);
       
       alert('Warehouse created successfully!');
       // Reset form

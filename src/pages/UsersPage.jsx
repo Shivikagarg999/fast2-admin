@@ -19,7 +19,7 @@ const UsersPage = () => {
       setLoading(true);
       const token = localStorage.getItem("token"); // Admin JWT
       const res = await axios.get(
-        "https://fast2-backend.onrender.com/api/admin/users",
+        "https://api.fast2.in/api/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(res.data.users);

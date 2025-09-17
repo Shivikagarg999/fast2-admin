@@ -41,7 +41,7 @@ const ProductsPage = () => {
       }
 
       // Fetch category from API
-      const response = await axios.get(`https://fast2-backend.onrender.com/api/category/${categoryId}`);
+      const response = await axios.get(`https://api.fast2.in/api/category/${categoryId}`);
       const categoryName = response.data.name || "Uncategorized";
 
       // Update categories state
@@ -59,7 +59,7 @@ const ProductsPage = () => {
 
   const fetchAllCategories = async () => {
     try {
-      const response = await axios.get("https://fast2-backend.onrender.com/api/category");
+      const response = await axios.get("https://api.fast2.in/api/category");
       setAllCategories(response.data || []);
 
       // Create a mapping of category IDs to names from the fetched categories
@@ -76,7 +76,7 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const { data: productData } = await axios.get("https://fast2-backend.onrender.com/api/product");
+      const { data: productData } = await axios.get("https://api.fast2.in/api/product");
       setProducts(productData || []);
 
       // Create category mapping from the products data
@@ -169,12 +169,12 @@ const ProductsPage = () => {
       });
 
       if (editingProduct) {
-        await axios.put(`https://fast2-backend.onrender.com/api/product/${editingProduct._id}`, submitData, {
+        await axios.put(`https://api.fast2.in/api/product/${editingProduct._id}`, submitData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
         alert("Product updated successfully!");
       } else {
-        await axios.post("https://fast2-backend.onrender.com/api/product/create", submitData, {
+        await axios.post("https://api.fast2.in/api/product/create", submitData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
         alert("Product created successfully!");
@@ -192,7 +192,7 @@ const ProductsPage = () => {
   const handleDelete = async (productId, productName) => {
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
       try {
-        await axios.delete(`https://fast2-backend.onrender.com/api/product/${productId}`);
+        await axios.delete(`https://api.fast2.in/api/product/${productId}`);
         alert("Product deleted successfully!");
         fetchProducts();
       } catch (error) {
