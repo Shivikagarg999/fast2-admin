@@ -17,6 +17,8 @@ import EditWareHouse from "./pages/warehouse/EditWarehouse";
 //delivery boy
 import DriverList from "./pages/deliveryboy/DeliveryBoyList";
 import EditDriver from "./pages/deliveryboy/EditDriver";
+//orders
+import OrderList from "./pages/orders/Orders";
 
 function App() {
   return (
@@ -51,6 +53,10 @@ function App() {
           <Route path="/admin/create-driver" element={<EditDriver/>} />
           <Route path="/admin/edit-driver/:id" element={<EditDriver/>} />
           
+          {/* Orders */}
+
+          <Route path="/admin/orders" element={<OrderList/>} />
+
         </Route>
       </Routes>
     </Router>

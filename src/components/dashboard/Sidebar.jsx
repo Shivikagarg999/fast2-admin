@@ -68,14 +68,8 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
       items: [
         {
           name: "Orders",
-          isParent: true,
           icon: <FiPackage className="w-5 h-5" />,
-          subItems: [
-            { name: "All Orders", path: "/admin/orders" },
-            { name: "Completed Orders", path: "/admin/orders/completed-orders" },
-            { name: "On-Going Orders", path: "/admin/orders/onGoing-orders" },
-            { name: "Pending Orders", path: "/admin/orders/pending-orders" },
-          ],
+          path: "/admin/orders",
         },
         {
           name: "Delivery Agents",
