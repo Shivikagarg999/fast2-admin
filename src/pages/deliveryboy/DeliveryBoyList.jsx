@@ -21,7 +21,7 @@ const DriverList = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://api.fast2.in/api/admin/drivers/getall', {
+      const response = await axios.get('https://api.fast2.in/api/admin/drivers/getall', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDrivers(response.data.data?.drivers || []);
