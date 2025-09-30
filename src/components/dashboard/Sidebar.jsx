@@ -79,7 +79,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
         },
         {
           name: "Delivery Agents",
-          path: "/admin/agents",
+          path: "/admin/drivers",
           icon: <FiTruck className="w-5 h-5" />,
         },
         {

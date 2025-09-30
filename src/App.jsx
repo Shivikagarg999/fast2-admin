@@ -14,6 +14,9 @@ import EditPromotorPage from "./pages/promotor/EditPromotor";
 import WareHouseList from "./pages/warehouse/WareHouseList";
 import CreateWarehouse from "./pages/warehouse/CreateWarehouse";
 import EditWareHouse from "./pages/warehouse/EditWarehouse";
+//delivery boy
+import DriverList from "./pages/deliveryboy/DeliveryBoyList";
+import EditDriver from "./pages/deliveryboy/EditDriver";
 
 function App() {
   return (
@@ -38,9 +41,16 @@ function App() {
           {/* Warehouse */}
       
           <Route path="/admin/warehouses" element={<WareHouseList/>} />
+          <Route path="/admin/agents" element={<WareHouseList/>} />
           <Route path="/admin/create-warehouse" element={<CreateWarehouse/>} />
           <Route path="/admin/edit-warehouse/:id" element={<EditWareHouse/>} />
 
+          {/* Delivery Boy */}
+
+          <Route path="/admin/drivers" element={<DriverList/>} />
+          <Route path="/admin/create-driver" element={<EditDriver/>} />
+          <Route path="/admin/edit-driver/:id" element={<EditDriver/>} />
+          
         </Route>
       </Routes>
     </Router>
