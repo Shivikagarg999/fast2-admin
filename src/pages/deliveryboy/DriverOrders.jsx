@@ -14,26 +14,27 @@ const DriverOrders = () => {
   const { id } = useParams();
 
   const ORDERS_PER_PAGE = 10;
+  const API_BASE_URL = "https://api.fast2.in/api/admin/drivers";
 
   const fetchDriverOrders = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('adminToken');
       
-      // Fetch driver details
-      const driverResponse = await axios.get(`https://api.fast2.in/api/admin/drivers/${id}`, {
+      const driverResponse = await axios.get(`${API_BASE_URL}/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDriver(driverResponse.data.data);
 
-      // Fetch driver orders
-      const ordersResponse = await axios.get(`https://api.fast2.in/api/admin/drivers/${id}/orders`, {
+      const ordersResponse = await axios.get(`${API_BASE_URL}/${id}/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setOrders(ordersResponse.data.data?.orders || []);
+      
+      const ordersData = ordersResponse.data.data?.orders || ordersResponse.data.data || [];
+      setOrders(ordersData);
     } catch (error) {
       console.error("Error fetching driver orders:", error);
-      alert("Failed to fetch driver orders");
+      alert("Failed to fetch driver orders: " + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
@@ -51,7 +52,8 @@ const DriverOrders = () => {
       'confirmed': 'bg-blue-100 text-blue-800',
       'shipped': 'bg-purple-100 text-purple-800',
       'delivered': 'bg-green-100 text-green-800',
-      'cancelled': 'bg-red-100 text-red-800'
+      'cancelled': 'bg-red-100 text-red-800',
+      'out_for_delivery': 'bg-orange-100 text-orange-800'
     };
     
     const statusIcons = {
@@ -59,24 +61,25 @@ const DriverOrders = () => {
       'confirmed': <FiCheckCircle className="w-3 h-3 mr-1" />,
       'shipped': <FiPackage className="w-3 h-3 mr-1" />,
       'delivered': <FiCheckCircle className="w-3 h-3 mr-1" />,
-      'cancelled': <FiX className="w-3 h-3 mr-1" />
+      'cancelled': <FiX className="w-3 h-3 mr-1" />,
+      'out_for_delivery': <FiPackage className="w-3 h-3 mr-1" />
     };
     
     return (
       <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${badgeClasses[status] || badgeClasses.pending}`}>
         {statusIcons[status]}
-        {status?.toUpperCase()}
+        {status?.toUpperCase()?.replace(/_/g, ' ')}
       </span>
     );
   };
 
-  // Filtering
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
       const matchesSearch = 
         order._id?.toLowerCase().includes(search.toLowerCase()) ||
         order.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
-        order.user?.phone?.includes(search);
+        order.user?.phone?.includes(search) ||
+        (typeof order.user === 'string' && order.user.toLowerCase().includes(search.toLowerCase()));
 
       const matchesStatus = statusFilter === "all" || order.status === statusFilter;
 
@@ -92,7 +95,6 @@ const DriverOrders = () => {
   return (
     <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center mb-4 sm:mb-0">
             <button
@@ -120,7 +122,6 @@ const DriverOrders = () => {
           </div>
         </div>
 
-        {/* Filters and Search */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="md:col-span-2">
             <input
@@ -151,7 +152,6 @@ const DriverOrders = () => {
           </div>
         </div>
 
-        {/* Orders Table */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -249,7 +249,6 @@ const DriverOrders = () => {
           </div>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-6 flex items-center justify-between">
             <div className="text-sm text-gray-700 dark:text-gray-300">

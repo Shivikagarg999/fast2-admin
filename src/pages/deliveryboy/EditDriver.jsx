@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { FiUser, FiPhone, FiMail, FiMapPin, FiCalendar, FiCreditCard, FiShield, FiArrowLeft, FiCheckCircle } from "react-icons/fi";
+import { FiUser, FiPhone, FiMail, FiMapPin, FiCalendar, FiCreditCard, FiArrowLeft, FiCheckCircle } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
 const EditDriver = () => {
@@ -53,11 +53,6 @@ const EditDriver = () => {
       accountNumber: "",
       ifscCode: "",
       bankName: ""
-    },
-    emergencyContact: {
-      name: "",
-      relationship: "",
-      phone: ""
     },
     workInfo: {
       driverId: ""
@@ -124,11 +119,6 @@ const EditDriver = () => {
           ifscCode: driver.bankDetails?.ifscCode || "",
           bankName: driver.bankDetails?.bankName || ""
         },
-        emergencyContact: {
-          name: driver.emergencyContact?.name || "",
-          relationship: driver.emergencyContact?.relationship || "",
-          phone: driver.emergencyContact?.phone || ""
-        },
         workInfo: {
           driverId: driver.workInfo?.driverId || ""
         }
@@ -175,7 +165,6 @@ const EditDriver = () => {
     try {
       const token = localStorage.getItem('adminToken');
       
-      // Prepare data in exact API format
       const submitData = {
         personalInfo: {
           name: formData.personalInfo.name,
@@ -219,20 +208,12 @@ const EditDriver = () => {
           ifscCode: formData.bankDetails.ifscCode,
           bankName: formData.bankDetails.bankName
         },
-        emergencyContact: {
-          name: formData.emergencyContact.name,
-          phone: formData.emergencyContact.phone,
-          relationship: formData.emergencyContact.relationship
-        },
         workInfo: {
           driverId: formData.workInfo.driverId || `DRV${Date.now()}`
         }
       };
 
-      console.log("Submitting data:", submitData);
-
       if (id) {
-        // Update existing driver
         await axios.put(`https://api.fast2.in/api/admin/drivers/edit/${id}`, submitData, {
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -240,7 +221,6 @@ const EditDriver = () => {
           }
         });
       } else {
-        // Create new driver
         await axios.post('https://api.fast2.in/api/admin/drivers/create', submitData, {
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -285,7 +265,6 @@ const EditDriver = () => {
     <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          {/* Header with back button */}
           <div className="flex items-center mb-6">
             <button
               onClick={() => navigate('/admin/drivers')}
@@ -293,7 +272,7 @@ const EditDriver = () => {
             >
               <FiArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+            <h1 className="text-2xl font-bold text-black dark:text-white flex items-center">
               <FiUser className="mr-2" /> {id ? 'Edit Driver' : 'Add New Driver'}
             </h1>
           </div>
@@ -305,7 +284,6 @@ const EditDriver = () => {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Personal Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Personal Information</h2>
               
@@ -407,7 +385,6 @@ const EditDriver = () => {
               </div>
             </div>
             
-            {/* Address Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiMapPin className="mr-2" /> Address Information
@@ -477,7 +454,6 @@ const EditDriver = () => {
               </div>
             </div>
 
-            {/* Vehicle Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Vehicle Information</h2>
               
@@ -584,7 +560,6 @@ const EditDriver = () => {
               </div>
             </div>
 
-            {/* Aadhar Card Details Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Aadhar Card Details</h2>
               
@@ -639,7 +614,6 @@ const EditDriver = () => {
               </div>
             </div>
 
-            {/* Driving License Details Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Driving License Details</h2>
               
@@ -710,7 +684,6 @@ const EditDriver = () => {
               </div>
             </div>
 
-            {/* Bank Details Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiCreditCard className="mr-2" /> Bank Details
@@ -782,64 +755,6 @@ const EditDriver = () => {
               </div>
             </div>
 
-            {/* Emergency Contact Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                <FiShield className="mr-2" /> Emergency Contact
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Contact Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="emergencyContact.name"
-                    value={formData.emergencyContact.name}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Relationship *
-                  </label>
-                  <input
-                    type="text"
-                    name="emergencyContact.relationship"
-                    value={formData.emergencyContact.relationship}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    name="emergencyContact.phone"
-                    value={formData.emergencyContact.phone}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Work Information Section */}
             <div className="pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Work Information</h2>
               
@@ -862,7 +777,6 @@ const EditDriver = () => {
               </div>
             </div>
             
-            {/* Submit Button */}
             <div className="flex justify-end gap-4">
               <button
                 type="button"
@@ -895,7 +809,6 @@ const EditDriver = () => {
         </div>
       </div>
 
-      {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
@@ -914,7 +827,7 @@ const EditDriver = () => {
               
               <button
                 onClick={closeSuccessModal}
-                className="px-6 py-2 bg-blue-600 text-black rounded-md hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
                 Back to Drivers
               </button>

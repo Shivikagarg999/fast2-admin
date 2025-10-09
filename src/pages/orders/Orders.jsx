@@ -28,7 +28,7 @@ const OrdersPage = () => {
                 ...(search && { search: search })
             });
 
-            const response = await fetch(`http://localhost:5000/api/admin/orders/getall`);
+            const response = await fetch(`https://api.fast2.in/api/admin/orders/getall`);
             if (!response.ok) throw new Error('Failed to fetch orders');
             const data = await response.json();
             
@@ -50,7 +50,7 @@ const OrdersPage = () => {
 
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/orders/${orderId}/status`, {
+            const response = await fetch(`https://api.fast2.in/api/admin/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

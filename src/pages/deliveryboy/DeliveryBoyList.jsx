@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { FiEdit, FiTrash2, FiPlus, FiUser, FiX, FiMapPin, FiPhone, FiMail, FiCheckCircle, FiClock, FiSlash } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiPlus, FiUser, FiX, FiPhone, FiMail, FiCheckCircle, FiDollarSign } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 const DriverList = () => {
@@ -16,18 +16,21 @@ const DriverList = () => {
   const navigate = useNavigate();
 
   const DRIVERS_PER_PAGE = 10;
+  const API_BASE_URL = "https://api.fast2.in/api/admin/drivers";
 
   const fetchDrivers = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('https://api.fast2.in/api/admin/drivers/getall', {
+      const response = await axios.get(`${API_BASE_URL}/getall`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setDrivers(response.data.data?.drivers || []);
+      
+      const driversData = response.data.data?.drivers || response.data.data || [];
+      setDrivers(driversData);
     } catch (error) {
       console.error("Error fetching drivers:", error);
-      alert("Failed to fetch drivers");
+      alert("Failed to fetch drivers: " + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
@@ -57,7 +60,7 @@ const DriverList = () => {
     setDeleteLoading(true);
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://api.fast2.in/api/admin/drivers/${deletingDriver._id}`, {
+      await axios.delete(`${API_BASE_URL}/${deletingDriver._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert("Driver deleted successfully!");
@@ -74,7 +77,7 @@ const DriverList = () => {
   const handleStatusUpdate = async (driverId, newStatus) => {
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.patch(`http://api.fast2.in/api/admin/drivers/${driverId}/status`, 
+      await axios.patch(`${API_BASE_URL}/${driverId}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -118,7 +121,7 @@ const DriverList = () => {
   };
 
   const getVehicleIcon = (type) => {
-    switch(type) {
+    switch(type?.toLowerCase()) {
       case 'bike':
         return "🏍️";
       case 'scooter':
@@ -132,7 +135,16 @@ const DriverList = () => {
     }
   };
 
-  // Filtering
+  const calculatePerformance = (driver) => {
+    const completedOrders = driver.earnings?.totalEarnings > 0 ? Math.floor(driver.earnings.totalEarnings / 50) : 0;
+    const rating = 4.5;
+    
+    return {
+      rating,
+      completedOrders
+    };
+  };
+
   const filteredDrivers = useMemo(() => {
     return drivers.filter(driver => {
       const matchesSearch = 
@@ -157,25 +169,23 @@ const DriverList = () => {
   return (
     <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center mb-4 sm:mb-0">
             <FiUser className="w-6 h-6 text-blue-600 mr-2" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Delivery Boys</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Delivery Drivers</h1>
             <span className="ml-3 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
               {filteredDrivers.length} drivers
             </span>
           </div>
           <button 
             onClick={() => navigate('/admin/create-driver')}
-            className="flex items-center px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700"
           >
             <FiPlus className="w-4 h-4 mr-2" />
             Add Driver
           </button>
         </div>
 
-        {/* Filters and Search */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="md:col-span-2">
             <input
@@ -221,7 +231,6 @@ const DriverList = () => {
           </div>
         </div>
 
-        {/* Table */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -243,7 +252,7 @@ const DriverList = () => {
                     Availability
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Performance
+                    Earnings
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
@@ -282,99 +291,103 @@ const DriverList = () => {
                     </td>
                   </tr>
                 ) : (
-                  currentDrivers.map((driver) => (
-                    <tr key={driver._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                      <td className="px-6 py-4">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {driver.personalInfo?.name || "-"}
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            ID: {driver.workInfo?.driverId || "N/A"}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center text-sm text-gray-900 dark:text-white mb-1">
-                          <FiPhone className="w-3 h-3 mr-1 text-gray-400" />
-                          {driver.personalInfo?.phone || "N/A"}
-                        </div>
-                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                          <FiMail className="w-3 h-3 mr-1 text-gray-400" />
-                          {driver.personalInfo?.email || "N/A"}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{getVehicleIcon(driver.vehicle?.type)}</span>
+                  currentDrivers.map((driver) => {
+                    const performance = calculatePerformance(driver);
+                    
+                    return (
+                      <tr key={driver._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td className="px-6 py-4">
                           <div>
-                            <div className="text-sm text-gray-900 dark:text-white">
-                              {driver.vehicle?.type?.toUpperCase() || "N/A"}
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {driver.personalInfo?.name || "-"}
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {driver.vehicle?.registrationNumber || "N/A"}
+                              ID: {driver.workInfo?.driverId || "N/A"}
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1">
-                          {getStatusBadge(driver.workInfo?.status)}
-                          {driver.workInfo?.status === 'pending' && (
-                            <button
-                              onClick={() => handleStatusUpdate(driver._id, 'approved')}
-                              className="text-xs text-green-600 hover:text-green-700"
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center text-sm text-gray-900 dark:text-white mb-1">
+                            <FiPhone className="w-3 h-3 mr-1 text-gray-400" />
+                            {driver.personalInfo?.phone || "N/A"}
+                          </div>
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <FiMail className="w-3 h-3 mr-1 text-gray-400" />
+                            {driver.personalInfo?.email || "N/A"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{getVehicleIcon(driver.vehicle?.type)}</span>
+                            <div>
+                              <div className="text-sm text-gray-900 dark:text-white">
+                                {driver.vehicle?.type ? driver.vehicle.type.toUpperCase() : "N/A"}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {driver.vehicle?.registrationNumber || "N/A"}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1">
+                            {getStatusBadge(driver.workInfo?.status)}
+                            {driver.workInfo?.status === 'pending' && (
+                              <button
+                                onClick={() => handleStatusUpdate(driver._id, 'approved')}
+                                className="text-xs text-green-600 hover:text-green-700"
+                              >
+                                Approve
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {getAvailabilityBadge(driver.workInfo?.availability)}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center text-sm text-gray-900 dark:text-white mb-1">
+                            <FiDollarSign className="w-3 h-3 mr-1 text-green-500" />
+                            ₹{driver.earnings?.totalEarnings?.toFixed(2) || "0.00"}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {performance.completedOrders} deliveries
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button 
+                              onClick={() => handleEdit(driver)}
+                              className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
+                              title="Edit Driver"
                             >
-                              Approve
+                              <FiEdit className="w-4 h-4" />
                             </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {getAvailabilityBadge(driver.workInfo?.availability)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          ⭐ {driver.deliveryStats?.averageRating?.toFixed(1) || "0.0"}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {driver.deliveryStats?.completedOrders || 0} deliveries
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <button 
-                            onClick={() => handleEdit(driver)}
-                            className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
-                            title="Edit Driver"
-                          >
-                            <FiEdit className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => navigate(`/admin/driver-orders/${driver._id}`)}
-                            className="text-green-500 hover:text-green-700 p-1 rounded transition-colors"
-                            title="View Orders"
-                          >
-                            <FiCheckCircle className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => openDeleteModal(driver)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
-                            title="Delete Driver"
-                          >
-                            <FiTrash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                            <button 
+                              onClick={() => navigate(`/admin/driver-orders/${driver._id}`)}
+                              className="text-green-500 hover:text-green-700 p-1 rounded transition-colors"
+                              title="View Orders"
+                            >
+                              <FiCheckCircle className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => openDeleteModal(driver)}
+                              className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
+                              title="Delete Driver"
+                            >
+                              <FiTrash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-6 flex items-center justify-between">
             <div className="text-sm text-gray-700 dark:text-gray-300">
@@ -433,7 +446,6 @@ const DriverList = () => {
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
         {showDeleteModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
@@ -466,7 +478,7 @@ const DriverList = () => {
                   <button
                     onClick={handleDelete}
                     disabled={deleteLoading}
-                    className="px-4 py-2 text-sm font-medium bg-red-600 text-black
+                    className="px-4 py-2 text-sm font-medium bg-red-600 text-white
                       rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed 
                       transition-colors flex items-center gap-2"
                   >
