@@ -19,6 +19,9 @@ import DriverList from "./pages/deliveryboy/DeliveryBoyList";
 import EditDriver from "./pages/deliveryboy/EditDriver";
 //orders
 import OrderList from "./pages/orders/Orders";
+//marketing
+import Banners from "./pages/banners/Banners";
+import Coupon from "./pages/coupon-code/CouponCode";
 
 function App() {
   return (
@@ -55,7 +58,13 @@ function App() {
           
           {/* Orders */}
 
-          <Route path="/admin/orders" element={<OrderList/>} />
+          <Route path="/admin/orders" element={<OrderList/>} /> 
+
+
+          {/* Marketing */}
+
+          <Route path="/admin/banners" element={<Banners/>} />
+          <Route path="/admin/coupons" element={<Coupon/>} />
 
         </Route>
       </Routes>

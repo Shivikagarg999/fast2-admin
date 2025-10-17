@@ -11,7 +11,10 @@ import {
   FiChevronDown,
   FiUserCheck,
   FiShoppingBag,
-  FiArchive
+  FiArchive,
+  FiImage,
+  FiTag,
+  FiGift
 } from "react-icons/fi";
 
 const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
@@ -80,6 +83,26 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           name: "Warehouses",
           path: "/admin/warehouses",
           icon: <FiArchive className="w-5 h-5" />,
+        },
+      ]
+    },
+    {
+      name: "Marketing",
+      items: [
+        {
+          name: "Promotions",
+          path: "/admin/promotions",
+          icon: <FiGift className="w-5 h-5" />,
+        },
+        {
+          name: "Coupon Codes",
+          path: "/admin/coupons",
+          icon: <FiTag className="w-5 h-5" />,
+        },
+        {
+          name: "Banners",
+          path: "/admin/banners",
+          icon: <FiImage className="w-5 h-5" />,
         },
       ]
     },
