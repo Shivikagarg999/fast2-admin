@@ -17,7 +17,7 @@ const UsersPage = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token"); // Admin JWT
+      const token = localStorage.getItem("token");
       const res = await axios.get(
         "https://api.fast2.in/api/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
@@ -30,10 +30,8 @@ const UsersPage = () => {
     }
   };
 
-  // Get unique roles for filter
   const roles = [...new Set(users.map(u => u.role))].filter(Boolean).sort();
 
-  // Filtered and paginated users
   const filteredUsers = users.filter((u) => {
     const matchesSearch = 
       u.name?.toLowerCase().includes(search.toLowerCase()) ||

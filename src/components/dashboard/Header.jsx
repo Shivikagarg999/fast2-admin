@@ -10,7 +10,10 @@ import {
   FiAlertTriangle,
   FiCheckCircle,
   FiSun,
-  FiMoon
+  FiMoon,
+  FiShoppingCart,
+  FiPackage,
+  FiRefreshCw
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,46 +22,11 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [adminData, setAdminData] = useState({
     name: "Admin",
-    // email: "admin@example.com"
   });
 
-  const [urgentAlerts, setUrgentAlerts] = useState([
-    {
-      id: 1,
-      type: "unassigned",
-      text: "Parcel #DC-2023-07-14-001 unassigned for 35 mins",
-      details: "Pickup: Connaught Place • Drop: Aerocity",
-      time: "2 mins ago",
-      read: false
-    },
-    {
-      id: 2,
-      type: "delay",
-      text: "Potential delay for Parcel #DC-2023-07-14-002",
-      details: "45 mins elapsed • 15 mins remaining",
-      time: "5 mins ago",
-      read: false
-    }
-  ]);
-
-  const [regularNotifications, setRegularNotifications] = useState([
-    {
-      id: 3,
-      type: "assigned",
-      text: "Parcel assigned to Agent #A-102",
-      details: "Parcel #DC-2023-07-14-003 • ETA: 22 mins",
-      time: "15 mins ago",
-      read: true
-    },
-    {
-      id: 4,
-      type: "delivered",
-      text: "Parcel delivered successfully",
-      details: "Parcel #DC-2023-07-14-004 • 48 mins",
-      time: "1 hour ago",
-      read: true
-    }
-  ]);
+  const [freshOrders, setFreshOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const dropdownRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -77,30 +45,108 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
       }
     }
 
-    const alertInterval = setInterval(() => {
-      const now = new Date();
-      if (now.getMinutes() % 5 === 0) {
-        const newAlert = {
-          id: now.getTime(),
-          type: Math.random() > 0.5 ? "unassigned" : "delay",
-          text: `Parcel #DC-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')} ${
-            Math.random() > 0.5 ? "unassigned for 35+ mins" : "facing potential delay"
-          }`,
-          details:
-            Math.random() > 0.5
-              ? `Pickup: ${["Connaught Place", "Karol Bagh", "Rajouri Garden"][Math.floor(Math.random() * 3)]} • Drop: ${
-                  ["Aerocity", "Dwarka", "Noida"][Math.floor(Math.random() * 3)]
-                }`
-              : `${Math.floor(Math.random() * 50) + 10} mins elapsed • ${Math.floor(Math.random() * 20) + 5} mins remaining`,
-          time: "Just now",
-          read: false
-        };
-        setUrgentAlerts((prev) => [newAlert, ...prev.slice(0, 4)]); // Keep only 5 alerts
-      }
-    }, 300000);
-
-    return () => clearInterval(alertInterval);
+    fetchFreshOrders();
+    
+    const interval = setInterval(fetchFreshOrders, 120000);
+    
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchFreshOrders = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Fetching fresh orders from API...');
+      
+      const response = await fetch('https://api.fast2.in/api/admin/orders/admin/fresh-orders');
+      
+      console.log('API Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('API Response data:', data);
+      
+      const orders = data.orders || [];
+      console.log('Orders found:', orders.length);
+      
+      // Transform orders into notifications
+      const orderNotifications = orders.map(order => ({
+        id: order._id,
+        type: getNotificationType(order.status),
+        text: `New Order #${order._id?.slice(-8) || 'N/A'}`,
+        details: `${order.user?.phone || 'Customer'} - ₹${order.total?.toLocaleString() || '0'}`,
+        time: getTimeAgo(order.createdAt),
+        read: false,
+        orderData: order
+      }));
+      
+      console.log('Transformed notifications:', orderNotifications);
+      setFreshOrders(orderNotifications);
+      
+    } catch (error) {
+      console.error('Error fetching fresh orders:', error);
+      setError(error.message);
+      // Fallback to sample data for testing
+      setFreshOrders(getSampleOrders());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sample data for testing when API fails
+  const getSampleOrders = () => {
+    return [
+      {
+        id: 'sample-1',
+        type: 'new',
+        text: 'New Order #A1B2C3D4',
+        details: 'Customer - ₹1,599',
+        time: '5 mins ago',
+        read: false
+      },
+      {
+        id: 'sample-2',
+        type: 'confirmed',
+        text: 'New Order #E5F6G7H8',
+        details: 'Customer - ₹2,499',
+        time: '15 mins ago',
+        read: false
+      }
+    ];
+  };
+
+  const getNotificationType = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'new';
+      case 'confirmed':
+        return 'confirmed';
+      case 'processing':
+        return 'processing';
+      case 'shipped':
+        return 'shipped';
+      case 'delivered':
+        return 'delivered';
+      default:
+        return 'new';
+    }
+  };
+
+  const getTimeAgo = (dateString) => {
+    if (!dateString) return 'Recently';
+    
+    const now = new Date();
+    const orderDate = new Date(dateString);
+    const diffInMinutes = Math.floor((now - orderDate) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
+    return `${Math.floor(diffInMinutes / 1440)} days ago`;
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -121,27 +167,46 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
   };
 
   const markAsRead = (id) => {
-    setUrgentAlerts((prev) => prev.map((alert) => (alert.id === id ? { ...alert, read: true } : alert)));
+    setFreshOrders((prev) => prev.map((order) => (order.id === id ? { ...order, read: true } : order)));
   };
 
   const markAllAsRead = () => {
-    setUrgentAlerts((prev) => prev.map((alert) => ({ ...alert, read: true })));
+    setFreshOrders((prev) => prev.map((order) => ({ ...order, read: true })));
   };
 
-  const unreadCount = urgentAlerts.filter((alert) => !alert.read).length;
+  const unreadCount = freshOrders.filter((order) => !order.read).length;
 
   const getIconForType = (type) => {
     switch (type) {
-      case "unassigned":
-        return <FiAlertTriangle className="text-red-500 dark:text-red-400" />;
-      case "delay":
-        return <FiClock className="text-yellow-500 dark:text-yellow-400" />;
-      case "assigned":
-        return <FiUser className="text-blue-500 dark:text-blue-400" />;
+      case "new":
+        return <FiShoppingCart className="text-blue-500 dark:text-blue-400" />;
+      case "confirmed":
+        return <FiCheckCircle className="text-green-500 dark:text-green-400" />;
+      case "processing":
+        return <FiPackage className="text-purple-500 dark:text-purple-400" />;
+      case "shipped":
+        return <FiClock className="text-orange-500 dark:text-orange-400" />;
       case "delivered":
         return <FiCheckCircle className="text-green-500 dark:text-green-400" />;
       default:
         return <FiBell className="text-blue-500 dark:text-blue-400" />;
+    }
+  };
+
+  const getStatusColor = (type) => {
+    switch (type) {
+      case "new":
+        return "bg-blue-50 dark:bg-blue-900/10 border-l-4 border-l-blue-500";
+      case "confirmed":
+        return "bg-green-50 dark:bg-green-900/10 border-l-4 border-l-green-500";
+      case "processing":
+        return "bg-purple-50 dark:bg-purple-900/10 border-l-4 border-l-purple-500";
+      case "shipped":
+        return "bg-orange-50 dark:bg-orange-900/10 border-l-4 border-l-orange-500";
+      case "delivered":
+        return "bg-green-50 dark:bg-green-900/10 border-l-4 border-l-green-500";
+      default:
+        return "";
     }
   };
 
@@ -152,6 +217,13 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleOrderClick = (order) => {
+    // You can implement navigation to order details or show a modal
+    console.log('Order clicked:', order);
+    // For now, just mark as read
+    markAsRead(order.id);
   };
 
   return (
@@ -166,7 +238,6 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
           >
             <FiMenu size={20} />
           </button>
-          
         </div>
 
         {/* Right section */}
@@ -212,9 +283,9 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Delivery Alerts</p>
+                        <p className="font-medium text-gray-900 dark:text-white">Order Notifications</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {unreadCount} urgent {unreadCount === 1 ? "alert" : "alerts"}
+                          {unreadCount} new {unreadCount === 1 ? "order" : "orders"}
                         </p>
                       </div>
                       {unreadCount > 0 && (
@@ -229,71 +300,82 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
                   </div>
 
                   <div className="max-h-80 overflow-y-auto">
-                    {/* Urgent Alerts */}
-                    {urgentAlerts.length > 0 && (
-                      <div>
-                        {urgentAlerts.map((alert) => (
-                          <motion.div
-                            key={alert.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className={`px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${
-                              !alert.read ? "bg-red-50 dark:bg-red-900/10 border-l-4 border-l-red-500" : ""
-                            }`}
-                            onClick={() => markAsRead(alert.id)}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="mt-0.5 flex-shrink-0">{getIconForType(alert.type)}</div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                  {alert.text}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                  {alert.details}
-                                </p>
-                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{alert.time}</p>
-                              </div>
-                              {!alert.read && (
-                                <span className="h-2 w-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></span>
-                              )}
-                            </div>
-                          </motion.div>
-                        ))}
+                    {error ? (
+                      <div className="px-4 py-4 text-center">
+                        <FiAlertTriangle className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Failed to load orders</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{error}</p>
+                        <button
+                          onClick={fetchFreshOrders}
+                          className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                        >
+                          Try Again
+                        </button>
                       </div>
-                    )}
-
-                    {/* Regular Notifications */}
-                    {regularNotifications.length > 0 && (
-                      <div className={urgentAlerts.length > 0 ? "border-t border-gray-200 dark:border-gray-700" : ""}>
-                        {regularNotifications.map((notification) => (
-                          <div
-                            key={notification.id}
-                            className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="mt-0.5 flex-shrink-0">{getIconForType(notification.type)}</div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                  {notification.text}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                  {notification.details}
-                                </p>
-                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{notification.time}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {urgentAlerts.length === 0 && regularNotifications.length === 0 && (
+                    ) : loading ? (
                       <div className="px-4 py-8 text-center">
-                        <FiBell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500 dark:text-gray-400">No notifications</p>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Loading orders...</p>
+                      </div>
+                    ) : freshOrders.length > 0 ? (
+                      freshOrders.map((order) => (
+                        <motion.div
+                          key={order.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className={`px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${
+                            !order.read ? getStatusColor(order.type) : ""
+                          }`}
+                          onClick={() => handleOrderClick(order)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="mt-0.5 flex-shrink-0">{getIconForType(order.type)}</div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {order.text}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                {order.details}
+                              </p>
+                              <div className="flex items-center justify-between mt-1">
+                                <p className="text-xs text-gray-400 dark:text-gray-500">{order.time}</p>
+                                <span className={`text-xs px-2 py-1 rounded-full capitalize ${
+                                  order.type === 'new' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                                  order.type === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                  order.type === 'processing' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
+                                  order.type === 'shipped' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                }`}>
+                                  {order.type}
+                                </span>
+                              </div>
+                            </div>
+                            {!order.read && (
+                              <span className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></span>
+                            )}
+                          </div>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <div className="px-4 py-8 text-center">
+                        <FiShoppingCart className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">No new orders</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">New orders will appear here</p>
                       </div>
                     )}
                   </div>
+
+                  {(freshOrders.length > 0 || error) && (
+                    <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                      <button 
+                        onClick={fetchFreshOrders}
+                        className="w-full text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center justify-center gap-2"
+                      >
+                        <FiRefreshCw className="w-3 h-3" />
+                        Refresh Orders
+                      </button>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

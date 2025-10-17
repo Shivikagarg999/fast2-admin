@@ -242,7 +242,7 @@ const ProductsPage = () => {
           </div>
           <button
             onClick={openAddModal}
-            className="flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            className="flex items-center px-4 py-2 bg-black text-black rounded-lg hover:bg-gray-800 transition-colors"
           >
             <FiPlus className="w-4 h-4 mr-2" />
             Add Product
