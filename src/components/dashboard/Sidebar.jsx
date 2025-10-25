@@ -90,8 +90,8 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
       name: "Marketing",
       items: [
         {
-          name: "Promotions",
-          path: "/admin/promotions",
+          name: "Discounts",
+          path: "/admin/discounts",
           icon: <FiGift className="w-5 h-5" />,
         },
         {

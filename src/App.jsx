@@ -22,6 +22,7 @@ import OrderList from "./pages/orders/Orders";
 //marketing
 import Banners from "./pages/banners/Banners";
 import Coupon from "./pages/coupon-code/CouponCode";
+import Discounts from "./pages/discounts/page";
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
 
           <Route path="/admin/banners" element={<Banners/>} />
           <Route path="/admin/coupons" element={<Coupon/>} />
+          <Route path="/admin/discounts" element={<Discounts/>} />
 
         </Route>
       </Routes>
