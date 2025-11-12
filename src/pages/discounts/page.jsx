@@ -34,7 +34,7 @@ const DiscountPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("https://api.fast2.in/api/category/getall");
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
       setCategories(response.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -43,24 +43,66 @@ const DiscountPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("https://api.fast2.in/api/product");
-      setProducts(response.data || []);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product`);
+      // API returns { products: [...], pagination: {...} }
+      setProducts(response.data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]); // Ensure products is always an array
     }
   };
 
   const fetchActiveDiscounts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("https://api.fast2.in/api/admin/discount/active");
-      setDiscounts(response.data.discounts || []);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount`);
+      setDiscounts(response.data.data || []);
     } catch (error) {
-      console.error("Error fetching active discounts:", error);
-      alert("Failed to fetch active discounts");
+      console.error("Error fetching discounts:", error);
+      alert("Failed to fetch discounts");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteDiscount = async (discountId) => {
+    if (!window.confirm("Are you sure you want to delete this discount?")) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount/${discountId}`);
+      alert("Discount deleted successfully");
+      fetchActiveDiscounts();
+    } catch (error) {
+      console.error("Error deleting discount:", error);
+      alert("Error deleting discount: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleToggleDiscountStatus = async (discountId, currentStatus) => {
+    try {
+      await axios.patch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount/${discountId}/toggle`, {
+        isActive: !currentStatus
+      });
+      alert(`Discount ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+      fetchActiveDiscounts();
+    } catch (error) {
+      console.error("Error toggling discount status:", error);
+      alert("Error updating discount status: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleEditDiscount = async (discount) => {
+    setDiscountForm({
+      name: discount.name,
+      discountPercentage: discount.discountPercentage,
+      categoryId: discount.category?._id || "",
+      productIds: discount.products?.map(p => p._id) || [],
+      startDate: discount.startDate ? new Date(discount.startDate).toISOString().split('T')[0] : "",
+      endDate: discount.endDate ? new Date(discount.endDate).toISOString().split('T')[0] : ""
+    });
+    setShowCreateDiscountModal(true);
   };
 
   const handleCreateDiscount = async (e) => {
@@ -83,7 +125,7 @@ const DiscountPage = () => {
 
     try {
       setCreatingDiscount(true);
-      const response = await axios.post("https://api.fast2.in/api/admin/discount", discountForm);
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount`, discountForm);
       alert(`Successfully created discount: ${response.data.discount.name}`);
       setShowCreateDiscountModal(false);
       resetDiscountForm();
@@ -653,10 +695,29 @@ const DiscountPage = () => {
                               Created: {new Date(discount.createdAt).toLocaleDateString()}
                             </span>
                             <div className="flex gap-2">
-                              <button className="p-1 text-blue-600 hover:text-blue-800 dark:hover:text-blue-400">
+                              <button 
+                                onClick={() => handleToggleDiscountStatus(discount._id, discount.isActive)}
+                                className={`px-2 py-1 text-xs rounded ${
+                                  discount.isActive 
+                                    ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                                    : 'bg-green-100 text-green-600 hover:bg-green-200'
+                                }`}
+                                title={discount.isActive ? 'Deactivate' : 'Activate'}
+                              >
+                                {discount.isActive ? 'Deactivate' : 'Activate'}
+                              </button>
+                              <button 
+                                onClick={() => handleEditDiscount(discount)}
+                                className="p-1 text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
+                                title="Edit"
+                              >
                                 <FiEdit className="w-4 h-4" />
                               </button>
-                              <button className="p-1 text-red-600 hover:text-red-800 dark:hover:text-red-400">
+                              <button 
+                                onClick={() => handleDeleteDiscount(discount._id)}
+                                className="p-1 text-red-600 hover:text-red-800 dark:hover:text-red-400"
+                                title="Delete"
+                              >
                                 <FiTrash2 className="w-4 h-4" />
                               </button>
                             </div>

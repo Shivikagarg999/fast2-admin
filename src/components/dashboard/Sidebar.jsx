@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import Logo from "../../../src/assets/images/logo.png";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 import {
   FiHome,
   FiUsers,
@@ -14,13 +16,17 @@ import {
   FiArchive,
   FiImage,
   FiTag,
-  FiGift
+  FiGift,
+  FiShoppingCart,
+  FiFileText,
+  FiShield
 } from "react-icons/fi";
 
 const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const pathname = location.pathname;
+  const { isSuperAdmin, hasPermission } = usePermissions();
 
   const [expandOrders, setExpandOrders] = useState(false);
 
@@ -35,7 +41,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
     navigate("/");
   };
 
-  const menuCategories = [
+  const allMenuCategories = [
     {
       name: "Overview",
       items: [
@@ -43,6 +49,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           name: "Dashboard",
           path: "/dashboard",
           icon: <FiHome className="w-5 h-5" />,
+          permission: PERMISSIONS.DASHBOARD_VIEW,
         },
       ]
     },
@@ -53,16 +60,19 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           name: "Users",
           path: "/admin/users",
           icon: <FiUsers className="w-5 h-5" />,
+          permission: PERMISSIONS.USERS_VIEW,
         },
         {
           name: "Products",
           path: "/admin/products",
           icon: <FiShoppingBag className="w-5 h-5" />,
+          permission: PERMISSIONS.PRODUCTS_VIEW,
         },
         {
           name: "Categories",
           path: "/admin/categories",
           icon: <FiArchive className="w-5 h-5" />,
+          permission: PERMISSIONS.CATEGORIES_VIEW,
         },
       ]
     },
@@ -73,16 +83,19 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           name: "Orders",
           icon: <FiPackage className="w-5 h-5" />,
           path: "/admin/orders",
+          permission: PERMISSIONS.ORDERS_VIEW,
         },
         {
           name: "Delivery Agents",
           path: "/admin/drivers",
           icon: <FiTruck className="w-5 h-5" />,
+          permission: PERMISSIONS.DRIVERS_VIEW,
         },
         {
           name: "Warehouses",
           path: "/admin/warehouses",
           icon: <FiArchive className="w-5 h-5" />,
+          permission: PERMISSIONS.WAREHOUSES_VIEW,
         },
       ]
     },
@@ -93,16 +106,19 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           name: "Discounts",
           path: "/admin/discounts",
           icon: <FiGift className="w-5 h-5" />,
+          permission: PERMISSIONS.DISCOUNTS_VIEW,
         },
         {
           name: "Coupon Codes",
           path: "/admin/coupons",
           icon: <FiTag className="w-5 h-5" />,
+          permission: PERMISSIONS.COUPONS_VIEW,
         },
         {
           name: "Banners",
           path: "/admin/banners",
           icon: <FiImage className="w-5 h-5" />,
+          permission: PERMISSIONS.BANNERS_VIEW,
         },
       ]
     },
@@ -110,18 +126,69 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
       name: "Business",
       items: [
         {
+          name: "Sellers",
+          path: "/admin/sellers",
+          icon: <FiShoppingCart className="w-5 h-5" />,
+          permission: PERMISSIONS.SELLERS_VIEW,
+        },
+        {
           name: "Promotors",
           path: "/admin/promotors",
           icon: <FiUserCheck className="w-5 h-5" />,
+          permission: PERMISSIONS.PROMOTORS_VIEW,
         },
         {
           name: "Payments",
           path: "/admin/payments",
           icon: <FiCreditCard className="w-5 h-5" />,
+          permission: null, // No specific permission defined yet
         },
       ]
-    }
+    },
+    {
+      name: "Legal",
+      items: [
+        {
+          name: "Terms & Conditions",
+          path: "/admin/terms",
+          icon: <FiFileText className="w-5 h-5" />,
+          permission: PERMISSIONS.TERMS_VIEW,
+        },
+      ]
+    },
+    ...(isSuperAdmin() ? [{
+      name: "System",
+      items: [
+        {
+          name: "Admin Management",
+          path: "/admin/admins",
+          icon: <FiShield className="w-5 h-5" />,
+          permission: null, // Super admin only, no permission check
+        },
+        {
+          name: "Role Management",
+          path: "/admin/roles",
+          icon: <FiShield className="w-5 h-5" />,
+          permission: null, // Super admin only, no permission check
+        },
+      ]
+    }] : [])
   ];
+
+  // Filter menu items based on permissions
+  const menuCategories = useMemo(() => {
+    return allMenuCategories
+      .map(category => ({
+        ...category,
+        items: category.items.filter(item => {
+          // If no permission is defined, show the item (for backward compatibility)
+          if (!item.permission) return true;
+          // Check if user has the required permission
+          return hasPermission(item.permission);
+        })
+      }))
+      .filter(category => category.items.length > 0); // Remove empty categories
+  }, [hasPermission, isSuperAdmin]);
 
   const handleLinkClick = () => {
     // Close sidebar on mobile when a link is clicked

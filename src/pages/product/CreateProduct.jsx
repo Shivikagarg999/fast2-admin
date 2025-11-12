@@ -85,7 +85,7 @@ const ProductCreate = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await fetch('https://api.fast2.in/api/admin/promotor/');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`);
       if (!response.ok) throw new Error('Failed to fetch promotors');
       const data = await response.json();
       setPromotors(data);
@@ -101,7 +101,7 @@ const ProductCreate = () => {
   const fetchWarehouses = async () => {
     try {
       setLoadingWarehouses(true);
-      const response = await fetch('https://api.fast2.in/api/admin/warehouse/');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`);
       if (!response.ok) throw new Error('Failed to fetch warehouses');
       const data = await response.json();
       setWarehouses(data);
@@ -117,7 +117,7 @@ const ProductCreate = () => {
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await fetch('https://api.fast2.in/api/category/getall');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
@@ -305,7 +305,7 @@ const ProductCreate = () => {
         }
       }
 
-      const response = await fetch('https://api.fast2.in/api/product/create', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/create`, {
         method: 'POST',
         body: formDataToSend,
       });

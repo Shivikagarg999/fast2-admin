@@ -28,7 +28,7 @@ const OrdersPage = () => {
                 ...(search && { search: search })
             });
 
-            const response = await fetch(`https://api.fast2.in/api/admin/orders/getall`);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/getall`);
             if (!response.ok) throw new Error('Failed to fetch orders');
             const data = await response.json();
             
@@ -50,7 +50,7 @@ const OrdersPage = () => {
 
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
-            const response = await fetch(`https://api.fast2.in/api/admin/orders/${orderId}/status`, {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -287,10 +287,10 @@ const OrdersPage = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900 dark:text-white">
-                                                    {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                                                    {order?.items?.length} item{order?.items?.length !== 1 ? 's' : ''}
                                                 </div>
                                                 <div className="text-xs text-gray-500 dark:text-gray-400 max-w-xs truncate">
-                                                    {order.items.map(item => item.product.name).join(', ')}
+                                                    {order?.items.map(item => item?.product?.name).join(', ')}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -472,17 +472,17 @@ const OrdersPage = () => {
                                                 <div className="flex items-center space-x-4">
                                                     <img
                                                         src={item.product.images?.[0]?.url || "https://via.placeholder.com/60?text=No+Image"}
-                                                        alt={item.product.name}
+                                                        alt={item?.product?.name}
                                                         className="w-16 h-16 rounded-lg object-cover"
                                                     />
                                                     <div>
-                                                        <h4 className="font-medium text-gray-900 dark:text-white">{item.product.name}</h4>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Quantity: {item.quantity}</p>
+                                                        <h4 className="font-medium text-gray-900 dark:text-white">{item?.product?.name}</h4>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Quantity: {item?.quantity}</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-medium text-gray-900 dark:text-white">{formatCurrency(item.price)}</p>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total: {formatCurrency(item.price * item.quantity)}</p>
+                                                    <p className="font-medium text-gray-900 dark:text-white">{formatCurrency(item?.price)}</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total: {formatCurrency(item?.price * item?.quantity)}</p>
                                                 </div>
                                             </div>
                                         ))}

@@ -55,7 +55,7 @@ const CreateWarehouse = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await fetch('https://api.fast2.in/api/admin/promotor/');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch promotors: ${response.status}`);
@@ -286,7 +286,7 @@ const CreateWarehouse = () => {
       };
 
       // Call the real API
-      const response = await fetch('https://api.fast2.in/api/admin/warehouse', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

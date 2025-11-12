@@ -16,7 +16,7 @@ const DriverList = () => {
   const navigate = useNavigate();
 
   const DRIVERS_PER_PAGE = 10;
-  const API_BASE_URL = "https://api.fast2.in/api/admin/drivers";
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers`;
 
   const fetchDrivers = async () => {
     try {

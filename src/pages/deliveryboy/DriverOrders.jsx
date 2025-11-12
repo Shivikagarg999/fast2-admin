@@ -14,7 +14,7 @@ const DriverOrders = () => {
   const { id } = useParams();
 
   const ORDERS_PER_PAGE = 10;
-  const API_BASE_URL = "https://api.fast2.in/api/admin/drivers";
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers`;
 
   const fetchDriverOrders = async () => {
     try {
