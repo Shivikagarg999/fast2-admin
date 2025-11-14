@@ -19,13 +19,9 @@ import {
   FiGift,
   FiShoppingCart,
   FiFileText,
-<<<<<<< HEAD
   FiShield,
   FiDollarSign,
   FiClock
-=======
-  FiShield
->>>>>>> 3cf42e6540475ac07e781b08c12fda82193e8afc
 } from "react-icons/fi";
 
 const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
@@ -142,7 +138,6 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           path: "/admin/promotors",
           icon: <FiUserCheck className="w-5 h-5" />,
           permission: PERMISSIONS.PROMOTORS_VIEW,
-<<<<<<< HEAD
         },
       ]
     },
@@ -180,28 +175,6 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
         },
       ]
     },
-=======
-        }
-        // {
-        //   name: "Payments",
-        //   path: "/admin/payments",
-        //   icon: <FiCreditCard className="w-5 h-5" />,
-        //   permission: null, // No specific permission defined yet
-        // },
-      ]
-    },
-    {
-      name: "Legal",
-      items: [
-        {
-          name: "Terms & Conditions",
-          path: "/admin/terms",
-          icon: <FiFileText className="w-5 h-5" />,
-          permission: PERMISSIONS.TERMS_VIEW,
-        },
-      ]
-    },
->>>>>>> 3cf42e6540475ac07e781b08c12fda82193e8afc
     ...(isSuperAdmin() ? [{
       name: "System",
       items: [
