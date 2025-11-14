@@ -71,7 +71,7 @@ const EditDriver = () => {
     try {
       setFetching(true);
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get(`https://api.fast2.in/api/admin/drivers/${id}`, {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const driver = response.data.data;
@@ -214,14 +214,14 @@ const EditDriver = () => {
       };
 
       if (id) {
-        await axios.put(`https://api.fast2.in/api/admin/drivers/edit/${id}`, submitData, {
+        await axios.put(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers/edit/${id}`, submitData, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
       } else {
-        await axios.post('https://api.fast2.in/api/admin/drivers/create', submitData, {
+        await axios.post(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers/create`, submitData, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'

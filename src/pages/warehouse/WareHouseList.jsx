@@ -2,8 +2,11 @@ import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { FiEdit, FiTrash2, FiPlus, FiPackage, FiX, FiMapPin, FiThermometer } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 
 const WarehouseList = () => {
+  const { hasPermission } = usePermissions();
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -18,7 +21,7 @@ const WarehouseList = () => {
   const fetchWarehouses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://api.fast2.in/api/admin/warehouse');
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse`);
       setWarehouses(response.data || []);
     } catch (error) {
       console.error("Error fetching warehouses:", error);
@@ -33,10 +36,18 @@ const WarehouseList = () => {
   }, []);
 
   const handleEdit = (warehouse) => {
+    if (!hasPermission(PERMISSIONS.WAREHOUSES_EDIT)) {
+      alert("You don't have permission to edit warehouses");
+      return;
+    }
     navigate(`/admin/edit-warehouse/${warehouse._id}`, { state: { warehouse } });
   };
 
   const openDeleteModal = (warehouse) => {
+    if (!hasPermission(PERMISSIONS.WAREHOUSES_DELETE)) {
+      alert("You don't have permission to delete warehouses");
+      return;
+    }
     setDeletingWarehouse(warehouse);
     setShowDeleteModal(true);
   };
@@ -51,7 +62,7 @@ const WarehouseList = () => {
     
     setDeleteLoading(true);
     try {
-      await axios.delete(`https://api.fast2.in/api/admin/warehouse/${deletingWarehouse._id}`);
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/${deletingWarehouse._id}`);
       alert("Warehouse deleted successfully!");
       fetchWarehouses();
       closeDeleteModal();

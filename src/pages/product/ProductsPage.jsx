@@ -16,8 +16,11 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 
 const ProductsPage = () => {
+  const { hasPermission } = usePermissions();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState({});
   const [allCategories, setAllCategories] = useState([]);
@@ -119,7 +122,7 @@ const ProductsPage = () => {
   const fetchPromotors = async () => {
     try {
       const response = await axios.get(
-        "https://api.fast2.in/api/admin/promotor/"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`
       );
       setPromotors(response.data || []);
     } catch (error) {
@@ -130,7 +133,7 @@ const ProductsPage = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await axios.get(
-        "https://api.fast2.in/api/admin/warehouse/"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`
       );
       setWarehouses(response.data || []);
     } catch (error) {
@@ -141,7 +144,7 @@ const ProductsPage = () => {
   const fetchAllCategories = async () => {
     try {
       const response = await axios.get(
-        "https://api.fast2.in/api/category/getall"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`
       );
       setAllCategories(response.data || []);
 
@@ -159,7 +162,7 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://api.fast2.in/api/product/get-products-admin"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/get-products-admin`
       );
 
       let productsArray = [];
@@ -198,7 +201,7 @@ const ProductsPage = () => {
   const fetchProductStatus = async (productId) => {
     try {
       const response = await axios.get(
-        `https://api.fast2.in/api/product/${productId}/status`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/status`
       );
       if (response.data.success) {
         return response.data.isActive;
@@ -220,7 +223,7 @@ const ProductsPage = () => {
       }
 
       const response = await axios.patch(
-        `https://api.fast2.in/api/product/${productId}/toggle-active`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/toggle-active`
       );
 
       if (response.data.success) {
@@ -255,7 +258,7 @@ const ProductsPage = () => {
     try {
       setAnalyticsLoading(true);
       const response = await axios.get(
-        "https://api.fast2.in/api/product/orders/stats/orders?limit=50"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/orders/stats/orders?limit=50`
       );
       setAnalyticsData(response.data);
     } catch (error) {
@@ -270,7 +273,7 @@ const ProductsPage = () => {
     try {
       setOrdersLoading(true);
       const response = await axios.get(
-        `https://api.fast2.in/api/product/orders/${productId}/orders`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/orders/${productId}/orders`
       );
       setProductOrders(response.data.orders || []);
     } catch (error) {
@@ -347,10 +350,18 @@ const ProductsPage = () => {
   };
 
   const openAddModal = () => {
+    if (!hasPermission(PERMISSIONS.PRODUCTS_CREATE)) {
+      alert("You don't have permission to create products");
+      return;
+    }
     navigate("/admin/createProduct");
   };
 
   const openEditModal = (product) => {
+    if (!hasPermission(PERMISSIONS.PRODUCTS_EDIT)) {
+      alert("You don't have permission to edit products");
+      return;
+    }
     const productData = {
       name: product.name || "",
       description: product.description || "",
@@ -605,7 +616,7 @@ const ProductsPage = () => {
       });
 
       await axios.put(
-        `https://api.fast2.in/api/product/${editingProduct._id}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${editingProduct._id}`,
         submitData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -627,9 +638,13 @@ const ProductsPage = () => {
   };
 
   const handleDelete = async (productId, productName) => {
+    if (!hasPermission(PERMISSIONS.PRODUCTS_DELETE)) {
+      alert("You don't have permission to delete products");
+      return;
+    }
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
       try {
-        await axios.delete(`https://api.fast2.in/api/product/${productId}`);
+        await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}`);
         alert("Product deleted successfully!");
         fetchProducts();
       } catch (error) {
@@ -905,10 +920,12 @@ const ProductsPage = () => {
                     </button>
                   </div>
                 </div>
-                <button onClick={openAddModal} style={buttonStyles.primary}>
-                  <FiPlus style={{ width: "16px", height: "16px" }} />
-                  Add Product
-                </button>
+                {hasPermission(PERMISSIONS.PRODUCTS_CREATE) && (
+                  <button onClick={openAddModal} style={buttonStyles.primary}>
+                    <FiPlus style={{ width: "16px", height: "16px" }} />
+                    Add Product
+                  </button>
+                )}
               </div>
 
               <div
@@ -1278,36 +1295,40 @@ const ProductsPage = () => {
                                     style={{ width: "16px", height: "16px" }}
                                   />
                                 </button>
-                                <button
-                                  onClick={() => openEditModal(product)}
-                                  style={{
-                                    color: "#3b82f6",
-                                    padding: "4px",
-                                    borderRadius: "4px",
-                                  }}
-                                  className="hover:text-blue-700"
-                                  title="Edit Product"
-                                >
-                                  <FiEdit
-                                    style={{ width: "16px", height: "16px" }}
-                                  />
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDelete(product._id, product.name)
-                                  }
-                                  style={{
-                                    color: "#ef4444",
-                                    padding: "4px",
-                                    borderRadius: "4px",
-                                  }}
-                                  className="hover:text-red-700"
-                                  title="Delete Product"
-                                >
-                                  <FiTrash2
-                                    style={{ width: "16px", height: "16px" }}
-                                  />
-                                </button>
+                                {hasPermission(PERMISSIONS.PRODUCTS_EDIT) && (
+                                  <button
+                                    onClick={() => openEditModal(product)}
+                                    style={{
+                                      color: "#3b82f6",
+                                      padding: "4px",
+                                      borderRadius: "4px",
+                                    }}
+                                    className="hover:text-blue-700"
+                                    title="Edit Product"
+                                  >
+                                    <FiEdit
+                                      style={{ width: "16px", height: "16px" }}
+                                    />
+                                  </button>
+                                )}
+                                {hasPermission(PERMISSIONS.PRODUCTS_DELETE) && (
+                                  <button
+                                    onClick={() =>
+                                      handleDelete(product._id, product.name)
+                                    }
+                                    style={{
+                                      color: "#ef4444",
+                                      padding: "4px",
+                                      borderRadius: "4px",
+                                    }}
+                                    className="hover:text-red-700"
+                                    title="Delete Product"
+                                  >
+                                    <FiTrash2
+                                      style={{ width: "16px", height: "16px" }}
+                                    />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -1410,18 +1431,20 @@ const ProductsPage = () => {
                           <FiEye style={{ width: "14px", height: "14px" }} />
                           View
                         </button>
-                        <button
-                          onClick={() => openEditModal(product)}
-                          style={{
-                            ...buttonStyles.primary,
-                            flex: "1",
-                            fontSize: "14px",
-                            padding: "6px 12px",
-                          }}
-                        >
-                          <FiEdit style={{ width: "14px", height: "14px" }} />
-                          Edit
-                        </button>
+                        {hasPermission(PERMISSIONS.PRODUCTS_EDIT) && (
+                          <button
+                            onClick={() => openEditModal(product)}
+                            style={{
+                              ...buttonStyles.primary,
+                              flex: "1",
+                              fontSize: "14px",
+                              padding: "6px 12px",
+                            }}
+                          >
+                            <FiEdit style={{ width: "14px", height: "14px" }} />
+                            Edit
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
