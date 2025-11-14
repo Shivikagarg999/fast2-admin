@@ -88,7 +88,6 @@ const TermsAndConditions = () => {
 
   const handleDelete = async () => {
     if (!deleteConfirm) return;
-    
     if (!hasPermission(PERMISSIONS.TERMS_EDIT)) {
       alert("You don't have permission to delete terms and conditions");
       return;

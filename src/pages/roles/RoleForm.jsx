@@ -264,7 +264,7 @@ const RoleForm = () => {
             type="submit"
             disabled={loading}
             className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-          >
+   >
             <FiSave className="w-4 h-4" />
             {loading ? 'Saving...' : isEditMode ? 'Update Role' : 'Create Role'}
           </button>

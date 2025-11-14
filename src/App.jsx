@@ -35,7 +35,6 @@ import AdminForm from "./pages/admin/AdminForm";
 //role management
 import RoleManagement from "./pages/roles/RoleManagement";
 import RoleForm from "./pages/roles/RoleForm";
-//payouts
 import PromotorPayouts from "./pages/payouts/PromotorPayouts";
 import SellerPayouts from "./pages/payouts/SellerPayouts";
 import PayoutHistory from "./pages/payouts/PayoutHistory";
@@ -288,8 +287,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
-          {/* Payouts */}
           <Route 
             path="/admin/payouts/promotors" 
             element={

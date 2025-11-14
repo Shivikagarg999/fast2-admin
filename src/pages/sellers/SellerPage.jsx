@@ -11,6 +11,7 @@ import { PERMISSIONS } from '../../config/permissions';
 
 const SellerPage = () => {
   const { hasPermission } = usePermissions();
+
   const [sellers, setSellers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
