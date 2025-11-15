@@ -35,10 +35,6 @@ import AdminForm from "./pages/admin/AdminForm";
 //role management
 import RoleManagement from "./pages/roles/RoleManagement";
 import RoleForm from "./pages/roles/RoleForm";
-<<<<<<< HEAD
-//payouts
-=======
->>>>>>> 824eefda645045997a79650b0f6a514170df0ffc
 import PromotorPayouts from "./pages/payouts/PromotorPayouts";
 import SellerPayouts from "./pages/payouts/SellerPayouts";
 import PayoutHistory from "./pages/payouts/PayoutHistory";
