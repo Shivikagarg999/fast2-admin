@@ -2,8 +2,11 @@ import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { FiEdit, FiTrash2, FiPlus, FiUser, FiX, FiDollarSign } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 
 const PromotorsPage = () => {
+  const { hasPermission } = usePermissions();
   const [promotors, setPromotors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -18,7 +21,7 @@ const PromotorsPage = () => {
   const fetchPromotors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://api.fast2.in/api/admin/promotor');
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor`);
       setPromotors(response.data || []);
     } catch (error) {
       console.error("Error fetching promotors:", error);
@@ -33,10 +36,18 @@ const PromotorsPage = () => {
   }, []);
 
   const handleEdit = (promotor) => {
+    if (!hasPermission(PERMISSIONS.PROMOTORS_EDIT)) {
+      alert("You don't have permission to edit promotors");
+      return;
+    }
     navigate(`/admin/edit-promotor/${promotor._id}`, { state: { promotor } });
   };
 
   const openDeleteModal = (promotor) => {
+    if (!hasPermission(PERMISSIONS.PROMOTORS_DELETE)) {
+      alert("You don't have permission to delete promotors");
+      return;
+    }
     setDeletingPromotor(promotor);
     setShowDeleteModal(true);
   };
@@ -51,7 +62,7 @@ const PromotorsPage = () => {
     
     setDeleteLoading(true);
     try {
-      await axios.delete(`https://api.fast2.in/api/admin/promotor/${deletingPromotor._id}`);
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/${deletingPromotor._id}`);
       alert("Promotor deleted successfully!");
       fetchPromotors();
       closeDeleteModal();
@@ -102,13 +113,15 @@ const PromotorsPage = () => {
               {filteredPromotors.length} promotors
             </span>
           </div>
-          <button 
-            onClick={() => navigate('/admin/create-promotor')}
-            className="flex items-center px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <FiPlus className="w-4 h-4 mr-2" />
-            Add Promotor
-          </button>
+          {hasPermission(PERMISSIONS.PROMOTORS_CREATE) && (
+            <button 
+              onClick={() => navigate('/admin/create-promotor')}
+              className="flex items-center px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <FiPlus className="w-4 h-4 mr-2" />
+              Add Promotor
+            </button>
+          )}
         </div>
 
         {/* Search */}

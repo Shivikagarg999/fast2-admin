@@ -2,8 +2,11 @@ import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { FiEdit, FiTrash2, FiPlus, FiUser, FiX, FiPhone, FiMail, FiCheckCircle, FiDollarSign } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 
 const DriverList = () => {
+  const { hasPermission } = usePermissions();
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -16,7 +19,7 @@ const DriverList = () => {
   const navigate = useNavigate();
 
   const DRIVERS_PER_PAGE = 10;
-  const API_BASE_URL = "https://api.fast2.in/api/admin/drivers";
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers`;
 
   const fetchDrivers = async () => {
     try {
@@ -41,10 +44,18 @@ const DriverList = () => {
   }, []);
 
   const handleEdit = (driver) => {
+    if (!hasPermission(PERMISSIONS.DRIVERS_EDIT)) {
+      alert("You don't have permission to edit drivers");
+      return;
+    }
     navigate(`/admin/edit-driver/${driver._id}`, { state: { driver } });
   };
 
   const openDeleteModal = (driver) => {
+    if (!hasPermission(PERMISSIONS.DRIVERS_DELETE)) {
+      alert("You don't have permission to delete drivers");
+      return;
+    }
     setDeletingDriver(driver);
     setShowDeleteModal(true);
   };
@@ -75,6 +86,10 @@ const DriverList = () => {
   };
 
   const handleStatusUpdate = async (driverId, newStatus) => {
+    if (!hasPermission(PERMISSIONS.DRIVERS_APPROVE)) {
+      alert("You don't have permission to update driver status");
+      return;
+    }
     try {
       const token = localStorage.getItem('adminToken');
       await axios.patch(`${API_BASE_URL}/${driverId}/status`, 

@@ -11,8 +11,11 @@ import {
   FiSave,
   FiX
 } from "react-icons/fi";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 
 const BannersPage = () => {
+  const { hasPermission } = usePermissions();
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -50,7 +53,7 @@ const BannersPage = () => {
   const fetchBanners = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://api.fast2.in/api/admin/banners/getall');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/getall`);
       const data = await response.json();
       
       if (data.success) {
@@ -66,10 +69,14 @@ const BannersPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!hasPermission(editingBanner ? PERMISSIONS.BANNERS_EDIT : PERMISSIONS.BANNERS_CREATE)) {
+      alert(`You don't have permission to ${editingBanner ? 'edit' : 'create'} banners`);
+      return;
+    }
     try {
       const url = editingBanner 
-        ? `https://api.fast2.in/api/admin/banners/update/${editingBanner._id}`
-        : 'https://api.fast2.in/api/admin/banners/create';
+        ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update/${editingBanner._id}`
+        : `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/create`;
       
       const method = editingBanner ? 'PUT' : 'POST';
       
@@ -98,6 +105,10 @@ const BannersPage = () => {
   };
 
   const handleEdit = (banner) => {
+    if (!hasPermission(PERMISSIONS.BANNERS_EDIT)) {
+      alert("You don't have permission to edit banners");
+      return;
+    }
     setEditingBanner(banner);
     setFormData({
       title: banner.title,
@@ -119,7 +130,7 @@ const BannersPage = () => {
     if (!deleteConfirm) return;
     
     try {
-      const response = await fetch(`https://api.fast2.in/api/admin/banners/delete/${deleteConfirm._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/delete/${deleteConfirm._id}`, {
         method: 'DELETE'
       });
       
@@ -140,7 +151,7 @@ const BannersPage = () => {
 
   const toggleBannerStatus = async (banner) => {
     try {
-      const response = await fetch(`https://api.fast2.in/api/admin/banners/update/${banner._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update/${banner._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +182,7 @@ const BannersPage = () => {
     if (!swapBanner) return;
     
     try {
-      const response = await fetch('https://api.fast2.in/api/admin/banners/update-order/update-order', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update-order/update-order`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

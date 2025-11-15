@@ -58,7 +58,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
       setError(null);
       console.log('Fetching fresh orders from API...');
       
-      const response = await fetch('https://api.fast2.in/api/admin/orders/admin/fresh-orders');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/admin/fresh-orders`);
       
       console.log('API Response status:', response.status);
       

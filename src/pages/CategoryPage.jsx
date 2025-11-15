@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Edit, Trash2, Plus, Tag, X, Upload } from "lucide-react";
+import usePermissions from "../hooks/usePermissions";
+import { PERMISSIONS } from "../config/permissions";
 
 const CategoriesPage = () => {
+    const { hasPermission } = usePermissions();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -31,7 +34,7 @@ const CategoriesPage = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const response = await fetch('https://api.fast2.in/api/category/getall');
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
             if (!response.ok) throw new Error('Failed to fetch categories');
             const data = await response.json();
             setCategories(data);
@@ -67,12 +70,20 @@ const CategoriesPage = () => {
     };
 
     const openAddModal = () => {
+        if (!hasPermission(PERMISSIONS.CATEGORIES_CREATE)) {
+            alert("You don't have permission to create categories");
+            return;
+        }
         resetForm();
         setEditingCategory(null);
         setShowModal(true);
     };
 
     const openEditModal = (category) => {
+        if (!hasPermission(PERMISSIONS.CATEGORIES_EDIT)) {
+            alert("You don't have permission to edit categories");
+            return;
+        }
         setFormData({
             name: category.name || "",
             hsnCode: category.hsnCode || "",
@@ -141,13 +152,13 @@ const CategoriesPage = () => {
             let response;
             if (editingCategory) {
                 // Update category - adjust the endpoint as needed
-                response = await fetch(`https://api.fast2.in/api/category/update/${editingCategory._id}`, {
+                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/update/${editingCategory._id}`, {
                     method: 'PUT',
                     body: submitData,
                 });
             } else {
                 // Create category
-                response = await fetch('https://api.fast2.in/api/category/create', {
+                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/create`, {
                     method: 'POST',
                     body: submitData,
                 });
@@ -170,9 +181,13 @@ const CategoriesPage = () => {
     };
 
     const handleDelete = async (categoryId, categoryName) => {
+        if (!hasPermission(PERMISSIONS.CATEGORIES_DELETE)) {
+            alert("You don't have permission to delete categories");
+            return;
+        }
         if (window.confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone.`)) {
             try {
-                const response = await fetch(`https://api.fast2.in/api/category/delete/${categoryId}`, {
+                const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/delete/${categoryId}`, {
                     method: 'DELETE',
                 });
 

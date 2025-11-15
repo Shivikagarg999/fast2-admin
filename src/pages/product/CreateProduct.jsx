@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, FiX } from 'react-icons/fi';
+import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, FiX, FiImage, FiVideo } from 'react-icons/fi';
 import { Editor } from '@tinymce/tinymce-react';
 
 const ProductCreate = () => {
@@ -49,14 +49,20 @@ const ProductCreate = () => {
     estimatedDeliveryTime: '',
     deliveryCharges: '0',
     freeDeliveryThreshold: '0',
-    availablePincodes: '',
+    serviceablePincodes: [],
     
-    // Image
-    image: null,
+    // Images (up to 5)
+    images: [],
+    
+    // Video (1 max)
+    video: null,
 
     // Variants
     variants: []
   });
+
+  const [pincodeInput, setPincodeInput] = useState('');
+  const [pincodeError, setPincodeError] = useState('');
 
   // Common variant types
   const commonVariantTypes = [
@@ -85,7 +91,7 @@ const ProductCreate = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await fetch('https://api.fast2.in/api/admin/promotor/');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`);
       if (!response.ok) throw new Error('Failed to fetch promotors');
       const data = await response.json();
       setPromotors(data);
@@ -101,7 +107,7 @@ const ProductCreate = () => {
   const fetchWarehouses = async () => {
     try {
       setLoadingWarehouses(true);
-      const response = await fetch('https://api.fast2.in/api/admin/warehouse/');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`);
       if (!response.ok) throw new Error('Failed to fetch warehouses');
       const data = await response.json();
       setWarehouses(data);
@@ -117,7 +123,7 @@ const ProductCreate = () => {
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await fetch('https://api.fast2.in/api/category/getall');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
@@ -144,10 +150,53 @@ const ProductCreate = () => {
     }));
   };
 
-  const handleFileChange = (e) => {
+  const handleImageChange = (e) => {
+    const newFiles = Array.from(e.target.files);
+    const currentImages = formData.images;
+    
+    // Check if adding new files would exceed the limit
+    if (currentImages.length + newFiles.length > 5) {
+      setError(`Maximum 5 images allowed. You can add ${5 - currentImages.length} more image(s).`);
+      e.target.value = ''; // Reset input
+      return;
+    }
+    
     setFormData(prev => ({
       ...prev,
-      image: e.target.files[0]
+      images: [...prev.images, ...newFiles]
+    }));
+    
+    // Reset the input so the same file can be selected again if needed
+    e.target.value = '';
+    setError('');
+  };
+
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        setError('Video file size should not exceed 50MB');
+        return;
+      }
+      setFormData(prev => ({
+        ...prev,
+        video: file
+      }));
+    }
+  };
+
+  const removeImage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const removeVideo = () => {
+    setFormData(prev => ({
+      ...prev,
+      video: null
     }));
   };
 
@@ -226,6 +275,53 @@ const ProductCreate = () => {
     }
   };
 
+  // Pincode management functions
+  const validatePincode = (pincode) => {
+    const pincodeRegex = /^[1-9][0-9]{5}$/;
+    return pincodeRegex.test(pincode);
+  };
+
+  const addPincode = () => {
+    const trimmedPincode = pincodeInput.trim();
+    
+    if (!trimmedPincode) {
+      setPincodeError('Please enter a pincode');
+      return;
+    }
+
+    if (!validatePincode(trimmedPincode)) {
+      setPincodeError('Invalid pincode format. Must be 6 digits.');
+      return;
+    }
+
+    if (formData.serviceablePincodes.includes(trimmedPincode)) {
+      setPincodeError('Pincode already added');
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      serviceablePincodes: [...prev.serviceablePincodes, trimmedPincode]
+    }));
+    
+    setPincodeInput('');
+    setPincodeError('');
+  };
+
+  const removePincode = (pincodeToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      serviceablePincodes: prev.serviceablePincodes.filter(p => p !== pincodeToRemove)
+    }));
+  };
+
+  const handlePincodeKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addPincode();
+    }
+  };
+
   // Form validation
   const validateForm = () => {
     const errors = [];
@@ -236,7 +332,8 @@ const ProductCreate = () => {
     if (!formData.category) errors.push('Category is required');
     if (!formData.price) errors.push('Price is required');
     if (!formData.promotor) errors.push('Promotor is required');
-    if (!formData.image) errors.push('Product image is required');
+    if (formData.images.length === 0) errors.push('At least one product image is required');
+    if (formData.images.length > 5) errors.push('Maximum 5 images allowed');
     if (!formData.unitValue) errors.push('Unit value is required');
     if (!formData.weight) errors.push('Weight is required');
 
@@ -273,9 +370,14 @@ const ProductCreate = () => {
       
       // Append all form fields to FormData
       Object.keys(formData).forEach(key => {
-        if (key === 'image' && formData[key]) {
-          // IMPORTANT: Change from 'image' to 'images' to match backend expectation
-          formDataToSend.append('images', formData[key]);
+        if (key === 'images' && formData[key].length > 0) {
+          // Append all images
+          formData[key].forEach((image) => {
+            formDataToSend.append('images', image);
+          });
+        } else if (key === 'video' && formData[key]) {
+          // Append video if present
+          formDataToSend.append('video', formData[key]);
         } else if (key === 'variants') {
           // Clean variants data before sending
           const cleanedVariants = formData.variants.map(variant => ({
@@ -290,6 +392,9 @@ const ProductCreate = () => {
           
           console.log('Sending variants:', cleanedVariants);
           formDataToSend.append(key, JSON.stringify(cleanedVariants));
+        } else if (key === 'serviceablePincodes') {
+          // Send pincodes as JSON array
+          formDataToSend.append(key, JSON.stringify(formData[key]));
         } else if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
           formDataToSend.append(key, formData[key]);
         }
@@ -298,14 +403,14 @@ const ProductCreate = () => {
       // Log what we're sending for debugging
       console.log('Form data being sent:');
       for (let [key, value] of formDataToSend.entries()) {
-        if (key === 'images') {
+        if (key === 'images' || key === 'video') {
           console.log(key, 'File:', value.name, value.size, 'bytes');
         } else {
           console.log(key, value);
         }
       }
 
-      const response = await fetch('https://api.fast2.in/api/product/create', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/create`, {
         method: 'POST',
         body: formDataToSend,
       });
@@ -955,43 +1060,195 @@ const ProductCreate = () => {
                 
                 <div className="md:col-span-3">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Available Pincodes (comma separated)
+                    Serviceable Pincodes
                   </label>
-                  <input
-                    type="text"
-                    name="availablePincodes"
-                    value={formData.availablePincodes}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., 110001, 110002, 110003"
-                  />
+                  
+                  {/* Pincode Input */}
+                  <div className="flex gap-2 mb-3">
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={pincodeInput}
+                        onChange={(e) => {
+                          setPincodeInput(e.target.value);
+                          setPincodeError('');
+                        }}
+                        onKeyPress={handlePincodeKeyPress}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                          bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                          focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter 6-digit pincode (e.g., 110001)"
+                        maxLength="6"
+                      />
+                      {pincodeError && (
+                        <p className="text-red-500 text-sm mt-1">{pincodeError}</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addPincode}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
+                        flex items-center whitespace-nowrap"
+                    >
+                      <FiPlus className="mr-1" /> Add Pincode
+                    </button>
+                  </div>
+
+                  {/* Pincode Tags Display */}
+                  {formData.serviceablePincodes.length > 0 ? (
+                    <div className="border border-gray-300 dark:border-gray-600 rounded-md p-3 
+                      bg-gray-50 dark:bg-gray-700/50 min-h-[60px]">
+                      <div className="flex flex-wrap gap-2">
+                        {formData.serviceablePincodes.map((pincode, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-sm 
+                              bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200
+                              border border-blue-300 dark:border-blue-700"
+                          >
+                            <FiMapPin className="mr-1" size={14} />
+                            {pincode}
+                            <button
+                              type="button"
+                              onClick={() => removePincode(pincode)}
+                              className="ml-2 text-blue-600 dark:text-blue-300 hover:text-blue-800 
+                                dark:hover:text-blue-100"
+                            >
+                              <FiX size={16} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        {formData.serviceablePincodes.length} pincode{formData.serviceablePincodes.length !== 1 ? 's' : ''} added
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-md p-4 
+                      text-center text-gray-500 dark:text-gray-400">
+                      <FiMapPin className="mx-auto mb-2" size={24} />
+                      <p className="text-sm">No pincodes added yet. Add pincodes where this product can be delivered.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
             
-            {/* Image Upload Section */}
+            {/* Images and Video Upload Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Product Image</h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                <FiImage className="mr-2" /> Product Images & Video
+              </h2>
               
-              <div>
+              {/* Images Upload */}
+              <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Product Image *
+                  Product Images * ({formData.images.length}/5)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="file"
+                    name="images"
+                    onChange={handleImageChange}
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    accept="image/*"
+                    multiple
+                    disabled={formData.images.length >= 5}
+                  />
+                  {formData.images.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, images: [] }))}
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 
+                        flex items-center whitespace-nowrap"
+                    >
+                      <FiTrash2 className="mr-1" /> Clear All
+                    </button>
+                  )}
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {formData.images.length >= 5 
+                    ? 'Maximum 5 images reached. Remove some to add more.' 
+                    : `Upload up to 5 product images. You can add ${5 - formData.images.length} more. First image will be the primary image.`
+                  }
+                </p>
+                
+                {/* Image Preview */}
+                {formData.images.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {formData.images.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-300 dark:border-gray-600">
+                          <img
+                            src={URL.createObjectURL(image)}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 
+                            opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <FiX size={16} />
+                        </button>
+                        {index === 0 && (
+                          <span className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                            Primary
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Video Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                  <FiVideo className="mr-2" /> Product Video (Optional)
                 </label>
                 <input
                   type="file"
-                  name="image"
-                  onChange={handleFileChange}
+                  name="video"
+                  onChange={handleVideoChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                     focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  accept="image/*"
-                  required
+                  accept="video/*"
                 />
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Upload a product image (required)
+                  Upload a product video (Max 50MB). Supported formats: MP4, MOV, AVI
                 </p>
+                
+                {/* Video Preview */}
+                {formData.video && (
+                  <div className="mt-4">
+                    <div className="relative inline-block">
+                      <div className="rounded-lg overflow-hidden border-2 border-gray-300 dark:border-gray-600 max-w-md">
+                        <video
+                          src={URL.createObjectURL(formData.video)}
+                          controls
+                          className="w-full"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removeVideo}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 
+                          hover:bg-red-600 transition-colors"
+                      >
+                        <FiX size={16} />
+                      </button>
+                      <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        {formData.video.name} ({(formData.video.size / (1024 * 1024)).toFixed(2)} MB)
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             
