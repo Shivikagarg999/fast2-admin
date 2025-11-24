@@ -87,12 +87,6 @@ const BannersPage = () => {
       alert(`You don't have permission to ${editingBanner ? 'edit' : 'create'} banners`);
       return;
     }
-
-    if (!editingBanner && !imageFile) {
-      alert('Please select a banner image');
-      return;
-    }
-
     try {
       const url = editingBanner 
         ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update/${editingBanner._id}`

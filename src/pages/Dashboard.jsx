@@ -826,7 +826,7 @@ const DashboardLayout = () => {
 
                   {/* Order Status Breakdown and Top Products */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <OrderStatusBreakdown period={selectedPeriod} />
+                    <OrderStatusBreakdown />
                     <TopSellingProducts />
                   </div>
 

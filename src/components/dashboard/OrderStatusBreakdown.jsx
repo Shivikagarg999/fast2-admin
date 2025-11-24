@@ -3,18 +3,18 @@ import { Package, CheckCircle, Clock, Truck, XCircle } from 'lucide-react';
 import { fetchOrderStats } from '../../utils/api';
 import { formatNumber } from '../../utils/api';
 
-const OrderStatusBreakdown = ({ period = 'month' }) => {
+const OrderStatusBreakdown = () => {
   const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStatusData();
-  }, [period]);
+  }, []);
 
   const loadStatusData = async () => {
     try {
       setLoading(true);
-      const data = await fetchOrderStats(period);
+      const data = await fetchOrderStats('month');
       setStatusData(data.ordersByStatus || {});
     } catch (error) {
       console.error('Error loading status data:', error);
