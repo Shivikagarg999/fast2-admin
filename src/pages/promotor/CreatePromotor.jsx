@@ -88,7 +88,7 @@ const CreatePromotorPage = () => {
       // Remove confirmPassword as it's not needed in the API
       const { confirmPassword, ...submitData } = formData;
       
-      await axios.post('https://api.fast2.in/api/admin/promotor', submitData);
+      await axios.post(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor`, submitData);
       
       alert('Promotor created successfully!');
       // Reset form

@@ -16,8 +16,11 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 
 const ProductsPage = () => {
+  const { hasPermission } = usePermissions();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState({});
   const [allCategories, setAllCategories] = useState([]);
@@ -119,7 +122,7 @@ const ProductsPage = () => {
   const fetchPromotors = async () => {
     try {
       const response = await axios.get(
-        "https://api.fast2.in/api/admin/promotor/"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`
       );
       setPromotors(response.data || []);
     } catch (error) {
@@ -130,7 +133,7 @@ const ProductsPage = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await axios.get(
-        "https://api.fast2.in/api/admin/warehouse/"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`
       );
       setWarehouses(response.data || []);
     } catch (error) {
@@ -141,7 +144,7 @@ const ProductsPage = () => {
   const fetchAllCategories = async () => {
     try {
       const response = await axios.get(
-        "https://api.fast2.in/api/category/getall"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`
       );
       setAllCategories(response.data || []);
 
@@ -159,7 +162,7 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://api.fast2.in/api/product/get-products-admin"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/get-products-admin`
       );
 
       let productsArray = [];
@@ -198,7 +201,7 @@ const ProductsPage = () => {
   const fetchProductStatus = async (productId) => {
     try {
       const response = await axios.get(
-        `https://api.fast2.in/api/product/${productId}/status`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/status`
       );
       if (response.data.success) {
         return response.data.isActive;
@@ -220,7 +223,7 @@ const ProductsPage = () => {
       }
 
       const response = await axios.patch(
-        `https://api.fast2.in/api/product/${productId}/toggle-active`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/toggle-active`
       );
 
       if (response.data.success) {
@@ -255,7 +258,7 @@ const ProductsPage = () => {
     try {
       setAnalyticsLoading(true);
       const response = await axios.get(
-        "https://api.fast2.in/api/product/orders/stats/orders?limit=50"
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/orders/stats/orders?limit=50`
       );
       setAnalyticsData(response.data);
     } catch (error) {
@@ -270,7 +273,7 @@ const ProductsPage = () => {
     try {
       setOrdersLoading(true);
       const response = await axios.get(
-        `https://api.fast2.in/api/product/orders/${productId}/orders`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/orders/${productId}/orders`
       );
       setProductOrders(response.data.orders || []);
     } catch (error) {
@@ -347,10 +350,18 @@ const ProductsPage = () => {
   };
 
   const openAddModal = () => {
+    if (!hasPermission(PERMISSIONS.PRODUCTS_CREATE)) {
+      alert("You don't have permission to create products");
+      return;
+    }
     navigate("/admin/createProduct");
   };
 
   const openEditModal = (product) => {
+    if (!hasPermission(PERMISSIONS.PRODUCTS_EDIT)) {
+      alert("You don't have permission to edit products");
+      return;
+    }
     const productData = {
       name: product.name || "",
       description: product.description || "",
@@ -364,7 +375,7 @@ const ProductsPage = () => {
       taxType: product.taxType || "inclusive",
       unit: product.unit || "piece",
       unitValue: product.unitValue || "",
-      promotor: product.promotor?.id || "",
+      promotor: (typeof product.promotor?.id === 'object' ? product.promotor?.id?._id : product.promotor?.id) || "",
       commissionRate: product.promotor?.commissionRate || "",
       commissionType: product.promotor?.commissionType || "percentage",
       commissionAmount: product.promotor?.commissionAmount || "",
@@ -381,7 +392,7 @@ const ProductsPage = () => {
         height: "",
         unit: "cm",
       },
-      warehouseId: product.warehouse?.id || "",
+      warehouseId: (typeof product.warehouse?.id === 'object' ? product.warehouse?.id?._id : product.warehouse?.id) || "",
       warehouseCode: product.warehouse?.code || "",
       storageType: product.warehouse?.storageType || "",
       estimatedDeliveryTime: product.delivery?.estimatedDeliveryTime || "",
@@ -595,6 +606,14 @@ const ProductsPage = () => {
           submitData.append("images", imageFile);
         } else if (key === "videoFile" && videoFile) {
           submitData.append("video", videoFile);
+        } else if (key === "promotor" || key === "warehouseId") {
+          // Ensure we only send IDs, not objects
+          const value = formData[key];
+          if (value && typeof value === 'object' && value._id) {
+            submitData.append(key, value._id);
+          } else if (value && typeof value === 'string') {
+            submitData.append(key, value);
+          }
         } else if (
           formData[key] !== null &&
           formData[key] !== undefined &&
@@ -605,7 +624,7 @@ const ProductsPage = () => {
       });
 
       await axios.put(
-        `https://api.fast2.in/api/product/${editingProduct._id}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${editingProduct._id}`,
         submitData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -627,9 +646,13 @@ const ProductsPage = () => {
   };
 
   const handleDelete = async (productId, productName) => {
+    if (!hasPermission(PERMISSIONS.PRODUCTS_DELETE)) {
+      alert("You don't have permission to delete products");
+      return;
+    }
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
       try {
-        await axios.delete(`https://api.fast2.in/api/product/${productId}`);
+        await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}`);
         alert("Product deleted successfully!");
         fetchProducts();
       } catch (error) {
@@ -905,10 +928,12 @@ const ProductsPage = () => {
                     </button>
                   </div>
                 </div>
-                <button onClick={openAddModal} style={buttonStyles.primary}>
-                  <FiPlus style={{ width: "16px", height: "16px" }} />
-                  Add Product
-                </button>
+                {hasPermission(PERMISSIONS.PRODUCTS_CREATE) && (
+                  <button onClick={openAddModal} style={buttonStyles.primary}>
+                    <FiPlus style={{ width: "16px", height: "16px" }} />
+                    Add Product
+                  </button>
+                )}
               </div>
 
               <div
@@ -1278,36 +1303,40 @@ const ProductsPage = () => {
                                     style={{ width: "16px", height: "16px" }}
                                   />
                                 </button>
-                                <button
-                                  onClick={() => openEditModal(product)}
-                                  style={{
-                                    color: "#3b82f6",
-                                    padding: "4px",
-                                    borderRadius: "4px",
-                                  }}
-                                  className="hover:text-blue-700"
-                                  title="Edit Product"
-                                >
-                                  <FiEdit
-                                    style={{ width: "16px", height: "16px" }}
-                                  />
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDelete(product._id, product.name)
-                                  }
-                                  style={{
-                                    color: "#ef4444",
-                                    padding: "4px",
-                                    borderRadius: "4px",
-                                  }}
-                                  className="hover:text-red-700"
-                                  title="Delete Product"
-                                >
-                                  <FiTrash2
-                                    style={{ width: "16px", height: "16px" }}
-                                  />
-                                </button>
+                                {hasPermission(PERMISSIONS.PRODUCTS_EDIT) && (
+                                  <button
+                                    onClick={() => openEditModal(product)}
+                                    style={{
+                                      color: "#3b82f6",
+                                      padding: "4px",
+                                      borderRadius: "4px",
+                                    }}
+                                    className="hover:text-blue-700"
+                                    title="Edit Product"
+                                  >
+                                    <FiEdit
+                                      style={{ width: "16px", height: "16px" }}
+                                    />
+                                  </button>
+                                )}
+                                {hasPermission(PERMISSIONS.PRODUCTS_DELETE) && (
+                                  <button
+                                    onClick={() =>
+                                      handleDelete(product._id, product.name)
+                                    }
+                                    style={{
+                                      color: "#ef4444",
+                                      padding: "4px",
+                                      borderRadius: "4px",
+                                    }}
+                                    className="hover:text-red-700"
+                                    title="Delete Product"
+                                  >
+                                    <FiTrash2
+                                      style={{ width: "16px", height: "16px" }}
+                                    />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -1410,18 +1439,20 @@ const ProductsPage = () => {
                           <FiEye style={{ width: "14px", height: "14px" }} />
                           View
                         </button>
-                        <button
-                          onClick={() => openEditModal(product)}
-                          style={{
-                            ...buttonStyles.primary,
-                            flex: "1",
-                            fontSize: "14px",
-                            padding: "6px 12px",
-                          }}
-                        >
-                          <FiEdit style={{ width: "14px", height: "14px" }} />
-                          Edit
-                        </button>
+                        {hasPermission(PERMISSIONS.PRODUCTS_EDIT) && (
+                          <button
+                            onClick={() => openEditModal(product)}
+                            style={{
+                              ...buttonStyles.primary,
+                              flex: "1",
+                              fontSize: "14px",
+                              padding: "6px 12px",
+                            }}
+                          >
+                            <FiEdit style={{ width: "14px", height: "14px" }} />
+                            Edit
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -3905,24 +3936,45 @@ const ProductsPage = () => {
                   className="lg:grid-cols-3"
                 >
                   <div className="lg:col-span-1">
-                    <img
-                      src={
-                        (selectedProduct.images &&
-                          selectedProduct.images[0] &&
-                          selectedProduct.images[0].url) ||
-                        "https://via.placeholder.com/400x400?text=No+Image"
-                      }
-                      alt={selectedProduct.name}
-                      style={{
-                        width: "100%",
-                        borderRadius: "12px",
-                        objectFit: "cover",
-                        border: "1px solid #e5e7eb",
-                      }}
-                      className="dark:border-gray-700"
-                    />
+                    {/* Main Image */}
+                    <div style={{ position: "relative", marginBottom: "12px" }}>
+                      <img
+                        src={
+                          (selectedProduct.images &&
+                            selectedProduct.images[0] &&
+                            selectedProduct.images[0].url) ||
+                          "https://via.placeholder.com/400x400?text=No+Image"
+                        }
+                        alt={selectedProduct.name}
+                        style={{
+                          width: "100%",
+                          aspectRatio: "1/1",
+                          borderRadius: "12px",
+                          objectFit: "cover",
+                          border: "2px solid #e5e7eb",
+                        }}
+                        className="dark:border-gray-700"
+                      />
+                      {selectedProduct.images && selectedProduct.images[0] && selectedProduct.images[0].isPrimary && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: "12px",
+                            left: "12px",
+                            backgroundColor: "#2563eb",
+                            color: "white",
+                            padding: "4px 12px",
+                            borderRadius: "6px",
+                            fontSize: "12px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Primary
+                        </span>
+                      )}
+                    </div>
 
-                    {/* Additional Images */}
+                    {/* Additional Images Gallery */}
                     {selectedProduct.images &&
                       selectedProduct.images.length > 1 && (
                         <div
@@ -3930,29 +3982,58 @@ const ProductsPage = () => {
                             display: "grid",
                             gridTemplateColumns: "repeat(4, 1fr)",
                             gap: "8px",
-                            marginTop: "12px",
                           }}
                         >
                           {selectedProduct.images
-                            .slice(1, 5)
+                            .slice(1)
                             .map((img, idx) => (
-                              <img
-                                key={idx}
-                                src={img.url}
-                                alt={img.altText || `Product ${idx + 2}`}
-                                style={{
-                                  width: "100%",
-                                  height: "80px",
-                                  objectFit: "cover",
-                                  borderRadius: "8px",
-                                  border: "1px solid #e5e7eb",
-                                  cursor: "pointer",
-                                }}
-                                className="dark:border-gray-700"
-                              />
+                              <div key={idx} style={{ position: "relative" }}>
+                                <img
+                                  src={img.url}
+                                  alt={img.altText || `Product ${idx + 2}`}
+                                  style={{
+                                    width: "100%",
+                                    aspectRatio: "1/1",
+                                    objectFit: "cover",
+                                    borderRadius: "8px",
+                                    border: "2px solid #e5e7eb",
+                                    cursor: "pointer",
+                                  }}
+                                  className="dark:border-gray-700 hover:border-blue-500 transition-colors"
+                                />
+                              </div>
                             ))}
                         </div>
                       )}
+
+                    {/* Video Section */}
+                    {selectedProduct.video && selectedProduct.video.url && (
+                      <div style={{ marginTop: "12px" }}>
+                        <h4
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            color: "#111827",
+                            marginBottom: "8px",
+                          }}
+                          className="dark:text-white"
+                        >
+                          Product Video
+                        </h4>
+                        <video
+                          controls
+                          style={{
+                            width: "100%",
+                            borderRadius: "12px",
+                            border: "2px solid #e5e7eb",
+                          }}
+                          className="dark:border-gray-700"
+                        >
+                          <source src={selectedProduct.video.url} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    )}
                   </div>
 
                   <div className="lg:col-span-2">

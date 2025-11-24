@@ -12,7 +12,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("https://api.fast2.in/api/admin/login", {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,6 +27,20 @@ export default function LoginPage() {
 
       if (res.ok) {
         console.log("Login successful:", data);
+        
+        // Store admin data with permissions
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('adminData', JSON.stringify({
+          _id: data._id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          roleId: data.roleId,
+          roleName: data.roleName,
+          permissions: data.permissions || [],
+          isSuperAdmin: data.isSuperAdmin || false,
+        }));
+        
         // Redirect to dashboard
         window.location.href = "/dashboard";
       } else {

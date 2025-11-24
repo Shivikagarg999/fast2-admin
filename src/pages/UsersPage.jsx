@@ -1,13 +1,31 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FiEdit, FiTrash2, FiUsers, FiSearch, FiUserPlus } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiUsers, FiSearch, FiUserPlus, FiDollarSign, FiX } from "react-icons/fi";
+import usePermissions from "../hooks/usePermissions";
+import { PERMISSIONS } from "../config/permissions";
 
 const UsersPage = () => {
+  const { hasPermission } = usePermissions();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState("");
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [walletAmount, setWalletAmount] = useState("");
+  const [walletNote, setWalletNote] = useState("");
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [userFormData, setUserFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    avatar: ""
+  });
+  const [formLoading, setFormLoading] = useState(false);
   const usersPerPage = 10;
 
   useEffect(() => {
@@ -19,7 +37,7 @@ const UsersPage = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        "https://api.fast2.in/api/admin/users",
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(res.data.users);
@@ -27,6 +45,206 @@ const UsersPage = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddMoney = async () => {
+    if (!hasPermission(PERMISSIONS.USERS_EDIT)) {
+      alert("You don't have permission to modify user wallets");
+      return;
+    }
+    if (!walletAmount || parseFloat(walletAmount) <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    try {
+      setWalletLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${selectedUser._id}/wallet/add`,
+        {
+          amount: parseFloat(walletAmount),
+          note: walletNote || "Admin credit"
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        alert(res.data.message);
+        setShowWalletModal(false);
+        setWalletAmount("");
+        setWalletNote("");
+        setSelectedUser(null);
+        fetchUsers(); // Refresh user list
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to add money to wallet");
+    } finally {
+      setWalletLoading(false);
+    }
+  };
+
+  const openWalletModal = (user) => {
+    if (!hasPermission(PERMISSIONS.USERS_EDIT)) {
+      alert("You don't have permission to modify user wallets");
+      return;
+    }
+    setSelectedUser(user);
+    setShowWalletModal(true);
+    setWalletAmount("");
+    setWalletNote("");
+  };
+
+  const closeWalletModal = () => {
+    setShowWalletModal(false);
+    setSelectedUser(null);
+    setWalletAmount("");
+    setWalletNote("");
+  };
+
+  const openAddUserModal = () => {
+    if (!hasPermission(PERMISSIONS.USERS_CREATE)) {
+      alert("You don't have permission to create users");
+      return;
+    }
+    setUserFormData({
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      avatar: ""
+    });
+    setShowAddUserModal(true);
+  };
+
+  const closeAddUserModal = () => {
+    setShowAddUserModal(false);
+    setUserFormData({
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      avatar: ""
+    });
+  };
+
+  const openEditUserModal = (user) => {
+    if (!hasPermission(PERMISSIONS.USERS_EDIT)) {
+      alert("You don't have permission to edit users");
+      return;
+    }
+    setSelectedUser(user);
+    setUserFormData({
+      name: user.name || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      password: "", // Don't populate password for security
+      avatar: user.avatar || ""
+    });
+    setShowEditUserModal(true);
+  };
+
+  const closeEditUserModal = () => {
+    setShowEditUserModal(false);
+    setSelectedUser(null);
+    setUserFormData({
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      avatar: ""
+    });
+  };
+
+  const handleAddUser = async () => {
+    if (!userFormData.name || !userFormData.email || !userFormData.phone || !userFormData.password) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      setFormLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users`,
+        userFormData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        alert(res.data.message);
+        closeAddUserModal();
+        fetchUsers();
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to create user");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleEditUser = async () => {
+    if (!userFormData.name || !userFormData.email || !userFormData.phone) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      setFormLoading(true);
+      const token = localStorage.getItem("token");
+      const updateData = {
+        name: userFormData.name,
+        email: userFormData.email,
+        phone: userFormData.phone,
+        avatar: userFormData.avatar
+      };
+
+      const res = await axios.put(
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${selectedUser._id}`,
+        updateData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        alert(res.data.message);
+        closeEditUserModal();
+        fetchUsers();
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to update user");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId, userName) => {
+    if (!hasPermission(PERMISSIONS.USERS_DELETE)) {
+      alert("You don't have permission to delete users");
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.delete(
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        alert(res.data.message);
+        fetchUsers();
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to delete user");
     }
   };
 
@@ -78,7 +296,10 @@ const UsersPage = () => {
               {filteredUsers.length} users
             </span>
           </div>
-          <button className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-black rounded-lg transition-colors shadow-sm">
+          <button 
+            onClick={openAddUserModal}
+            className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm"
+          >
             <FiUserPlus className="w-4 h-4 mr-2" />
             Add User
           </button>
@@ -90,7 +311,9 @@ const UsersPage = () => {
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
+              name="user-search"
               placeholder="Search by name, email, phone..."
+              autoComplete="off"
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
                 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -146,18 +369,36 @@ const UsersPage = () => {
                   </div>
                   {getRoleBadge(user.role)}
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="mb-3">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     📱 {user.phone || "N/A"}
                   </span>
-                  <div className="flex gap-2">
-                    <button className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
-                      <FiEdit className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                      <FiTrash2 className="w-4 h-4" />
-                    </button>
+                  <div className="mt-2">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      Wallet: ₹{user.wallet || 0}
+                    </span>
                   </div>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    className="flex-1 p-2 text-green-500 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors flex items-center justify-center gap-1"
+                    onClick={() => openWalletModal(user)}
+                  >
+                    <FiDollarSign className="w-4 h-4" />
+                    <span className="text-xs">Add Money</span>
+                  </button>
+                  <button 
+                    className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                    onClick={() => openEditUserModal(user)}
+                  >
+                    <FiEdit className="w-4 h-4" />
+                  </button>
+                  <button 
+                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    onClick={() => handleDeleteUser(user._id, user.name)}
+                  >
+                    <FiTrash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             ))
@@ -181,6 +422,9 @@ const UsersPage = () => {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Role
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Wallet
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
@@ -235,17 +479,31 @@ const UsersPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getRoleBadge(user.role)}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          ₹{user.wallet || 0}
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button 
+                            className="p-1 text-green-500 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
+                            title="Add Money to Wallet"
+                            onClick={() => openWalletModal(user)}
+                          >
+                            <FiDollarSign className="w-4 h-4" />
+                          </button>
+                          <button 
                             className="p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                             title="Edit User"
+                            onClick={() => openEditUserModal(user)}
                           >
                             <FiEdit className="w-4 h-4" />
                           </button>
                           <button 
                             className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                             title="Delete User"
+                            onClick={() => handleDeleteUser(user._id, user.name)}
                           >
                             <FiTrash2 className="w-4 h-4" />
                           </button>
@@ -318,6 +576,362 @@ const UsersPage = () => {
           </div>
         )}
       </div>
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Add New User
+              </h2>
+              <button
+                onClick={closeAddUserModal}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="new-user-name"
+                    autoComplete="off"
+                    value={userFormData.name}
+                    onChange={(e) => setUserFormData({...userFormData, name: e.target.value})}
+                    placeholder="Enter user name"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="new-user-email"
+                    autoComplete="off"
+                    value={userFormData.email}
+                    onChange={(e) => setUserFormData({...userFormData, email: e.target.value})}
+                    placeholder="Enter email address"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Phone *
+                  </label>
+                  <input
+                    type="tel"
+                    name="new-user-phone"
+                    autoComplete="off"
+                    value={userFormData.phone}
+                    onChange={(e) => setUserFormData({...userFormData, phone: e.target.value})}
+                    placeholder="Enter phone number"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Password *
+                  </label>
+                  <input
+                    type="password"
+                    name="new-user-password"
+                    autoComplete="new-password"
+                    value={userFormData.password}
+                    onChange={(e) => setUserFormData({...userFormData, password: e.target.value})}
+                    placeholder="Enter password"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Avatar URL (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="new-user-avatar"
+                    autoComplete="off"
+                    value={userFormData.avatar}
+                    onChange={(e) => setUserFormData({...userFormData, avatar: e.target.value})}
+                    placeholder="Enter avatar URL"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={closeAddUserModal}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 
+                    text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 
+                    transition-colors"
+                  disabled={formLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddUser}
+                  disabled={formLoading}
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg 
+                    transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                    flex items-center justify-center gap-2"
+                >
+                  {formLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <FiUserPlus className="w-4 h-4" />
+                      Create User
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditUserModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Edit User
+              </h2>
+              <button
+                onClick={closeEditUserModal}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={userFormData.name}
+                    onChange={(e) => setUserFormData({...userFormData, name: e.target.value})}
+                    placeholder="Enter user name"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={userFormData.email}
+                    onChange={(e) => setUserFormData({...userFormData, email: e.target.value})}
+                    placeholder="Enter email address"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Phone *
+                  </label>
+                  <input
+                    type="tel"
+                    value={userFormData.phone}
+                    onChange={(e) => setUserFormData({...userFormData, phone: e.target.value})}
+                    placeholder="Enter phone number"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Avatar URL (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={userFormData.avatar}
+                    onChange={(e) => setUserFormData({...userFormData, avatar: e.target.value})}
+                    placeholder="Enter avatar URL"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                  <p className="text-xs text-yellow-800 dark:text-yellow-200">
+                    Note: Password cannot be changed through this form for security reasons.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={closeEditUserModal}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 
+                    text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 
+                    transition-colors"
+                  disabled={formLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditUser}
+                  disabled={formLoading}
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg 
+                    transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                    flex items-center justify-center gap-2"
+                >
+                  {formLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <FiEdit className="w-4 h-4" />
+                      Update User
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Wallet Modal */}
+      {showWalletModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Add Money to Wallet
+              </h2>
+              <button
+                onClick={closeWalletModal}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">User</p>
+                <p className="font-medium text-gray-900 dark:text-white">{selectedUser?.name || "N/A"}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedUser?.phone || "N/A"}</p>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Wallet Balance</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  ₹{selectedUser?.wallet || 0}
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Amount to Add (₹) *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  value={walletAmount}
+                  onChange={(e) => setWalletAmount(e.target.value)}
+                  placeholder="Enter amount"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                    bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                    focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Note (Optional)
+                </label>
+                <textarea
+                  value={walletNote}
+                  onChange={(e) => setWalletNote(e.target.value)}
+                  placeholder="Add a note for this transaction"
+                  rows="3"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                    bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                    focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={closeWalletModal}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 
+                    text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 
+                    transition-colors"
+                  disabled={walletLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddMoney}
+                  disabled={walletLoading || !walletAmount || parseFloat(walletAmount) <= 0}
+                  className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg 
+                    transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                    flex items-center justify-center gap-2"
+                >
+                  {walletLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <FiDollarSign className="w-4 h-4" />
+                      Add Money
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

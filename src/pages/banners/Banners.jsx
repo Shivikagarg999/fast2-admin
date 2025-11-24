@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FiPlus,
   FiEdit,
@@ -11,8 +11,11 @@ import {
   FiSave,
   FiX
 } from "react-icons/fi";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 
 const BannersPage = () => {
+  const { hasPermission } = usePermissions();
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -33,6 +36,13 @@ const BannersPage = () => {
     isActive: true,
     order: 0
   });
+  
+  const [imageFile, setImageFile] = useState(null);
+  const [fallbackImageFile, setFallbackImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [fallbackImagePreview, setFallbackImagePreview] = useState(null);
+  const imageInputRef = useRef(null);
+  const fallbackImageInputRef = useRef(null);
 
   const gradientOptions = [
     { value: "from-blue-500 to-purple-600", label: "Blue to Purple", preview: "bg-gradient-to-r from-blue-500 to-purple-600" },
@@ -50,7 +60,7 @@ const BannersPage = () => {
   const fetchBanners = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://api.fast2.in/api/admin/banners/getall');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/getall`);
       const data = await response.json();
       
       if (data.success) {
@@ -64,21 +74,50 @@ const BannersPage = () => {
     }
   };
 
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!hasPermission(editingBanner ? PERMISSIONS.BANNERS_EDIT : PERMISSIONS.BANNERS_CREATE)) {
+      alert(`You don't have permission to ${editingBanner ? 'edit' : 'create'} banners`);
+      return;
+    }
+
+    if (!editingBanner && !imageFile) {
+      alert('Please select a banner image');
+      return;
+    }
+
     try {
       const url = editingBanner 
-        ? `https://api.fast2.in/api/admin/banners/update/${editingBanner._id}`
-        : 'https://api.fast2.in/api/admin/banners/create';
+        ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update/${editingBanner._id}`
+        : `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/create`;
       
       const method = editingBanner ? 'PUT' : 'POST';
       
+      const submitData = new FormData();
+      
+      Object.keys(formData).forEach(key => {
+        if (key !== 'image' && key !== 'fallbackImage' && formData[key] !== null && formData[key] !== undefined) {
+          submitData.append(key, formData[key]);
+        }
+      });
+
+      if (imageFile) {
+        submitData.append('image', imageFile);
+      }
+      if (fallbackImageFile) {
+        submitData.append('fallbackImage', fallbackImageFile);
+      }
+      
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
+        body: submitData
       });
       
       const data = await response.json();
@@ -98,6 +137,10 @@ const BannersPage = () => {
   };
 
   const handleEdit = (banner) => {
+    if (!hasPermission(PERMISSIONS.BANNERS_EDIT)) {
+      alert("You don't have permission to edit banners");
+      return;
+    }
     setEditingBanner(banner);
     setFormData({
       title: banner.title,
@@ -112,6 +155,8 @@ const BannersPage = () => {
       isActive: banner.isActive,
       order: banner.order
     });
+    setImagePreview(banner.image);
+    setFallbackImagePreview(banner.fallbackImage);
     setShowModal(true);
   };
 
@@ -119,7 +164,7 @@ const BannersPage = () => {
     if (!deleteConfirm) return;
     
     try {
-      const response = await fetch(`https://api.fast2.in/api/admin/banners/delete/${deleteConfirm._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/delete/${deleteConfirm._id}`, {
         method: 'DELETE'
       });
       
@@ -140,7 +185,7 @@ const BannersPage = () => {
 
   const toggleBannerStatus = async (banner) => {
     try {
-      const response = await fetch(`https://api.fast2.in/api/admin/banners/update/${banner._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update/${banner._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +216,7 @@ const BannersPage = () => {
     if (!swapBanner) return;
     
     try {
-      const response = await fetch('https://api.fast2.in/api/admin/banners/update-order/update-order', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update-order/update-order`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -212,6 +257,16 @@ const BannersPage = () => {
       order: 0
     });
     setEditingBanner(null);
+    setImageFile(null);
+    setFallbackImageFile(null);
+    setImagePreview(null);
+    setFallbackImagePreview(null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
+    if (fallbackImageInputRef.current) {
+      fallbackImageInputRef.current.value = '';
+    }
   };
 
   const openModal = () => {
@@ -223,6 +278,46 @@ const BannersPage = () => {
     setShowModal(false);
     setEditingBanner(null);
     resetForm();
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should not exceed 5MB');
+        return;
+      }
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleFallbackImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should not exceed 5MB');
+        return;
+      }
+      setFallbackImageFile(file);
+      setFallbackImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
+  };
+
+  const removeFallbackImage = () => {
+    setFallbackImageFile(null);
+    setFallbackImagePreview(null);
+    if (fallbackImageInputRef.current) {
+      fallbackImageInputRef.current.value = '';
+    }
   };
 
   const BannerCard = ({ banner }) => (
@@ -313,269 +408,6 @@ const BannersPage = () => {
       </div>
     </div>
   );
-
-  const BannerModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-black dark:text-white">
-            {editingBanner ? 'Edit Banner' : 'Create New Banner'}
-          </h2>
-          <button
-            onClick={closeModal}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          >
-            <FiX className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Title *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Subtitle *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.subtitle}
-                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Description *
-            </label>
-            <textarea
-              required
-              rows={3}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Image URL *
-              </label>
-              <input
-                type="url"
-                required
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Fallback Image URL *
-              </label>
-              <input
-                type="url"
-                required
-                value={formData.fallbackImage}
-                onChange={(e) => setFormData({ ...formData, fallbackImage: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                CTA Text *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.cta}
-                onChange={(e) => setFormData({ ...formData, cta: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                CTA Color *
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="color"
-                  value={formData.ctaColor}
-                  onChange={(e) => setFormData({ ...formData, ctaColor: e.target.value })}
-                  className="w-12 h-10 rounded border border-gray-300 dark:border-gray-600"
-                />
-                <input
-                  type="text"
-                  value={formData.ctaColor}
-                  onChange={(e) => setFormData({ ...formData, ctaColor: e.target.value })}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Gradient Background *
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {gradientOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, gradient: option.value })}
-                  className={`p-3 rounded-lg border-2 ${
-                    formData.gradient === option.value 
-                      ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' 
-                      : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                >
-                  <div className={`h-8 rounded ${option.preview} mb-1`}></div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</span>
-            </label>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="px-4 py-2 text-sm font-medium text-black dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 font-medium bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <FiSave className="w-4 h-4" />
-              {editingBanner ? 'Update Banner' : 'Create Banner'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-
-  const PreviewModal = () => {
-    if (!previewBanner) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl">
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Banner Preview</h2>
-            <button
-              onClick={() => setPreviewBanner(null)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-            >
-              <FiX className="w-6 h-6" />
-            </button>
-          </div>
-          
-          <div className="p-6">
-            <div className={`rounded-lg overflow-hidden ${previewBanner.gradient} h-64 relative`}>
-              <img
-                src={previewBanner.image}
-                alt={previewBanner.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.src = previewBanner.fallbackImage;
-                }}
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                <div className="text-center text-white p-6">
-                  <h3 className="text-3xl font-bold mb-2">{previewBanner.title}</h3>
-                  <p className="text-xl mb-4">{previewBanner.subtitle}</p>
-                  <p className="text-lg mb-6">{previewBanner.description}</p>
-                  <button 
-                    className="px-8 py-3 rounded-lg font-semibold text-lg transition-transform hover:scale-105"
-                    style={{ backgroundColor: previewBanner.ctaColor, color: previewBanner.accentColor }}
-                  >
-                    {previewBanner.cta}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const DeleteConfirmModal = () => {
-    if (!deleteConfirm) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-full">
-                <FiTrash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Delete Banner</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">This action cannot be undone</p>
-              </div>
-            </div>
-            
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Are you sure you want to delete the banner "<strong>{deleteConfirm.title}</strong>"?
-            </p>
-            
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Delete Banner
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   if (loading) {
     return (
@@ -674,10 +506,300 @@ const BannersPage = () => {
         )}
       </div>
 
-      {/* Modals */}
-      {showModal && <BannerModal />}
-      {previewBanner && <PreviewModal />}
-      {deleteConfirm && <DeleteConfirmModal />}
+      {/* Banner Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-black dark:text-white">
+            {editingBanner ? 'Edit Banner' : 'Create New Banner'}
+          </h2>
+          <button
+            onClick={closeModal}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            <FiX className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Title *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Subtitle *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.subtitle}
+                onChange={(e) => handleInputChange('subtitle', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Description *
+            </label>
+            <textarea
+              required
+              rows={3}
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Banner Image * {!editingBanner && <span className="text-xs text-gray-500">(Max 5MB)</span>}
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={imageInputRef}
+                  onChange={handleImageChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required={!editingBanner}
+                />
+                {imagePreview && (
+                  <div className="relative inline-block">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-24 w-auto rounded border border-gray-300 dark:border-gray-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <FiX className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Fallback Image <span className="text-xs text-gray-500">(Optional, Max 5MB)</span>
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fallbackImageInputRef}
+                  onChange={handleFallbackImageChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {fallbackImagePreview && (
+                  <div className="relative inline-block">
+                    <img
+                      src={fallbackImagePreview}
+                      alt="Fallback Preview"
+                      className="h-24 w-auto rounded border border-gray-300 dark:border-gray-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeFallbackImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <FiX className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                CTA Text *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.cta}
+                onChange={(e) => handleInputChange('cta', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                CTA Color *
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={formData.ctaColor}
+                  onChange={(e) => handleInputChange('ctaColor', e.target.value)}
+                  className="w-12 h-10 rounded border border-gray-300 dark:border-gray-600"
+                />
+                <input
+                  type="text"
+                  value={formData.ctaColor}
+                  onChange={(e) => handleInputChange('ctaColor', e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Gradient Background *
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {gradientOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleInputChange('gradient', option.value)}
+                  className={`p-3 rounded-lg border-2 ${
+                    formData.gradient === option.value 
+                      ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' 
+                      : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                >
+                  <div className={`h-8 rounded ${option.preview} mb-1`}></div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.isActive}
+                onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</span>
+            </label>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="px-4 py-2 text-sm font-medium text-black dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 font-medium bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <FiSave className="w-4 h-4" />
+              {editingBanner ? 'Update Banner' : 'Create Banner'}
+            </button>
+          </div>
+        </form>
+      </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewBanner && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl">
+            <div className="flex items-center justify-between p-6 border-b border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Banner Preview</h2>
+              <button
+                onClick={() => setPreviewBanner(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className={`rounded-lg overflow-hidden ${previewBanner.gradient} h-64 relative`}>
+                <img
+                  src={previewBanner.image}
+                  alt={previewBanner.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.src = previewBanner.fallbackImage;
+                  }}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                  <div className="text-center text-white p-6">
+                    <h3 className="text-3xl font-bold mb-2">{previewBanner.title}</h3>
+                    <p className="text-xl mb-4">{previewBanner.subtitle}</p>
+                    <p className="text-lg mb-6">{previewBanner.description}</p>
+                    <button 
+                      className="px-8 py-3 rounded-lg font-semibold text-lg transition-transform hover:scale-105"
+                      style={{ backgroundColor: previewBanner.ctaColor, color: previewBanner.accentColor }}
+                    >
+                      {previewBanner.cta}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirm Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 dark:bg-red-900 rounded-full">
+                  <FiTrash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Delete Banner</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">This action cannot be undone</p>
+                </div>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Are you sure you want to delete the banner "<strong>{deleteConfirm.title}</strong>"?
+              </p>
+              
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Delete Banner
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

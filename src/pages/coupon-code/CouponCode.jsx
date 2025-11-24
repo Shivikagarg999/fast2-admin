@@ -13,8 +13,11 @@ import {
   FiUsers,
   FiShoppingCart
 } from "react-icons/fi";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
 
 const CouponsPage = () => {
+  const { hasPermission } = usePermissions();
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -43,7 +46,7 @@ const CouponsPage = () => {
   const fetchCoupons = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://api.fast2.in/api/admin/coupon/admin/coupons');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/coupon/admin/coupons`);
       const data = await response.json();
       
       if (data) {
@@ -59,10 +62,14 @@ const CouponsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!hasPermission(editingCoupon ? PERMISSIONS.COUPONS_EDIT : PERMISSIONS.COUPONS_CREATE)) {
+      alert(`You don't have permission to ${editingCoupon ? 'edit' : 'create'} coupons`);
+      return;
+    }
     try {
       const url = editingCoupon 
-        ? `https://api.fast2.in/api/admin/coupon/admin/coupons/${editingCoupon._id}`
-        : 'https://api.fast2.in/api/admin/coupon/admin/coupons';
+        ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/coupon/admin/coupons/${editingCoupon._id}`
+        : `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/coupon/admin/coupons`;
       
       const method = editingCoupon ? 'PUT' : 'POST';
       
@@ -91,6 +98,10 @@ const CouponsPage = () => {
   };
 
   const handleEdit = (coupon) => {
+    if (!hasPermission(PERMISSIONS.COUPONS_EDIT)) {
+      alert("You don't have permission to edit coupons");
+      return;
+    }
     setEditingCoupon(coupon);
     setFormData({
       code: coupon.code,
@@ -112,7 +123,7 @@ const CouponsPage = () => {
     if (!deleteConfirm) return;
     
     try {
-      const response = await fetch(`https://api.fast2.in/api/admin/coupon/admin/coupons/${deleteConfirm._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/coupon/admin/coupons/${deleteConfirm._id}`, {
         method: 'DELETE'
       });
       
@@ -133,7 +144,7 @@ const CouponsPage = () => {
 
   const toggleCouponStatus = async (coupon) => {
     try {
-      const response = await fetch(`https://api.fast2.in/api/admin/coupon/admin/coupons/${coupon._id}/toggle`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/coupon/admin/coupons/${coupon._id}/toggle`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

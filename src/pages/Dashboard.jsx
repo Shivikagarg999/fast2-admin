@@ -2,6 +2,13 @@ import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/dashboard/Sidebar";
 import Header from "../components/dashboard/Header";
+import SalesOverview from "../components/dashboard/SalesOverview";
+import RevenueAnalytics from "../components/dashboard/RevenueAnalytics";
+import OrderStatusBreakdown from "../components/dashboard/OrderStatusBreakdown";
+import PaymentStatusCard from "../components/dashboard/PaymentStatusCard";
+import TopSellingProducts from "../components/dashboard/TopSellingProducts";
+import QuickMetrics from "../components/dashboard/QuickMetrics";
+import PendingPayouts from "../components/dashboard/PendingPayouts";
 import {
   FiPackage,
   FiUsers,
@@ -18,12 +25,14 @@ import {
   FiX,
   FiTruck,
   FiPhone,
-  FiMail
+  FiMail,
+  FiFilter
 } from "react-icons/fi";
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalUsers: 0,
@@ -44,6 +53,13 @@ const DashboardLayout = () => {
   const location = useLocation();
 
   const isDashboard = location.pathname === '/dashboard';
+
+  const periodOptions = [
+    { value: 'day', label: 'Today' },
+    { value: 'week', label: 'This Week' },
+    { value: 'month', label: 'This Month' },
+    { value: 'year', label: 'This Year' }
+  ];
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -75,7 +91,7 @@ const DashboardLayout = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('https://api.fast2.in/api/admin/orders/stats');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/stats`);
       
       if (!response.ok) throw new Error('Failed to fetch stats');
       const data = await response.json();
@@ -92,7 +108,7 @@ const DashboardLayout = () => {
 
   const fetchProductStats = async () => {
     try {
-      const statsResponse = await fetch('https://api.fast2.in/api/product/admin/stats');
+      const statsResponse = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/admin/stats`);
       
       if (statsResponse.ok) {
         const data = await statsResponse.json();
@@ -113,7 +129,7 @@ const DashboardLayout = () => {
 
   const fetchProductsCount = async () => {
     try {
-      const response = await fetch('https://api.fast2.in/api/admin/products/getall');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/getall`);
       
       if (response.ok) {
         const products = await response.json();
@@ -138,7 +154,7 @@ const DashboardLayout = () => {
 
   const fetchUserStats = async () => {
     try {
-      const response = await fetch('https://api.fast2.in/api/admin/users');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users`);
       
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
@@ -156,7 +172,7 @@ const DashboardLayout = () => {
 
   const fetchFreshOrders = async () => {
     try {
-      const response = await fetch('https://api.fast2.in/api/admin/orders/admin/fresh-orders');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/admin/fresh-orders`);
       
       if (!response.ok) throw new Error('Failed to fetch fresh orders');
       const data = await response.json();
@@ -178,7 +194,7 @@ const DashboardLayout = () => {
 
   const fetchRecentOrders = async () => {
     try {
-      const response = await fetch('https://api.fast2.in/api/admin/orders/getall?limit=5&sortBy=createdAt&sortOrder=desc');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/getall?limit=5&sortBy=createdAt&sortOrder=desc`);
       
       if (!response.ok) throw new Error('Failed to fetch recent orders');
       const data = await response.json();
@@ -202,7 +218,7 @@ const DashboardLayout = () => {
 
   const fetchOnlineDrivers = async () => {
     try {
-      const response = await fetch('https://api.fast2.in/api/admin/drivers/getall');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers/getall`);
       
       if (!response.ok) throw new Error('Failed to fetch drivers');
       const data = await response.json();
@@ -736,16 +752,39 @@ const DashboardLayout = () => {
         <main className="flex-1 p-6">
           {isDashboard ? (
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
-                <button
-                  onClick={refreshData}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg hover:bg-blue-700 transition-colors"
-                  disabled={refreshing}
-                >
-                  <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                  {refreshing ? 'Refreshing...' : 'Refresh Data'}
-                </button>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Monitor your sales, orders, and business performance
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
+                    <FiFilter className="w-4 h-4 text-gray-500 dark:text-gray-400 ml-2" />
+                    {periodOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => setSelectedPeriod(option.value)}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                          selectedPeriod === option.value
+                            ? 'bg-blue-500 text-white'
+                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={refreshData}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    disabled={refreshing}
+                  >
+                    <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                    {refreshing ? 'Refreshing...' : 'Refresh'}
+                  </button>
+                </div>
               </div>
               
               {showFreshOrdersNotification && stats.freshOrders > 0 && (
@@ -753,60 +792,59 @@ const DashboardLayout = () => {
               )}
               
               {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm animate-pulse">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-                      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-                    </div>
-                  ))}
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm animate-pulse">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+                        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard
-                      title="Total Products"
-                      value={stats.totalProducts.toLocaleString()}
-                      icon={FiPackage}
-                      trend="up"
-                      trendValue="Real-time data"
-                      color="bg-blue-500"
-                    />
-                    <StatCard
-                      title="Total Users"
-                      value={stats.totalUsers.toLocaleString()}
-                      icon={FiUsers}
-                      trend="up"
-                      trendValue="Real-time data"
-                      color="bg-green-500"
-                    />
-                    <StatCard
-                      title="Total Orders"
-                      value={stats.totalOrders.toLocaleString()}
-                      icon={FiShoppingCart}
-                      trend="up"
-                      trendValue="Real-time data"
-                      color="bg-purple-500"
-                    />
-                    <StatCard
-                      title="Fresh Orders (24h)"
-                      value={stats.freshOrders.toLocaleString()}
-                      icon={FiClock}
-                      trend={stats.freshOrders > 0 ? "up" : "down"}
-                      trendValue={stats.freshOrders > 0 ? "New orders!" : "No new orders"}
-                      color="bg-orange-500"
-                      subtitle="Last 24 hours"
-                      onClick={refreshData}
-                    />
+                  {/* Sales Overview Section */}
+                  <div className="mb-6">
+                    <SalesOverview period={selectedPeriod} />
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Quick Metrics */}
+                  <div className="mb-6">
+                    <QuickMetrics />
+                  </div>
+
+                  {/* Revenue Analytics and Order Status */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div className="lg:col-span-2">
+                      <RevenueAnalytics period={selectedPeriod} />
+                    </div>
+                    <div>
+                      <PaymentStatusCard />
+                    </div>
+                  </div>
+
+                  {/* Order Status Breakdown and Top Products */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <OrderStatusBreakdown period={selectedPeriod} />
+                    <TopSellingProducts />
+                  </div>
+
+                  {/* Pending Payouts */}
+                  <div className="mb-6">
+                    <PendingPayouts />
+                  </div>
+
+                  {/* Fresh Orders and Online Drivers */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <FreshOrders />
                     <OnlineDrivers />
                   </div>
 
+                  {/* Stock Alerts */}
                   <StockAlerts />
 
+                  {/* Recent Orders */}
                   <RecentOrders />
                 </>
               )}
