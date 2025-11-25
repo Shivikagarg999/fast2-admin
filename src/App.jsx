@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { PERMISSIONS } from "./config/permissions";
 import LoginPage from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import UsersPage from "./pages/UsersPage";
@@ -6,33 +8,22 @@ import ProductsPage from "./pages/product/ProductsPage";
 import CreateProductPage from "./pages/product/CreateProduct";
 import DashboardLayout from "../src/pages/Dashboard";
 import CategoriesPage from "./pages/CategoryPage";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { PERMISSIONS } from "./config/permissions";
-//promotor
 import CreatePromotorPage from "./pages/promotor/CreatePromotor";
 import PromotorPage from "./pages/promotor/PromotorPage";
 import EditPromotorPage from "./pages/promotor/EditPromotor";
-//warehouse
 import WareHouseList from "./pages/warehouse/WareHouseList";
 import CreateWarehouse from "./pages/warehouse/CreateWarehouse";
 import EditWareHouse from "./pages/warehouse/EditWarehouse";
-//delivery boy
 import DriverList from "./pages/deliveryboy/DeliveryBoyList";
 import EditDriver from "./pages/deliveryboy/EditDriver";
-//orders
 import OrderList from "./pages/orders/Orders";
-//marketing
 import Banners from "./pages/banners/Banners";
 import Coupon from "./pages/coupon-code/CouponCode";
 import Discounts from "./pages/discounts/page";
-//sellers
 import SellerPage from "./pages/sellers/SellerPage";
-//terms and conditions
 import TermsAndConditions from "./pages/terms/TermsAndConditions";
-//admin management
 import AdminManagement from "./pages/admin/AdminManagement";
 import AdminForm from "./pages/admin/AdminForm";
-//role management
 import RoleManagement from "./pages/roles/RoleManagement";
 import RoleForm from "./pages/roles/RoleForm";
 import PromotorPayouts from "./pages/payouts/PromotorPayouts";
@@ -45,7 +36,6 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
 
-        {/* Dashboard routes with layout */}
         <Route element={<DashboardLayout />}>
           <Route 
             path="/dashboard" 

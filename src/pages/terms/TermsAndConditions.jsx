@@ -20,6 +20,52 @@ const TermsAndConditions = () => {
 
   const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/terms`;
 
+  // Button Styles
+  const buttonStyles = {
+    primary: {
+      backgroundColor: '#000000',
+      color: '#ffffff',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '10px 20px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      fontSize: '14px',
+      fontWeight: '500',
+      transition: 'all 0.2s ease'
+    },
+    secondary: {
+      backgroundColor: '#ffffff',
+      color: '#374151',
+      border: '1px solid #d1d5db',
+      borderRadius: '8px',
+      padding: '10px 20px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      fontSize: '14px',
+      fontWeight: '500',
+      transition: 'all 0.2s ease'
+    },
+    success: {
+      backgroundColor: '#16a34a',
+      color: '#ffffff',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '10px 20px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      fontSize: '14px',
+      fontWeight: '500',
+      transition: 'all 0.2s ease'
+    }
+  };
+
   useEffect(() => {
     fetchTerms();
   }, []);
@@ -148,20 +194,62 @@ const TermsAndConditions = () => {
 
   if (loading) {
     return (
-      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64 animate-pulse"></div>
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
+      <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '24px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <div style={{ 
+              height: '32px', 
+              backgroundColor: '#e5e7eb', 
+              borderRadius: '8px', 
+              width: '256px',
+              animation: 'pulse 2s infinite'
+            }}></div>
+            <div style={{ 
+              height: '40px', 
+              backgroundColor: '#e5e7eb', 
+              borderRadius: '8px', 
+              width: '128px',
+              animation: 'pulse 2s infinite'
+            }}></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+            gap: '24px' 
+          }}>
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
-                <div className="flex justify-between">
-                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+              <div key={i} style={{ 
+                backgroundColor: '#ffffff', 
+                borderRadius: '8px', 
+                padding: '24px',
+                animation: 'pulse 2s infinite'
+              }}>
+                <div style={{ 
+                  height: '16px', 
+                  backgroundColor: '#e5e7eb', 
+                  borderRadius: '4px', 
+                  marginBottom: '8px' 
+                }}></div>
+                <div style={{ 
+                  height: '16px', 
+                  backgroundColor: '#e5e7eb', 
+                  borderRadius: '4px', 
+                  width: '75%', 
+                  marginBottom: '16px' 
+                }}></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ 
+                    height: '32px', 
+                    backgroundColor: '#e5e7eb', 
+                    borderRadius: '6px', 
+                    width: '80px' 
+                  }}></div>
+                  <div style={{ 
+                    height: '32px', 
+                    backgroundColor: '#e5e7eb', 
+                    borderRadius: '6px', 
+                    width: '80px' 
+                  }}></div>
                 </div>
               </div>
             ))}
@@ -175,69 +263,168 @@ const TermsAndConditions = () => {
   const totalVersions = terms.length;
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
+    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '24px' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '16px', 
+          marginBottom: '24px' 
+        }}>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold', 
+              color: '#111827',
+              marginBottom: '4px'
+            }}>
               Terms & Conditions Management
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p style={{ 
+              fontSize: '14px',
+              color: '#6b7280'
+            }}>
               Create and manage terms and conditions for your platform
             </p>
           </div>
-          <button
-            onClick={openModal}
-            className="mt-4 sm:mt-0 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <FiPlus className="w-4 h-4" />
-            Create New Version
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ flex: 1 }}></div>
+            <button
+              onClick={openModal}
+              style={{
+                ...buttonStyles.primary,
+                marginTop: '16px'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.backgroundColor = '#374151';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.backgroundColor = '#000000';
+              }}
+            >
+              <FiPlus style={{ width: '16px', height: '16px' }} />
+              Create New Version
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+          gap: '16px', 
+          marginBottom: '24px' 
+        }}>
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            borderRadius: '8px', 
+            padding: '16px',
+            border: '1px solid #e5e7eb'
+          }}>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold', 
+              color: '#111827' 
+            }}>
               {totalVersions}
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Total Versions</div>
+            <div style={{ 
+              fontSize: '14px', 
+              color: '#6b7280' 
+            }}>Total Versions</div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            borderRadius: '8px', 
+            padding: '16px',
+            border: '1px solid #e5e7eb'
+          }}>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold', 
+              color: '#16a34a' 
+            }}>
               {activeTerms.length > 0 ? activeTerms[0].version : 'None'}
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Active Version</div>
+            <div style={{ 
+              fontSize: '14px', 
+              color: '#6b7280' 
+            }}>Active Version</div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            borderRadius: '8px', 
+            padding: '16px',
+            border: '1px solid #e5e7eb'
+          }}>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold', 
+              color: '#2563eb' 
+            }}>
               {terms.filter(t => !t.isActive).length}
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Inactive Versions</div>
+            <div style={{ 
+              fontSize: '14px', 
+              color: '#6b7280' 
+            }}>Inactive Versions</div>
           </div>
         </div>
 
         {/* Terms Grid */}
         {terms.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-            <FiFileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb',
+            padding: '48px',
+            textAlign: 'center'
+          }}>
+            <FiFileText style={{ 
+              width: '64px', 
+              height: '64px', 
+              color: '#9ca3af',
+              margin: '0 auto 16px'
+            }} />
+            <h3 style={{ 
+              fontSize: '18px', 
+              fontWeight: '600', 
+              color: '#111827',
+              marginBottom: '8px'
+            }}>
               No terms and conditions yet
             </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">
+            <p style={{ 
+              fontSize: '14px',
+              color: '#6b7280',
+              marginBottom: '24px'
+            }}>
               Create your first terms and conditions to get started
             </p>
             <button
               onClick={openModal}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              style={{
+                ...buttonStyles.primary,
+                display: 'inline-flex'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.backgroundColor = '#374151';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.backgroundColor = '#000000';
+              }}
             >
-              <FiPlus className="w-4 h-4" />
+              <FiPlus style={{ width: '16px', height: '16px' }} />
               Create First Version
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+            gap: '24px' 
+          }}>
             {terms.map((term) => (
               <TermCard
                 key={term._id}
@@ -273,6 +460,15 @@ const TermsAndConditions = () => {
         onConfirm={handleSetActive}
         onCancel={() => setActiveConfirm(null)}
       />
+
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}
+      </style>
     </div>
   );
 };

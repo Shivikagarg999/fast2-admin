@@ -169,8 +169,9 @@ const AdminManagement = () => {
               </button>
               <button
                 onClick={() => navigate('/admin/create-admin')}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
+                className="flex items-center gap-2 px-4 py-2 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                style={{backgroundColor: 'black'}}
+            >
                 <FiPlus className="w-4 h-4" />
                 Add Admin
               </button>

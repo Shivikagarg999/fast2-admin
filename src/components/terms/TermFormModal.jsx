@@ -142,8 +142,9 @@ const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
+              className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              style={{backgroundColor: 'black'}}
+           >
               <FiSave className="w-4 h-4" />
               {editingTerm ? 'Update' : 'Create'}
             </button>
