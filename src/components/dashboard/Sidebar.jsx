@@ -156,12 +156,11 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           icon: <FiDollarSign className="w-5 h-5" />,
           permission: PERMISSIONS.SELLERS_VIEW,
         },
-        // {
-        //   name: "Payout History",
-        //   path: "/admin/payouts/history",
-        //   icon: <FiClock className="w-5 h-5" />,
-        //   permission: PERMISSIONS.DASHBOARD_VIEW,
-        // },
+        {
+          name: "Driver Payouts",
+          path: "/admin/payouts/driver",
+          icon: <FiDollarSign className="w-5 h-5" />
+        },
       ]
     },
     {

@@ -400,7 +400,6 @@ const ProductCreate = () => {
         }
       });
 
-      // Log what we're sending for debugging
       console.log('Form data being sent:');
       for (let [key, value] of formDataToSend.entries()) {
         if (key === 'images' || key === 'video') {
@@ -415,7 +414,6 @@ const ProductCreate = () => {
         body: formDataToSend,
       });
 
-      // Check if response is JSON
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();

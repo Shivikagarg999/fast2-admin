@@ -29,6 +29,7 @@ import RoleForm from "./pages/roles/RoleForm";
 import PromotorPayouts from "./pages/payouts/PromotorPayouts";
 import SellerPayouts from "./pages/payouts/SellerPayouts";
 import PayoutHistory from "./pages/payouts/PayoutHistory";
+import DriverPayouts from "./pages/payouts/DriverPayout";
 
 function App() {
   return (
@@ -295,10 +296,10 @@ function App() {
             } 
           />
           <Route 
-            path="/admin/payouts/history" 
+            path="/admin/payouts/driver" 
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
-                <PayoutHistory/>
+                <DriverPayouts/>
               </ProtectedRoute>
             } 
           />

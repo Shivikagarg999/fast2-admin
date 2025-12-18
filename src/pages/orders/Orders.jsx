@@ -275,7 +275,7 @@ const OrdersPage = () => {
                                             <td className="px-6 py-4">
                                                 <div>
                                                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                                        Order #{order._id.slice(-8)}
+                                                        {order.orderId}
                                                     </div>
                                                     <div className="text-sm text-gray-500 dark:text-gray-400">
                                                         {order.user?.name}
@@ -413,11 +413,11 @@ const OrdersPage = () => {
 
                 {/* Order Details Modal */}
                 {showModal && selectedOrder && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="fixed inset-0 bg-gray bg-opacity-20 flex items-center justify-center z-50 p-4">
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                    Order Details - #{selectedOrder._id.slice(-8)}
+                                    Order Details - #{selectedOrder.orderId}
                                 </h2>
                                 <button
                                     onClick={closeModal}
@@ -443,6 +443,7 @@ const OrdersPage = () => {
                                         <div className="space-y-2">
                                             <p><strong>Order Date:</strong> {formatDate(selectedOrder.createdAt)}</p>
                                             <p><strong>Status:</strong> {getStatusBadge(selectedOrder.status)}</p>
+                                            <p><strong>Seller:</strong> {getStatusBadge(selectedOrder.seller)}</p>
                                             <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod?.toUpperCase()}</p>
                                             <p><strong>Payment Status:</strong> {getPaymentStatusBadge(selectedOrder.paymentStatus)}</p>
                                             <p><strong>Total Amount:</strong> {formatCurrency(selectedOrder.total)}</p>

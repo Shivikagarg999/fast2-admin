@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiDollarSign, FiUsers, FiRefreshCw, FiDownload, FiEye, FiX, FiCheck, FiEdit } from 'react-icons/fi';
+import { FiDollarSign, FiUsers, FiRefreshCw, FiDownload, FiEye, FiX, FiCheck, FiEdit, FiPackage } from 'react-icons/fi';
 
 const PromotorPayouts = () => {
   const [payouts, setPayouts] = useState([]);
@@ -12,28 +12,69 @@ const PromotorPayouts = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     paymentMethod: 'bank_transfer',
-    paymentDate: new Date().toISOString().split('T')[0],
     transactionId: '',
     notes: ''
   });
   const [submittingPayment, setSubmittingPayment] = useState(false);
+  const [summary, setSummary] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+
+  const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
 
   useEffect(() => {
+    fetchPayoutSummary();
     fetchPromotorPayouts();
   }, []);
+
+  const fetchPayoutSummary = async () => {
+    try {
+      const response = await fetch(
+        'https://api.fast2.in/api/payout/summary',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Failed to fetch payout summary');
+      const result = await response.json();
+      
+      setSummary(result);
+    } catch (error) {
+      console.error('Error fetching payout summary:', error);
+    }
+  };
 
   const fetchPromotorPayouts = async () => {
     try {
       setRefreshing(true);
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/payouts/promotors`
-      );
+      const response = await fetch('https://api.fast2.in/api/payout/promotor-payouts', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
       if (!response.ok) throw new Error('Failed to fetch promotor payouts');
       const result = await response.json();
       
-      if (result.success) {
-        setPayouts(result.data.promotors);
+      if (result.payouts) {
+        const transformedPayouts = result.payouts.map(payout => ({
+          promotorId: payout.promotor?._id || payout.promotor,
+          promotorName: payout.promotor?.name || 'Promotor',
+          promotorEmail: payout.promotor?.email || '',
+          promotorPhone: payout.promotor?.phone || '',
+          commissionAmount: payout.commissionAmount || 0,
+          status: payout.status || 'pending',
+          createdAt: payout.createdAt,
+          paidAt: payout.paidAt,
+          paymentMethod: payout.paymentMethod,
+          transactionId: payout.transactionId,
+          remarks: payout.remarks,
+          _id: payout._id
+        }));
+        setPayouts(transformedPayouts);
       }
       setLoading(false);
       setRefreshing(false);
@@ -47,15 +88,39 @@ const PromotorPayouts = () => {
   const fetchPromotorDetails = async (promotorId) => {
     try {
       setLoadingDetails(true);
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/payouts/promotor/${promotorId}`
-      );
+      const response = await fetch(`https://api.fast2.in/api/payout/promotor/${promotorId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
       if (!response.ok) throw new Error('Failed to fetch promotor details');
       const result = await response.json();
       
-      if (result.success) {
-        setPromotorDetails(result.data);
+      if (result.payouts) {
+        const ordersWithDetails = result.payouts.map(payout => ({
+          orderId: payout.order?.orderId || payout.order,
+          orderDate: payout.createdAt,
+          totalCommission: payout.commissionAmount || 0,
+          status: payout.status || 'pending',
+          paidAt: payout.paidAt,
+          paymentMethod: payout.paymentMethod,
+          transactionId: payout.transactionId,
+          remarks: payout.remarks
+        }));
+
+        setPromotorDetails({
+          promotor: result.promotor,
+          orders: ordersWithDetails,
+          totalPendingPayout: ordersWithDetails
+            .filter(o => o.status === 'pending')
+            .reduce((sum, o) => sum + o.totalCommission, 0),
+          totalPaidPayout: ordersWithDetails
+            .filter(o => o.status === 'paid')
+            .reduce((sum, o) => sum + o.totalCommission, 0),
+          orderCount: ordersWithDetails.length,
+          summary: result.summary || []
+        });
       }
       setLoadingDetails(false);
     } catch (error) {
@@ -65,6 +130,12 @@ const PromotorPayouts = () => {
   };
 
   const handleViewDetails = (promotor) => {
+    if (!promotor.promotorId) {
+      console.error('No promotorId found in payout:', promotor);
+      alert('Unable to fetch promotor details: Missing promotor ID');
+      return;
+    }
+    
     setSelectedPromotor(promotor);
     setShowDetailsModal(true);
     fetchPromotorDetails(promotor.promotorId);
@@ -79,12 +150,6 @@ const PromotorPayouts = () => {
   const handleMarkAsPaid = (promotor) => {
     setSelectedPromotor(promotor);
     setShowPaymentModal(true);
-    setPaymentForm({
-      paymentMethod: 'bank_transfer',
-      paymentDate: new Date().toISOString().split('T')[0],
-      transactionId: '',
-      notes: ''
-    });
   };
 
   const closePaymentModal = () => {
@@ -92,7 +157,6 @@ const PromotorPayouts = () => {
     setSelectedPromotor(null);
     setPaymentForm({
       paymentMethod: 'bank_transfer',
-      paymentDate: new Date().toISOString().split('T')[0],
       transactionId: '',
       notes: ''
     });
@@ -107,53 +171,38 @@ const PromotorPayouts = () => {
   };
 
   const handleSubmitPayment = async () => {
+    if (!selectedPromotor) return;
+
     try {
       setSubmittingPayment(true);
+      const response = await fetch(`https://api.fast2.in/api/payout/promotor-payouts/${selectedPromotor._id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          status: 'paid',
+          paymentMethod: paymentForm.paymentMethod,
+          transactionId: paymentForm.transactionId,
+          remarks: paymentForm.notes
+        })
+      });
 
-      // First, create a payout record
-      const createResponse = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/payouts/create`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            recipientType: 'promotor',
-            recipientId: selectedPromotor.promotorId,
-            amount: selectedPromotor.totalPendingPayout,
-            orderIds: selectedPromotor.orders?.map(o => o.orderId) || [],
-            bankDetails: selectedPromotor.bankDetails
-          })
-        }
-      );
+      if (!response.ok) throw new Error('Failed to update payout status');
+      const result = await response.json();
 
-      if (!createResponse.ok) throw new Error('Failed to create payout record');
-      const createResult = await createResponse.json();
-
-      // Then mark it as paid
-      const markPaidResponse = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/payouts/records/${createResult.data._id}/mark-paid`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...paymentForm,
-            adminId: localStorage.getItem('adminId') // Assuming admin ID is stored
-          })
-        }
-      );
-
-      if (!markPaidResponse.ok) throw new Error('Failed to mark payout as paid');
-
-      alert('Payout marked as paid successfully!');
-      closePaymentModal();
-      fetchPromotorPayouts(); // Refresh the list
+      if (result) {
+        alert('Payout marked as paid successfully!');
+        closePaymentModal();
+        fetchPromotorPayouts();
+        fetchPayoutSummary();
+      } else {
+        throw new Error(result.error || 'Failed to process payment');
+      }
 
     } catch (error) {
-      console.error('Error submitting payment:', error);
+      console.error('Error processing payment:', error);
       alert('Error processing payment. Please try again.');
     } finally {
       setSubmittingPayment(false);
@@ -164,19 +213,19 @@ const PromotorPayouts = () => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount);
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount || 0);
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
   };
-
-  const totalPendingPayout = payouts.reduce((sum, p) => sum + p.totalPendingPayout, 0);
 
   if (loading) {
     return (
@@ -189,6 +238,10 @@ const PromotorPayouts = () => {
     );
   }
 
+  const totalPendingPayout = payouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.commissionAmount, 0);
+  const totalPaidPayout = payouts.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.commissionAmount, 0);
+  const totalCommission = payouts.reduce((sum, p) => sum + p.commissionAmount, 0);
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -196,14 +249,17 @@ const PromotorPayouts = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Promotor Payouts</h1>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Manage and track promotor commission payouts
+              Manage promotor commission payouts
             </p>
           </div>
           <button
-            onClick={fetchPromotorPayouts}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            onClick={() => {
+              fetchPromotorPayouts();
+              fetchPayoutSummary();
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            style={{backgroundColor: "black"}}
             disabled={refreshing}
-            style={{backgroundColor:'black'}}
           >
             <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? 'Refreshing...' : 'Refresh'}
@@ -211,14 +267,33 @@ const PromotorPayouts = () => {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Pending</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                 {formatCurrency(totalPendingPayout)}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {payouts.filter(p => p.status === 'pending').length} payouts
+              </p>
+            </div>
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/40 rounded-full">
+              <FiDollarSign className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Paid</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {formatCurrency(totalPaidPayout)}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Completed payouts
               </p>
             </div>
             <div className="p-3 bg-green-100 dark:bg-green-900/40 rounded-full">
@@ -230,9 +305,12 @@ const PromotorPayouts = () => {
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Active Promotors</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Commission</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {payouts.length}
+                {formatCurrency(totalCommission)}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                All commission
               </p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-full">
@@ -244,65 +322,87 @@ const PromotorPayouts = () => {
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Payout</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">All Payouts</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {formatCurrency(payouts.length > 0 ? totalPendingPayout / payouts.length : 0)}
+                {payouts.length}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Total payout records
               </p>
             </div>
             <div className="p-3 bg-purple-100 dark:bg-purple-900/40 rounded-full">
-              <FiDollarSign className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <FiUsers className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Payouts Table */}
+      {summary && (
+        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-blue-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Platform Summary</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Platform Fees</p>
+              <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                {formatCurrency(summary.platformEarnings?.serviceFee || 0)}
+              </p>
+            </div>
+            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+              <p className="text-sm text-gray-600 dark:text-gray-400">GST Collection</p>
+              <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                {formatCurrency(summary.platformEarnings?.gstCollection || 0)}
+              </p>
+            </div>
+            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pending Payouts</p>
+              <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                {formatCurrency(summary.sellerPayouts?.totalAmount || 0)}
+              </p>
+            </div>
+            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Orders</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-white">
+                {summary.sellerPayouts?.totalOrders || 0}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Promotor Payout Details</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Showing {payouts.length} payout records
+          </p>
         </div>
         
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Promotor
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Commission Rate
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Orders
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Pending Payout
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Promotor</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contact</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Commission Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Created</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {payouts.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                    No pending payouts found
+                    No payout records found
                   </td>
                 </tr>
               ) : (
                 payouts.map((payout) => (
-                  <tr key={payout.promotorId} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <tr key={payout._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
                           {payout.promotorName}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          ID: {payout.promotorId.slice(-8)}
                         </div>
                       </div>
                     </td>
@@ -311,34 +411,51 @@ const PromotorPayouts = () => {
                       <div className="text-xs text-gray-500 dark:text-gray-400">{payout.promotorPhone}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {payout.commissionRate}% {payout.commissionType}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                      {payout.orderCount}
+                      <div className="text-sm font-semibold" style={{ color: payout.status === 'paid' ? '#10b981' : '#8b5cf6' }}>
+                        {formatCurrency(payout.commissionAmount)}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-semibold text-green-600 dark:text-green-400">
-                        {formatCurrency(payout.totalPendingPayout)}
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        payout.status === 'paid' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : payout.status === 'processing'
+                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                      }`}>
+                        {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {formatDate(payout.createdAt)}
                       </div>
+                      {payout.paidAt && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Paid: {formatDate(payout.paidAt)}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleViewDetails(payout)}
-                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded transition-colors"
+                          className="p-2 rounded transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          style={{ color: '#3b82f6' }}
                           title="View Details"
                         >
                           <FiEye className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleMarkAsPaid(payout)}
-                          className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 p-2 rounded transition-colors"
-                          title="Mark as Paid"
-                        >
-                          <FiCheck className="w-4 h-4" />
-                        </button>
+                        {payout.status === 'pending' && (
+                          <button
+                            onClick={() => handleMarkAsPaid(payout)}
+                            className="p-2 rounded transition-colors hover:bg-green-50 dark:hover:bg-green-900/20"
+                             style={{ color: '#10b981' }}
+                            title="Mark as Paid"
+                          >
+                            <FiCheck className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -349,13 +466,12 @@ const PromotorPayouts = () => {
         </div>
       </div>
 
-      {/* Payment Modal */}
       {showPaymentModal && selectedPromotor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Mark Payout as Paid
+                Process Payout
               </h2>
               <button
                 onClick={closePaymentModal}
@@ -366,18 +482,18 @@ const PromotorPayouts = () => {
             </div>
 
             <div className="p-6 space-y-4">
-              {/* Payout Summary */}
-              <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Payout Amount</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {formatCurrency(selectedPromotor.totalPendingPayout)}
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Processing Payout For</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  {selectedPromotor.promotorName}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  To: {selectedPromotor.promotorName}
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Amount: <span className="font-semibold text-green-600 dark:text-green-400">
+                    {formatCurrency(selectedPromotor.commissionAmount)}
+                  </span>
                 </p>
               </div>
 
-              {/* Payment Method */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Payment Method *
@@ -387,33 +503,18 @@ const PromotorPayouts = () => {
                   value={paymentForm.paymentMethod}
                   onChange={handlePaymentFormChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
                 >
                   <option value="bank_transfer">Bank Transfer</option>
                   <option value="upi">UPI</option>
                   <option value="cheque">Cheque</option>
                   <option value="cash">Cash</option>
-                  <option value="other">Other</option>
                 </select>
               </div>
 
-              {/* Payment Date */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Payment Date *
-                </label>
-                <input
-                  type="date"
-                  name="paymentDate"
-                  value={paymentForm.paymentDate}
-                  onChange={handlePaymentFormChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Transaction ID */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Transaction ID / Reference Number
+                  Transaction ID / Reference
                 </label>
                 <input
                   type="text"
@@ -425,7 +526,6 @@ const PromotorPayouts = () => {
                 />
               </div>
 
-              {/* Notes */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Notes
@@ -440,19 +540,6 @@ const PromotorPayouts = () => {
                 />
               </div>
 
-              {/* Bank Details */}
-              {selectedPromotor.bankDetails && (
-                <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Bank Details</p>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                    <p>Account: {selectedPromotor.bankDetails.accountNumber}</p>
-                    <p>IFSC: {selectedPromotor.bankDetails.ifscCode}</p>
-                    <p>Bank: {selectedPromotor.bankDetails.bankName}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={closePaymentModal}
@@ -464,8 +551,8 @@ const PromotorPayouts = () => {
                 <button
                   onClick={handleSubmitPayment}
                   className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#10b981', color: 'white' }}
                   disabled={submittingPayment}
-                  style={{backgroundColor:"green"}}
                 >
                   {submittingPayment ? (
                     <>
@@ -485,13 +572,12 @@ const PromotorPayouts = () => {
         </div>
       )}
 
-      {/* Details Modal */}
       {showDetailsModal && selectedPromotor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Payout Details - {selectedPromotor.promotorName}
+                {promotorDetails?.promotor?.name || selectedPromotor.promotorName} - Payout Details
               </h2>
               <button
                 onClick={closeModal}
@@ -509,12 +595,17 @@ const PromotorPayouts = () => {
                 </div>
               ) : promotorDetails ? (
                 <div className="space-y-6">
-                  {/* Summary */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Payout</p>
-                      <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Pending Payout</p>
+                      <p className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
                         {formatCurrency(promotorDetails.totalPendingPayout)}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Paid</p>
+                      <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                        {formatCurrency(promotorDetails.totalPaidPayout)}
                       </p>
                     </div>
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -523,74 +614,100 @@ const PromotorPayouts = () => {
                         {promotorDetails.orderCount}
                       </p>
                     </div>
-                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Avg. per Order</p>
-                      <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
-                        {formatCurrency(promotorDetails.totalPendingPayout / promotorDetails.orderCount)}
-                      </p>
-                    </div>
                   </div>
 
-                  {/* Bank Details */}
-                  {promotorDetails.promotor?.bankDetails && (
+                  {promotorDetails.promotor && (
                     <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">Bank Details</h3>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-3">Promotor Information</h3>
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400">Account:</span>
-                          <span className="ml-2 text-gray-900 dark:text-white">
-                            {promotorDetails.promotor.bankDetails.accountNumber || 'N/A'}
-                          </span>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Name</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {promotorDetails.promotor.name}
+                          </p>
                         </div>
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400">IFSC:</span>
-                          <span className="ml-2 text-gray-900 dark:text-white">
-                            {promotorDetails.promotor.bankDetails.ifscCode || 'N/A'}
-                          </span>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Email</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {promotorDetails.promotor.email}
+                          </p>
                         </div>
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400">Bank:</span>
-                          <span className="ml-2 text-gray-900 dark:text-white">
-                            {promotorDetails.promotor.bankDetails.bankName || 'N/A'}
-                          </span>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Phone</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {promotorDetails.promotor.phone}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Commission Rate</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {promotorDetails.promotor.commissionRate}%
+                          </p>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Orders List */}
-                  <div>
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-3">Order Details</h3>
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
-                      {promotorDetails.orders?.map((order) => (
-                        <div key={order.orderId} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                Order #{order.orderId.toString().slice(-8)}
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {formatDate(order.orderDate)} • {order.customerName}
-                              </p>
-                            </div>
-                            <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-                              {formatCurrency(order.totalCommission)}
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            {order.items?.map((item, idx) => (
-                              <div key={idx} className="text-xs text-gray-600 dark:text-gray-400 flex justify-between">
-                                <span>{item.productName} (x{item.quantity})</span>
-                                <span className="text-green-600 dark:text-green-400">
-                                  +{formatCurrency(item.commission)}
-                                </span>
+                  {promotorDetails.orders && promotorDetails.orders.length > 0 && (
+                    <div>
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-3">Payout Details</h3>
+                      <div className="space-y-3">
+                        {promotorDetails.orders.map((order) => (
+                          <div key={order.orderId} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                  Order {order.orderId}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {formatDate(order.orderDate)}
+                                </p>
                               </div>
-                            ))}
+                              <div className="flex flex-col items-end gap-1">
+                                <span className={`px-2 py-1 text-xs rounded-full ${
+                                  order.status === 'paid' 
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                    : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                }`}>
+                                  {order.status === 'paid' ? 'Paid' : 'Pending'}
+                                </span>
+                                <div className="text-right">
+                                  <p className="text-sm font-semibold" style={{ color: '#9333ea' }}>
+                                    Commission: {formatCurrency(order.totalCommission)}
+                                  </p>
+                                </div>
+                                {order.paidAt && (
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    Paid: {formatDate(order.paidAt)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            {order.paymentMethod && (
+                              <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+                                <div className="flex justify-between">
+                                  <span>Payment Method:</span>
+                                  <span>{order.paymentMethod}</span>
+                                </div>
+                                {order.transactionId && (
+                                  <div className="flex justify-between">
+                                    <span>Transaction ID:</span>
+                                    <span>{order.transactionId}</span>
+                                  </div>
+                                )}
+                                {order.remarks && (
+                                  <div className="flex justify-between">
+                                    <span>Remarks:</span>
+                                    <span>{order.remarks}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               ) : (
                 <p className="text-center text-gray-500 dark:text-gray-400">No details available</p>

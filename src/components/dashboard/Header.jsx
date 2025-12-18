@@ -76,7 +76,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
       const orderNotifications = orders.map(order => ({
         id: order._id,
         type: getNotificationType(order.status),
-        text: `New Order #${order._id?.slice(-8) || 'N/A'}`,
+        text: `New Order #${order.orderId|| 'N/A'}`,
         details: `${order.user?.phone || 'Customer'} - ₹${order.total?.toLocaleString() || '0'}`,
         time: getTimeAgo(order.createdAt),
         read: false,
