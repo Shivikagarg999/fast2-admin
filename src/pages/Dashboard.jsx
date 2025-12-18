@@ -2,13 +2,6 @@ import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/dashboard/Sidebar";
 import Header from "../components/dashboard/Header";
-import SalesOverview from "../components/dashboard/SalesOverview";
-import RevenueAnalytics from "../components/dashboard/RevenueAnalytics";
-import OrderStatusBreakdown from "../components/dashboard/OrderStatusBreakdown";
-import PaymentStatusCard from "../components/dashboard/PaymentStatusCard";
-import TopSellingProducts from "../components/dashboard/TopSellingProducts";
-import QuickMetrics from "../components/dashboard/QuickMetrics";
-import PendingPayouts from "../components/dashboard/PendingPayouts";
 import {
   FiPackage,
   FiUsers,
@@ -26,24 +19,51 @@ import {
   FiTruck,
   FiPhone,
   FiMail,
-  FiFilter
+  FiFilter,
+  FiStar,
+  FiPercent,
+  FiTrendingUp as FiUp
 } from "react-icons/fi";
+
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [stats, setStats] = useState({
-    totalProducts: 0,
-    totalUsers: 0,
-    totalOrders: 0,
     totalRevenue: 0,
-    lowStockProducts: 0,
-    outOfStockProducts: 0,
-    freshOrders: 0,
-    freshOrdersData: [],
-    recentOrders: [],
-    onlineDrivers: []
+    totalOrders: 0,
+    averageOrderValue: 0,
+    ordersToday: 0,
+    breakdown: {
+      paymentMethods: { wallet: 0, cod: 0 },
+      platformEarnings: { serviceFee: 0, gstCollection: 0, total: 0 },
+      sellerPayout: { payableAmount: 0, gstDeduction: 0, tdsDeduction: 0, netAmount: 0 },
+      promotorCommission: 0
+    },
+    totals: {
+      products: 0,
+      sellers: 0,
+      promotors: 0
+    },
+    dailySales: [],
+    topSellers: [],
+    topPromotors: []
   });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -55,7 +75,7 @@ const DashboardLayout = () => {
   const isDashboard = location.pathname === '/dashboard';
 
   const periodOptions = [
-    { value: 'day', label: 'Today' },
+    { value: 'today', label: 'Today' },
     { value: 'week', label: 'This Week' },
     { value: 'month', label: 'This Month' },
     { value: 'year', label: 'This Year' }
@@ -71,16 +91,20 @@ const DashboardLayout = () => {
     loadDashboardData();
   }, []);
 
+  useEffect(() => {
+    if (selectedPeriod) {
+      fetchDashboardData();
+    }
+  }, [selectedPeriod]);
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
       await Promise.all([
-        fetchDashboardStats(),
-        fetchProductStats(),
-        fetchUserStats(),
-        fetchFreshOrders(),
-        fetchRecentOrders(),
-        fetchOnlineDrivers()
+        fetchDashboardData(),
+        fetchDailySales(),
+        fetchTopSellers(),
+        fetchTopPromotors()
       ]);
       setLoading(false);
     } catch (error) {
@@ -89,151 +113,100 @@ const DashboardLayout = () => {
     }
   };
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/stats`);
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/admin/dashboard/overview?filter=${selectedPeriod}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (!response.ok) throw new Error('Failed to fetch stats');
+      if (!response.ok) throw new Error('Failed to fetch dashboard data');
       const data = await response.json();
       
-      setStats(prev => ({
-        ...prev,
-        totalOrders: data.totalOrders || 0,
-        totalRevenue: data.revenue?.totalRevenue || 0
-      }));
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
-
-  const fetchProductStats = async () => {
-    try {
-      const statsResponse = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/admin/stats`);
-      
-      if (statsResponse.ok) {
-        const data = await statsResponse.json();
+      if (data) {
         setStats(prev => ({
           ...prev,
-          totalProducts: data.totalProducts || 0,
-          lowStockProducts: data.lowStockProducts || 0,
-          outOfStockProducts: data.outOfStockProducts || 0
-        }));
-      } else {
-        await fetchProductsCount();
-      }
-    } catch (error) {
-      console.error('Error fetching product stats:', error);
-      await fetchProductsCount();
-    }
-  };
-
-  const fetchProductsCount = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/getall`);
-      
-      if (response.ok) {
-        const products = await response.json();
-        const lowStockCount = products.filter(product => 
-          product.quantity <= (product.lowStockThreshold || 10) && product.stockStatus === 'in-stock'
-        ).length;
-        const outOfStockCount = products.filter(product => 
-          product.stockStatus === 'out-of-stock'
-        ).length;
-        
-        setStats(prev => ({
-          ...prev,
-          totalProducts: products.length || 0,
-          lowStockProducts: lowStockCount,
-          outOfStockProducts: outOfStockCount
+          totalRevenue: data.totalRevenue?.amount || 0,
+          totalOrders: data.totalOrders?.count || 0,
+          averageOrderValue: data.averageOrderValue?.amount || 0,
+          ordersToday: data.ordersToday || 0,
+          breakdown: data.breakdown || prev.breakdown,
+          totals: data.totals || prev.totals
         }));
       }
     } catch (error) {
-      console.error('Error fetching products count:', error);
+      console.error('Error fetching dashboard data:', error);
     }
   };
 
-  const fetchUserStats = async () => {
+  const fetchDailySales = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users`);
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/admin/dashboard/daily-sales?days=30', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (!response.ok) throw new Error('Failed to fetch users');
+      if (!response.ok) throw new Error('Failed to fetch daily sales');
       const data = await response.json();
       
-      if (data.success && data.users) {
+      if (data.salesData) {
         setStats(prev => ({
           ...prev,
-          totalUsers: data.users.length || 0
+          dailySales: data.salesData
         }));
       }
     } catch (error) {
-      console.error('Error fetching user stats:', error);
+      console.error('Error fetching daily sales:', error);
     }
   };
 
-  const fetchFreshOrders = async () => {
+  const fetchTopSellers = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/admin/fresh-orders`);
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/admin/dashboard/top-sellers?filter=${selectedPeriod}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (!response.ok) throw new Error('Failed to fetch fresh orders');
+      if (!response.ok) throw new Error('Failed to fetch top sellers');
       const data = await response.json();
       
-      setStats(prev => ({
-        ...prev,
-        freshOrders: data.total || 0,
-        freshOrdersData: data.orders || []
-      }));
-
-      if (data.total > 0) {
-        setShowFreshOrdersNotification(true);
-        setTimeout(() => setShowFreshOrdersNotification(false), 5000);
+      if (data.topSellers) {
+        setStats(prev => ({
+          ...prev,
+          topSellers: data.topSellers
+        }));
       }
     } catch (error) {
-      console.error('Error fetching fresh orders:', error);
+      console.error('Error fetching top sellers:', error);
     }
   };
 
-  const fetchRecentOrders = async () => {
+  const fetchTopPromotors = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/getall?limit=5&sortBy=createdAt&sortOrder=desc`);
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/admin/dashboard/top-promotors?filter=${selectedPeriod}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (!response.ok) throw new Error('Failed to fetch recent orders');
+      if (!response.ok) throw new Error('Failed to fetch top promotors');
       const data = await response.json();
       
-      const transformedOrders = data.orders?.map(order => ({
-        id: order._id?.slice(-8) || 'N/A',
-        customer: order.user?.name || 'Unknown Customer',
-        amount: order.total || 0,
-        status: order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : 'Pending',
-        originalOrder: order
-      })) || [];
-      
-      setStats(prev => ({
-        ...prev,
-        recentOrders: transformedOrders
-      }));
+      if (data.topPromotors) {
+        setStats(prev => ({
+          ...prev,
+          topPromotors: data.topPromotors
+        }));
+      }
     } catch (error) {
-      console.error('Error fetching recent orders:', error);
-    }
-  };
-
-  const fetchOnlineDrivers = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers/getall`);
-      
-      if (!response.ok) throw new Error('Failed to fetch drivers');
-      const data = await response.json();
-      
-      const driversData = data.data?.drivers || data.data || [];
-      const onlineDrivers = driversData.filter(driver => 
-        driver.workInfo?.availability === 'online' && driver.workInfo?.status === 'approved'
-      );
-      
-      setStats(prev => ({
-        ...prev,
-        onlineDrivers: onlineDrivers.slice(0, 5)
-      }));
-    } catch (error) {
-      console.error('Error fetching online drivers:', error);
+      console.error('Error fetching top promotors:', error);
     }
   };
 
@@ -241,16 +214,6 @@ const DashboardLayout = () => {
     setRefreshing(true);
     await loadDashboardData();
     setRefreshing(false);
-  };
-
-  const openOrderDetails = (order) => {
-    setSelectedOrder(order.originalOrder);
-    setShowOrderModal(true);
-  };
-
-  const closeOrderModal = () => {
-    setShowOrderModal(false);
-    setSelectedOrder(null);
   };
 
   const toggleSidebar = () => {
@@ -269,469 +232,298 @@ const DashboardLayout = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'INR'
-    }).format(amount);
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount || 0);
   };
 
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100', label: 'Pending' },
-      confirmed: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100', label: 'Confirmed' },
-      processing: { color: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100', label: 'Processing' },
-      shipped: { color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-800 dark:text-indigo-100', label: 'Shipped' },
-      delivered: { color: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100', label: 'Delivered' },
-      cancelled: { color: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100', label: 'Cancelled' }
-    };
-
-    const config = statusConfig[status] || statusConfig.pending;
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        {config.label}
-      </span>
-    );
+  const formatNumber = (num) => {
+    return new Intl.NumberFormat('en-IN').format(num || 0);
   };
 
-  const getPaymentStatusBadge = (status) => {
-    const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100', label: 'Pending' },
-      paid: { color: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100', label: 'Paid' },
-      failed: { color: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100', label: 'Failed' },
-      refunded: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100', label: 'Refunded' }
-    };
-
-    const config = statusConfig[status] || statusConfig.pending;
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        {config.label}
-      </span>
-    );
-  };
-
-  const StatCard = ({ title, value, icon: Icon, trend, trendValue, color, subtitle, onClick }) => (
+  const StatCard = ({ title, value, icon: Icon, trend, trendValue, color, subtitle, onClick, percentageChange }) => (
     <div 
-      className={`bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all ${
-        onClick ? 'cursor-pointer hover:border-blue-300 dark:hover:border-blue-600 transform hover:scale-[1.02]' : ''
-      }`}
+      className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
+      style={onClick ? { cursor: 'pointer' } : {}}
       onClick={onClick}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-            {value}
+            {title.includes('Revenue') || title.includes('Order Value') || title.includes('Commission') ? formatCurrency(value) : formatNumber(value)}
           </p>
           {subtitle && (
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
           )}
-          {trend && (
-            <div className={`flex items-center mt-2 text-sm ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-              {trend === 'up' ? <FiTrendingUp className="mr-1" /> : <FiTrendingDown className="mr-1" />}
-              {trendValue}
+          {percentageChange !== undefined && (
+            <div className={`flex items-center mt-2 text-sm ${percentageChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {percentageChange >= 0 ? <FiTrendingUp className="mr-1" /> : <FiTrendingDown className="mr-1" />}
+              {Math.abs(percentageChange)}%
             </div>
           )}
         </div>
-        <div className={`p-3 rounded-full ${color} bg-opacity-20`}>
-          <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+        <div className="p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
+          <Icon className="w-6 h-6" style={{ color }} />
         </div>
       </div>
     </div>
   );
 
-  const FreshOrdersNotification = () => (
-    <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 animate-pulse">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <FiBell className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3" />
-          <div>
-            <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">
-              New Orders Alert!
-            </h3>
-            <p className="text-sm text-blue-700 dark:text-blue-400">
-              You have {stats.freshOrders} new orders in the last 24 hours
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={refreshData}
-            className="px-3 py-1 text-xs bg-blue-600 text-black rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
-          >
-            <FiRefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          <button
-            onClick={() => setShowFreshOrdersNotification(false)}
-            className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            ×
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const FreshOrders = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 mt-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-          <FiClock className="text-blue-500 mr-2" />
-          Fresh Orders (Last 24 Hours)
-        </h2>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-1 text-xs bg-blue-100 text-black dark:bg-blue-900 dark:text-blue-200 rounded-full">
-            {stats.freshOrders} orders
-          </span>
-          <button
-            onClick={refreshData}
-            className="p-1 text-black hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-            title="Refresh data"
-          >
-            <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-      </div>
-      
-      {stats.freshOrders === 0 ? (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          <FiClock className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>No new orders in the last 24 hours</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Time
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {stats.freshOrdersData.map(order => (
-                <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    #{order._id?.slice(-8) || 'N/A'}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    {order.user?.name || 'Unknown Customer'}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    ₹{order.total?.toLocaleString() || '0'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      order.status === 'delivered' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                        : order.status === 'shipped'
-                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                        : order.status === 'confirmed'
-                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    }`}>
-                      {order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : 'Pending'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                    {order.createdAt ? new Date(order.createdAt).toLocaleTimeString('en-IN', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }) : 'Recent'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setShowOrderModal(true);
-                      }}
-                      className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
-                      title="View Order Details"
-                    >
-                      <FiEye className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {stats.freshOrders > 5 && (
-            <div className="mt-4 text-center">
-              <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
-                View all {stats.freshOrders} fresh orders →
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-
-  const RecentOrders = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 mt-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Orders</h2>
-        <button
-          onClick={refreshData}
-          className="p-1 text-black hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-          title="Refresh data"
-        >
-          <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-        </button>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-900">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Order ID
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Customer
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Amount
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {stats.recentOrders.map(order => (
-              <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">#{order.id}</td>
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{order.customer}</td>
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">₹{order.amount.toLocaleString()}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    order.status === 'Delivered' 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                      : order.status === 'Shipped'
-                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                  }`}>
-                    {order.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => openOrderDetails(order)}
-                    className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
-                    title="View Order Details"
-                  >
-                    <FiEye className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-
-  const OnlineDrivers = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 mt-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-          <FiTruck className="text-green-500 mr-2" />
-          Online Drivers
-        </h2>
-        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
-          {stats.onlineDrivers.length} online
-        </span>
-      </div>
-      
-      {stats.onlineDrivers.length === 0 ? (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          <FiTruck className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>No drivers currently online</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {stats.onlineDrivers.map(driver => (
-            <div key={driver._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                  <FiTruck className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">
-                    {driver.personalInfo?.name || 'Unknown Driver'}
-                  </h4>
-                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                    <FiPhone className="w-3 h-3 mr-1" />
-                    {driver.personalInfo?.phone || 'N/A'}
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">
-                  {driver.vehicle?.type || 'N/A'}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {driver.vehicle?.registrationNumber || 'N/A'}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
-  const StockAlerts = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 mt-6">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-        <FiAlertTriangle className="text-yellow-500 mr-2" />
-        Stock Alerts
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className={`p-4 rounded-lg border-l-4 ${stats.lowStockProducts > 0 ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' : 'border-green-500 bg-green-50 dark:bg-green-900/20'}`}>
-          <div className="flex items-center">
-            <FiBox className={`w-5 h-5 ${stats.lowStockProducts > 0 ? 'text-yellow-500' : 'text-green-500'}`} />
-            <div className="ml-3">
-              <h3 className="text-sm font-medium">Low Stock Products</h3>
-              <p className={`text-lg font-bold ${stats.lowStockProducts > 0 ? 'text-yellow-700 dark:text-yellow-300' : 'text-green-700 dark:text-green-300'}`}>
-                {stats.lowStockProducts} products
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className={`p-4 rounded-lg border-l-4 ${stats.outOfStockProducts > 0 ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-green-500 bg-green-50 dark:bg-green-900/20'}`}>
-          <div className="flex items-center">
-            <FiBox className={`w-5 h-5 ${stats.outOfStockProducts > 0 ? 'text-red-500' : 'text-green-500'}`} />
-            <div className="ml-3">
-              <h3 className="text-sm font-medium">Out of Stock</h3>
-              <p className={`text-lg font-bold ${stats.outOfStockProducts > 0 ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'}`}>
-                {stats.outOfStockProducts} products
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const OrderDetailsModal = () => {
-    if (!selectedOrder) return null;
+  const SalesTrendChart = () => {
+    const chartData = stats.dailySales.slice(-7).map(day => ({
+      name: day.date.split('/')[0],
+      revenue: day.revenue,
+      orders: day.orders
+    }));
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Order Details - #{selectedOrder._id?.slice(-8) || 'N/A'}
-            </h2>
-            <button
-              onClick={closeOrderModal}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-            >
-              <FiX className="w-6 h-6" />
-            </button>
-          </div>
-
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Customer Information</h3>
-                <div className="space-y-2">
-                  <p><strong>Name:</strong> {selectedOrder.user?.name || 'N/A'}</p>
-                  <p><strong>Email:</strong> {selectedOrder.user?.email || 'N/A'}</p>
-                  <p><strong>Phone:</strong> {selectedOrder.user?.phone || 'N/A'}</p>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Order Information</h3>
-                <div className="space-y-2">
-                  <p><strong>Order Date:</strong> {formatDate(selectedOrder.createdAt)}</p>
-                  <p><strong>Status:</strong> {getStatusBadge(selectedOrder.status)}</p>
-                  <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod?.toUpperCase() || 'N/A'}</p>
-                  <p><strong>Payment Status:</strong> {getPaymentStatusBadge(selectedOrder.paymentStatus)}</p>
-                  <p><strong>Total Amount:</strong> {formatCurrency(selectedOrder.total)}</p>
-                </div>
-              </div>
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sales Trend (Last 7 Days)</h2>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#3b82f6' }}></div>
+              <span className="text-xs text-gray-600 dark:text-gray-400">Revenue</span>
             </div>
-
-            {selectedOrder.shippingAddress && (
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Shipping Address</h3>
-                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                  <p>{selectedOrder.shippingAddress.addressLine}</p>
-                  <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
-                  <p>{selectedOrder.shippingAddress.country} - {selectedOrder.shippingAddress.pinCode}</p>
-                  <p><strong>Phone:</strong> {selectedOrder.shippingAddress.phone}</p>
-                </div>
-              </div>
-            )}
-
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Order Items</h3>
-              <div className="space-y-4">
-                {selectedOrder.items?.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={item.product?.images?.[0]?.url || "https://via.placeholder.com/60?text=No+Image"}
-                        alt={item.product?.name}
-                        className="w-16 h-16 rounded-lg object-cover"
-                      />
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">{item.product?.name || 'Unknown Product'}</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Quantity: {item.quantity}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-gray-900 dark:text-white">{formatCurrency(item.price)}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Total: {formatCurrency(item.price * item.quantity)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-medium text-gray-900 dark:text-white">Total Amount:</span>
-                <span className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(selectedOrder.total)}</span>
-              </div>
+            <div className="flex items-center ml-3">
+              <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#10b981' }}></div>
+              <span className="text-xs text-gray-600 dark:text-gray-400">Orders</span>
             </div>
           </div>
+        </div>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="name" stroke="#9CA3AF" />
+              <YAxis stroke="#9CA3AF" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: darkMode ? '#1F2937' : '#FFFFFF',
+                  borderColor: darkMode ? '#374151' : '#E5E7EB'
+                }}
+                formatter={(value) => [formatCurrency(value), '']}
+              />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="revenue" 
+                stroke="#3b82f6" 
+                strokeWidth={2}
+                dot={{ fill: '#3b82f6', strokeWidth: 2 }}
+                activeDot={{ r: 8 }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="orders" 
+                stroke="#10b981" 
+                strokeWidth={2}
+                dot={{ fill: '#10b981', strokeWidth: 2 }}
+                activeDot={{ r: 8 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
     );
   };
+
+  const RevenueBreakdownChart = () => {
+    const data = [
+      { name: 'Platform', value: stats.breakdown.platformEarnings.total, color: '#3b82f6' },
+      { name: 'Seller Payout', value: stats.breakdown.sellerPayout.netAmount, color: '#10b981' },
+      { name: 'Promotor Comm', value: stats.breakdown.promotorCommission, color: '#8b5cf6' }
+    ];
+
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Revenue Distribution</h2>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={(entry) => `${entry.name}: ${formatCurrency(entry.value)}`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value) => formatCurrency(value)} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
+
+  const TopSellersChart = () => {
+    const data = stats.topSellers.slice(0, 5).map(seller => ({
+      name: seller.sellerName?.substring(0, 12) || 'Seller',
+      revenue: seller.totalRevenue || 0,
+      orders: seller.totalOrders || 0
+    }));
+
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Sellers</h2>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="name" stroke="#9CA3AF" />
+              <YAxis stroke="#9CA3AF" />
+              <Tooltip 
+                formatter={(value) => formatCurrency(value)}
+                contentStyle={{ 
+                  backgroundColor: darkMode ? '#1F2937' : '#FFFFFF',
+                  borderColor: darkMode ? '#374151' : '#E5E7EB'
+                }}
+              />
+              <Legend />
+              <Bar dataKey="revenue" name="Revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="orders" name="Orders" fill="#10b981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
+
+  const PaymentMethodsChart = () => {
+    const data = [
+      { name: 'Wallet', value: stats.breakdown.paymentMethods.wallet, color: '#8b5cf6' },
+      { name: 'COD', value: stats.breakdown.paymentMethods.cod, color: '#f59e0b' }
+    ];
+
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Methods</h2>
+        <div className="flex items-center justify-center h-48">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+                paddingAngle={5}
+                dataKey="value"
+                label={(entry) => `${entry.name}: ${formatCurrency(entry.value)}`}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value) => formatCurrency(value)} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
+
+  const PayoutBreakdownCard = () => (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payout Breakdown</h2>
+      <div className="space-y-4">
+        <div>
+          <div className="flex justify-between mb-1">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Platform Earnings</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              {formatCurrency(stats.breakdown.platformEarnings.total)}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full" 
+              style={{ width: `${(stats.breakdown.platformEarnings.total / Math.max(1, stats.totalRevenue)) * 100}%` }}
+            ></div>
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
+            <span>Service Fee: {formatCurrency(stats.breakdown.platformEarnings.serviceFee)}</span>
+            <span>GST: {formatCurrency(stats.breakdown.platformEarnings.gstCollection)}</span>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-between mb-1">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Seller Payout</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              {formatCurrency(stats.breakdown.sellerPayout.netAmount)}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-green-600 h-2 rounded-full" 
+              style={{ width: `${(stats.breakdown.sellerPayout.netAmount / Math.max(1, stats.totalRevenue)) * 100}%` }}
+            ></div>
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
+            <span>Payable: {formatCurrency(stats.breakdown.sellerPayout.payableAmount)}</span>
+            <span>Net: {formatCurrency(stats.breakdown.sellerPayout.netAmount)}</span>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-between mb-1">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Promotor Commission</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              {formatCurrency(stats.breakdown.promotorCommission)}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-purple-600 h-2 rounded-full" 
+              style={{ width: `${(stats.breakdown.promotorCommission / Math.max(1, stats.totalRevenue)) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const TopPromotorsCard = () => (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Promotors</h2>
+      <div className="space-y-4">
+        {stats.topPromotors.slice(0, 5).map((promotor, index) => (
+          <div key={promotor.promotorId} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div className="flex items-center">
+              <div className="w-8 h-8 flex items-center justify-center rounded-full mr-3" style={{ backgroundColor: '#8b5cf620' }}>
+                <span className="font-bold text-sm" style={{ color: '#8b5cf6' }}>{index + 1}</span>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white">{promotor.promotorName}</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{promotor.city}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-bold text-gray-900 dark:text-white" style={{ color: '#8b5cf6' }}>
+                {formatCurrency(promotor.totalCommission)}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {promotor.sellersAdded} sellers
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen w-[100vw] bg-gray-100 dark:bg-gray-900">
@@ -766,11 +558,20 @@ const DashboardLayout = () => {
                       <button
                         key={option.value}
                         onClick={() => setSelectedPeriod(option.value)}
-                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                          selectedPeriod === option.value
-                            ? 'bg-blue-500 text-white'
-                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
+                        style={{
+                          padding: '0.375rem 0.75rem',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          transition: 'all 0.2s',
+                          ...(selectedPeriod === option.value
+                            ? { backgroundColor: '#3b82f6', color: 'white' }
+                            : { 
+                                color: darkMode ? '#9CA3AF' : '#4B5563',
+                                backgroundColor: 'transparent'
+                              })
+                        }}
+                        className="hover:opacity-90"
                       >
                         {option.label}
                       </button>
@@ -778,18 +579,27 @@ const DashboardLayout = () => {
                   </div>
                   <button
                     onClick={refreshData}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      borderRadius: '0.5rem',
+                      border: 'none',
+                      cursor: refreshing ? 'not-allowed' : 'pointer',
+                      opacity: refreshing ? 0.7 : 1,
+                      transition: 'all 0.2s'
+                    }}
                     disabled={refreshing}
+                    className="hover:opacity-90"
                   >
                     <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                     {refreshing ? 'Refreshing...' : 'Refresh'}
                   </button>
                 </div>
               </div>
-              
-              {showFreshOrdersNotification && stats.freshOrders > 0 && (
-                <FreshOrdersNotification />
-              )}
               
               {loading ? (
                 <div className="space-y-6">
@@ -804,48 +614,170 @@ const DashboardLayout = () => {
                 </div>
               ) : (
                 <>
-                  {/* Sales Overview Section */}
-                  <div className="mb-6">
-                    <SalesOverview period={selectedPeriod} />
+                  {/* Main Stats Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <StatCard
+                      title="Total Revenue"
+                      value={stats.totalRevenue}
+                      icon={FiDollarSign}
+                      percentageChange={100.0}
+                      color="#3b82f6"
+                    />
+                    <StatCard
+                      title="Total Orders"
+                      value={stats.totalOrders}
+                      icon={FiShoppingCart}
+                      percentageChange={88.9}
+                      color="#10b981"
+                    />
+                    <StatCard
+                      title="Avg Order Value"
+                      value={stats.averageOrderValue}
+                      icon={FiTrendingUp}
+                      percentageChange={0}
+                      color="#8b5cf6"
+                    />
+                    <StatCard
+                      title="Orders Today"
+                      value={stats.ordersToday}
+                      icon={FiClock}
+                      subtitle="Current day orders"
+                      color="#f59e0b"
+                    />
                   </div>
 
-                  {/* Quick Metrics */}
-                  <div className="mb-6">
-                    <QuickMetrics />
+                  {/* Platform Totals */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <StatCard
+                      title="Total Products"
+                      value={stats.totals.products}
+                      icon={FiPackage}
+                      color="#3b82f6"
+                      subtitle="Active products"
+                    />
+                    <StatCard
+                      title="Active Sellers"
+                      value={stats.totals.sellers}
+                      icon={FiUsers}
+                      color="#10b981"
+                      subtitle="Approved sellers"
+                    />
+                    <StatCard
+                      title="Active Promotors"
+                      value={stats.totals.promotors}
+                      icon={FiStar}
+                      color="#8b5cf6"
+                      subtitle="Active promotors"
+                    />
                   </div>
 
-                  {/* Revenue Analytics and Order Status */}
+                  {/* Charts Section */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <SalesTrendChart />
+                    <RevenueBreakdownChart />
+                  </div>
+
+                  {/* More Charts */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <TopSellersChart />
+                    <PaymentMethodsChart />
+                  </div>
+
+                  {/* Payout and Promotor Section */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <PayoutBreakdownCard />
+                    <TopPromotorsCard />
+                  </div>
+
+                  {/* Detailed Breakdown */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <div className="lg:col-span-2">
-                      <RevenueAnalytics period={selectedPeriod} />
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Payment Methods</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#8b5cf6' }}></div>
+                            <span className="text-sm">Wallet</span>
+                          </div>
+                          <span className="font-medium" style={{ color: '#8b5cf6' }}>
+                            {formatCurrency(stats.breakdown.paymentMethods.wallet)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#f59e0b' }}></div>
+                            <span className="text-sm">Cash on Delivery</span>
+                          </div>
+                          <span className="font-medium" style={{ color: '#f59e0b' }}>
+                            {formatCurrency(stats.breakdown.paymentMethods.cod)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <PaymentStatusCard />
+
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Platform Earnings</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#3b82f6' }}></div>
+                            <span className="text-sm">Service Fee (10%)</span>
+                          </div>
+                          <span className="font-medium" style={{ color: '#3b82f6' }}>
+                            {formatCurrency(stats.breakdown.platformEarnings.serviceFee)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#10b981' }}></div>
+                            <span className="text-sm">GST Collection (18%)</span>
+                          </div>
+                          <span className="font-medium" style={{ color: '#10b981' }}>
+                            {formatCurrency(stats.breakdown.platformEarnings.gstCollection)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#8b5cf6' }}></div>
+                            <span className="text-sm font-medium">Total Platform Earnings</span>
+                          </div>
+                          <span className="font-bold" style={{ color: '#8b5cf6' }}>
+                            {formatCurrency(stats.breakdown.platformEarnings.total)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Seller Payout</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <span className="text-sm">Payable Amount</span>
+                          <span className="font-medium text-green-600 dark:text-green-400">
+                            {formatCurrency(stats.breakdown.sellerPayout.payableAmount)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <span className="text-sm">GST Deduction</span>
+                          <span className="font-medium text-red-600 dark:text-red-400">
+                            -{formatCurrency(stats.breakdown.sellerPayout.gstDeduction)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <span className="text-sm">TDS Deduction (1%)</span>
+                          <span className="font-medium text-red-600 dark:text-red-400">
+                            -{formatCurrency(stats.breakdown.sellerPayout.tdsDeduction)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded border-t">
+                          <span className="text-sm font-medium">Net Amount</span>
+                          <span className="font-bold text-purple-600 dark:text-purple-400">
+                            {formatCurrency(stats.breakdown.sellerPayout.netAmount)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Order Status Breakdown and Top Products */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <OrderStatusBreakdown />
-                    <TopSellingProducts />
-                  </div>
-
-                  {/* Pending Payouts */}
-                  <div className="mb-6">
-                    <PendingPayouts />
-                  </div>
-
-                  {/* Fresh Orders and Online Drivers */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <FreshOrders />
-                    <OnlineDrivers />
-                  </div>
-
-                  {/* Stock Alerts */}
-                  <StockAlerts />
-
-                  {/* Recent Orders */}
-                  <RecentOrders />
                 </>
               )}
             </div>
@@ -854,8 +786,6 @@ const DashboardLayout = () => {
           )}
         </main>
       </div>
-
-      {showOrderModal && <OrderDetailsModal />}
     </div>
   );
 };
