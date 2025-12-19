@@ -16,13 +16,11 @@ const ProductCreate = () => {
   const editorRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    // Basic Information
     name: '',
     description: '',
     brand: '',
     category: '',
     
-    // Pricing Information
     price: '',
     oldPrice: '',
     unit: 'piece',
@@ -275,7 +273,6 @@ const ProductCreate = () => {
     }
   };
 
-  // Pincode management functions
   const validatePincode = (pincode) => {
     const pincodeRegex = /^[1-9][0-9]{5}$/;
     return pincodeRegex.test(pincode);
@@ -651,6 +648,7 @@ const ProductCreate = () => {
                     onClick={addVariant}
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 
                       flex items-center text-sm"
+                    style={{backgroundColor: 'black'}}
                   >
                     <FiPlus className="mr-1" /> Add Variant
                   </button>
@@ -1087,6 +1085,8 @@ const ProductCreate = () => {
                       onClick={addPincode}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
                         flex items-center whitespace-nowrap"
+                        
+                    style={{backgroundColor: 'black'}}
                     >
                       <FiPlus className="mr-1" /> Add Pincode
                     </button>
@@ -1266,6 +1266,8 @@ const ProductCreate = () => {
                 disabled={loading || loadingPromotors || loadingWarehouses || loadingCategories}
                 className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-white"
+                  
+                    style={{backgroundColor: 'black'}}
               >
                 {loading ? (
                   <>
