@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
 
+export const PERMISSIONS = {
+  SELLERS_CREATE: 'sellers.create',
+  SELLERS_APPROVE: 'sellers.approve',
+  SELLERS_REJECT: 'sellers.reject',
+  SELLERS_TOGGLE_STATUS: 'sellers.toggle_status',
+};
+
 export const usePermissions = () => {
   const [permissions, setPermissions] = useState([]);
   const [role, setRole] = useState('');
@@ -8,7 +15,6 @@ export const usePermissions = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get admin data from localStorage
     const adminData = localStorage.getItem('adminData');
     if (adminData) {
       try {
@@ -25,35 +31,20 @@ export const usePermissions = () => {
   }, []);
 
   const hasPermission = (permission) => {
-    // Super admin has all permissions
     if (superAdmin || role === 'super_admin') return true;
-    
-    // Check for wildcard permission
     if (permissions.includes('*')) return true;
-    
-    // Check if admin has the specific permission
     return permissions.includes(permission);
   };
 
   const hasAnyPermission = (permissionList) => {
-    // Super admin has all permissions
     if (superAdmin || role === 'super_admin') return true;
-    
-    // Check for wildcard permission
     if (permissions.includes('*')) return true;
-    
-    // Check if admin has any of the permissions
     return permissionList.some(permission => permissions.includes(permission));
   };
 
   const hasAllPermissions = (permissionList) => {
-    // Super admin has all permissions
     if (superAdmin || role === 'super_admin') return true;
-    
-    // Check for wildcard permission
     if (permissions.includes('*')) return true;
-    
-    // Check if admin has all of the permissions
     return permissionList.every(permission => permissions.includes(permission));
   };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, FiX, FiImage, FiVideo } from 'react-icons/fi';
+import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, FiX, FiImage, FiVideo, FiShoppingBag } from 'react-icons/fi';
 import { Editor } from '@tinymce/tinymce-react';
 
 const ProductCreate = () => {
@@ -8,9 +8,11 @@ const ProductCreate = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [promotors, setPromotors] = useState([]);
+  const [sellers, setSellers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loadingPromotors, setLoadingPromotors] = useState(true);
+  const [loadingSellers, setLoadingSellers] = useState(true);
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const editorRef = useRef(null);
@@ -30,6 +32,9 @@ const ProductCreate = () => {
     promotor: '',
     commissionRate: '',
     commissionType: 'percentage',
+    
+    // Seller Information (NEW FIELD)
+    seller: '',
     
     // Inventory & Stock
     quantity: '',
@@ -71,16 +76,10 @@ const ProductCreate = () => {
     { name: 'Style', options: ['Classic', 'Modern', 'Vintage', 'Sport'] }
   ];
 
-  // Storage types for warehouse
-  const storageTypes = [
-    { value: 'ambient', label: 'Ambient Storage', icon: FiThermometer, color: 'text-green-500' },
-    { value: 'cold-storage', label: 'Cold Storage', icon: FiThermometer, color: 'text-blue-500' },
-    { value: 'frozen', label: 'Frozen Storage', icon: FiThermometer, color: 'text-indigo-500' },
-  ];
-
   // Fetch data on component mount
   useEffect(() => {
     fetchPromotors();
+    fetchSellers();
     fetchWarehouses();
     fetchCategories();
   }, []);
@@ -89,7 +88,13 @@ const ProductCreate = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`);
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://api.fast2.in/api/admin/promotor/', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch promotors');
       const data = await response.json();
       setPromotors(data);
@@ -101,11 +106,39 @@ const ProductCreate = () => {
     }
   };
 
+  // Fetch sellers from API
+  const fetchSellers = async () => {
+    try {
+      setLoadingSellers(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch sellers');
+      const data = await response.json();
+      setSellers(data.data || []);
+    } catch (error) {
+      console.error('Error fetching sellers:', error);
+      setError('Failed to load sellers');
+    } finally {
+      setLoadingSellers(false);
+    }
+  };
+
   // Fetch warehouses from API
   const fetchWarehouses = async () => {
     try {
       setLoadingWarehouses(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch warehouses');
       const data = await response.json();
       setWarehouses(data);
@@ -329,6 +362,7 @@ const ProductCreate = () => {
     if (!formData.category) errors.push('Category is required');
     if (!formData.price) errors.push('Price is required');
     if (!formData.promotor) errors.push('Promotor is required');
+    if (!formData.seller) errors.push('Seller is required'); // NEW VALIDATION
     if (formData.images.length === 0) errors.push('At least one product image is required');
     if (formData.images.length > 5) errors.push('Maximum 5 images allowed');
     if (!formData.unitValue) errors.push('Unit value is required');
@@ -406,8 +440,12 @@ const ProductCreate = () => {
         }
       }
 
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/create`, {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://api.fast2.in/api/product/create', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formDataToSend,
       });
 
@@ -771,73 +809,147 @@ const ProductCreate = () => {
               )}
             </div>
             
-            {/* Promotor Information Section */}
+            {/* Promotor and Seller Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                <FiUser className="mr-2" /> Promotor Information
+                <FiUser className="mr-2" /> Promotor & Seller Information
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Promotor *
-                  </label>
-                  <select
-                    name="promotor"
-                    value={formData.promotor}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                    disabled={loadingPromotors}
-                  >
-                    <option value="">
-                      {loadingPromotors ? "Loading promotors..." : "Select a promotor"}
-                    </option>
-                    {promotors.map((promotor) => (
-                      <option key={promotor._id} value={promotor._id}>
-                        {promotor.name} - {promotor.email}
-                      </option>
-                    ))}
-                  </select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Promotor Information */}
+                <div className="space-y-4">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                      <FiUser className="mr-2" /> Promotor Information *
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Promotor *
+                        </label>
+                        <select
+                          name="promotor"
+                          value={formData.promotor}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                          disabled={loadingPromotors}
+                        >
+                          <option value="">
+                            {loadingPromotors ? "Loading promotors..." : "Select a promotor"}
+                          </option>
+                          {promotors.map((promotor) => (
+                            <option key={promotor._id} value={promotor._id}>
+                              {promotor.name} - {promotor.email}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Commission Type *
+                        </label>
+                        <select
+                          name="commissionType"
+                          value={formData.commissionType}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        >
+                          <option value="percentage">Percentage</option>
+                          <option value="fixed">Fixed Amount</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Commission Rate *
+                        </label>
+                        <input
+                          type="number"
+                          name="commissionRate"
+                          value={formData.commissionRate}
+                          onChange={handleInputChange}
+                          min="0"
+                          step="0.01"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Commission Type *
-                  </label>
-                  <select
-                    name="commissionType"
-                    value={formData.commissionType}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="percentage">Percentage</option>
-                    <option value="fixed">Fixed Amount</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Commission Rate *
-                  </label>
-                  <input
-                    type="number"
-                    name="commissionRate"
-                    value={formData.commissionRate}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                    placeholder="0.00"
-                  />
+
+                {/* Seller Information */}
+                <div className="space-y-4">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                      <FiShoppingBag className="mr-2" /> Seller Information *
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Seller *
+                        </label>
+                        <select
+                          name="seller"
+                          value={formData.seller}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                          disabled={loadingSellers}
+                        >
+                          <option value="">
+                            {loadingSellers ? "Loading sellers..." : "Select a seller"}
+                          </option>
+                          {sellers.map((seller) => (
+                            <option key={seller._id} value={seller._id}>
+                              {seller.name} - {seller.businessName} ({seller.email})
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Product will be assigned to this seller
+                        </p>
+                      </div>
+                      
+                      {formData.seller && (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-200 dark:border-blue-700">
+                          <h4 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-1">
+                            Selected Seller Details
+                          </h4>
+                          {(() => {
+                            const selectedSeller = sellers.find(s => s._id === formData.seller);
+                            if (!selectedSeller) return null;
+                            
+                            return (
+                              <div className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
+                                <p><span className="font-medium">Business:</span> {selectedSeller.businessName}</p>
+                                <p><span className="font-medium">Email:</span> {selectedSeller.email}</p>
+                                <p><span className="font-medium">Phone:</span> {selectedSeller.phone}</p>
+                                <p><span className="font-medium">Location:</span> {selectedSeller.address?.city}, {selectedSeller.address?.state}</p>
+                                {selectedSeller.promotor && (
+                                  <p><span className="font-medium">Promotor:</span> {selectedSeller.promotor.name}</p>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1085,8 +1197,7 @@ const ProductCreate = () => {
                       onClick={addPincode}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
                         flex items-center whitespace-nowrap"
-                        
-                    style={{backgroundColor: 'black'}}
+                      style={{backgroundColor: 'black'}}
                     >
                       <FiPlus className="mr-1" /> Add Pincode
                     </button>
@@ -1263,11 +1374,10 @@ const ProductCreate = () => {
               </button>
               <button
                 type="submit"
-                disabled={loading || loadingPromotors || loadingWarehouses || loadingCategories}
+                disabled={loading || loadingPromotors || loadingSellers || loadingWarehouses || loadingCategories}
                 className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-white"
-                  
-                    style={{backgroundColor: 'black'}}
+                style={{backgroundColor: 'black'}}
               >
                 {loading ? (
                   <>
