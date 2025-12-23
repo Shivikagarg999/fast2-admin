@@ -189,11 +189,11 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
       icon: <FiFileText className="w-3.5 h-3.5" />,
       items: [
         {
-          name: "Terms & Conditions",
+          name: "Policies",
           path: "/admin/terms",
           icon: <FiFileText className="w-4 h-4" />,
           permission: PERMISSIONS.TERMS_VIEW,
-        },
+        }
       ]
     },
     ...(isSuperAdmin() ? [{

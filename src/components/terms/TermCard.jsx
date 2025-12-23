@@ -1,74 +1,270 @@
-import { FiEdit, FiTrash2, FiEye, FiCheckCircle, FiCircle } from "react-icons/fi";
+// components/terms/TermCard.jsx
+import { FiEdit, FiTrash2, FiEye, FiCheckCircle } from "react-icons/fi";
 
-const TermCard = ({ term, onEdit, onDelete, onPreview, onSetActive }) => {
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }) => {
+  const getPolicyTypeIcon = (type) => {
+    switch(type) {
+      case 'terms': return '📜';
+      case 'return': return '🔄';
+      case 'cancellation': return '❌';
+      case 'refund': return '💰';
+      default: return '📄';
+    }
+  };
+
+  const getPolicyTypeColor = (type) => {
+    switch(type) {
+      case 'terms': return '#3b82f6';
+      case 'return': return '#10b981';
+      case 'cancellation': return '#ef4444';
+      case 'refund': return '#f59e0b';
+      default: return '#6b7280';
+    }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white truncate">
-              {term.title}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-              Version {term.version}
-            </p>
-          </div>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            term.isActive 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-          }`}>
-            {term.isActive ? 'Active' : 'Inactive'}
-          </span>
+    <div style={{
+      backgroundColor: '#ffffff',
+      borderRadius: '8px',
+      border: `1px solid ${term.isActive ? '#16a34a' : '#e5e7eb'}`,
+      padding: '20px',
+      position: 'relative',
+      boxShadow: term.isActive ? '0 0 0 2px rgba(22, 163, 74, 0.1)' : 'none'
+    }}>
+      {/* Active Badge */}
+      {term.isActive && (
+        <div style={{
+          position: 'absolute',
+          top: '-8px',
+          right: '16px',
+          backgroundColor: '#16a34a',
+          color: '#ffffff',
+          fontSize: '12px',
+          fontWeight: '600',
+          padding: '4px 12px',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px'
+        }}>
+          <FiCheckCircle size={12} />
+          Active
         </div>
-        
-        <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-          <p>Effective: {formatDate(term.effectiveDate)}</p>
-          <p>Created: {formatDate(term.createdAt)}</p>
+      )}
+      
+      {/* Policy Type */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '12px'
+      }}>
+        <span style={{ fontSize: '18px' }}>
+          {getPolicyTypeIcon(term.policyType || policyType)}
+        </span>
+        <span style={{
+          fontSize: '12px',
+          fontWeight: '600',
+          color: getPolicyTypeColor(term.policyType || policyType),
+          backgroundColor: `${getPolicyTypeColor(term.policyType || policyType)}15`,
+          padding: '2px 8px',
+          borderRadius: '12px'
+        }}>
+          {term.policyType || policyType}
+        </span>
+      </div>
+      
+      {/* Title */}
+      <h3 style={{
+        fontSize: '16px',
+        fontWeight: '600',
+        color: '#111827',
+        marginBottom: '8px'
+      }}>
+        {term.title}
+      </h3>
+      
+      {/* Version */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '12px'
+      }}>
+        <span style={{
+          fontSize: '14px',
+          color: '#6b7280'
+        }}>
+          Version:
+        </span>
+        <span style={{
+          fontSize: '14px',
+          fontWeight: '600',
+          color: '#374151'
+        }}>
+          {term.version}
+        </span>
+      </div>
+      
+      {/* Date */}
+      <div style={{
+        fontSize: '12px',
+        color: '#9ca3af',
+        marginBottom: '16px'
+      }}>
+        Effective: {new Date(term.effectiveDate).toLocaleDateString()}
+      </div>
+      
+      {/* Content Preview */}
+      <div style={{
+        fontSize: '14px',
+        color: '#6b7280',
+        marginBottom: '16px',
+        maxHeight: '60px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical'
+      }}
+      dangerouslySetInnerHTML={{ __html: term.content.substring(0, 150) + '...' }}
+      />
+      
+      {/* Metadata */}
+      {term.metadata && (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+          marginBottom: '16px',
+          fontSize: '12px'
+        }}>
+          {term.metadata.returnPeriod && (
+            <span style={{
+              backgroundColor: '#f3f4f6',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              color: '#374151'
+            }}>
+              ⏱️ {term.metadata.returnPeriod} days return
+            </span>
+          )}
+          {term.metadata.cancellationFee && (
+            <span style={{
+              backgroundColor: '#f3f4f6',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              color: '#374151'
+            }}>
+              💰 {term.metadata.cancellationFee}% fee
+            </span>
+          )}
+          {term.metadata.refundProcessingDays && (
+            <span style={{
+              backgroundColor: '#f3f4f6',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              color: '#374151'
+            }}>
+              ⚡ {term.metadata.refundProcessingDays} days processing
+            </span>
+          )}
         </div>
-
-        <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+      )}
+      
+      {/* Actions */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        borderTop: '1px solid #e5e7eb',
+        paddingTop: '16px'
+      }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={() => onPreview(term)}
-            className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-            title="Preview"
+            style={{
+              backgroundColor: '#f3f4f6',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: '500',
+              color: '#374151'
+            }}
           >
-            <FiEye className="w-4 h-4" />
+            <FiEye size={14} />
+            Preview
           </button>
           
-          <div className="flex gap-1">
-            {!term.isActive && (
-              <button
-                onClick={() => onSetActive(term)}
-                className="p-2 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors"
-                title="Set as Active"
-              >
-                <FiCheckCircle className="w-4 h-4" />
-              </button>
-            )}
+          {!term.isActive && (
             <button
-              onClick={() => onEdit(term)}
-              className="p-2 text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors"
-              title="Edit"
+              onClick={() => onSetActive(term)}
+              style={{
+                backgroundColor: '#dcfce7',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '12px',
+                fontWeight: '500',
+                color: '#166534'
+              }}
             >
-              <FiEdit className="w-4 h-4" />
+              <FiCheckCircle size={14} />
+              Set Active
             </button>
+          )}
+        </div>
+        
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => onEdit(term)}
+            style={{
+              backgroundColor: '#eff6ff',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: '500',
+              color: '#1d4ed8'
+            }}
+          >
+            <FiEdit size={14} />
+            Edit
+          </button>
+          
+          {!term.isActive && (
             <button
               onClick={() => onDelete(term)}
-              className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-              title="Delete"
+              style={{
+                backgroundColor: '#fef2f2',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '12px',
+                fontWeight: '500',
+                color: '#dc2626'
+              }}
             >
-              <FiTrash2 className="w-4 h-4" />
+              <FiTrash2 size={14} />
+              Delete
             </button>
-          </div>
+          )}
         </div>
       </div>
     </div>

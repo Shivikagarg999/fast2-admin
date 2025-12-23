@@ -1,24 +1,42 @@
-import { useState, useEffect } from "react";
-import { FiPlus, FiFileText } from "react-icons/fi";
+import { useState, useEffect, useRef } from "react";
+import { FiPlus, FiFileText, FiFilter, FiEye, FiEyeOff } from "react-icons/fi";
+import { Editor } from '@tinymce/tinymce-react';
 import TermCard from "../../components/terms/TermCard";
-import TermFormModal from "../../components/terms/TermFormModal";
-import PreviewModal from "../../components/terms/PreviewModal";
 import DeleteConfirmModal from "../../components/terms/DeleteConfirmModal";
 import SetActiveConfirmModal from "../../components/terms/SetActiveConfirmModal";
+import PreviewModal from "../../components/terms/PreviewModal";
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
 
-const TermsAndConditions = () => {
+const PoliciesManagement = () => {
   const { hasPermission } = usePermissions();
-  const [terms, setTerms] = useState([]);
+  const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editingTerm, setEditingTerm] = useState(null);
+  const [editingPolicy, setEditingPolicy] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [previewTerm, setPreviewTerm] = useState(null);
+  const [previewPolicy, setPreviewPolicy] = useState(null);
   const [activeConfirm, setActiveConfirm] = useState(null);
+  const [selectedPolicyType, setSelectedPolicyType] = useState("terms");
+  const [showActiveOnly, setShowActiveOnly] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    version: "",
+    effectiveDate: "",
+    isActive: false,
+    metadata: {}
+  });
+  const editorRef = useRef(null);
 
-  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/terms`;
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/policy`;
+
+  const policyTypes = [
+    { value: "terms", label: "Terms & Conditions", icon: "📜" },
+    { value: "return", label: "Return Policy", icon: "🔄" },
+    { value: "cancellation", label: "Cancellation Policy", icon: "❌" },
+    { value: "refund", label: "Refund Policy", icon: "💰" }
+  ];
 
   // Button Styles
   const buttonStyles = {
@@ -34,7 +52,8 @@ const TermsAndConditions = () => {
       gap: '8px',
       fontSize: '14px',
       fontWeight: '500',
-      transition: 'all 0.2s ease'
+      transition: 'all 0.2s ease',
+      '&:hover': { backgroundColor: '#374151' }
     },
     secondary: {
       backgroundColor: '#ffffff',
@@ -48,10 +67,11 @@ const TermsAndConditions = () => {
       gap: '8px',
       fontSize: '14px',
       fontWeight: '500',
-      transition: 'all 0.2s ease'
+      transition: 'all 0.2s ease',
+      '&:hover': { backgroundColor: '#f9fafb' }
     },
-    success: {
-      backgroundColor: '#16a34a',
+    danger: {
+      backgroundColor: '#dc2626',
       color: '#ffffff',
       border: 'none',
       borderRadius: '8px',
@@ -62,100 +82,146 @@ const TermsAndConditions = () => {
       gap: '8px',
       fontSize: '14px',
       fontWeight: '500',
-      transition: 'all 0.2s ease'
+      transition: 'all 0.2s ease',
+      '&:hover': { backgroundColor: '#b91c1c' }
     }
   };
 
-  useEffect(() => {
-    fetchTerms();
-  }, []);
+  // Get policy type label
+  const getPolicyTypeLabel = (type) => {
+    const policy = policyTypes.find(p => p.value === type);
+    return policy ? `${policy.icon} ${policy.label}` : type;
+  };
 
-  const fetchTerms = async () => {
+  useEffect(() => {
+    fetchPolicies();
+  }, [selectedPolicyType, showActiveOnly]);
+
+  const fetchPolicies = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/getall`);
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        policyType: selectedPolicyType,
+        ...(showActiveOnly && { isActive: 'true' })
+      });
+
+      const response = await fetch(`${API_BASE_URL}?${params}`);
       const data = await response.json();
       
       if (data.success) {
-        setTerms(data.data || []);
+        setPolicies(data.data || []);
+      } else {
+        throw new Error(data.message);
       }
     } catch (error) {
-      console.error('Error fetching terms:', error);
-      alert('Failed to fetch terms and conditions');
+      console.error('Error fetching policies:', error);
+      alert(`Failed to fetch policies: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
     if (!hasPermission(PERMISSIONS.TERMS_EDIT)) {
-      alert("You don't have permission to modify terms and conditions");
+      alert("You don't have permission to modify policies");
       return;
     }
+
+    // Validate form
+    if (!formData.title.trim() || !formData.content.trim() || !formData.version.trim() || !formData.effectiveDate) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
     try {
-      const url = editingTerm 
-        ? `${API_BASE_URL}/update/${editingTerm._id}`
-        : `${API_BASE_URL}/create`;
+      const url = editingPolicy 
+        ? `${API_BASE_URL}/${editingPolicy._id}`
+        : `${API_BASE_URL}`;
       
-      const method = editingTerm ? 'PUT' : 'POST';
+      const method = editingPolicy ? 'PUT' : 'POST';
       
+      const payload = {
+        ...formData,
+        policyType: selectedPolicyType
+      };
+
+      // If setting as active, show confirmation
+      if (payload.isActive && !editingPolicy?.isActive) {
+        if (!window.confirm(`Set "${payload.title}" as active ${getPolicyTypeLabel(selectedPolicyType)}? This will deactivate the current active policy.`)) {
+          payload.isActive = false;
+        }
+      }
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       
       const data = await response.json();
       
       if (data.success) {
-        alert(editingTerm ? 'Terms updated successfully!' : 'Terms created successfully!');
+        alert(editingPolicy ? 'Policy updated successfully!' : 'Policy created successfully!');
         setShowModal(false);
-        setEditingTerm(null);
-        fetchTerms();
+        setEditingPolicy(null);
+        resetForm();
+        fetchPolicies();
       } else {
-        alert(data.message || 'Failed to save terms');
+        alert(data.message || 'Failed to save policy');
       }
     } catch (error) {
-      console.error('Error saving terms:', error);
-      alert('Failed to save terms');
+      console.error('Error saving policy:', error);
+      alert('Failed to save policy');
     }
   };
 
-  const handleEdit = (term) => {
+  const handleEdit = (policy) => {
     if (!hasPermission(PERMISSIONS.TERMS_EDIT)) {
-      alert("You don't have permission to edit terms and conditions");
+      alert("You don't have permission to edit policies");
       return;
     }
-    setEditingTerm(term);
+    setEditingPolicy(policy);
+    setFormData({
+      title: policy.title,
+      content: policy.content,
+      version: policy.version,
+      effectiveDate: new Date(policy.effectiveDate).toISOString().split('T')[0],
+      isActive: policy.isActive,
+      metadata: policy.metadata || {}
+    });
     setShowModal(true);
   };
 
   const handleDelete = async () => {
     if (!deleteConfirm) return;
     if (!hasPermission(PERMISSIONS.TERMS_EDIT)) {
-      alert("You don't have permission to delete terms and conditions");
+      alert("You don't have permission to delete policies");
       return;
     }
     
     try {
-      const response = await fetch(`${API_BASE_URL}/delete/${deleteConfirm._id}`, {
+      const response = await fetch(`${API_BASE_URL}/${deleteConfirm._id}`, {
         method: 'DELETE'
       });
       
       const data = await response.json();
       
       if (data.success) {
-        alert('Terms deleted successfully!');
+        alert('Policy deleted successfully!');
         setDeleteConfirm(null);
-        fetchTerms();
+        fetchPolicies();
       } else {
-        alert(data.message || 'Failed to delete terms');
+        alert(data.message || 'Failed to delete policy');
       }
     } catch (error) {
-      console.error('Error deleting terms:', error);
-      alert('Failed to delete terms');
+      console.error('Error deleting policy:', error);
+      alert('Failed to delete policy');
     }
   };
 
@@ -163,40 +229,196 @@ const TermsAndConditions = () => {
     if (!activeConfirm) return;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/set-active/${activeConfirm._id}`, {
-        method: 'PUT'
+      const response = await fetch(`${API_BASE_URL}/${activeConfirm._id}/activate`, {
+        method: 'PATCH'
       });
       
       const data = await response.json();
       
       if (data.success) {
-        alert('Terms set as active successfully!');
+        alert('Policy set as active successfully!');
         setActiveConfirm(null);
-        fetchTerms();
+        fetchPolicies();
       } else {
-        alert(data.message || 'Failed to set terms as active');
+        alert(data.message || 'Failed to set policy as active');
       }
     } catch (error) {
-      console.error('Error setting active terms:', error);
-      alert('Failed to set terms as active');
+      console.error('Error setting active policy:', error);
+      alert('Failed to set policy as active');
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      content: "",
+      version: "",
+      effectiveDate: "",
+      isActive: false,
+      metadata: {}
+    });
+    if (editorRef.current) {
+      editorRef.current.setContent("");
     }
   };
 
   const openModal = () => {
-    setEditingTerm(null);
+    setEditingPolicy(null);
+    resetForm();
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
-    setEditingTerm(null);
+    setEditingPolicy(null);
+    resetForm();
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleContentChange = (content) => {
+    setFormData(prev => ({
+      ...prev,
+      content
+    }));
+  };
+
+  const handleMetadataChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      metadata: {
+        ...prev.metadata,
+        [name]: value
+      }
+    }));
+  };
+
+  const renderMetadataFields = () => {
+    switch(selectedPolicyType) {
+      case 'return':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Return Period (Days)
+              </label>
+              <input
+                type="number"
+                name="returnPeriod"
+                value={formData.metadata.returnPeriod || ''}
+                onChange={handleMetadataChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., 30"
+                min="0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Return Contact Email
+              </label>
+              <input
+                type="email"
+                name="contactEmail"
+                value={formData.metadata.contactEmail || ''}
+                onChange={handleMetadataChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="returns@example.com"
+              />
+            </div>
+          </div>
+        );
+      case 'cancellation':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Cancellation Fee (%)
+              </label>
+              <input
+                type="number"
+                name="cancellationFee"
+                value={formData.metadata.cancellationFee || ''}
+                onChange={handleMetadataChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., 10"
+                min="0"
+                max="100"
+                step="0.01"
+              />
+            </div>
+          </div>
+        );
+      case 'refund':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Refund Processing Days
+              </label>
+              <input
+                type="number"
+                name="refundProcessingDays"
+                value={formData.metadata.refundProcessingDays || ''}
+                onChange={handleMetadataChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., 7"
+                min="0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Finance Contact Email
+              </label>
+              <input
+                type="email"
+                name="contactEmail"
+                value={formData.metadata.contactEmail || ''}
+                onChange={handleMetadataChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="finance@example.com"
+              />
+            </div>
+          </div>
+        );
+      case 'terms':
+        return (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Legal Contact Email
+            </label>
+            <input
+              type="email"
+              name="contactEmail"
+              value={formData.metadata.contactEmail || ''}
+              onChange={handleMetadataChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="legal@example.com"
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   if (loading) {
     return (
       <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '24px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          {/* Loading skeleton */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            marginBottom: '24px' 
+          }}>
             <div style={{ 
               height: '32px', 
               backgroundColor: '#e5e7eb', 
@@ -259,8 +481,9 @@ const TermsAndConditions = () => {
     );
   }
 
-  const activeTerms = terms.filter(t => t.isActive);
-  const totalVersions = terms.length;
+  const activePolicies = policies.filter(p => p.isActive);
+  const totalVersions = policies.length;
+  const currentPolicyType = policyTypes.find(p => p.value === selectedPolicyType)?.label || selectedPolicyType;
 
   return (
     <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '24px' }}>
@@ -279,32 +502,81 @@ const TermsAndConditions = () => {
               color: '#111827',
               marginBottom: '4px'
             }}>
-              Terms & Conditions Management
+              Legal Policies Management
             </h1>
             <p style={{ 
               fontSize: '14px',
               color: '#6b7280'
             }}>
-              Create and manage terms and conditions for your platform
+              Create and manage all legal policies for your platform
             </p>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          
+          {/* Policy Type Filter */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px', 
+            flexWrap: 'wrap',
+            alignItems: 'center'
+          }}>
+            {policyTypes.map((type) => (
+              <button
+                key={type.value}
+                onClick={() => setSelectedPolicyType(type.value)}
+                style={{
+                  backgroundColor: selectedPolicyType === type.value ? '#3b82f6' : '#ffffff',
+                  color: selectedPolicyType === type.value ? '#ffffff' : '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span>{type.icon}</span>
+                {type.label}
+              </button>
+            ))}
+            
             <div style={{ flex: 1 }}></div>
+            
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowActiveOnly(!showActiveOnly)}
+              style={{
+                backgroundColor: showActiveOnly ? '#3b82f6' : '#ffffff',
+                color: showActiveOnly ? '#ffffff' : '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {showActiveOnly ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+              {showActiveOnly ? 'Show All' : 'Active Only'}
+            </button>
+            
+            {/* Create Button */}
             <button
               onClick={openModal}
               style={{
                 ...buttonStyles.primary,
-                marginTop: '16px'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.backgroundColor = '#374151';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.backgroundColor = '#000000';
+                marginTop: 0
               }}
             >
-              <FiPlus style={{ width: '16px', height: '16px' }} />
-              Create New Version
+              <FiPlus size={16} />
+              Create New {currentPolicyType}
             </button>
           </div>
         </div>
@@ -332,7 +604,7 @@ const TermsAndConditions = () => {
             <div style={{ 
               fontSize: '14px', 
               color: '#6b7280' 
-            }}>Total Versions</div>
+            }}>Total {currentPolicyType} Versions</div>
           </div>
           <div style={{ 
             backgroundColor: '#ffffff', 
@@ -345,7 +617,7 @@ const TermsAndConditions = () => {
               fontWeight: 'bold', 
               color: '#16a34a' 
             }}>
-              {activeTerms.length > 0 ? activeTerms[0].version : 'None'}
+              {activePolicies.length > 0 ? activePolicies[0].version : 'None'}
             </div>
             <div style={{ 
               fontSize: '14px', 
@@ -363,17 +635,35 @@ const TermsAndConditions = () => {
               fontWeight: 'bold', 
               color: '#2563eb' 
             }}>
-              {terms.filter(t => !t.isActive).length}
+              {policies.filter(p => !p.isActive).length}
             </div>
             <div style={{ 
               fontSize: '14px', 
               color: '#6b7280' 
             }}>Inactive Versions</div>
           </div>
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            borderRadius: '8px', 
+            padding: '16px',
+            border: '1px solid #e5e7eb'
+          }}>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold', 
+              color: '#9333ea' 
+            }}>
+              {currentPolicyType}
+            </div>
+            <div style={{ 
+              fontSize: '14px', 
+              color: '#6b7280' 
+            }}>Current Policy Type</div>
+          </div>
         </div>
 
-        {/* Terms Grid */}
-        {terms.length === 0 ? (
+        {/* Policies Grid */}
+        {policies.length === 0 ? (
           <div style={{ 
             backgroundColor: '#ffffff', 
             borderRadius: '8px',
@@ -393,14 +683,14 @@ const TermsAndConditions = () => {
               color: '#111827',
               marginBottom: '8px'
             }}>
-              No terms and conditions yet
+              No {currentPolicyType.toLowerCase()} versions yet
             </h3>
             <p style={{ 
               fontSize: '14px',
               color: '#6b7280',
               marginBottom: '24px'
             }}>
-              Create your first terms and conditions to get started
+              Create your first {currentPolicyType.toLowerCase()} to get started
             </p>
             <button
               onClick={openModal}
@@ -408,14 +698,8 @@ const TermsAndConditions = () => {
                 ...buttonStyles.primary,
                 display: 'inline-flex'
               }}
-              onMouseOver={(e) => {
-                e.target.style.backgroundColor = '#374151';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.backgroundColor = '#000000';
-              }}
             >
-              <FiPlus style={{ width: '16px', height: '16px' }} />
+              <FiPlus size={16} />
               Create First Version
             </button>
           </div>
@@ -425,13 +709,14 @@ const TermsAndConditions = () => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
             gap: '24px' 
           }}>
-            {terms.map((term) => (
+            {policies.map((policy) => (
               <TermCard
-                key={term._id}
-                term={term}
+                key={policy._id}
+                term={policy}
+                policyType={selectedPolicyType}
                 onEdit={handleEdit}
                 onDelete={setDeleteConfirm}
-                onPreview={setPreviewTerm}
+                onPreview={setPreviewPolicy}
                 onSetActive={setActiveConfirm}
               />
             ))}
@@ -439,16 +724,257 @@ const TermsAndConditions = () => {
         )}
       </div>
 
+      {/* Create/Edit Modal */}
+      {showModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '20px'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            width: '100%',
+            maxWidth: '800px',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{
+              padding: '24px',
+              borderBottom: '1px solid #e5e7eb'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}>
+                <h2 style={{
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  color: '#111827'
+                }}>
+                  {editingPolicy ? 'Edit' : 'Create New'} {getPolicyTypeLabel(selectedPolicyType)}
+                </h2>
+                <button
+                  onClick={closeModal}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                    color: '#6b7280'
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+              
+              <form onSubmit={handleSubmit}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '20px'
+                }}>
+                  {/* Left Column */}
+                  <div>
+                    <div style={{ marginBottom: '20px' }}>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: '#374151',
+                        marginBottom: '8px'
+                      }}>
+                        Policy Title *
+                      </label>
+                      <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '14px'
+                        }}
+                        placeholder="e.g., Terms & Conditions v2.0"
+                        required
+                      />
+                    </div>
+                    
+                    <div style={{ marginBottom: '20px' }}>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: '#374151',
+                        marginBottom: '8px'
+                      }}>
+                        Version Number *
+                      </label>
+                      <input
+                        type="text"
+                        name="version"
+                        value={formData.version}
+                        onChange={handleInputChange}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '14px'
+                        }}
+                        placeholder="e.g., 2.0.0 or v2"
+                        required
+                      />
+                    </div>
+                    
+                    <div style={{ marginBottom: '20px' }}>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: '#374151',
+                        marginBottom: '8px'
+                      }}>
+                        Effective Date *
+                      </label>
+                      <input
+                        type="date"
+                        name="effectiveDate"
+                        value={formData.effectiveDate}
+                        onChange={handleInputChange}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '14px'
+                        }}
+                        required
+                      />
+                    </div>
+                    
+                    <div style={{ marginBottom: '20px' }}>
+                      <label style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '14px',
+                        color: '#374151',
+                        cursor: 'pointer'
+                      }}>
+                        <input
+                          type="checkbox"
+                          name="isActive"
+                          checked={formData.isActive}
+                          onChange={handleInputChange}
+                          style={{
+                            width: '16px',
+                            height: '16px'
+                          }}
+                        />
+                        Set as active version
+                        <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                          (Will deactivate current active policy)
+                        </span>
+                      </label>
+                    </div>
+                    
+                    {/* Metadata Fields */}
+                    {renderMetadataFields()}
+                  </div>
+                  
+                  {/* Right Column - TinyMCE Editor */}
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: '#374151',
+                      marginBottom: '8px'
+                    }}>
+                      Policy Content *
+                    </label>
+                    <div style={{ 
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      overflow: 'hidden'
+                    }}>
+                      <Editor
+                        apiKey="xw0haeefepmen4923ro5m463eb97qhseuprfkpbuan5t10u5"
+                        onInit={(evt, editor) => editorRef.current = editor}
+                        value={formData.content}
+                        onEditorChange={handleContentChange}
+                        init={{
+                          height: 300,
+                          menubar: true,
+                          plugins: [
+                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
+                            'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                          ],
+                          toolbar: 'undo redo | blocks | ' +
+                            'bold italic forecolor | alignleft aligncenter ' +
+                            'alignright alignjustify | bullist numlist outdent indent | ' +
+                            'removeformat | help | image media table link',
+                          content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                          skin: 'oxide',
+                          content_css: 'default',
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Form Actions */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '12px',
+                  marginTop: '24px',
+                  paddingTop: '24px',
+                  borderTop: '1px solid #e5e7eb'
+                }}>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    style={{
+                      ...buttonStyles.secondary
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      ...buttonStyles.primary
+                    }}
+                  >
+                    {editingPolicy ? 'Update Policy' : 'Create Policy'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modals */}
-      <TermFormModal
-        show={showModal}
-        editingTerm={editingTerm}
-        onClose={closeModal}
-        onSubmit={handleSubmit}
-      />
       <PreviewModal
-        term={previewTerm}
-        onClose={() => setPreviewTerm(null)}
+        term={previewPolicy}
+        onClose={() => setPreviewPolicy(null)}
       />
       <DeleteConfirmModal
         term={deleteConfirm}
@@ -467,10 +993,14 @@ const TermsAndConditions = () => {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
           }
+          
+          button:hover {
+            opacity: 0.9;
+          }
         `}
       </style>
     </div>
   );
 };
 
-export default TermsAndConditions;
+export default PoliciesManagement;
