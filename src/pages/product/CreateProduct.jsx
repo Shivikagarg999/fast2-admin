@@ -27,47 +27,28 @@ const ProductCreate = () => {
     oldPrice: '',
     unit: 'piece',
     unitValue: '',
-    
-    // Promotor Information
     promotor: '',
     commissionRate: '',
     commissionType: 'percentage',
-    
-    // Seller Information (NEW FIELD)
     seller: '',
-    
-    // Inventory & Stock
     quantity: '',
     minOrderQuantity: '1',
     maxOrderQuantity: '10',
-    
-    // Physical Attributes
     weight: '',
     weightUnit: 'g',
-    
-    // Warehouse Information
     warehouseId: '',
-    
-    // Delivery Information
     estimatedDeliveryTime: '',
     deliveryCharges: '0',
     freeDeliveryThreshold: '0',
     serviceablePincodes: [],
-    
-    // Images (up to 5)
     images: [],
-    
-    // Video (1 max)
     video: null,
-
-    // Variants
     variants: []
   });
 
   const [pincodeInput, setPincodeInput] = useState('');
   const [pincodeError, setPincodeError] = useState('');
 
-  // Common variant types
   const commonVariantTypes = [
     { name: 'Color', options: ['Red', 'Blue', 'Green', 'Black', 'White', 'Yellow'] },
     { name: 'Size', options: ['S', 'M', 'L', 'XL', 'XXL'] },
@@ -75,8 +56,6 @@ const ProductCreate = () => {
     { name: 'Storage', options: ['64GB', '128GB', '256GB', '512GB', '1TB'] },
     { name: 'Style', options: ['Classic', 'Modern', 'Vintage', 'Sport'] }
   ];
-
-  // Fetch data on component mount
   useEffect(() => {
     fetchPromotors();
     fetchSellers();
@@ -84,12 +63,11 @@ const ProductCreate = () => {
     fetchCategories();
   }, []);
 
-  // Fetch promotors from API
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('https://api.fast2.in/api/admin/promotor/', {
+      const response = await fetch('http://localhost:5000/api/admin/promotor/', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -106,12 +84,11 @@ const ProductCreate = () => {
     }
   };
 
-  // Fetch sellers from API
   const fetchSellers = async () => {
     try {
       setLoadingSellers(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -128,12 +105,11 @@ const ProductCreate = () => {
     }
   };
 
-  // Fetch warehouses from API
   const fetchWarehouses = async () => {
     try {
       setLoadingWarehouses(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -150,11 +126,10 @@ const ProductCreate = () => {
     }
   };
 
-  // Fetch categories from API
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`);
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
@@ -185,10 +160,9 @@ const ProductCreate = () => {
     const newFiles = Array.from(e.target.files);
     const currentImages = formData.images;
     
-    // Check if adding new files would exceed the limit
     if (currentImages.length + newFiles.length > 5) {
       setError(`Maximum 5 images allowed. You can add ${5 - currentImages.length} more image(s).`);
-      e.target.value = ''; // Reset input
+      e.target.value = '';
       return;
     }
     
@@ -196,8 +170,6 @@ const ProductCreate = () => {
       ...prev,
       images: [...prev.images, ...newFiles]
     }));
-    
-    // Reset the input so the same file can be selected again if needed
     e.target.value = '';
     setError('');
   };
@@ -205,7 +177,6 @@ const ProductCreate = () => {
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size (max 50MB)
       if (file.size > 50 * 1024 * 1024) {
         setError('Video file size should not exceed 50MB');
         return;
@@ -231,7 +202,6 @@ const ProductCreate = () => {
     }));
   };
 
-  // Variant Functions
   const addVariant = () => {
     setFormData(prev => ({
       ...prev,
@@ -399,10 +369,8 @@ const ProductCreate = () => {
     try {
       const formDataToSend = new FormData();
       
-      // Append all form fields to FormData
       Object.keys(formData).forEach(key => {
         if (key === 'images' && formData[key].length > 0) {
-          // Append all images
           formData[key].forEach((image) => {
             formDataToSend.append('images', image);
           });
@@ -441,7 +409,7 @@ const ProductCreate = () => {
       }
 
       const token = localStorage.getItem('token');
-      const response = await fetch('https://api.fast2.in/api/product/create', {
+      const response = await fetch('http://localhost:5000/api/product/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
