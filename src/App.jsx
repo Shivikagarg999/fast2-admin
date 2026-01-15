@@ -28,7 +28,7 @@ import RoleManagement from "./pages/roles/RoleManagement";
 import RoleForm from "./pages/roles/RoleForm";
 import PromotorPayouts from "./pages/payouts/PromotorPayouts";
 import SellerPayouts from "./pages/payouts/SellerPayouts";
-import PayoutHistory from "./pages/payouts/PayoutHistory";
+import OnlinePay from "./pages/online-pay/OnlinePay";
 import DriverPayouts from "./pages/payouts/DriverPayout";
 
 function App() {
@@ -180,7 +180,15 @@ function App() {
           /> 
 
 
-          {/* Marketing */}
+          <Route 
+            path="/admin/online-pay" 
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.ORDERS_VIEW}>
+                <OnlinePay/>
+              </ProtectedRoute>
+            } 
+          /> 
+
 
           <Route 
             path="/admin/banners" 

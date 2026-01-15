@@ -105,6 +105,12 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           path: "/admin/orders",
           permission: PERMISSIONS.ORDERS_VIEW,
         },
+         {
+          name: "Online payments",
+          icon: <FiPackage className="w-4 h-4" />,
+          path: "/admin/online-pay",
+          permission: PERMISSIONS.ORDERS_VIEW,
+        },
         {
           name: "Delivery Agents",
           path: "/admin/drivers",
