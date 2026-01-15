@@ -216,6 +216,7 @@ const OnlinePay = () => {
                                         ? "bg-black text-white" 
                                         : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                                 }`}
+                                style={{backgroundColor: 'black'}}
                             >
                                 Table
                             </button>
@@ -226,6 +227,8 @@ const OnlinePay = () => {
                                         ? "bg-black text-white" 
                                         : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                                 }`}
+                                
+                                style={{backgroundColor: 'black'}}
                             >
                                 Grid
                             </button>
@@ -726,15 +729,7 @@ const OnlinePay = () => {
                                 >
                                     Close
                                 </button>
-                                <button
-                                    onClick={() => {
-                                        // Implement any action here
-                                        alert('Action triggered!');
-                                    }}
-                                    className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-                                >
-                                    Take Action
-                                </button>
+                               
                             </div>
                         </div>
                     </div>
