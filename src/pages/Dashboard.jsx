@@ -22,7 +22,7 @@ import {
   FiFilter,
   FiStar,
   FiPercent,
-  
+
   FiTrendingUp as FiUp
 } from "react-icons/fi";
 
@@ -52,7 +52,7 @@ const DashboardLayout = () => {
     averageOrderValue: 0,
     ordersToday: 0,
     breakdown: {
-      paymentMethods: { wallet: 0, cod: 0 },
+      paymentMethods: { wallet: 0, cod: 0, online: 0 },
       platformEarnings: { serviceFee: 0, gstCollection: 0, total: 0 },
       sellerPayout: { payableAmount: 0, gstDeduction: 0, tdsDeduction: 0, netAmount: 0 },
       promotorCommission: 0
@@ -88,7 +88,7 @@ const DashboardLayout = () => {
     if (savedDarkMode) {
       document.documentElement.classList.add('dark');
     }
-    
+
     loadDashboardData();
   }, []);
 
@@ -122,10 +122,10 @@ const DashboardLayout = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch dashboard data');
       const data = await response.json();
-      
+
       if (data) {
         setStats(prev => ({
           ...prev,
@@ -150,10 +150,10 @@ const DashboardLayout = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch daily sales');
       const data = await response.json();
-      
+
       if (data.salesData) {
         setStats(prev => ({
           ...prev,
@@ -173,10 +173,10 @@ const DashboardLayout = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch top sellers');
       const data = await response.json();
-      
+
       if (data.topSellers) {
         setStats(prev => ({
           ...prev,
@@ -196,10 +196,10 @@ const DashboardLayout = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch top promotors');
       const data = await response.json();
-      
+
       if (data.topPromotors) {
         setStats(prev => ({
           ...prev,
@@ -225,7 +225,7 @@ const DashboardLayout = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
     localStorage.setItem('darkMode', newDarkMode.toString());
-    
+
     if (newDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
@@ -247,7 +247,7 @@ const DashboardLayout = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon, trend, trendValue, color, subtitle, onClick, percentageChange }) => (
-    <div 
+    <div
       className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
       style={onClick ? { cursor: 'pointer' } : {}}
       onClick={onClick}
@@ -303,26 +303,26 @@ const DashboardLayout = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="name" stroke="#9CA3AF" />
               <YAxis stroke="#9CA3AF" />
-              <Tooltip 
-                contentStyle={{ 
+              <Tooltip
+                contentStyle={{
                   backgroundColor: darkMode ? '#1F2937' : '#FFFFFF',
                   borderColor: darkMode ? '#374151' : '#E5E7EB'
                 }}
                 formatter={(value) => [formatCurrency(value), '']}
               />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="revenue" 
-                stroke="#3b82f6" 
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#3b82f6"
                 strokeWidth={2}
                 dot={{ fill: '#3b82f6', strokeWidth: 2 }}
                 activeDot={{ r: 8 }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="orders" 
-                stroke="#10b981" 
+              <Line
+                type="monotone"
+                dataKey="orders"
+                stroke="#10b981"
                 strokeWidth={2}
                 dot={{ fill: '#10b981', strokeWidth: 2 }}
                 activeDot={{ r: 8 }}
@@ -386,9 +386,9 @@ const DashboardLayout = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="name" stroke="#9CA3AF" />
               <YAxis stroke="#9CA3AF" />
-              <Tooltip 
+              <Tooltip
                 formatter={(value) => formatCurrency(value)}
-                contentStyle={{ 
+                contentStyle={{
                   backgroundColor: darkMode ? '#1F2937' : '#FFFFFF',
                   borderColor: darkMode ? '#374151' : '#E5E7EB'
                 }}
@@ -406,7 +406,8 @@ const DashboardLayout = () => {
   const PaymentMethodsChart = () => {
     const data = [
       { name: 'Wallet', value: stats.breakdown.paymentMethods.wallet, color: '#8b5cf6' },
-      { name: 'COD', value: stats.breakdown.paymentMethods.cod, color: '#f59e0b' }
+      { name: 'COD', value: stats.breakdown.paymentMethods.cod, color: '#f59e0b' },
+      { name: 'Online', value: stats.breakdown.paymentMethods.online, color: '#06b6d4' }
     ];
 
     return (
@@ -449,8 +450,8 @@ const DashboardLayout = () => {
             </span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full" 
+            <div
+              className="bg-blue-600 h-2 rounded-full"
               style={{ width: `${(stats.breakdown.platformEarnings.total / Math.max(1, stats.totalRevenue)) * 100}%` }}
             ></div>
           </div>
@@ -468,8 +469,8 @@ const DashboardLayout = () => {
             </span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div 
-              className="bg-green-600 h-2 rounded-full" 
+            <div
+              className="bg-green-600 h-2 rounded-full"
               style={{ width: `${(stats.breakdown.sellerPayout.netAmount / Math.max(1, stats.totalRevenue)) * 100}%` }}
             ></div>
           </div>
@@ -487,8 +488,8 @@ const DashboardLayout = () => {
             </span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div 
-              className="bg-purple-600 h-2 rounded-full" 
+            <div
+              className="bg-purple-600 h-2 rounded-full"
               style={{ width: `${(stats.breakdown.promotorCommission / Math.max(1, stats.totalRevenue)) * 100}%` }}
             ></div>
           </div>
@@ -528,7 +529,7 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen w-[100vw] bg-gray-100 dark:bg-gray-900">
-      <Sidebar 
+      <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         darkMode={darkMode}
@@ -536,7 +537,7 @@ const DashboardLayout = () => {
       />
 
       <div className="lg:ml-64 min-h-screen flex flex-col">
-        <Header 
+        <Header
           toggleSidebar={toggleSidebar}
           darkMode={darkMode}
           toggleTheme={toggleTheme}
@@ -567,10 +568,10 @@ const DashboardLayout = () => {
                           transition: 'all 0.2s',
                           ...(selectedPeriod === option.value
                             ? { backgroundColor: '#3b82f6', color: 'white' }
-                            : { 
-                                color: darkMode ? '#9CA3AF' : '#4B5563',
-                                backgroundColor: 'transparent'
-                              })
+                            : {
+                              color: darkMode ? '#9CA3AF' : '#4B5563',
+                              backgroundColor: 'transparent'
+                            })
                         }}
                         className="hover:opacity-90"
                       >
@@ -601,7 +602,7 @@ const DashboardLayout = () => {
                   </button>
                 </div>
               </div>
-              
+
               {loading ? (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -711,6 +712,15 @@ const DashboardLayout = () => {
                           </div>
                           <span className="font-medium" style={{ color: '#f59e0b' }}>
                             {formatCurrency(stats.breakdown.paymentMethods.cod)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#06b6d4' }}></div>
+                            <span className="text-sm">Online</span>
+                          </div>
+                          <span className="font-medium" style={{ color: '#06b6d4' }}>
+                            {formatCurrency(stats.breakdown.paymentMethods.online)}
                           </span>
                         </div>
                       </div>
