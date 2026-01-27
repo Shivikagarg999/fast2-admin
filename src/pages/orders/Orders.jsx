@@ -28,10 +28,10 @@ const OrdersPage = () => {
                 ...(search && { search: search })
             });
 
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/getall`);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/getall?${params.toString()}`);
             if (!response.ok) throw new Error('Failed to fetch orders');
             const data = await response.json();
-            
+
             setOrders(data.orders || []);
             setTotalPages(data.totalPages || 1);
             setTotalOrders(data.total || 0);
@@ -183,7 +183,10 @@ const OrdersPage = () => {
                         </div>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors"
+                            className="px-4 py-2 text-black rounded-lg transition-colors"
+                            style={{ backgroundColor: '#2563eb' }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
                         >
                             Search
                         </button>
@@ -386,11 +389,10 @@ const OrdersPage = () => {
                                 return (
                                     <button
                                         key={pageNum}
-                                        className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                                            currentPage === pageNum
-                                                ? "bg-blue-500 text-white border-blue-500"
-                                                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                                        }`}
+                                        className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
+                                            ? "bg-blue-500 text-white border-blue-500"
+                                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                            }`}
                                         onClick={() => setCurrentPage(pageNum)}
                                     >
                                         {pageNum}

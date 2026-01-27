@@ -135,7 +135,7 @@ const CategoriesPage = () => {
 
         try {
             const submitData = new FormData();
-            
+
             // Append all form fields
             submitData.append('name', formData.name);
             submitData.append('hsnCode', formData.hsnCode);
@@ -227,7 +227,10 @@ const CategoriesPage = () => {
                     </div>
                     <button
                         onClick={openAddModal}
-                        className="flex items-center px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors"
+                        className="flex items-center px-4 py-2 text-black rounded-lg transition-colors"
+                        style={{ backgroundColor: '#2563eb' }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Add Category
@@ -336,11 +339,10 @@ const CategoriesPage = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                    category.isActive 
-                                                        ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.isActive
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
                                                         : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
-                                                }`}>
+                                                    }`}>
                                                     {category.isActive ? 'Active' : 'Inactive'}
                                                 </span>
                                             </td>
@@ -407,11 +409,10 @@ const CategoriesPage = () => {
                                 return (
                                     <button
                                         key={pageNum}
-                                        className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                                            currentPage === pageNum
+                                        className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
                                                 ? "bg-blue-500 text-white border-blue-500"
                                                 : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                                        }`}
+                                            }`}
                                         onClick={() => setCurrentPage(pageNum)}
                                     >
                                         {pageNum}
@@ -620,9 +621,12 @@ const CategoriesPage = () => {
                                     <button
                                         type="submit"
                                         disabled={modalLoading}
-                                        className="px-4 py-2 text-sm font-medium text-black bg-blue-600 
-      rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed 
+                                        className="px-4 py-2 text-sm font-medium text-black 
+      rounded-md disabled:opacity-50 disabled:cursor-not-allowed 
       transition-colors flex items-center gap-2"
+                                        style={{ backgroundColor: '#2563eb' }}
+                                        onMouseEnter={(e) => !modalLoading && (e.target.style.backgroundColor = '#1d4ed8')}
+                                        onMouseLeave={(e) => !modalLoading && (e.target.style.backgroundColor = '#2563eb')}
                                     >
                                         {modalLoading && (
                                             <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
