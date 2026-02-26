@@ -43,7 +43,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
     if (pathname.includes("/admin/orders")) {
       setExpandOrders(true);
     }
-    
+
     // Set active category based on current path
     for (const category of allMenuCategories) {
       if (category.items.some(item => pathname.startsWith(item.path))) {
@@ -105,7 +105,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           path: "/admin/orders",
           permission: PERMISSIONS.ORDERS_VIEW,
         },
-         {
+        {
           name: "Online payments",
           icon: <FiPackage className="w-4 h-4" />,
           path: "/admin/online-pay",
@@ -158,6 +158,12 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           path: "/admin/sellers",
           icon: <FiShoppingCart className="w-4 h-4" />,
           permission: PERMISSIONS.SELLERS_VIEW,
+        },
+        {
+          name: "Shops",
+          path: "/admin/shops",
+          icon: <FiBriefcase className="w-4 h-4" />,
+          permission: PERMISSIONS.SHOPS_VIEW,
         },
         {
           name: "Promotors",

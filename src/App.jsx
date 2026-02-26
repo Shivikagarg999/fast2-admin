@@ -21,6 +21,8 @@ import Banners from "./pages/banners/Banners";
 import Coupon from "./pages/coupon-code/CouponCode";
 import Discounts from "./pages/discounts/page";
 import SellerPage from "./pages/sellers/SellerPage";
+import ShopsPage from "./pages/shops/ShopsPage";
+
 import TermsAndConditions from "./pages/terms/TermsAndConditions";
 import AdminManagement from "./pages/admin/AdminManagement";
 import AdminForm from "./pages/admin/AdminForm";
@@ -38,278 +40,289 @@ function App() {
         <Route path="/" element={<LoginPage />} />
 
         <Route element={<DashboardLayout />}>
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
                 <Dashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/users" 
+          <Route
+            path="/admin/users"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.USERS_VIEW}>
                 <UsersPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/products" 
+          <Route
+            path="/admin/products"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.PRODUCTS_VIEW}>
                 <ProductsPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/createProduct" 
+          <Route
+            path="/admin/createProduct"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.PRODUCTS_CREATE}>
-                <CreateProductPage/>
+                <CreateProductPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/categories" 
+          <Route
+            path="/admin/categories"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.CATEGORIES_VIEW}>
                 <CategoriesPage />
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Promotors */}
-          
-          <Route 
-            path="/admin/promotors" 
+
+          <Route
+            path="/admin/promotors"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.PROMOTORS_VIEW}>
-                <PromotorPage/>
+                <PromotorPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/create-promotor" 
+          <Route
+            path="/admin/create-promotor"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.PROMOTORS_CREATE}>
-                <CreatePromotorPage/>
+                <CreatePromotorPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/edit-promotor/:id" 
+          <Route
+            path="/admin/edit-promotor/:id"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.PROMOTORS_EDIT}>
-                <EditPromotorPage/>
+                <EditPromotorPage />
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Warehouse */}
-      
-          <Route 
-            path="/admin/warehouses" 
+
+          <Route
+            path="/admin/warehouses"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.WAREHOUSES_VIEW}>
-                <WareHouseList/>
+                <WareHouseList />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/agents" 
+          <Route
+            path="/admin/agents"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.WAREHOUSES_VIEW}>
-                <WareHouseList/>
+                <WareHouseList />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/create-warehouse" 
+          <Route
+            path="/admin/create-warehouse"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.WAREHOUSES_CREATE}>
-                <CreateWarehouse/>
+                <CreateWarehouse />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/edit-warehouse/:id" 
+          <Route
+            path="/admin/edit-warehouse/:id"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.WAREHOUSES_EDIT}>
-                <EditWareHouse/>
+                <EditWareHouse />
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Delivery Boy */}
 
-          <Route 
-            path="/admin/drivers" 
+          <Route
+            path="/admin/drivers"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DRIVERS_VIEW}>
-                <DriverList/>
+                <DriverList />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/create-driver" 
+          <Route
+            path="/admin/create-driver"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DRIVERS_CREATE}>
-                <EditDriver/>
+                <EditDriver />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/edit-driver/:id" 
+          <Route
+            path="/admin/edit-driver/:id"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DRIVERS_EDIT}>
-                <EditDriver/>
+                <EditDriver />
               </ProtectedRoute>
-            } 
+            }
           />
-          
+
           {/* Orders */}
 
-          <Route 
-            path="/admin/orders" 
+          <Route
+            path="/admin/orders"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.ORDERS_VIEW}>
-                <OrderList/>
+                <OrderList />
               </ProtectedRoute>
-            } 
-          /> 
+            }
+          />
 
 
-          <Route 
-            path="/admin/online-pay" 
+          <Route
+            path="/admin/online-pay"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.ORDERS_VIEW}>
-                <OnlinePay/>
+                <OnlinePay />
               </ProtectedRoute>
-            } 
-          /> 
+            }
+          />
 
 
-          <Route 
-            path="/admin/banners" 
+          <Route
+            path="/admin/banners"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.BANNERS_VIEW}>
-                <Banners/>
+                <Banners />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/coupons" 
+          <Route
+            path="/admin/coupons"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.COUPONS_VIEW}>
-                <Coupon/>
+                <Coupon />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/discounts" 
+          <Route
+            path="/admin/discounts"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DISCOUNTS_VIEW}>
-                <Discounts/>
+                <Discounts />
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Sellers */}
 
-          <Route 
-            path="/admin/sellers" 
+          <Route
+            path="/admin/sellers"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.SELLERS_VIEW}>
-                <SellerPage/>
+                <SellerPage />
               </ProtectedRoute>
-            } 
+            }
+          />
+
+          {/* Shops */}
+
+          <Route
+            path="/admin/shops"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.SHOPS_VIEW}>
+                <ShopsPage />
+              </ProtectedRoute>
+            }
           />
 
           {/* Terms and Conditions */}
 
-          <Route 
-            path="/admin/terms" 
+          <Route
+            path="/admin/terms"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.TERMS_VIEW}>
-                <TermsAndConditions/>
+                <TermsAndConditions />
               </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/admin/admins" 
+          <Route
+            path="/admin/admins"
             element={
               <ProtectedRoute requireSuperAdmin={true}>
-                <AdminManagement/>
+                <AdminManagement />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/create-admin" 
+          <Route
+            path="/admin/create-admin"
             element={
               <ProtectedRoute requireSuperAdmin={true}>
-                <AdminForm/>
+                <AdminForm />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/edit-admin/:id" 
+          <Route
+            path="/admin/edit-admin/:id"
             element={
               <ProtectedRoute requireSuperAdmin={true}>
-                <AdminForm/>
+                <AdminForm />
               </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/admin/roles" 
+          <Route
+            path="/admin/roles"
             element={
               <ProtectedRoute requireSuperAdmin={true}>
-                <RoleManagement/>
+                <RoleManagement />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/create-role" 
+          <Route
+            path="/admin/create-role"
             element={
               <ProtectedRoute requireSuperAdmin={true}>
-                <RoleForm/>
+                <RoleForm />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/edit-role/:id" 
+          <Route
+            path="/admin/edit-role/:id"
             element={
               <ProtectedRoute requireSuperAdmin={true}>
-                <RoleForm/>
+                <RoleForm />
               </ProtectedRoute>
-            } 
+            }
           />
           {/* Payouts */}
-          <Route 
-            path="/admin/payouts/promotors" 
+          <Route
+            path="/admin/payouts/promotors"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.PROMOTORS_VIEW}>
-                <PromotorPayouts/>
+                <PromotorPayouts />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/payouts/sellers" 
+          <Route
+            path="/admin/payouts/sellers"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.SELLERS_VIEW}>
-                <SellerPayouts/>
+                <SellerPayouts />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/payouts/driver" 
+          <Route
+            path="/admin/payouts/driver"
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
-                <DriverPayouts/>
+                <DriverPayouts />
               </ProtectedRoute>
-            } 
+            }
           />
 
         </Route>
@@ -317,5 +330,5 @@ function App() {
     </Router>
   );
 }
- 
+
 export default App;

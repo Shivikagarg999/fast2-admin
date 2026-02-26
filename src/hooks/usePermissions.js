@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 export const PERMISSIONS = {
   SELLERS_CREATE: 'sellers.create',
   SELLERS_APPROVE: 'sellers.approve',
   SELLERS_REJECT: 'sellers.reject',
   SELLERS_TOGGLE_STATUS: 'sellers.toggle_status',
+  SHOPS_VIEW: 'shops.view',
+  SHOPS_EDIT: 'shops.edit',
+  SHOPS_DELETE: 'shops.delete',
 };
 
 export const usePermissions = () => {
@@ -30,29 +33,29 @@ export const usePermissions = () => {
     setLoading(false);
   }, []);
 
-  const hasPermission = (permission) => {
+  const hasPermission = useCallback((permission) => {
     if (superAdmin || role === 'super_admin') return true;
     if (permissions.includes('*')) return true;
     return permissions.includes(permission);
-  };
+  }, [superAdmin, role, permissions]);
 
-  const hasAnyPermission = (permissionList) => {
+  const hasAnyPermission = useCallback((permissionList) => {
     if (superAdmin || role === 'super_admin') return true;
     if (permissions.includes('*')) return true;
     return permissionList.some(permission => permissions.includes(permission));
-  };
+  }, [superAdmin, role, permissions]);
 
-  const hasAllPermissions = (permissionList) => {
+  const hasAllPermissions = useCallback((permissionList) => {
     if (superAdmin || role === 'super_admin') return true;
     if (permissions.includes('*')) return true;
     return permissionList.every(permission => permissions.includes(permission));
-  };
+  }, [superAdmin, role, permissions]);
 
-  const isSuperAdmin = () => {
+  const isSuperAdmin = useCallback(() => {
     return superAdmin || role === 'super_admin';
-  };
+  }, [superAdmin, role]);
 
-  return {
+  return useMemo(() => ({
     permissions,
     role,
     roleName,
@@ -61,7 +64,7 @@ export const usePermissions = () => {
     hasAnyPermission,
     hasAllPermissions,
     isSuperAdmin,
-  };
+  }), [permissions, role, roleName, loading, hasPermission, hasAnyPermission, hasAllPermissions, isSuperAdmin]);
 };
 
 export default usePermissions;

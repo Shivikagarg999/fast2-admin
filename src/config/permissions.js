@@ -2,80 +2,85 @@
 export const PERMISSIONS = {
   // Dashboard
   DASHBOARD_VIEW: 'dashboard.view',
-  
+
   // Users Management
   USERS_VIEW: 'users.view',
   USERS_CREATE: 'users.create',
   USERS_EDIT: 'users.edit',
   USERS_DELETE: 'users.delete',
-  
+
   // Products Management
   PRODUCTS_VIEW: 'products.view',
   PRODUCTS_CREATE: 'products.create',
   PRODUCTS_EDIT: 'products.edit',
   PRODUCTS_DELETE: 'products.delete',
-  
+
   // Categories Management
   CATEGORIES_VIEW: 'categories.view',
   CATEGORIES_CREATE: 'categories.create',
   CATEGORIES_EDIT: 'categories.edit',
   CATEGORIES_DELETE: 'categories.delete',
-  
+
   // Orders Management
   ORDERS_VIEW: 'orders.view',
   ORDERS_UPDATE: 'orders.update',
   ORDERS_CANCEL: 'orders.cancel',
-  
+
   // Drivers Management
   DRIVERS_VIEW: 'drivers.view',
   DRIVERS_CREATE: 'drivers.create',
   DRIVERS_EDIT: 'drivers.edit',
   DRIVERS_DELETE: 'drivers.delete',
   DRIVERS_APPROVE: 'drivers.approve',
-  
+
   // Warehouses Management
   WAREHOUSES_VIEW: 'warehouses.view',
   WAREHOUSES_CREATE: 'warehouses.create',
   WAREHOUSES_EDIT: 'warehouses.edit',
   WAREHOUSES_DELETE: 'warehouses.delete',
-  
+
   // Promotors Management
   PROMOTORS_VIEW: 'promotors.view',
   PROMOTORS_CREATE: 'promotors.create',
   PROMOTORS_EDIT: 'promotors.edit',
   PROMOTORS_DELETE: 'promotors.delete',
-  
+
   // Sellers Management
   SELLERS_VIEW: 'sellers.view',
   SELLERS_APPROVE: 'sellers.approve',
   SELLERS_EDIT: 'sellers.edit',
-  
+
+  // Shops Management
+  SHOPS_VIEW: 'shops.view',
+  SHOPS_EDIT: 'shops.edit',
+  SHOPS_DELETE: 'shops.delete',
+
   // Marketing
   BANNERS_VIEW: 'banners.view',
   BANNERS_CREATE: 'banners.create',
   BANNERS_EDIT: 'banners.edit',
   BANNERS_DELETE: 'banners.delete',
-  
+
   COUPONS_VIEW: 'coupons.view',
   COUPONS_CREATE: 'coupons.create',
   COUPONS_EDIT: 'coupons.edit',
   COUPONS_DELETE: 'coupons.delete',
-  
+
   DISCOUNTS_VIEW: 'discounts.view',
   DISCOUNTS_CREATE: 'discounts.create',
   DISCOUNTS_EDIT: 'discounts.edit',
   DISCOUNTS_DELETE: 'discounts.delete',
-  
+
   // Terms & Conditions
   TERMS_VIEW: 'terms.view',
   TERMS_EDIT: 'terms.edit',
-  
+
   // Admin Management (Super Admin only)
   ADMINS_VIEW: 'admins.view',
   ADMINS_CREATE: 'admins.create',
   ADMINS_EDIT: 'admins.edit',
   ADMINS_DELETE: 'admins.delete',
-  
+
   // Role Management (Super Admin only)
   ROLES_VIEW: 'roles.view',
   ROLES_CREATE: 'roles.create',
@@ -158,6 +163,14 @@ export const PERMISSION_GROUPS = {
       PERMISSIONS.SELLERS_VIEW,
       PERMISSIONS.SELLERS_APPROVE,
       PERMISSIONS.SELLERS_EDIT,
+    ],
+  },
+  shops: {
+    label: 'Shops Management',
+    permissions: [
+      PERMISSIONS.SHOPS_VIEW,
+      PERMISSIONS.SHOPS_EDIT,
+      PERMISSIONS.SHOPS_DELETE,
     ],
   },
   marketing: {
@@ -244,6 +257,9 @@ export const getPermissionLabel = (permission) => {
     [PERMISSIONS.SELLERS_VIEW]: 'View Sellers',
     [PERMISSIONS.SELLERS_APPROVE]: 'Approve Sellers',
     [PERMISSIONS.SELLERS_EDIT]: 'Edit Sellers',
+    [PERMISSIONS.SHOPS_VIEW]: 'View Shops',
+    [PERMISSIONS.SHOPS_EDIT]: 'Edit Shops',
+    [PERMISSIONS.SHOPS_DELETE]: 'Delete Shops',
     [PERMISSIONS.BANNERS_VIEW]: 'View Banners',
     [PERMISSIONS.BANNERS_CREATE]: 'Create Banners',
     [PERMISSIONS.BANNERS_EDIT]: 'Edit Banners',
