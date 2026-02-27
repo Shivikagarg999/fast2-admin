@@ -42,7 +42,7 @@ const EditWarehouse = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor`);
       setPromotors(response.data || []);
     } catch (error) {
       console.error("Error fetching promotors:", error);
@@ -55,9 +55,9 @@ const EditWarehouse = () => {
   const fetchWarehouse = async () => {
     try {
       setFetching(true);
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/${id}`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/${id}`);
       const warehouse = response.data;
-      
+
       setFormData({
         name: warehouse.name || "",
         code: warehouse.code || "",
@@ -86,7 +86,7 @@ const EditWarehouse = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Handle nested objects
     if (name.includes('.')) {
       const keys = name.split('.');
@@ -144,8 +144,8 @@ const EditWarehouse = () => {
         }
       };
 
-      await axios.put(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/${id}`, submitData);
-      
+      await axios.put(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/${id}`, submitData);
+
       // Show success modal
       setShowSuccessModal(true);
     } catch (error) {
@@ -191,18 +191,18 @@ const EditWarehouse = () => {
               <FiPackage className="mr-2" /> Edit Warehouse
             </h1>
           </div>
-          
+
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -219,7 +219,7 @@ const EditWarehouse = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Warehouse Code
@@ -278,13 +278,13 @@ const EditWarehouse = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Location Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiMapPin className="mr-2" /> Location Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -300,7 +300,7 @@ const EditWarehouse = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     City *
@@ -316,7 +316,7 @@ const EditWarehouse = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     State
@@ -331,7 +331,7 @@ const EditWarehouse = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Pincode
@@ -346,7 +346,7 @@ const EditWarehouse = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Latitude
@@ -362,7 +362,7 @@ const EditWarehouse = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Longitude
@@ -380,24 +380,23 @@ const EditWarehouse = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Storage Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiThermometer className="mr-2" /> Storage Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 {storageTypes.map((type) => {
                   const IconComponent = type.icon;
                   return (
                     <div
                       key={type.value}
-                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        formData.storageType === type.value
+                      className={`border rounded-lg p-4 cursor-pointer transition-all ${formData.storageType === type.value
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                           : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-                      }`}
+                        }`}
                       onClick={() => setFormData(prev => ({ ...prev, storageType: type.value }))}
                     >
                       <div className="flex items-center space-x-3">
@@ -420,7 +419,7 @@ const EditWarehouse = () => {
                   );
                 })}
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -438,7 +437,7 @@ const EditWarehouse = () => {
                     placeholder="Enter capacity in units"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Current Stock
@@ -458,7 +457,7 @@ const EditWarehouse = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Submit Button */}
             <div className="flex justify-end gap-4">
               <button
@@ -500,15 +499,15 @@ const EditWarehouse = () => {
               <div className="bg-green-100 p-3 rounded-full mb-4">
                 <FiCheckCircle className="text-green-600 text-3xl" />
               </div>
-              
+
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 Warehouse Updated Successfully!
               </h2>
-              
+
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 The warehouse details have been updated.
               </p>
-              
+
               <button
                 onClick={closeSuccessModal}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"

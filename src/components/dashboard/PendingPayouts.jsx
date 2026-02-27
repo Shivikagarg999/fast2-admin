@@ -18,12 +18,12 @@ const PendingPayouts = () => {
     try {
       setRefreshing(true);
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/payouts/summary`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/payouts/summary`
       );
-      
+
       if (!response.ok) throw new Error('Failed to fetch payout summary');
       const result = await response.json();
-      
+
       if (result.success) {
         setPayoutData(result.data);
       }

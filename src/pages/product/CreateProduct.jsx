@@ -22,7 +22,7 @@ const ProductCreate = () => {
     description: '',
     brand: '',
     category: '',
-    
+
     price: '',
     oldPrice: '',
     unit: 'piece',
@@ -67,7 +67,7 @@ const ProductCreate = () => {
     try {
       setLoadingPromotors(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('https://api.fast2.in/api/admin/promotor/', {
+      const response = await fetch('http://localhost:5000/api/admin/promotor/', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ const ProductCreate = () => {
     try {
       setLoadingSellers(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -109,7 +109,7 @@ const ProductCreate = () => {
     try {
       setLoadingWarehouses(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -129,7 +129,7 @@ const ProductCreate = () => {
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`);
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
@@ -159,13 +159,13 @@ const ProductCreate = () => {
   const handleImageChange = (e) => {
     const newFiles = Array.from(e.target.files);
     const currentImages = formData.images;
-    
+
     if (currentImages.length + newFiles.length > 5) {
       setError(`Maximum 5 images allowed. You can add ${5 - currentImages.length} more image(s).`);
       e.target.value = '';
       return;
     }
-    
+
     setFormData(prev => ({
       ...prev,
       images: [...prev.images, ...newFiles]
@@ -219,7 +219,7 @@ const ProductCreate = () => {
   const updateVariantName = (index, name) => {
     setFormData(prev => ({
       ...prev,
-      variants: prev.variants.map((variant, i) => 
+      variants: prev.variants.map((variant, i) =>
         i === index ? { ...variant, name } : variant
       )
     }));
@@ -228,8 +228,8 @@ const ProductCreate = () => {
   const addVariantOption = (variantIndex) => {
     setFormData(prev => ({
       ...prev,
-      variants: prev.variants.map((variant, i) => 
-        i === variantIndex 
+      variants: prev.variants.map((variant, i) =>
+        i === variantIndex
           ? { ...variant, options: [...variant.options, { value: '', price: '', quantity: '', sku: '' }] }
           : variant
       )
@@ -239,8 +239,8 @@ const ProductCreate = () => {
   const removeVariantOption = (variantIndex, optionIndex) => {
     setFormData(prev => ({
       ...prev,
-      variants: prev.variants.map((variant, i) => 
-        i === variantIndex 
+      variants: prev.variants.map((variant, i) =>
+        i === variantIndex
           ? { ...variant, options: variant.options.filter((_, j) => j !== optionIndex) }
           : variant
       )
@@ -250,14 +250,14 @@ const ProductCreate = () => {
   const updateVariantOption = (variantIndex, optionIndex, field, value) => {
     setFormData(prev => ({
       ...prev,
-      variants: prev.variants.map((variant, i) => 
-        i === variantIndex 
-          ? { 
-              ...variant, 
-              options: variant.options.map((option, j) => 
-                j === optionIndex ? { ...option, [field]: value } : option
-              )
-            }
+      variants: prev.variants.map((variant, i) =>
+        i === variantIndex
+          ? {
+            ...variant,
+            options: variant.options.map((option, j) =>
+              j === optionIndex ? { ...option, [field]: value } : option
+            )
+          }
           : variant
       )
     }));
@@ -268,8 +268,8 @@ const ProductCreate = () => {
     if (variant) {
       setFormData(prev => ({
         ...prev,
-        variants: [...prev.variants, { 
-          name: variant.name, 
+        variants: [...prev.variants, {
+          name: variant.name,
           options: variant.options.map(opt => ({ value: opt, price: '', quantity: '', sku: '' }))
         }]
       }));
@@ -283,7 +283,7 @@ const ProductCreate = () => {
 
   const addPincode = () => {
     const trimmedPincode = pincodeInput.trim();
-    
+
     if (!trimmedPincode) {
       setPincodeError('Please enter a pincode');
       return;
@@ -303,7 +303,7 @@ const ProductCreate = () => {
       ...prev,
       serviceablePincodes: [...prev.serviceablePincodes, trimmedPincode]
     }));
-    
+
     setPincodeInput('');
     setPincodeError('');
   };
@@ -355,7 +355,7 @@ const ProductCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form
     const errors = validateForm();
     if (errors.length > 0) {
@@ -368,7 +368,7 @@ const ProductCreate = () => {
 
     try {
       const formDataToSend = new FormData();
-      
+
       Object.keys(formData).forEach(key => {
         if (key === 'images' && formData[key].length > 0) {
           formData[key].forEach((image) => {
@@ -388,7 +388,7 @@ const ProductCreate = () => {
               sku: option.sku.trim() || undefined
             })).filter(option => option.value) // Remove empty options
           })).filter(variant => variant.name && variant.options.length > 0); // Remove empty variants
-          
+
           console.log('Sending variants:', cleanedVariants);
           formDataToSend.append(key, JSON.stringify(cleanedVariants));
         } else if (key === 'serviceablePincodes') {
@@ -409,7 +409,7 @@ const ProductCreate = () => {
       }
 
       const token = localStorage.getItem('token');
-      const response = await fetch('https://api.fast2.in/api/product/create', {
+      const response = await fetch('http://localhost:5000/api/product/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -446,18 +446,18 @@ const ProductCreate = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
             <FiPackage className="mr-2" /> Create New Product
           </h1>
-          
+
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
             {/* Basic Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -475,13 +475,13 @@ const ProductCreate = () => {
                     placeholder="Enter product name"
                   />
                 </div>
-                
+
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Description *
                   </label>
                   <Editor
-                    apiKey="xw0haeefepmen4923ro5m463eb97qhseuprfkpbuan5t10u5" 
+                    apiKey="xw0haeefepmen4923ro5m463eb97qhseuprfkpbuan5t10u5"
                     onInit={(evt, editor) => editorRef.current = editor}
                     value={formData.description}
                     onEditorChange={handleDescriptionChange}
@@ -503,7 +503,7 @@ const ProductCreate = () => {
                     }}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Brand *
@@ -520,7 +520,7 @@ const ProductCreate = () => {
                     placeholder="Enter brand name"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category *
@@ -545,11 +545,11 @@ const ProductCreate = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Pricing Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Pricing Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -569,7 +569,7 @@ const ProductCreate = () => {
                     placeholder="0.00"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Old Price (₹)
@@ -587,7 +587,7 @@ const ProductCreate = () => {
                     placeholder="0.00"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Unit *
@@ -609,7 +609,7 @@ const ProductCreate = () => {
                     <option value="pack">Pack</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Unit Value *
@@ -654,7 +654,7 @@ const ProductCreate = () => {
                     onClick={addVariant}
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 
                       flex items-center text-sm"
-                    style={{backgroundColor: 'black'}}
+                    style={{ backgroundColor: 'black' }}
                   >
                     <FiPlus className="mr-1" /> Add Variant
                   </button>
@@ -776,13 +776,13 @@ const ProductCreate = () => {
                 </div>
               )}
             </div>
-            
+
             {/* Promotor and Seller Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiUser className="mr-2" /> Promotor & Seller Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Promotor Information */}
                 <div className="space-y-4">
@@ -790,7 +790,7 @@ const ProductCreate = () => {
                     <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
                       <FiUser className="mr-2" /> Promotor Information *
                     </h3>
-                    
+
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -816,7 +816,7 @@ const ProductCreate = () => {
                           ))}
                         </select>
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Commission Type *
@@ -834,7 +834,7 @@ const ProductCreate = () => {
                           <option value="fixed">Fixed Amount</option>
                         </select>
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Commission Rate *
@@ -863,7 +863,7 @@ const ProductCreate = () => {
                     <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
                       <FiShoppingBag className="mr-2" /> Seller Information *
                     </h3>
-                    
+
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -892,7 +892,7 @@ const ProductCreate = () => {
                           Product will be assigned to this seller
                         </p>
                       </div>
-                      
+
                       {formData.seller && (
                         <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-200 dark:border-blue-700">
                           <h4 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-1">
@@ -901,7 +901,7 @@ const ProductCreate = () => {
                           {(() => {
                             const selectedSeller = sellers.find(s => s._id === formData.seller);
                             if (!selectedSeller) return null;
-                            
+
                             return (
                               <div className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
                                 <p><span className="font-medium">Business:</span> {selectedSeller.businessName}</p>
@@ -921,11 +921,11 @@ const ProductCreate = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Inventory Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Inventory Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -944,7 +944,7 @@ const ProductCreate = () => {
                     placeholder="0"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Min Order Quantity
@@ -961,7 +961,7 @@ const ProductCreate = () => {
                     placeholder="1"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Max Order Quantity
@@ -980,11 +980,11 @@ const ProductCreate = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Physical Attributes Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Physical Attributes</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1004,7 +1004,7 @@ const ProductCreate = () => {
                     placeholder="0.00"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Weight Unit *
@@ -1026,13 +1026,13 @@ const ProductCreate = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Warehouse Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiMapPin className="mr-2" /> Warehouse Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1055,7 +1055,7 @@ const ProductCreate = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Storage Type
@@ -1076,11 +1076,11 @@ const ProductCreate = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Delivery Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Delivery Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1097,7 +1097,7 @@ const ProductCreate = () => {
                     placeholder="e.g., 2-3 days"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Delivery Charges (₹)
@@ -1115,7 +1115,7 @@ const ProductCreate = () => {
                     placeholder="0.00"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Free Delivery Threshold (₹)
@@ -1133,12 +1133,12 @@ const ProductCreate = () => {
                     placeholder="0.00"
                   />
                 </div>
-                
+
                 <div className="md:col-span-3">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Serviceable Pincodes
                   </label>
-                  
+
                   {/* Pincode Input */}
                   <div className="flex gap-2 mb-3">
                     <div className="flex-1">
@@ -1165,7 +1165,7 @@ const ProductCreate = () => {
                       onClick={addPincode}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
                         flex items-center whitespace-nowrap"
-                      style={{backgroundColor: 'black'}}
+                      style={{ backgroundColor: 'black' }}
                     >
                       <FiPlus className="mr-1" /> Add Pincode
                     </button>
@@ -1210,13 +1210,13 @@ const ProductCreate = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Images and Video Upload Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiImage className="mr-2" /> Product Images & Video
               </h2>
-              
+
               {/* Images Upload */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1246,12 +1246,12 @@ const ProductCreate = () => {
                   )}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {formData.images.length >= 5 
-                    ? 'Maximum 5 images reached. Remove some to add more.' 
+                  {formData.images.length >= 5
+                    ? 'Maximum 5 images reached. Remove some to add more.'
                     : `Upload up to 5 product images. You can add ${5 - formData.images.length} more. First image will be the primary image.`
                   }
                 </p>
-                
+
                 {/* Image Preview */}
                 {formData.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -1300,7 +1300,7 @@ const ProductCreate = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Upload a product video (Max 50MB). Supported formats: MP4, MOV, AVI
                 </p>
-                
+
                 {/* Video Preview */}
                 {formData.video && (
                   <div className="mt-4">
@@ -1328,7 +1328,7 @@ const ProductCreate = () => {
                 )}
               </div>
             </div>
-            
+
             {/* Submit Button */}
             <div className="flex justify-end gap-4">
               <button
@@ -1345,7 +1345,7 @@ const ProductCreate = () => {
                 disabled={loading || loadingPromotors || loadingSellers || loadingWarehouses || loadingCategories}
                 className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-white"
-                style={{backgroundColor: 'black'}}
+                style={{ backgroundColor: 'black' }}
               >
                 {loading ? (
                   <>

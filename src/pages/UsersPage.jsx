@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { 
-  FiEdit, 
-  FiTrash2, 
-  FiUsers, 
-  FiSearch, 
-  FiUserPlus, 
-  FiDollarSign, 
+import {
+  FiEdit,
+  FiTrash2,
+  FiUsers,
+  FiSearch,
+  FiUserPlus,
+  FiDollarSign,
   FiX,
   FiMail,
   FiPhone,
@@ -54,7 +54,7 @@ const UsersPage = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(res.data.users);
@@ -113,7 +113,7 @@ const UsersPage = () => {
       setError("");
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -181,20 +181,20 @@ const UsersPage = () => {
       setFormLoading(true);
       setError("");
       const token = localStorage.getItem("token");
-      
+
       const updateData = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         role: formData.role
       };
-      
+
       if (formData.password) {
         updateData.password = formData.password;
       }
 
       const res = await axios.put(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${selectedUser._id}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users/${selectedUser._id}`,
         updateData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -220,7 +220,7 @@ const UsersPage = () => {
       alert("You don't have permission to delete users");
       return;
     }
-    
+
     if (!confirm(`Are you sure you want to delete user: ${userName}? This action cannot be undone.`)) {
       return;
     }
@@ -228,7 +228,7 @@ const UsersPage = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.delete(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${userId}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -257,7 +257,7 @@ const UsersPage = () => {
       setWalletLoading(true);
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${selectedUser._id}/wallet/add`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users/${selectedUser._id}/wallet/add`,
         {
           amount: parseFloat(walletAmount),
           note: walletNote || "Admin credit"
@@ -313,13 +313,13 @@ const UsersPage = () => {
   const roles = [...new Set(users.map(u => u.role))].filter(Boolean).sort();
 
   const filteredUsers = users.filter((u) => {
-    const matchesSearch = 
+    const matchesSearch =
       u.name?.toLowerCase().includes(search.toLowerCase()) ||
       u.email?.toLowerCase().includes(search.toLowerCase()) ||
       u.phone?.includes(search);
-    
+
     const matchesRole = !roleFilter || u.role === roleFilter;
-    
+
     return matchesSearch && matchesRole;
   });
 
@@ -336,9 +336,9 @@ const UsersPage = () => {
       customer: { backgroundColor: '#dcfce7', color: '#166534' },
       moderator: { backgroundColor: '#fed7aa', color: '#9a3412' },
     };
-    
+
     const style = roleColors[role?.toLowerCase()] || { backgroundColor: '#f3f4f6', color: '#374151' };
-    
+
     return (
       <span style={{
         padding: '4px 12px',
@@ -435,7 +435,7 @@ const UsersPage = () => {
               {filteredUsers.length} users
             </span>
           </div>
-          
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '16px', flexDirection: 'column', width: '100%' }}>
               <div style={{ display: 'flex', gap: '16px', flexDirection: 'row' }}>
@@ -493,7 +493,7 @@ const UsersPage = () => {
 
                 {/* Add User Button */}
                 {hasPermission(PERMISSIONS.USERS_CREATE) && (
-                  <button 
+                  <button
                     onClick={openAddUserModal}
                     style={buttonStyles.primary}
                   >
@@ -608,7 +608,7 @@ const UsersPage = () => {
                         <FiUsers style={{ width: '48px', height: '48px', color: '#9ca3af' }} />
                         <span style={{ color: '#6b7280' }}>No users found.</span>
                         {search && (
-                          <button 
+                          <button
                             onClick={() => setSearch("")}
                             style={{ color: '#2563eb', fontSize: '14px' }}
                           >
@@ -646,7 +646,7 @@ const UsersPage = () => {
                       </td>
                       <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                          <button 
+                          <button
                             style={{
                               color: '#16a34a',
                               padding: '8px',
@@ -661,7 +661,7 @@ const UsersPage = () => {
                             <FiDollarSign style={{ width: '16px', height: '16px' }} />
                           </button>
                           {hasPermission(PERMISSIONS.USERS_EDIT) && (
-                            <button 
+                            <button
                               style={{
                                 color: '#2563eb',
                                 padding: '8px',
@@ -677,7 +677,7 @@ const UsersPage = () => {
                             </button>
                           )}
                           {hasPermission(PERMISSIONS.USERS_DELETE) && (
-                            <button 
+                            <button
                               style={{
                                 color: '#dc2626',
                                 padding: '8px',
@@ -727,7 +727,7 @@ const UsersPage = () => {
               >
                 Previous
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
                 if (totalPages <= 5) {
@@ -739,7 +739,7 @@ const UsersPage = () => {
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
@@ -758,7 +758,7 @@ const UsersPage = () => {
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
@@ -810,7 +810,7 @@ const UsersPage = () => {
                   <FiX style={{ width: '24px', height: '24px' }} />
                 </button>
               </div>
-              
+
               <div style={{ padding: '24px' }}>
                 <div style={{ marginBottom: '16px' }}>
                   <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>User</p>
@@ -951,7 +951,7 @@ const UsersPage = () => {
                   <FiX style={{ width: '24px', height: '24px' }} />
                 </button>
               </div>
-              
+
               <div style={{ padding: '24px' }}>
                 {error && (
                   <div style={{
@@ -966,7 +966,7 @@ const UsersPage = () => {
                     {error}
                   </div>
                 )}
-                
+
                 {success && (
                   <div style={{
                     backgroundColor: '#dcfce7',
@@ -1233,7 +1233,7 @@ const UsersPage = () => {
                   <FiX style={{ width: '24px', height: '24px' }} />
                 </button>
               </div>
-              
+
               <div style={{ padding: '24px' }}>
                 {error && (
                   <div style={{
@@ -1248,7 +1248,7 @@ const UsersPage = () => {
                     {error}
                   </div>
                 )}
-                
+
                 {success && (
                   <div style={{
                     backgroundColor: '#dcfce7',

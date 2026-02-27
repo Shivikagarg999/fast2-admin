@@ -28,10 +28,10 @@ const RoleForm = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles/${id}`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles/${id}`
       );
       const data = await response.json();
-      
+
       if (data.success) {
         setFormData({
           name: data.role.name,
@@ -56,8 +56,8 @@ const RoleForm = () => {
 
     try {
       const url = isEditMode
-        ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles/${id}`
-        : `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles`;
+        ? `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles/${id}`
+        : `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles`;
 
       const response = await fetch(url, {
         method: isEditMode ? 'PUT' : 'POST',
@@ -138,7 +138,7 @@ const RoleForm = () => {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Basic Information
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -210,37 +210,37 @@ const RoleForm = () => {
             {Object.entries(PERMISSION_GROUPS)
               .filter(([groupKey]) => groupKey !== 'admins' && groupKey !== 'roles')
               .map(([groupKey, group]) => (
-              <div key={groupKey} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {group.label}
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectAllGroup(groupKey)}
-                    className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    {isGroupFullySelected(groupKey) ? 'Deselect All' : 'Select All'}
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {group.permissions.map((permission) => (
-                    <label
-                      key={permission}
-                      className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded"
+                <div key={groupKey} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {group.label}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectAllGroup(groupKey)}
+                      className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                     >
-                      <input
-                        type="checkbox"
-                        checked={formData.permissions.includes(permission)}
-                        onChange={() => handlePermissionToggle(permission)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span>{getPermissionLabel(permission)}</span>
-                    </label>
-                  ))}
+                      {isGroupFullySelected(groupKey) ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {group.permissions.map((permission) => (
+                      <label
+                        key={permission}
+                        className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.permissions.includes(permission)}
+                          onChange={() => handlePermissionToggle(permission)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span>{getPermissionLabel(permission)}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 
@@ -264,8 +264,8 @@ const RoleForm = () => {
             type="submit"
             disabled={loading}
             className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-            style= {{backgroundColor: 'black'}}
-         >
+            style={{ backgroundColor: 'black' }}
+          >
             <FiSave className="w-4 h-4" />
             {loading ? 'Saving...' : isEditMode ? 'Update Role' : 'Create Role'}
           </button>

@@ -16,7 +16,7 @@ const EditPromotorPage = () => {
     name: "",
     email: "",
     phone: "",
-    
+
     // Address Information
     address: {
       street: "",
@@ -28,15 +28,15 @@ const EditPromotorPage = () => {
         lng: ""
       }
     },
-    
+
     // Commission Information
     commissionRate: "5",
     commissionType: "percentage",
-    
+
     // Additional Details
     aadharNumber: "",
     panNumber: "",
-    
+
     // Bank Details
     bankDetails: {
       accountNumber: "",
@@ -44,7 +44,7 @@ const EditPromotorPage = () => {
       bankName: "",
       branch: ""
     },
-    
+
     // Status
     active: true
   });
@@ -53,9 +53,9 @@ const EditPromotorPage = () => {
     const fetchPromotor = async () => {
       try {
         setFetching(true);
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/${id}`);
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/${id}`);
         const promotor = response.data;
-        
+
         setFormData({
           name: promotor.name || "",
           email: promotor.email || "",
@@ -97,7 +97,7 @@ const EditPromotorPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (type === 'checkbox') {
       setFormData(prev => ({
         ...prev,
@@ -105,7 +105,7 @@ const EditPromotorPage = () => {
       }));
       return;
     }
-    
+
     // Handle nested objects
     if (name.includes('.')) {
       const keys = name.split('.');
@@ -136,8 +136,8 @@ const EditPromotorPage = () => {
     setError("");
 
     try {
-      await axios.put(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/${id}`, formData);
-      
+      await axios.put(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/${id}`, formData);
+
       // Show success modal
       setShowSuccessModal(true);
     } catch (error) {
@@ -177,18 +177,18 @@ const EditPromotorPage = () => {
               <FiUser className="mr-2" /> Edit Promotor
             </h1>
           </div>
-          
+
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -205,7 +205,7 @@ const EditPromotorPage = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email Address *
@@ -224,7 +224,7 @@ const EditPromotorPage = () => {
                     <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Phone Number *
@@ -258,13 +258,13 @@ const EditPromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Address Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiMapPin className="mr-2" /> Address Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -280,7 +280,7 @@ const EditPromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     City *
@@ -296,7 +296,7 @@ const EditPromotorPage = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     State
@@ -311,7 +311,7 @@ const EditPromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Pincode
@@ -326,7 +326,7 @@ const EditPromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Latitude
@@ -342,7 +342,7 @@ const EditPromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Longitude
@@ -360,13 +360,13 @@ const EditPromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Commission Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiDollarSign className="mr-2" /> Commission Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -385,7 +385,7 @@ const EditPromotorPage = () => {
                     <option value="fixed">Fixed Amount</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Commission Rate *
@@ -413,11 +413,11 @@ const EditPromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Additional Details Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Additional Details</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -433,7 +433,7 @@ const EditPromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     PAN Number
@@ -450,13 +450,13 @@ const EditPromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Bank Details Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiCreditCard className="mr-2" /> Bank Details
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -472,7 +472,7 @@ const EditPromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Account Number
@@ -487,7 +487,7 @@ const EditPromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     IFSC Code
@@ -502,7 +502,7 @@ const EditPromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Branch
@@ -519,7 +519,7 @@ const EditPromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Submit Button */}
             <div className="flex justify-end gap-4">
               <button
@@ -561,15 +561,15 @@ const EditPromotorPage = () => {
               <div className="bg-green-100 p-3 rounded-full mb-4">
                 <FiCheckCircle className="text-green-600 text-3xl" />
               </div>
-              
+
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 Promotor Updated Successfully!
               </h2>
-              
+
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 The promotor details have been updated.
               </p>
-              
+
               <button
                 onClick={closeSuccessModal}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"

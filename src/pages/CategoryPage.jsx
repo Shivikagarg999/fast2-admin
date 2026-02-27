@@ -34,7 +34,7 @@ const CategoriesPage = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`);
             if (!response.ok) throw new Error('Failed to fetch categories');
             const data = await response.json();
             setCategories(data);
@@ -152,13 +152,13 @@ const CategoriesPage = () => {
             let response;
             if (editingCategory) {
                 // Update category - adjust the endpoint as needed
-                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/update/${editingCategory._id}`, {
+                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/update/${editingCategory._id}`, {
                     method: 'PUT',
                     body: submitData,
                 });
             } else {
                 // Create category
-                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/create`, {
+                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/create`, {
                     method: 'POST',
                     body: submitData,
                 });
@@ -187,7 +187,7 @@ const CategoriesPage = () => {
         }
         if (window.confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone.`)) {
             try {
-                const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/delete/${categoryId}`, {
+                const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/delete/${categoryId}`, {
                     method: 'DELETE',
                 });
 
@@ -340,8 +340,8 @@ const CategoriesPage = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.isActive
-                                                        ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
-                                                        : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
+                                                    ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
+                                                    : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
                                                     }`}>
                                                     {category.isActive ? 'Active' : 'Inactive'}
                                                 </span>
@@ -410,8 +410,8 @@ const CategoriesPage = () => {
                                     <button
                                         key={pageNum}
                                         className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
-                                                ? "bg-blue-500 text-white border-blue-500"
-                                                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                            ? "bg-blue-500 text-white border-blue-500"
+                                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                                             }`}
                                         onClick={() => setCurrentPage(pageNum)}
                                     >

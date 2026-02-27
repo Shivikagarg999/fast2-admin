@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FiPlus, 
-  FiEdit2, 
-  FiTrash2, 
-  FiSearch, 
-  FiShield, 
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiSearch,
+  FiShield,
   FiUser,
   FiCheckCircle,
   FiXCircle,
@@ -30,9 +30,9 @@ const AdminManagement = () => {
   const fetchAdmins = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/all`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/all`);
       const data = await response.json();
-      
+
       if (data.success) {
         setAdmins(data.admins);
       }
@@ -46,7 +46,7 @@ const AdminManagement = () => {
   const handleDelete = async (adminId) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/${adminId}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/${adminId}`,
         {
           method: 'DELETE',
         }
@@ -69,7 +69,7 @@ const AdminManagement = () => {
 
   const getRoleBadge = (role) => {
     if (!role) return null;
-    
+
     if (role.name === 'super_admin') {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
@@ -170,8 +170,8 @@ const AdminManagement = () => {
               <button
                 onClick={() => navigate('/admin/create-admin')}
                 className="flex items-center gap-2 px-4 py-2 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                style={{backgroundColor: 'black'}}
-            >
+                style={{ backgroundColor: 'black' }}
+              >
                 <FiPlus className="w-4 h-4" />
                 Add Admin
               </button>
@@ -238,8 +238,8 @@ const AdminManagement = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {admin.role?.permissions?.includes('*') 
-                          ? 'All Permissions' 
+                        {admin.role?.permissions?.includes('*')
+                          ? 'All Permissions'
                           : `${admin.role?.permissions?.length || 0} permissions`}
                       </div>
                     </td>

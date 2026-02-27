@@ -28,10 +28,10 @@ const AdminForm = () => {
   const fetchRoles = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles`
       );
       const data = await response.json();
-      
+
       if (data.success) {
         setRoles(data.roles.filter(role => role.isActive));
       }
@@ -44,10 +44,10 @@ const AdminForm = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/${id}`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/${id}`
       );
       const data = await response.json();
-      
+
       setFormData({
         name: data.name,
         email: data.email,
@@ -70,13 +70,13 @@ const AdminForm = () => {
 
     try {
       const url = isEditMode
-        ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/${id}`
-        : `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/register`;
+        ? `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/${id}`
+        : `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/register`;
 
       const method = isEditMode ? 'PUT' : 'POST';
 
       const payload = { ...formData };
-      
+
       // Don't send password if it's empty in edit mode
       if (isEditMode && !payload.password) {
         delete payload.password;
@@ -127,7 +127,7 @@ const AdminForm = () => {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Admin Information
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -222,7 +222,7 @@ const AdminForm = () => {
             type="submit"
             disabled={loading}
             className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-  >
+          >
             <FiSave className="w-4 h-4" />
             {loading ? 'Saving...' : isEditMode ? 'Update Admin' : 'Create Admin'}
           </button>

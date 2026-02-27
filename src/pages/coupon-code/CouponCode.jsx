@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { 
-  FiEdit, 
-  FiTrash2, 
-  FiTag, 
-  FiSearch, 
-  FiPlus, 
+import {
+  FiEdit,
+  FiTrash2,
+  FiTag,
+  FiSearch,
+  FiPlus,
   FiPercent,
   FiCalendar,
   FiDollarSign,
@@ -60,7 +60,7 @@ const LoadingSpinner = ({ size = 24, color = '#2563eb' }) => (
 
 class CouponService {
   constructor() {
-    this.baseURL = import.meta.env.VITE_BASE_URL || 'https://api.fast2.in';
+    this.baseURL = import.meta.env.VITE_BASE_URL || 'http://localhost:5000';
   }
 
   async request(endpoint, options = {}) {
@@ -78,7 +78,7 @@ class CouponService {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -224,7 +224,7 @@ const CouponsPage = () => {
     try {
       setFormLoading(true);
       setError("");
-      
+
       const couponData = {
         ...formData,
         discountValue: parseFloat(formData.discountValue),
@@ -234,10 +234,10 @@ const CouponsPage = () => {
       };
 
       await couponService.createCoupon(couponData);
-      
+
       setSuccess("Coupon created successfully");
       showToast("Coupon created successfully!");
-      
+
       setTimeout(() => {
         closeAddCouponModal();
         fetchCoupons();
@@ -303,7 +303,7 @@ const CouponsPage = () => {
     try {
       setFormLoading(true);
       setError("");
-      
+
       const updateData = {
         ...formData,
         discountValue: parseFloat(formData.discountValue),
@@ -313,10 +313,10 @@ const CouponsPage = () => {
       };
 
       await couponService.updateCoupon(selectedCoupon._id, updateData);
-      
+
       setSuccess("Coupon updated successfully");
       showToast("Coupon updated successfully!");
-      
+
       setTimeout(() => {
         closeEditCouponModal();
         fetchCoupons();
@@ -337,7 +337,7 @@ const CouponsPage = () => {
       showToast("You don't have permission to delete coupons", "error");
       return;
     }
-    
+
     if (!confirm(`Are you sure you want to delete coupon: ${couponCode}? This action cannot be undone.`)) {
       return;
     }
@@ -383,15 +383,15 @@ const CouponsPage = () => {
   const discountTypes = ["percentage", "fixed"];
 
   const filteredCoupons = coupons.filter((coupon) => {
-    const matchesSearch = 
+    const matchesSearch =
       coupon.code?.toLowerCase().includes(search.toLowerCase()) ||
       coupon.description?.toLowerCase().includes(search.toLowerCase());
-    
-    const matchesStatus = !statusFilter || 
+
+    const matchesStatus = !statusFilter ||
       (statusFilter === "active" && coupon.isActive && new Date(coupon.endDate) > new Date()) ||
       (statusFilter === "expired" && new Date(coupon.endDate) <= new Date()) ||
       (statusFilter === "inactive" && !coupon.isActive);
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -403,7 +403,7 @@ const CouponsPage = () => {
   // Helper functions
   const getStatusBadge = (coupon) => {
     const isExpired = new Date(coupon.endDate) <= new Date();
-    
+
     if (isExpired) {
       return {
         text: "Expired",
@@ -411,7 +411,7 @@ const CouponsPage = () => {
         color: '#dc2626'
       };
     }
-    
+
     if (coupon.isActive) {
       return {
         text: "Active",
@@ -419,7 +419,7 @@ const CouponsPage = () => {
         color: '#16a34a'
       };
     }
-    
+
     return {
       text: "Inactive",
       backgroundColor: '#f3f4f6',
@@ -480,7 +480,7 @@ const CouponsPage = () => {
           }
         `}
       </style>
-      
+
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
@@ -497,7 +497,7 @@ const CouponsPage = () => {
               {filteredCoupons.length} coupons
             </span>
           </div>
-          
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '16px', flexDirection: 'column', width: '100%' }}>
               <div style={{ display: 'flex', gap: '16px', flexDirection: 'row' }}>
@@ -555,7 +555,7 @@ const CouponsPage = () => {
 
                 {/* Add Coupon Button */}
                 {hasPermission(PERMISSIONS.COUPONS_CREATE) && (
-                  <button 
+                  <button
                     onClick={openAddCouponModal}
                     style={buttonStyles.primary}
                   >
@@ -675,7 +675,7 @@ const CouponsPage = () => {
                         <FiTag style={{ width: '48px', height: '48px', color: '#9ca3af' }} />
                         <span style={{ color: '#6b7280' }}>No coupons found.</span>
                         {search && (
-                          <button 
+                          <button
                             onClick={() => setSearch("")}
                             style={{ color: '#2563eb', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
                           >
@@ -751,7 +751,7 @@ const CouponsPage = () => {
                         </td>
                         <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                            <button 
+                            <button
                               style={{
                                 color: status.text === 'Active' ? '#dc2626' : '#16a34a',
                                 padding: '8px',
@@ -767,7 +767,7 @@ const CouponsPage = () => {
                               {status.text === 'Active' ? <FiToggleRight style={{ width: '16px', height: '16px' }} /> : <FiToggleLeft style={{ width: '16px', height: '16px' }} />}
                             </button>
                             {hasPermission(PERMISSIONS.COUPONS_EDIT) && (
-                              <button 
+                              <button
                                 style={{
                                   color: '#2563eb',
                                   padding: '8px',
@@ -783,7 +783,7 @@ const CouponsPage = () => {
                               </button>
                             )}
                             {hasPermission(PERMISSIONS.COUPONS_DELETE) && (
-                              <button 
+                              <button
                                 style={{
                                   color: '#dc2626',
                                   padding: '8px',
@@ -834,7 +834,7 @@ const CouponsPage = () => {
               >
                 Previous
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
                 if (totalPages <= 5) {
@@ -846,7 +846,7 @@ const CouponsPage = () => {
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
@@ -865,7 +865,7 @@ const CouponsPage = () => {
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
@@ -919,7 +919,7 @@ const CouponsPage = () => {
                   <FiX style={{ width: '24px', height: '24px' }} />
                 </button>
               </div>
-              
+
               <div style={{ padding: '24px' }}>
                 {error && (
                   <div style={{
@@ -934,7 +934,7 @@ const CouponsPage = () => {
                     {error}
                   </div>
                 )}
-                
+
                 {success && (
                   <div style={{
                     backgroundColor: '#dcfce7',
@@ -1324,7 +1324,7 @@ const CouponsPage = () => {
                   <FiX style={{ width: '24px', height: '24px' }} />
                 </button>
               </div>
-              
+
               <div style={{ padding: '24px' }}>
                 {error && (
                   <div style={{
@@ -1339,7 +1339,7 @@ const CouponsPage = () => {
                     {error}
                   </div>
                 )}
-                
+
                 {success && (
                   <div style={{
                     backgroundColor: '#dcfce7',

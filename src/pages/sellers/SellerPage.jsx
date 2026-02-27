@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Users, RefreshCw, Plus, Filter, Search, X, Save, Loader2, 
+import {
+  Users, RefreshCw, Plus, Filter, Search, X, Save, Loader2,
   User, Building, Mail, Phone, MapPin, Lock, Eye, EyeOff,
   AlertCircle, Home, Globe, Briefcase, Shield, CreditCard,
   Edit, Trash2, CheckCircle, XCircle, ChevronLeft, ChevronRight,
@@ -66,15 +66,15 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       setLoadingPromotors(true);
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/`,
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
       );
-      
+
       if (response.data && Array.isArray(response.data)) {
         setPromotors(response.data);
       } else {
@@ -92,7 +92,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (name.includes('.')) {
       const keys = name.split('.');
       setFormData(prev => {
@@ -110,12 +110,12 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
         [name]: type === 'checkbox' ? checked : value
       }));
     }
-    
+
     // Clear field-specific error
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-    
+
     // Clear API error when user starts typing
     if (apiError) {
       setApiError('');
@@ -124,54 +124,54 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     // Basic info validation
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
     if (!formData.businessName.trim()) newErrors.businessName = 'Business name is required';
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
       newErrors.email = 'Invalid email format';
     }
-    
+
     const phoneRegex = /^[6-9]\d{9}$/;
     const cleanPhone = formData.phone.replace(/\D/g, '');
     if (formData.phone && !phoneRegex.test(cleanPhone)) {
       newErrors.phone = 'Invalid phone number (10-digit Indian number starting with 6-9)';
     }
-    
+
     // GST validation
     if (formData.gstNumber && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(formData.gstNumber.toUpperCase())) {
       newErrors.gstNumber = 'Invalid GST number format';
     }
-    
+
     // PAN validation
     if (formData.panNumber && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panNumber.toUpperCase())) {
       newErrors.panNumber = 'Invalid PAN number format';
     }
-    
+
     // Account info validation
     if (!formData.promotor) newErrors.promotor = 'Promotor is required';
     if (!formData.password) newErrors.password = 'Password is required';
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Confirm password is required';
-    
+
     if (formData.password && formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -179,10 +179,10 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
     setLoading(true);
     setApiError('');
     setSuccessMessage('');
-    
+
     try {
       const token = localStorage.getItem('token');
-      
+
       // Prepare data for API
       const submitData = {
         name: formData.name.trim(),
@@ -216,10 +216,10 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       console.log('Submitting seller data:', submitData);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers/create`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers/create`,
         submitData,
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
@@ -230,7 +230,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
 
       if (response.data.success) {
         setSuccessMessage(response.data.message || 'Seller created successfully!');
-        
+
         // Reset form
         setFormData({
           name: '',
@@ -258,7 +258,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
           approvalStatus: 'approved',
           isActive: true
         });
-        
+
         // Call success callback after a delay
         setTimeout(() => {
           if (onSuccess) {
@@ -269,25 +269,25 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       }
     } catch (error) {
       console.error('Error creating seller:', error);
-      
+
       let errorMessage = 'Failed to create seller';
-      
+
       if (error.response) {
         const { data } = error.response;
         console.error('Error response data:', data);
-        
+
         if (data.message) {
           errorMessage = data.message;
         }
-        
+
         if (data.errors && Array.isArray(data.errors)) {
           errorMessage = data.errors.join(', ');
         }
-        
+
         // Handle validation errors
         if (error.response.status === 400 || error.response.status === 409) {
           const fieldErrors = {};
-          
+
           if (data.message.includes('email')) {
             fieldErrors.email = data.message;
           } else if (data.message.includes('phone')) {
@@ -299,7 +299,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
           } else if (data.message.includes('PAN')) {
             fieldErrors.panNumber = data.message;
           }
-          
+
           if (Object.keys(fieldErrors).length > 0) {
             setErrors(prev => ({ ...prev, ...fieldErrors }));
           }
@@ -310,7 +310,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       } else {
         errorMessage = error.message;
       }
-      
+
       setApiError(errorMessage);
     } finally {
       setLoading(false);
@@ -350,12 +350,12 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
           </h2>
           <button
             onClick={onClose}
-            style={{ 
-              color: '#9ca3af', 
-              padding: '4px', 
-              borderRadius: '4px', 
-              border: 'none', 
-              backgroundColor: 'transparent', 
+            style={{
+              color: '#9ca3af',
+              padding: '4px',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: 'transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -1010,7 +1010,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
             <div style={{ fontSize: '14px', color: '#6b7280' }}>
               Step {['basic', 'address', 'bank', 'account'].indexOf(activeTab) + 1} of 4
             </div>
-            
+
             <div style={{ display: 'flex', gap: '12px' }}>
               {activeTab !== 'basic' && (
                 <button
@@ -1038,7 +1038,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
                   Previous
                 </button>
               )}
-              
+
               {activeTab !== 'account' ? (
                 <button
                   type="button"
@@ -1142,7 +1142,7 @@ const SellerPage = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       const params = new URLSearchParams();
-      
+
       if (filters.search) params.append('search', filters.search);
       if (filters.approvalStatus) params.append('approvalStatus', filters.approvalStatus);
       if (filters.isActive) params.append('isActive', filters.isActive);
@@ -1152,15 +1152,15 @@ const SellerPage = () => {
       params.append('limit', filters.limit);
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers?${params.toString()}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers?${params.toString()}`,
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
       );
-      
+
       setSellers(response.data.data || []);
       setPagination(response.data.pagination || {
         currentPage: 1,
@@ -1217,7 +1217,7 @@ const SellerPage = () => {
       alert("You don't have permission to approve sellers");
       return;
     }
-    
+
     if (!window.confirm('Are you sure you want to approve this seller?')) {
       return;
     }
@@ -1226,21 +1226,21 @@ const SellerPage = () => {
       const token = localStorage.getItem('token');
       const adminData = localStorage.getItem('adminData');
       const adminId = adminData ? JSON.parse(adminData)._id : null;
-      
+
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/approval`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/approval`,
         {
           action: 'approve',
           adminId: adminId
         },
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
       );
-      
+
       alert('Seller approved successfully');
       fetchSellers();
     } catch (error) {
@@ -1254,7 +1254,7 @@ const SellerPage = () => {
       alert("You don't have permission to reject sellers");
       return;
     }
-    
+
     const reason = window.prompt('Please enter rejection reason:');
     if (!reason) return;
 
@@ -1262,22 +1262,22 @@ const SellerPage = () => {
       const token = localStorage.getItem('token');
       const adminData = localStorage.getItem('adminData');
       const adminId = adminData ? JSON.parse(adminData)._id : null;
-      
+
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/approval`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/approval`,
         {
           action: 'reject',
           adminId: adminId,
           rejectionReason: reason
         },
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
       );
-      
+
       alert('Seller rejected successfully');
       fetchSellers();
     } catch (error) {
@@ -1291,7 +1291,7 @@ const SellerPage = () => {
       alert("You don't have permission to toggle seller status");
       return;
     }
-    
+
     const action = currentStatus ? 'deactivate' : 'activate';
     if (!window.confirm(`Are you sure you want to ${action} this seller?`)) {
       return;
@@ -1300,18 +1300,18 @@ const SellerPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/status`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/status`,
         {
           isActive: !currentStatus
         },
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
       );
-      
+
       alert(`Seller ${action}d successfully`);
       fetchSellers();
     } catch (error) {
@@ -1330,7 +1330,7 @@ const SellerPage = () => {
       alert("You don't have permission to delete sellers");
       return;
     }
-    
+
     if (!confirm(`Are you sure you want to delete seller: ${sellerName}? This action cannot be undone.`)) {
       return;
     }
@@ -1338,9 +1338,9 @@ const SellerPage = () => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.delete(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}`,
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
@@ -1367,9 +1367,9 @@ const SellerPage = () => {
       pending: { backgroundColor: '#fef3c7', color: '#92400e' },
       rejected: { backgroundColor: '#fee2e2', color: '#991b1b' },
     };
-    
+
     const style = statusColors[status] || { backgroundColor: '#f3f4f6', color: '#374151' };
-    
+
     return (
       <span style={{
         padding: '4px 12px',
@@ -1384,10 +1384,10 @@ const SellerPage = () => {
   };
 
   const getActiveBadge = (isActive) => {
-    const style = isActive 
+    const style = isActive
       ? { backgroundColor: '#dcfce7', color: '#166534' }
       : { backgroundColor: '#fee2e2', color: '#991b1b' };
-    
+
     return (
       <span style={{
         padding: '4px 12px',
@@ -1450,7 +1450,7 @@ const SellerPage = () => {
               {pagination.totalSellers} sellers
             </span>
           </div>
-          
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '16px', flexDirection: 'column', width: '100%' }}>
               <div style={{ display: 'flex', gap: '16px', flexDirection: 'row' }}>
@@ -1528,7 +1528,7 @@ const SellerPage = () => {
 
                 {/* Add Seller Button */}
                 {(hasPermission(PERMISSIONS.SELLERS_CREATE) || isSuperAdmin()) && (
-                  <button 
+                  <button
                     onClick={() => setShowCreateModal(true)}
                     style={buttonStyles.primary}
                   >
@@ -1538,7 +1538,7 @@ const SellerPage = () => {
                 )}
 
                 {/* Refresh Button */}
-                <button 
+                <button
                   onClick={handleRefresh}
                   style={buttonStyles.secondary}
                 >
@@ -1546,7 +1546,7 @@ const SellerPage = () => {
                   Refresh
                 </button>
               </div>
-              
+
               {/* Active Filters Display */}
               {hasActiveFilters && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
@@ -1766,7 +1766,7 @@ const SellerPage = () => {
                         <Users style={{ width: '48px', height: '48px', color: '#9ca3af' }} />
                         <span style={{ color: '#6b7280' }}>No sellers found.</span>
                         {hasActiveFilters && (
-                          <button 
+                          <button
                             onClick={handleClearFilters}
                             style={{ color: '#2563eb', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
                           >
@@ -1808,7 +1808,7 @@ const SellerPage = () => {
                       <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                           {seller.approvalStatus === 'pending' && (hasPermission(PERMISSIONS.SELLERS_APPROVE) || isSuperAdmin()) && (
-                            <button 
+                            <button
                               style={{
                                 color: '#16a34a',
                                 padding: '8px',
@@ -1826,9 +1826,9 @@ const SellerPage = () => {
                               <CheckCircle style={{ width: '16px', height: '16px' }} />
                             </button>
                           )}
-                          
+
                           {seller.approvalStatus === 'pending' && (hasPermission(PERMISSIONS.SELLERS_REJECT) || isSuperAdmin()) && (
-                            <button 
+                            <button
                               style={{
                                 color: '#dc2626',
                                 padding: '8px',
@@ -1846,9 +1846,9 @@ const SellerPage = () => {
                               <XCircle style={{ width: '16px', height: '16px' }} />
                             </button>
                           )}
-                          
+
                           {(hasPermission(PERMISSIONS.SELLERS_EDIT) || isSuperAdmin()) && (
-                            <button 
+                            <button
                               style={{
                                 color: '#2563eb',
                                 padding: '8px',
@@ -1866,9 +1866,9 @@ const SellerPage = () => {
                               <Edit style={{ width: '16px', height: '16px' }} />
                             </button>
                           )}
-                          
+
                           {(hasPermission(PERMISSIONS.SELLERS_TOGGLE_STATUS) || isSuperAdmin()) && (
-                            <button 
+                            <button
                               style={{
                                 color: seller.isActive ? '#16a34a' : '#dc2626',
                                 padding: '8px',
@@ -1886,9 +1886,9 @@ const SellerPage = () => {
                               {seller.isActive ? '🟢' : '🔴'}
                             </button>
                           )}
-                          
+
                           {(hasPermission(PERMISSIONS.SELLERS_DELETE) || isSuperAdmin()) && (
-                            <button 
+                            <button
                               style={{
                                 color: '#dc2626',
                                 padding: '8px',
@@ -1942,7 +1942,7 @@ const SellerPage = () => {
                 <ChevronLeft style={{ width: '16px', height: '16px' }} />
                 Previous
               </button>
-              
+
               {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                 let pageNum;
                 if (pagination.totalPages <= 5) {
@@ -1954,7 +1954,7 @@ const SellerPage = () => {
                 } else {
                   pageNum = pagination.currentPage - 2 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
@@ -1974,7 +1974,7 @@ const SellerPage = () => {
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                 disabled={pagination.currentPage === pagination.totalPages}

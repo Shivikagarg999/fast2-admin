@@ -12,7 +12,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/login`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,7 +27,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         console.log("Login successful:", data);
-        
+
         // Store admin data with permissions
         localStorage.setItem('token', data.token);
         localStorage.setItem('adminData', JSON.stringify({
@@ -40,7 +40,7 @@ export default function LoginPage() {
           permissions: data.permissions || [],
           isSuperAdmin: data.isSuperAdmin || false,
         }));
-        
+
         // Redirect to dashboard
         window.location.href = "/dashboard";
       } else {
@@ -75,7 +75,7 @@ export default function LoginPage() {
             </h2>
             <div className="w-24 h-1.5 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mx-auto lg:mx-0"></div>
           </div>
-          
+
           <div className="space-y-4 text-blue-100">
             <p className="text-lg lg:text-xl leading-relaxed max-w-md mx-auto lg:mx-0">
               Streamline your delivery operations with our comprehensive admin dashboard.
@@ -147,11 +147,10 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 ${
-                  loading
+                className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 ${loading
                     ? "bg-blue-500/50 cursor-not-allowed"
                     : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-                }`}
+                  }`}
               >
                 {loading ? (
                   <div className="flex items-center justify-center space-x-2">

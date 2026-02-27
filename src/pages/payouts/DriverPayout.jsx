@@ -39,7 +39,7 @@ const DriverPayouts = () => {
 
   const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
 
-  const BASE_URL = 'https://api.fast2.in/api/driver-earnings';
+  const BASE_URL = 'http://localhost:5000/api/driver-earnings';
 
   useEffect(() => {
     fetchEarningsSummary();
@@ -50,94 +50,94 @@ const DriverPayouts = () => {
     fetchAllEarnings();
   }, [aggregatedView, pagination.currentPage, filters]);
 
- const fetchDriverDetails = async (driverId) => {
-  console.log('Fetching driver details for:', driverId);
-  
-  if (driverCache[driverId]) {
-    console.log('Found in cache:', driverCache[driverId]);
-    return driverCache[driverId];
-  }
+  const fetchDriverDetails = async (driverId) => {
+    console.log('Fetching driver details for:', driverId);
 
-  try {
-    console.log('Making API call for driver details:', driverId);
-    // Try the driver earnings detail endpoint first
-    const response = await fetch(`${BASE_URL}/admin/earnings/driver/${driverId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    console.log('Response status:', response.status);
-    
-    if (response.ok) {
-      const result = await response.json();
-      console.log('Driver details API Response:', result);
-      
-      if (result.success && result.data && result.data.driver) {
-        const driverData = result.data.driver;
-        console.log('Driver data from earnings detail API:', driverData);
-        
-        const processedDriverData = {
-          name: driverData.name || 'Unknown Driver',
-          phone: driverData.phone || '',
-          email: driverData.email || '',
-          vehicleNumber: driverData.vehicleNumber || ''
-        };
-        
-        console.log('Processed driver data:', processedDriverData);
-        
-        setDriverCache(prev => ({
-          ...prev,
-          [driverId]: processedDriverData
-        }));
-        
-        return processedDriverData;
-      }
+    if (driverCache[driverId]) {
+      console.log('Found in cache:', driverCache[driverId]);
+      return driverCache[driverId];
     }
-    
-    // If the earnings detail endpoint doesn't work, try the regular driver endpoint
-    console.log('Trying regular driver API endpoint...');
-    const driverResponse = await fetch(`https://api.fast2.in/api/admin/drivers/${driverId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    if (driverResponse.ok) {
-      const driverResult = await driverResponse.json();
-      console.log('Regular driver API Response:', driverResult);
-      
-      if (driverResult.success && driverResult.driver) {
-        const driverData = driverResult.driver;
-        const processedDriverData = {
-          name: driverData.personalInfo?.name || driverData.name || 'Unknown Driver',
-          phone: driverData.personalInfo?.phone || driverData.phone || '',
-          email: driverData.personalInfo?.email || driverData.email || '',
-          vehicleNumber: driverData.vehicle?.registrationNumber || driverData.vehicleNumber || ''
-        };
-        
-        console.log('Processed driver data from regular API:', processedDriverData);
-        
-        setDriverCache(prev => ({
-          ...prev,
-          [driverId]: processedDriverData
-        }));
-        
-        return processedDriverData;
-      }
-    }
-  } catch (error) {
-    console.error('Error fetching driver details:', error);
-  }
 
-  console.log('Returning fallback data');
-  return {
-    name: 'Unknown Driver',
-    phone: '',
-    email: '',
-    vehicleNumber: ''
+    try {
+      console.log('Making API call for driver details:', driverId);
+      // Try the driver earnings detail endpoint first
+      const response = await fetch(`${BASE_URL}/admin/earnings/driver/${driverId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      console.log('Response status:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Driver details API Response:', result);
+
+        if (result.success && result.data && result.data.driver) {
+          const driverData = result.data.driver;
+          console.log('Driver data from earnings detail API:', driverData);
+
+          const processedDriverData = {
+            name: driverData.name || 'Unknown Driver',
+            phone: driverData.phone || '',
+            email: driverData.email || '',
+            vehicleNumber: driverData.vehicleNumber || ''
+          };
+
+          console.log('Processed driver data:', processedDriverData);
+
+          setDriverCache(prev => ({
+            ...prev,
+            [driverId]: processedDriverData
+          }));
+
+          return processedDriverData;
+        }
+      }
+
+      // If the earnings detail endpoint doesn't work, try the regular driver endpoint
+      console.log('Trying regular driver API endpoint...');
+      const driverResponse = await fetch(`http://localhost:5000/api/admin/drivers/${driverId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (driverResponse.ok) {
+        const driverResult = await driverResponse.json();
+        console.log('Regular driver API Response:', driverResult);
+
+        if (driverResult.success && driverResult.driver) {
+          const driverData = driverResult.driver;
+          const processedDriverData = {
+            name: driverData.personalInfo?.name || driverData.name || 'Unknown Driver',
+            phone: driverData.personalInfo?.phone || driverData.phone || '',
+            email: driverData.personalInfo?.email || driverData.email || '',
+            vehicleNumber: driverData.vehicle?.registrationNumber || driverData.vehicleNumber || ''
+          };
+
+          console.log('Processed driver data from regular API:', processedDriverData);
+
+          setDriverCache(prev => ({
+            ...prev,
+            [driverId]: processedDriverData
+          }));
+
+          return processedDriverData;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching driver details:', error);
+    }
+
+    console.log('Returning fallback data');
+    return {
+      name: 'Unknown Driver',
+      phone: '',
+      email: '',
+      vehicleNumber: ''
+    };
   };
-};
 
   const fetchEarningsSummary = async () => {
     try {
@@ -146,10 +146,10 @@ const DriverPayouts = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch earnings summary');
       const result = await response.json();
-      
+
       if (result.success && result.data && result.data.summary) {
         setSummary(result.data.summary);
       }
@@ -159,210 +159,210 @@ const DriverPayouts = () => {
   };
 
   const fetchAllEarnings = async () => {
-  try {
-    setRefreshing(true);
-    
-    let url;
-    let isPendingEndpoint = false;
-    
-    if (aggregatedView) {
-      url = `${BASE_URL}/admin/earnings/pending?`;
-      isPendingEndpoint = true;
-    } else {
-      const queryParams = new URLSearchParams({
-        page: pagination.currentPage,
-        limit: pagination.limit,
-        ...(filters.status && { status: filters.status }),
-        ...(filters.startDate && { startDate: filters.startDate }),
-        ...(filters.endDate && { endDate: filters.endDate }),
-        ...(filters.type && { type: filters.type }),
-        ...(filters.search && { search: filters.search })
-      }).toString();
-      url = `${BASE_URL}/admin/earnings?${queryParams}`;
-    }
-    
-    console.log('Fetching earnings from:', url);
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    console.log('Earnings response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.log('Earnings API error:', errorText);
-      throw new Error('Failed to fetch earnings');
-    }
-    
-    const result = await response.json();
-    console.log('Earnings API result:', result);
-    
-    if (result.success) {
+    try {
+      setRefreshing(true);
+
+      let url;
+      let isPendingEndpoint = false;
+
       if (aggregatedView) {
-        // Handle pending earnings endpoint (different structure)
-        const earningsData = isPendingEndpoint ? 
-          (result.data?.pendingEarnings || []) : 
-          (result.data?.earnings || []);
-        
-        console.log(`Found ${earningsData.length} earnings for aggregation`);
-        
-        const driverMap = new Map();
-        
-        for (const earning of earningsData) {
-          console.log('Processing earning for aggregation:', earning);
-          const driverId = earning.driver?._id || earning.driver?.id || earning.driver;
-          console.log('Driver ID from earning:', driverId);
-          
-          if (!driverId) {
-            console.log('No driver ID found for earning:', earning);
-            continue;
-          }
-          
-          if (!driverMap.has(driverId)) {
-            // Extract driver data based on API structure
-            let driverData = {};
-            
-            if (isPendingEndpoint) {
-              // For pending endpoint, driver might be populated differently
-              driverData = earning.driver || {};
-            } else {
-              // For regular earnings endpoint
-              driverData = earning.driver || {};
-            }
-            
-            console.log('Driver data extracted:', driverData);
-            
-            // If driver data is incomplete, fetch it separately
-            if (!driverData.name && !driverData.email && !driverData.phone) {
-              console.log('Driver data incomplete, fetching separately...');
-              try {
-                const detailedDriverInfo = await fetchDriverDetails(driverId);
-                driverData = { ...driverData, ...detailedDriverInfo };
-              } catch (fetchError) {
-                console.log('Failed to fetch driver details:', fetchError);
-              }
-            }
-            
-            driverMap.set(driverId, {
-              driverId,
-              driverName: driverData.name || driverData.fullName || driverData.personalInfo?.name || 'Unknown Driver',
-              driverPhone: driverData.phone || driverData.phoneNumber || driverData.personalInfo?.phone || '',
-              driverEmail: driverData.email || driverData.personalInfo?.email || '',
-              vehicleNumber: driverData.vehicleNumber || driverData.vehicle?.registrationNumber || '',
-              totalOrders: 0,
-              pendingOrders: 0,
-              paidOrders: 0,
-              totalAmount: 0,
-              pendingAmount: 0,
-              paidAmount: 0,
-              earnings: []
-            });
-          }
-          
-          const driverEntry = driverMap.get(driverId);
-          driverEntry.totalOrders++;
-          driverEntry.totalAmount += earning.amount || 0;
-          
-          if (earning.status === 'earned' || earning.status === 'pending') {
-            driverEntry.pendingOrders++;
-            driverEntry.pendingAmount += earning.amount || 0;
-          } else if (earning.status === 'paid') {
-            driverEntry.paidOrders++;
-            driverEntry.paidAmount += earning.amount || 0;
-          }
-          
-          driverEntry.earnings.push(earning);
-        }
-        
-        const aggregatedPayouts = Array.from(driverMap.values()).map(driver => ({
-          ...driver,
-          status: driver.pendingOrders > 0 ? 'pending' : 'paid',
-          _id: driver.driverId,
-          batchId: `AGG-${driver.driverId}`
-        }));
-        
-        console.log('Aggregated payouts:', aggregatedPayouts);
-        setPayouts(aggregatedPayouts);
+        url = `${BASE_URL}/admin/earnings/pending?`;
+        isPendingEndpoint = true;
       } else {
-        // Non-aggregated view
-        const earningsData = result.data?.earnings || [];
-        console.log('Non-aggregated view - processing earnings:', earningsData);
-        
-        const transformedPayouts = earningsData.map((earning) => {
-          console.log('Processing earning for non-aggregated:', earning);
-          const driverData = earning.driver || {};
-          
-          console.log('Driver data from earning:', driverData);
-          
-          return {
-            _id: earning.id,
-            driverId: driverData.id || earning.driver?.id || earning.driver?._id,
-            driverName: driverData.name || 'Unknown Driver',
-            driverPhone: driverData.phone || '',
-            driverEmail: driverData.email || '',
-            vehicleNumber: driverData.vehicleNumber || '',
-            orderId: earning.orderId,
-            amount: earning.amount,
-            type: earning.type,
-            description: earning.description,
-            status: earning.status,
-            transactionDate: earning.date,
-            payoutMethod: earning.payoutMethod || 'upi',
-            transactionId: earning.transactionId || '',
-            deliveryAddress: earning.deliveryAddress,
-            orderAmount: earning.orderAmount,
-            orderDate: earning.orderDate,
-            batchId: `EARN-${earning.id ? earning.id.slice(-6) : 'N/A'}`
-          };
-        });
-        
-        console.log('Transformed payouts:', transformedPayouts);
-        setPayouts(transformedPayouts);
-        setPagination(result.data.pagination || {
-          currentPage: 1,
-          totalPages: 1,
-          totalItems: 0,
-          hasNext: false,
-          hasPrev: false,
-          limit: 20
-        });
+        const queryParams = new URLSearchParams({
+          page: pagination.currentPage,
+          limit: pagination.limit,
+          ...(filters.status && { status: filters.status }),
+          ...(filters.startDate && { startDate: filters.startDate }),
+          ...(filters.endDate && { endDate: filters.endDate }),
+          ...(filters.type && { type: filters.type }),
+          ...(filters.search && { search: filters.search })
+        }).toString();
+        url = `${BASE_URL}/admin/earnings?${queryParams}`;
       }
+
+      console.log('Fetching earnings from:', url);
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      console.log('Earnings response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Earnings API error:', errorText);
+        throw new Error('Failed to fetch earnings');
+      }
+
+      const result = await response.json();
+      console.log('Earnings API result:', result);
+
+      if (result.success) {
+        if (aggregatedView) {
+          // Handle pending earnings endpoint (different structure)
+          const earningsData = isPendingEndpoint ?
+            (result.data?.pendingEarnings || []) :
+            (result.data?.earnings || []);
+
+          console.log(`Found ${earningsData.length} earnings for aggregation`);
+
+          const driverMap = new Map();
+
+          for (const earning of earningsData) {
+            console.log('Processing earning for aggregation:', earning);
+            const driverId = earning.driver?._id || earning.driver?.id || earning.driver;
+            console.log('Driver ID from earning:', driverId);
+
+            if (!driverId) {
+              console.log('No driver ID found for earning:', earning);
+              continue;
+            }
+
+            if (!driverMap.has(driverId)) {
+              // Extract driver data based on API structure
+              let driverData = {};
+
+              if (isPendingEndpoint) {
+                // For pending endpoint, driver might be populated differently
+                driverData = earning.driver || {};
+              } else {
+                // For regular earnings endpoint
+                driverData = earning.driver || {};
+              }
+
+              console.log('Driver data extracted:', driverData);
+
+              // If driver data is incomplete, fetch it separately
+              if (!driverData.name && !driverData.email && !driverData.phone) {
+                console.log('Driver data incomplete, fetching separately...');
+                try {
+                  const detailedDriverInfo = await fetchDriverDetails(driverId);
+                  driverData = { ...driverData, ...detailedDriverInfo };
+                } catch (fetchError) {
+                  console.log('Failed to fetch driver details:', fetchError);
+                }
+              }
+
+              driverMap.set(driverId, {
+                driverId,
+                driverName: driverData.name || driverData.fullName || driverData.personalInfo?.name || 'Unknown Driver',
+                driverPhone: driverData.phone || driverData.phoneNumber || driverData.personalInfo?.phone || '',
+                driverEmail: driverData.email || driverData.personalInfo?.email || '',
+                vehicleNumber: driverData.vehicleNumber || driverData.vehicle?.registrationNumber || '',
+                totalOrders: 0,
+                pendingOrders: 0,
+                paidOrders: 0,
+                totalAmount: 0,
+                pendingAmount: 0,
+                paidAmount: 0,
+                earnings: []
+              });
+            }
+
+            const driverEntry = driverMap.get(driverId);
+            driverEntry.totalOrders++;
+            driverEntry.totalAmount += earning.amount || 0;
+
+            if (earning.status === 'earned' || earning.status === 'pending') {
+              driverEntry.pendingOrders++;
+              driverEntry.pendingAmount += earning.amount || 0;
+            } else if (earning.status === 'paid') {
+              driverEntry.paidOrders++;
+              driverEntry.paidAmount += earning.amount || 0;
+            }
+
+            driverEntry.earnings.push(earning);
+          }
+
+          const aggregatedPayouts = Array.from(driverMap.values()).map(driver => ({
+            ...driver,
+            status: driver.pendingOrders > 0 ? 'pending' : 'paid',
+            _id: driver.driverId,
+            batchId: `AGG-${driver.driverId}`
+          }));
+
+          console.log('Aggregated payouts:', aggregatedPayouts);
+          setPayouts(aggregatedPayouts);
+        } else {
+          // Non-aggregated view
+          const earningsData = result.data?.earnings || [];
+          console.log('Non-aggregated view - processing earnings:', earningsData);
+
+          const transformedPayouts = earningsData.map((earning) => {
+            console.log('Processing earning for non-aggregated:', earning);
+            const driverData = earning.driver || {};
+
+            console.log('Driver data from earning:', driverData);
+
+            return {
+              _id: earning.id,
+              driverId: driverData.id || earning.driver?.id || earning.driver?._id,
+              driverName: driverData.name || 'Unknown Driver',
+              driverPhone: driverData.phone || '',
+              driverEmail: driverData.email || '',
+              vehicleNumber: driverData.vehicleNumber || '',
+              orderId: earning.orderId,
+              amount: earning.amount,
+              type: earning.type,
+              description: earning.description,
+              status: earning.status,
+              transactionDate: earning.date,
+              payoutMethod: earning.payoutMethod || 'upi',
+              transactionId: earning.transactionId || '',
+              deliveryAddress: earning.deliveryAddress,
+              orderAmount: earning.orderAmount,
+              orderDate: earning.orderDate,
+              batchId: `EARN-${earning.id ? earning.id.slice(-6) : 'N/A'}`
+            };
+          });
+
+          console.log('Transformed payouts:', transformedPayouts);
+          setPayouts(transformedPayouts);
+          setPagination(result.data.pagination || {
+            currentPage: 1,
+            totalPages: 1,
+            totalItems: 0,
+            hasNext: false,
+            hasPrev: false,
+            limit: 20
+          });
+        }
+      }
+      setLoading(false);
+      setRefreshing(false);
+    } catch (error) {
+      console.error('Error fetching earnings:', error);
+      setLoading(false);
+      setRefreshing(false);
     }
-    setLoading(false);
-    setRefreshing(false);
-  } catch (error) {
-    console.error('Error fetching earnings:', error);
-    setLoading(false);
-    setRefreshing(false);
-  }
-};
+  };
 
   const fetchDriverEarningsDetail = async (driverId) => {
     try {
       setLoadingDetails(true);
-      
+
       const response = await fetch(`${BASE_URL}/admin/earnings/driver/${driverId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch driver details');
       const result = await response.json();
-      
+
       if (result.success) {
         setDriverDetails(result.data);
       }
       setLoadingDetails(false);
     } catch (error) {
       console.error('Error fetching driver details:', error);
-      
+
       try {
         const driverInfo = await fetchDriverDetails(driverId);
         const earningsForDriver = payouts.filter(p => p.driverId === driverId);
-        
+
         setDriverDetails({
           driver: driverInfo,
           earnings: earningsForDriver,
@@ -376,7 +376,7 @@ const DriverPayouts = () => {
         console.error('Fallback also failed:', fallbackError);
         setDriverDetails(null);
       }
-      
+
       setLoadingDetails(false);
     }
   };
@@ -387,7 +387,7 @@ const DriverPayouts = () => {
       alert('Unable to fetch driver details: Missing driver ID');
       return;
     }
-    
+
     setSelectedDriver(driver);
     setShowDetailsModal(true);
     fetchDriverEarningsDetail(driver.driverId);
@@ -406,7 +406,7 @@ const DriverPayouts = () => {
         alert('No pending earnings to mark as paid');
         return;
       }
-      
+
       if (window.confirm(`Mark ${pendingEarnings.length} pending earnings (₹${earning.pendingAmount}) for ${earning.driverName} as paid?`)) {
         setSelectedDriver(earning);
         setShowPaymentModal(true);
@@ -580,7 +580,7 @@ const DriverPayouts = () => {
       cancelled: { color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200', text: 'Cancelled' },
       pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', text: 'Pending' }
     };
-    
+
     const config = statusConfig[status] || statusConfig.pending;
     return (
       <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>
@@ -596,7 +596,7 @@ const DriverPayouts = () => {
       penalty: { color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200', text: 'Penalty' },
       other: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200', text: 'Other' }
     };
-    
+
     const config = typeConfig[type] || typeConfig.other;
     return (
       <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>
@@ -616,14 +616,14 @@ const DriverPayouts = () => {
     );
   }
 
-  const totalPendingPayout = aggregatedView 
+  const totalPendingPayout = aggregatedView
     ? payouts.reduce((sum, p) => sum + (p.pendingAmount || 0), 0)
     : payouts.filter(p => p.status === 'earned').reduce((sum, p) => sum + p.amount, 0);
-    
+
   const totalPaidPayout = aggregatedView
     ? payouts.reduce((sum, p) => sum + (p.paidAmount || 0), 0)
     : payouts.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
-    
+
   const totalPayoutAmount = payouts.reduce((sum, p) => sum + (p.amount || p.totalAmount || 0), 0);
 
   return (
@@ -780,7 +780,7 @@ const DriverPayouts = () => {
                 {formatCurrency(totalPendingPayout)}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {aggregatedView 
+                {aggregatedView
                   ? `${payouts.filter(p => (p.pendingAmount || 0) > 0).length} drivers`
                   : `${payouts.filter(p => p.status === 'earned').length} earnings`
                 }
@@ -898,7 +898,7 @@ const DriverPayouts = () => {
                 {aggregatedView ? 'Driver Earnings Summary' : 'All Driver Earnings'}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {aggregatedView 
+                {aggregatedView
                   ? `Showing ${payouts.length} drivers with earnings`
                   : `Page ${pagination.currentPage} of ${pagination.totalPages} - ${pagination.totalItems} total records`
                 }
@@ -927,7 +927,7 @@ const DriverPayouts = () => {
             )}
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">

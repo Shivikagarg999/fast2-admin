@@ -21,7 +21,7 @@ const PromotorsPage = () => {
   const fetchPromotors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor`);
       setPromotors(response.data || []);
     } catch (error) {
       console.error("Error fetching promotors:", error);
@@ -59,10 +59,10 @@ const PromotorsPage = () => {
 
   const handleDelete = async () => {
     if (!deletingPromotor) return;
-    
+
     setDeleteLoading(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/${deletingPromotor._id}`);
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/${deletingPromotor._id}`);
       alert("Promotor deleted successfully!");
       fetchPromotors();
       closeDeleteModal();
@@ -75,13 +75,13 @@ const PromotorsPage = () => {
   };
 
   const formatCommission = (promotor) => {
-    return promotor.commissionType === 'percentage' 
-      ? `${promotor.commissionRate}%` 
+    return promotor.commissionType === 'percentage'
+      ? `${promotor.commissionRate}%`
       : `₹${promotor.commissionRate}`;
   };
 
   const getStatusBadge = (active) => {
-    return active 
+    return active
       ? <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>
       : <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Inactive</span>;
   };
@@ -114,7 +114,7 @@ const PromotorsPage = () => {
             </span>
           </div>
           {hasPermission(PERMISSIONS.PROMOTORS_CREATE) && (
-            <button 
+            <button
               onClick={() => navigate('/admin/create-promotor')}
               className="flex items-center px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors"
             >
@@ -180,7 +180,7 @@ const PromotorsPage = () => {
                         <FiUser className="w-12 h-12 text-gray-400 mb-2" />
                         <span className="text-gray-500 dark:text-gray-400">No promotors found.</span>
                         {search && (
-                          <button 
+                          <button
                             onClick={() => setSearch("")}
                             className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
                           >
@@ -232,14 +232,14 @@ const PromotorsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <button 
+                          <button
                             onClick={() => handleEdit(promotor)}
                             className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
                             title="Edit Promotor"
                           >
                             <FiEdit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => openDeleteModal(promotor)}
                             className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
                             title="Delete Promotor"
@@ -273,7 +273,7 @@ const PromotorsPage = () => {
               >
                 Previous
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
                 if (totalPages <= 5) {
@@ -285,22 +285,21 @@ const PromotorsPage = () => {
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
-                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                      currentPage === pageNum
+                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
                         ? "bg-blue-500 text-white border-blue-500"
                         : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    }`}
+                      }`}
                     onClick={() => setCurrentPage(pageNum)}
                   >
                     {pageNum}
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
@@ -335,7 +334,7 @@ const PromotorsPage = () => {
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
                   Are you sure you want to delete promotor <strong>{deletingPromotor?.name}</strong>? This action cannot be undone.
                 </p>
-                
+
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={closeDeleteModal}

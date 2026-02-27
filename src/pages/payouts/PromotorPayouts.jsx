@@ -33,17 +33,17 @@ const PromotorPayouts = () => {
   const fetchPayoutSummary = async () => {
     try {
       const response = await fetch(
-        'https://api.fast2.in/api/payout/summary',
+        'http://localhost:5000/api/payout/summary',
         {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         }
       );
-      
+
       if (!response.ok) throw new Error('Failed to fetch payout summary');
       const result = await response.json();
-      
+
       setSummary(result);
     } catch (error) {
       console.error('Error fetching payout summary:', error);
@@ -54,15 +54,15 @@ const PromotorPayouts = () => {
     try {
       setRefreshing(true);
       const viewParam = aggregatedView ? '?view=aggregated' : '';
-      const response = await fetch(`https://api.fast2.in/api/payout/promotor-payouts${viewParam}`, {
+      const response = await fetch(`http://localhost:5000/api/payout/promotor-payouts${viewParam}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch promotor payouts');
       const result = await response.json();
-      
+
       if (result.payouts) {
         if (aggregatedView) {
           const transformedPayouts = result.payouts.map(payout => ({
@@ -116,15 +116,15 @@ const PromotorPayouts = () => {
   const fetchPromotorDetails = async (promotorId) => {
     try {
       setLoadingDetails(true);
-      const response = await fetch(`https://api.fast2.in/api/payout/promotor/${promotorId}`, {
+      const response = await fetch(`http://localhost:5000/api/payout/promotor/${promotorId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch promotor details');
       const result = await response.json();
-      
+
       if (result.payouts) {
         const ordersWithDetails = result.payouts.map(payout => ({
           orderId: payout.order?.orderId || payout.order,
@@ -163,7 +163,7 @@ const PromotorPayouts = () => {
       alert('Unable to fetch promotor details: Missing promotor ID');
       return;
     }
-    
+
     setSelectedPromotor(promotor);
     setShowDetailsModal(true);
     fetchPromotorDetails(promotor.promotorId);
@@ -227,7 +227,7 @@ const PromotorPayouts = () => {
 
       if (aggregatedView) {
         // Bulk payment for all pending orders of this promotor
-        const response = await fetch(`https://api.fast2.in/api/payout/bulk-promotor-payout/${selectedPromotor.promotorId}`, {
+        const response = await fetch(`http://localhost:5000/api/payout/bulk-promotor-payout/${selectedPromotor.promotorId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ const PromotorPayouts = () => {
         }
       } else {
         // Original single payout payment
-        const response = await fetch(`https://api.fast2.in/api/payout/promotor-payouts/${selectedPromotor._id}/status`, {
+        const response = await fetch(`http://localhost:5000/api/payout/promotor-payouts/${selectedPromotor._id}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -318,14 +318,14 @@ const PromotorPayouts = () => {
     );
   }
 
-  const totalPendingPayout = aggregatedView 
+  const totalPendingPayout = aggregatedView
     ? payouts.reduce((sum, p) => sum + (p.pendingAmount || 0), 0)
     : payouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.commissionAmount, 0);
-    
+
   const totalPaidPayout = aggregatedView
     ? payouts.reduce((sum, p) => sum + (p.paidAmount || 0), 0)
     : payouts.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.commissionAmount, 0);
-    
+
   const totalCommission = payouts.reduce((sum, p) => sum + (p.commissionAmount || 0), 0);
 
   return (
@@ -358,7 +358,7 @@ const PromotorPayouts = () => {
                 fetchPayoutSummary();
               }}
               className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-              style={{backgroundColor: "black"}}
+              style={{ backgroundColor: "black" }}
               disabled={refreshing}
             >
               <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -377,7 +377,7 @@ const PromotorPayouts = () => {
                 {formatCurrency(totalPendingPayout)}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {aggregatedView 
+                {aggregatedView
                   ? `${payouts.filter(p => (p.pendingOrders || 0) > 0).length} promotors with pending payouts`
                   : `${payouts.filter(p => p.status === 'pending').length} pending payouts`
                 }
@@ -481,13 +481,13 @@ const PromotorPayouts = () => {
             {aggregatedView ? 'Promotor Payout Summary' : 'Promotor Payout Details'}
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {aggregatedView 
+            {aggregatedView
               ? `Showing ${payouts.length} promotors with payout records`
               : `Showing ${payouts.length} payout records`
             }
           </p>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
@@ -552,11 +552,10 @@ const PromotorPayouts = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            (payout.pendingOrders || 0) > 0 
+                          <span className={`px-2 py-1 text-xs rounded-full ${(payout.pendingOrders || 0) > 0
                               ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                               : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          }`}>
+                            }`}>
                             {(payout.pendingOrders || 0) > 0 ? 'Pending' : 'Paid'}
                           </span>
                         </td>
@@ -610,13 +609,12 @@ const PromotorPayouts = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            payout.status === 'paid' 
+                          <span className={`px-2 py-1 text-xs rounded-full ${payout.status === 'paid'
                               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                               : payout.status === 'processing'
-                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                              : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                          }`}>
+                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                            }`}>
                             {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
                           </span>
                         </td>
@@ -876,11 +874,10 @@ const PromotorPayouts = () => {
                                 </p>
                               </div>
                               <div className="flex flex-col items-end gap-1">
-                                <span className={`px-2 py-1 text-xs rounded-full ${
-                                  order.status === 'paid' 
+                                <span className={`px-2 py-1 text-xs rounded-full ${order.status === 'paid'
                                     ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                     : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                                }`}>
+                                  }`}>
                                   {order.status === 'paid' ? 'Paid' : 'Pending'}
                                 </span>
                                 <div className="text-right">

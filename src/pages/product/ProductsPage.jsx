@@ -26,6 +26,7 @@ const ProductsPage = () => {
   const [allCategories, setAllCategories] = useState([]);
   const [promotors, setPromotors] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
+  const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -58,6 +59,7 @@ const ProductsPage = () => {
     commissionRate: "",
     commissionType: "percentage",
     commissionAmount: "",
+    seller: "",
     quantity: "",
     minOrderQuantity: "1",
     maxOrderQuantity: "10",
@@ -113,6 +115,7 @@ const ProductsPage = () => {
   useEffect(() => {
     fetchProducts();
     fetchPromotors();
+    fetchSellers();
     fetchWarehouses();
     fetchAllCategories();
   }, []);
@@ -120,7 +123,7 @@ const ProductsPage = () => {
   const fetchPromotors = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/`
       );
       setPromotors(response.data || []);
     } catch (error) {
@@ -131,7 +134,7 @@ const ProductsPage = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/`
       );
       setWarehouses(response.data || []);
     } catch (error) {
@@ -139,10 +142,21 @@ const ProductsPage = () => {
     }
   };
 
+  const fetchSellers = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers?limit=1000`
+      );
+      setSellers(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching sellers:", error);
+    }
+  };
+
   const fetchAllCategories = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`
       );
       setAllCategories(response.data || []);
 
@@ -160,7 +174,7 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/get-products-admin`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/get-products-admin`
       );
 
       let productsArray = [];
@@ -199,7 +213,7 @@ const ProductsPage = () => {
   const fetchProductStatus = async (productId) => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/status`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}/status`
       );
       if (response.data.success) {
         return response.data.isActive;
@@ -221,7 +235,7 @@ const ProductsPage = () => {
       }
 
       const response = await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/toggle-active`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}/toggle-active`
       );
 
       if (response.data.success) {
@@ -231,14 +245,14 @@ const ProductsPage = () => {
           prevProducts.map((product) =>
             product._id === productId
               ? {
-                  ...product,
-                  isActive: !currentStatus,
-                  ...(response.data.product
-                    ? {
-                        stockStatus: response.data.product.stockStatus,
-                      }
-                    : {}),
-                }
+                ...product,
+                isActive: !currentStatus,
+                ...(response.data.product
+                  ? {
+                    stockStatus: response.data.product.stockStatus,
+                  }
+                  : {}),
+              }
               : product
           )
         );
@@ -247,7 +261,7 @@ const ProductsPage = () => {
       console.error("Error toggling product status:", error);
       alert(
         "Error toggling product status: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     }
   };
@@ -256,7 +270,7 @@ const ProductsPage = () => {
     try {
       setOrdersLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/orders/${productId}/orders`
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/orders/${productId}/orders`
       );
       setProductOrders(response.data.orders || []);
     } catch (error) {
@@ -295,6 +309,7 @@ const ProductsPage = () => {
       commissionRate: "",
       commissionType: "percentage",
       commissionAmount: "",
+      seller: "",
       quantity: "",
       minOrderQuantity: "1",
       maxOrderQuantity: "10",
@@ -362,6 +377,7 @@ const ProductsPage = () => {
       commissionRate: product.promotor?.commissionRate || "",
       commissionType: product.promotor?.commissionType || "percentage",
       commissionAmount: product.promotor?.commissionAmount || "",
+      seller: product.seller?._id || product.seller || "",
       quantity: product.quantity || "",
       minOrderQuantity: product.minOrderQuantity || "1",
       maxOrderQuantity: product.maxOrderQuantity || "10",
@@ -484,12 +500,12 @@ const ProductsPage = () => {
       variants: prev.variants.map((variant, i) =>
         i === variantIndex
           ? {
-              ...variant,
-              options: [
-                ...variant.options,
-                { value: "", price: "", quantity: "", sku: "" },
-              ],
-            }
+            ...variant,
+            options: [
+              ...variant.options,
+              { value: "", price: "", quantity: "", sku: "" },
+            ],
+          }
           : variant
       ),
     }));
@@ -501,9 +517,9 @@ const ProductsPage = () => {
       variants: prev.variants.map((variant, i) =>
         i === variantIndex
           ? {
-              ...variant,
-              options: variant.options.filter((_, j) => j !== optionIndex),
-            }
+            ...variant,
+            options: variant.options.filter((_, j) => j !== optionIndex),
+          }
           : variant
       ),
     }));
@@ -515,11 +531,11 @@ const ProductsPage = () => {
       variants: prev.variants.map((variant, i) =>
         i === variantIndex
           ? {
-              ...variant,
-              options: variant.options.map((option, j) =>
-                j === optionIndex ? { ...option, [field]: value } : option
-              ),
-            }
+            ...variant,
+            options: variant.options.map((option, j) =>
+              j === optionIndex ? { ...option, [field]: value } : option
+            ),
+          }
           : variant
       ),
     }));
@@ -585,16 +601,12 @@ const ProductsPage = () => {
           submitData.append(key, JSON.stringify(formData[key]));
         } else if (key === "dimensions" || key === "video") {
           submitData.append(key, JSON.stringify(formData[key]));
-        } else if (key === "image" && imageFile) {
-          submitData.append("images", imageFile);
-        } else if (key === "videoFile" && videoFile) {
-          submitData.append("video", videoFile);
-        } else if (key === "promotor" || key === "warehouseId") {
-          // Ensure we only send IDs, not objects
+        } else if (key === "promotor" || key === "warehouseId" || key === "seller") {
+          // Ensure we only send IDs, not objects for relateed models
           const value = formData[key];
-          if (value && typeof value === 'object' && value._id) {
+          if (value && typeof value === "object" && value._id) {
             submitData.append(key, value._id);
-          } else if (value && typeof value === 'string') {
+          } else if (value && typeof value === "string") {
             submitData.append(key, value);
           }
         } else if (
@@ -606,8 +618,16 @@ const ProductsPage = () => {
         }
       });
 
+      // Append files if selected
+      if (imageFile) {
+        submitData.append("images", imageFile);
+      }
+      if (videoFile) {
+        submitData.append("video", videoFile);
+      }
+
       await axios.put(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${editingProduct._id}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${editingProduct._id}`,
         submitData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -621,7 +641,7 @@ const ProductsPage = () => {
       console.error("Error updating product:", error);
       alert(
         "Error updating product: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     } finally {
       setModalLoading(false);
@@ -635,14 +655,14 @@ const ProductsPage = () => {
     }
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
       try {
-        await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}`);
+        await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}`);
         alert("Product deleted successfully!");
         fetchProducts();
       } catch (error) {
         console.error("Error deleting product:", error);
         alert(
           "Error deleting product: " +
-            (error.response?.data?.message || error.message)
+          (error.response?.data?.message || error.message)
         );
       }
     }
@@ -1135,8 +1155,8 @@ const ProductsPage = () => {
                               >
                                 {product.category && product.category._id
                                   ? categories[product.category._id] ||
-                                    product.category.name ||
-                                    "Uncategorized"
+                                  product.category.name ||
+                                  "Uncategorized"
                                   : "Uncategorized"}
                               </span>
                             </td>
@@ -2184,6 +2204,72 @@ const ProductsPage = () => {
                           }}
                           className="dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seller Information */}
+                  <div
+                    style={{
+                      borderBottom: "1px solid #e5e7eb",
+                      paddingBottom: "24px",
+                    }}
+                    className="dark:border-gray-700"
+                  >
+                    <h3
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: "500",
+                        color: "#111827",
+                        marginBottom: "16px",
+                      }}
+                      className="dark:text-white"
+                    >
+                      Seller Information
+                    </h3>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr",
+                        gap: "16px",
+                      }}
+                      className="md:grid-cols-1"
+                    >
+                      <div>
+                        <label
+                          style={{
+                            display: "block",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            color: "#374151",
+                            marginBottom: "8px",
+                          }}
+                          className="dark:text-gray-300"
+                        >
+                          Seller *
+                        </label>
+                        <select
+                          name="seller"
+                          value={formData.seller}
+                          onChange={handleInputChange}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "6px",
+                            backgroundColor: "#ffffff",
+                            color: "#111827",
+                          }}
+                          className="dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        >
+                          <option value="">Select Seller</option>
+                          {sellers.map((s) => (
+                            <option key={s._id} value={s._id}>
+                              {s.name} ({s.email})
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -4306,9 +4392,8 @@ const ProductsPage = () => {
                           className="dark:text-white"
                         >
                           {selectedProduct.weight
-                            ? `${selectedProduct.weight}${
-                                selectedProduct.weightUnit || "g"
-                              }`
+                            ? `${selectedProduct.weight}${selectedProduct.weightUnit || "g"
+                            }`
                             : "N/A"}
                         </p>
                       </div>
@@ -4328,14 +4413,12 @@ const ProductsPage = () => {
                           className="dark:text-white"
                         >
                           {selectedProduct.dimensions &&
-                          (selectedProduct.dimensions.length ||
-                            selectedProduct.dimensions.width ||
-                            selectedProduct.dimensions.height)
-                            ? `${selectedProduct.dimensions.length || 0}×${
-                                selectedProduct.dimensions.width || 0
-                              }×${selectedProduct.dimensions.height || 0} ${
-                                selectedProduct.dimensions.unit || "cm"
-                              }`
+                            (selectedProduct.dimensions.length ||
+                              selectedProduct.dimensions.width ||
+                              selectedProduct.dimensions.height)
+                            ? `${selectedProduct.dimensions.length || 0}×${selectedProduct.dimensions.width || 0
+                            }×${selectedProduct.dimensions.height || 0} ${selectedProduct.dimensions.unit || "cm"
+                            }`
                             : "N/A"}
                         </p>
                       </div>
@@ -4597,7 +4680,7 @@ const ProductsPage = () => {
                           >
                             {formatPrice(
                               selectedProduct.delivery.freeDeliveryThreshold ||
-                                0
+                              0
                             )}
                           </p>
                         </div>
@@ -4605,7 +4688,7 @@ const ProductsPage = () => {
 
                       {selectedProduct.delivery.availablePincodes &&
                         selectedProduct.delivery.availablePincodes.length >
-                          0 && (
+                        0 && (
                           <div style={{ marginTop: "16px" }}>
                             <span
                               style={{
@@ -5119,18 +5202,18 @@ const ProductsPage = () => {
                                         order.status === "delivered"
                                           ? "#dcfce7"
                                           : order.status === "confirmed"
-                                          ? "#fef3c7"
-                                          : order.status === "picked-up"
-                                          ? "#dbeafe"
-                                          : "#fee2e2",
+                                            ? "#fef3c7"
+                                            : order.status === "picked-up"
+                                              ? "#dbeafe"
+                                              : "#fee2e2",
                                       color:
                                         order.status === "delivered"
                                           ? "#16a34a"
                                           : order.status === "confirmed"
-                                          ? "#d97706"
-                                          : order.status === "picked-up"
-                                          ? "#2563eb"
-                                          : "#dc2626",
+                                            ? "#d97706"
+                                            : order.status === "picked-up"
+                                              ? "#2563eb"
+                                              : "#dc2626",
                                     }}
                                   >
                                     {order.status}

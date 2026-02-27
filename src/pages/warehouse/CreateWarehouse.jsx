@@ -55,7 +55,7 @@ const CreateWarehouse = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/`);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch promotors: ${response.status}`);
@@ -286,7 +286,7 @@ const CreateWarehouse = () => {
       };
 
       // Call the real API
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -676,8 +676,8 @@ const CreateWarehouse = () => {
                     <div
                       key={type.value}
                       className={`border rounded-lg p-4 cursor-pointer transition-all ${formData.storageType === type.value
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                         }`}
                       onClick={() => setFormData(prev => ({ ...prev, storageType: type.value }))}
                     >

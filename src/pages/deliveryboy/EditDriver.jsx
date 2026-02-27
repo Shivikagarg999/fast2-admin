@@ -71,11 +71,11 @@ const EditDriver = () => {
     try {
       setFetching(true);
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers/${id}`, {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/drivers/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const driver = response.data.data;
-      
+
       setFormData({
         personalInfo: {
           name: driver.personalInfo?.name || "",
@@ -133,7 +133,7 @@ const EditDriver = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (name.includes('.')) {
       const keys = name.split('.');
       setFormData(prev => ({
@@ -164,7 +164,7 @@ const EditDriver = () => {
 
     try {
       const token = localStorage.getItem('adminToken');
-      
+
       const submitData = {
         personalInfo: {
           name: formData.personalInfo.name,
@@ -214,27 +214,27 @@ const EditDriver = () => {
       };
 
       if (id) {
-        await axios.put(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers/edit/${id}`, submitData, {
-          headers: { 
+        await axios.put(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/drivers/edit/${id}`, submitData, {
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
       } else {
-        await axios.post(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers/create`, submitData, {
-          headers: { 
+        await axios.post(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/drivers/create`, submitData, {
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
       }
-      
+
       setShowSuccessModal(true);
     } catch (error) {
       console.error('Error saving driver:', error);
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          error.message;
+      const errorMessage = error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message;
       setError('Error saving driver: ' + errorMessage);
     } finally {
       setLoading(false);
@@ -276,17 +276,17 @@ const EditDriver = () => {
               <FiUser className="mr-2" /> {id ? 'Edit Driver' : 'Add New Driver'}
             </h1>
           </div>
-          
+
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Personal Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -306,7 +306,7 @@ const EditDriver = () => {
                     <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email *
@@ -384,12 +384,12 @@ const EditDriver = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiMapPin className="mr-2" /> Address Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -405,7 +405,7 @@ const EditDriver = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     City *
@@ -421,7 +421,7 @@ const EditDriver = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     State
@@ -436,7 +436,7 @@ const EditDriver = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     PIN Code
@@ -456,7 +456,7 @@ const EditDriver = () => {
 
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Vehicle Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -562,7 +562,7 @@ const EditDriver = () => {
 
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Aadhar Card Details</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -579,7 +579,7 @@ const EditDriver = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Front Image URL
@@ -595,7 +595,7 @@ const EditDriver = () => {
                     placeholder="https://example.com/aadhar-front.png"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Back Image URL
@@ -616,7 +616,7 @@ const EditDriver = () => {
 
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Driving License Details</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -633,7 +633,7 @@ const EditDriver = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Expiry Date *
@@ -649,7 +649,7 @@ const EditDriver = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Front Image URL
@@ -665,7 +665,7 @@ const EditDriver = () => {
                     placeholder="https://example.com/dl-front.png"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Back Image URL
@@ -688,7 +688,7 @@ const EditDriver = () => {
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiCreditCard className="mr-2" /> Bank Details
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -757,7 +757,7 @@ const EditDriver = () => {
 
             <div className="pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Work Information</h2>
-              
+
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -776,7 +776,7 @@ const EditDriver = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex justify-end gap-4">
               <button
                 type="button"
@@ -816,15 +816,15 @@ const EditDriver = () => {
               <div className="bg-green-100 p-3 rounded-full mb-4">
                 <FiCheckCircle className="text-green-600 text-3xl" />
               </div>
-              
+
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 {id ? 'Driver Updated Successfully!' : 'Driver Created Successfully!'}
               </h2>
-              
+
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 {id ? 'The driver details have been updated.' : 'New driver has been added to the system.'}
               </p>
-              
+
               <button
                 onClick={closeSuccessModal}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"

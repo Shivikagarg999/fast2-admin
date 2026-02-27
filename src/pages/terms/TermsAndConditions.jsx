@@ -29,7 +29,7 @@ const PoliciesManagement = () => {
   });
   const editorRef = useRef(null);
 
-  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/policy`;
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/policy`;
 
   const policyTypes = [
     { value: "terms", label: "Terms & Conditions", icon: "📜" },
@@ -100,7 +100,7 @@ const PoliciesManagement = () => {
   const fetchPolicies = async () => {
     try {
       setLoading(true);
-      
+
       // Build query parameters
       const params = new URLSearchParams({
         policyType: selectedPolicyType,
@@ -109,7 +109,7 @@ const PoliciesManagement = () => {
 
       const response = await fetch(`${API_BASE_URL}?${params}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setPolicies(data.data || []);
       } else {
@@ -125,7 +125,7 @@ const PoliciesManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!hasPermission(PERMISSIONS.TERMS_EDIT)) {
       alert("You don't have permission to modify policies");
       return;
@@ -138,12 +138,12 @@ const PoliciesManagement = () => {
     }
 
     try {
-      const url = editingPolicy 
+      const url = editingPolicy
         ? `${API_BASE_URL}/${editingPolicy._id}`
         : `${API_BASE_URL}`;
-      
+
       const method = editingPolicy ? 'PUT' : 'POST';
-      
+
       const payload = {
         ...formData,
         policyType: selectedPolicyType
@@ -163,9 +163,9 @@ const PoliciesManagement = () => {
         },
         body: JSON.stringify(payload)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         alert(editingPolicy ? 'Policy updated successfully!' : 'Policy created successfully!');
         setShowModal(false);
@@ -204,14 +204,14 @@ const PoliciesManagement = () => {
       alert("You don't have permission to delete policies");
       return;
     }
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/${deleteConfirm._id}`, {
         method: 'DELETE'
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         alert('Policy deleted successfully!');
         setDeleteConfirm(null);
@@ -227,14 +227,14 @@ const PoliciesManagement = () => {
 
   const handleSetActive = async () => {
     if (!activeConfirm) return;
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/${activeConfirm._id}/activate`, {
         method: 'PATCH'
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         alert('Policy set as active successfully!');
         setActiveConfirm(null);
@@ -301,7 +301,7 @@ const PoliciesManagement = () => {
   };
 
   const renderMetadataFields = () => {
-    switch(selectedPolicyType) {
+    switch (selectedPolicyType) {
       case 'return':
         return (
           <div className="space-y-4">
@@ -413,64 +413,64 @@ const PoliciesManagement = () => {
       <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '24px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           {/* Loading skeleton */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            marginBottom: '24px' 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '24px'
           }}>
-            <div style={{ 
-              height: '32px', 
-              backgroundColor: '#e5e7eb', 
-              borderRadius: '8px', 
+            <div style={{
+              height: '32px',
+              backgroundColor: '#e5e7eb',
+              borderRadius: '8px',
               width: '256px',
               animation: 'pulse 2s infinite'
             }}></div>
-            <div style={{ 
-              height: '40px', 
-              backgroundColor: '#e5e7eb', 
-              borderRadius: '8px', 
+            <div style={{
+              height: '40px',
+              backgroundColor: '#e5e7eb',
+              borderRadius: '8px',
               width: '128px',
               animation: 'pulse 2s infinite'
             }}></div>
           </div>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-            gap: '24px' 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '24px'
           }}>
             {[1, 2, 3].map(i => (
-              <div key={i} style={{ 
-                backgroundColor: '#ffffff', 
-                borderRadius: '8px', 
+              <div key={i} style={{
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
                 padding: '24px',
                 animation: 'pulse 2s infinite'
               }}>
-                <div style={{ 
-                  height: '16px', 
-                  backgroundColor: '#e5e7eb', 
-                  borderRadius: '4px', 
-                  marginBottom: '8px' 
+                <div style={{
+                  height: '16px',
+                  backgroundColor: '#e5e7eb',
+                  borderRadius: '4px',
+                  marginBottom: '8px'
                 }}></div>
-                <div style={{ 
-                  height: '16px', 
-                  backgroundColor: '#e5e7eb', 
-                  borderRadius: '4px', 
-                  width: '75%', 
-                  marginBottom: '16px' 
+                <div style={{
+                  height: '16px',
+                  backgroundColor: '#e5e7eb',
+                  borderRadius: '4px',
+                  width: '75%',
+                  marginBottom: '16px'
                 }}></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{ 
-                    height: '32px', 
-                    backgroundColor: '#e5e7eb', 
-                    borderRadius: '6px', 
-                    width: '80px' 
+                  <div style={{
+                    height: '32px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '6px',
+                    width: '80px'
                   }}></div>
-                  <div style={{ 
-                    height: '32px', 
-                    backgroundColor: '#e5e7eb', 
-                    borderRadius: '6px', 
-                    width: '80px' 
+                  <div style={{
+                    height: '32px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '6px',
+                    width: '80px'
                   }}></div>
                 </div>
               </div>
@@ -489,33 +489,33 @@ const PoliciesManagement = () => {
     <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '24px' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '16px', 
-          marginBottom: '24px' 
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          marginBottom: '24px'
         }}>
           <div>
-            <h1 style={{ 
-              fontSize: '24px', 
-              fontWeight: 'bold', 
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
               color: '#111827',
               marginBottom: '4px'
             }}>
               Legal Policies Management
             </h1>
-            <p style={{ 
+            <p style={{
               fontSize: '14px',
               color: '#6b7280'
             }}>
               Create and manage all legal policies for your platform
             </p>
           </div>
-          
+
           {/* Policy Type Filter */}
-          <div style={{ 
-            display: 'flex', 
-            gap: '12px', 
+          <div style={{
+            display: 'flex',
+            gap: '12px',
             flexWrap: 'wrap',
             alignItems: 'center'
           }}>
@@ -542,9 +542,9 @@ const PoliciesManagement = () => {
                 {type.label}
               </button>
             ))}
-            
+
             <div style={{ flex: 1 }}></div>
-            
+
             {/* Filter Toggle */}
             <button
               onClick={() => setShowActiveOnly(!showActiveOnly)}
@@ -566,7 +566,7 @@ const PoliciesManagement = () => {
               {showActiveOnly ? <FiEyeOff size={16} /> : <FiEye size={16} />}
               {showActiveOnly ? 'Show All' : 'Active Only'}
             </button>
-            
+
             {/* Create Button */}
             <button
               onClick={openModal}
@@ -582,110 +582,110 @@ const PoliciesManagement = () => {
         </div>
 
         {/* Stats */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '16px', 
-          marginBottom: '24px' 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '16px',
+          marginBottom: '24px'
         }}>
-          <div style={{ 
-            backgroundColor: '#ffffff', 
-            borderRadius: '8px', 
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
             padding: '16px',
             border: '1px solid #e5e7eb'
           }}>
-            <div style={{ 
-              fontSize: '24px', 
-              fontWeight: 'bold', 
-              color: '#111827' 
+            <div style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#111827'
             }}>
               {totalVersions}
             </div>
-            <div style={{ 
-              fontSize: '14px', 
-              color: '#6b7280' 
+            <div style={{
+              fontSize: '14px',
+              color: '#6b7280'
             }}>Total {currentPolicyType} Versions</div>
           </div>
-          <div style={{ 
-            backgroundColor: '#ffffff', 
-            borderRadius: '8px', 
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
             padding: '16px',
             border: '1px solid #e5e7eb'
           }}>
-            <div style={{ 
-              fontSize: '24px', 
-              fontWeight: 'bold', 
-              color: '#16a34a' 
+            <div style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#16a34a'
             }}>
               {activePolicies.length > 0 ? activePolicies[0].version : 'None'}
             </div>
-            <div style={{ 
-              fontSize: '14px', 
-              color: '#6b7280' 
+            <div style={{
+              fontSize: '14px',
+              color: '#6b7280'
             }}>Active Version</div>
           </div>
-          <div style={{ 
-            backgroundColor: '#ffffff', 
-            borderRadius: '8px', 
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
             padding: '16px',
             border: '1px solid #e5e7eb'
           }}>
-            <div style={{ 
-              fontSize: '24px', 
-              fontWeight: 'bold', 
-              color: '#2563eb' 
+            <div style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#2563eb'
             }}>
               {policies.filter(p => !p.isActive).length}
             </div>
-            <div style={{ 
-              fontSize: '14px', 
-              color: '#6b7280' 
+            <div style={{
+              fontSize: '14px',
+              color: '#6b7280'
             }}>Inactive Versions</div>
           </div>
-          <div style={{ 
-            backgroundColor: '#ffffff', 
-            borderRadius: '8px', 
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
             padding: '16px',
             border: '1px solid #e5e7eb'
           }}>
-            <div style={{ 
-              fontSize: '24px', 
-              fontWeight: 'bold', 
-              color: '#9333ea' 
+            <div style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#9333ea'
             }}>
               {currentPolicyType}
             </div>
-            <div style={{ 
-              fontSize: '14px', 
-              color: '#6b7280' 
+            <div style={{
+              fontSize: '14px',
+              color: '#6b7280'
             }}>Current Policy Type</div>
           </div>
         </div>
 
         {/* Policies Grid */}
         {policies.length === 0 ? (
-          <div style={{ 
-            backgroundColor: '#ffffff', 
+          <div style={{
+            backgroundColor: '#ffffff',
             borderRadius: '8px',
             border: '1px solid #e5e7eb',
             padding: '48px',
             textAlign: 'center'
           }}>
-            <FiFileText style={{ 
-              width: '64px', 
-              height: '64px', 
+            <FiFileText style={{
+              width: '64px',
+              height: '64px',
               color: '#9ca3af',
               margin: '0 auto 16px'
             }} />
-            <h3 style={{ 
-              fontSize: '18px', 
-              fontWeight: '600', 
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
               color: '#111827',
               marginBottom: '8px'
             }}>
               No {currentPolicyType.toLowerCase()} versions yet
             </h3>
-            <p style={{ 
+            <p style={{
               fontSize: '14px',
               color: '#6b7280',
               marginBottom: '24px'
@@ -704,10 +704,10 @@ const PoliciesManagement = () => {
             </button>
           </div>
         ) : (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-            gap: '24px' 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '24px'
           }}>
             {policies.map((policy) => (
               <TermCard
@@ -777,7 +777,7 @@ const PoliciesManagement = () => {
                   &times;
                 </button>
               </div>
-              
+
               <form onSubmit={handleSubmit}>
                 <div style={{
                   display: 'grid',
@@ -812,7 +812,7 @@ const PoliciesManagement = () => {
                         required
                       />
                     </div>
-                    
+
                     <div style={{ marginBottom: '20px' }}>
                       <label style={{
                         display: 'block',
@@ -839,7 +839,7 @@ const PoliciesManagement = () => {
                         required
                       />
                     </div>
-                    
+
                     <div style={{ marginBottom: '20px' }}>
                       <label style={{
                         display: 'block',
@@ -865,7 +865,7 @@ const PoliciesManagement = () => {
                         required
                       />
                     </div>
-                    
+
                     <div style={{ marginBottom: '20px' }}>
                       <label style={{
                         display: 'flex',
@@ -891,11 +891,11 @@ const PoliciesManagement = () => {
                         </span>
                       </label>
                     </div>
-                    
+
                     {/* Metadata Fields */}
                     {renderMetadataFields()}
                   </div>
-                  
+
                   {/* Right Column - TinyMCE Editor */}
                   <div>
                     <label style={{
@@ -907,7 +907,7 @@ const PoliciesManagement = () => {
                     }}>
                       Policy Content *
                     </label>
-                    <div style={{ 
+                    <div style={{
                       border: '1px solid #d1d5db',
                       borderRadius: '6px',
                       overflow: 'hidden'
@@ -937,7 +937,7 @@ const PoliciesManagement = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Form Actions */}
                 <div style={{
                   display: 'flex',

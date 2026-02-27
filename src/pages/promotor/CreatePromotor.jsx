@@ -11,7 +11,7 @@ const CreatePromotorPage = () => {
     name: "",
     email: "",
     phone: "",
-    
+
     // Address Information
     address: {
       street: "",
@@ -23,19 +23,19 @@ const CreatePromotorPage = () => {
         lng: ""
       }
     },
-    
+
     // Commission Information
     commissionRate: "5",
     commissionType: "percentage",
-    
+
     // Authentication
     password: "",
     confirmPassword: "",
-    
+
     // Additional Details
     aadharNumber: "",
     panNumber: "",
-    
+
     // Bank Details
     bankDetails: {
       accountNumber: "",
@@ -47,7 +47,7 @@ const CreatePromotorPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Handle nested objects
     if (name.includes('.')) {
       const keys = name.split('.');
@@ -87,9 +87,9 @@ const CreatePromotorPage = () => {
     try {
       // Remove confirmPassword as it's not needed in the API
       const { confirmPassword, ...submitData } = formData;
-      
-      await axios.post(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor`, submitData);
-      
+
+      await axios.post(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor`, submitData);
+
       alert('Promotor created successfully!');
       // Reset form
       setFormData({
@@ -134,18 +134,18 @@ const CreatePromotorPage = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
             <FiUser className="mr-2" /> Create New Promotor
           </h1>
-          
+
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -162,7 +162,7 @@ const CreatePromotorPage = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email Address *
@@ -181,7 +181,7 @@ const CreatePromotorPage = () => {
                     <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Phone Number *
@@ -202,13 +202,13 @@ const CreatePromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Address Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiMapPin className="mr-2" /> Address Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -224,7 +224,7 @@ const CreatePromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     City *
@@ -240,7 +240,7 @@ const CreatePromotorPage = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     State
@@ -255,7 +255,7 @@ const CreatePromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Pincode
@@ -272,13 +272,13 @@ const CreatePromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Commission Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiDollarSign className="mr-2" /> Commission Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -297,7 +297,7 @@ const CreatePromotorPage = () => {
                     <option value="fixed">Fixed Amount</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Commission Rate *
@@ -325,13 +325,13 @@ const CreatePromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Authentication Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiLock className="mr-2" /> Authentication
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -351,7 +351,7 @@ const CreatePromotorPage = () => {
                     <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Confirm Password *
@@ -372,11 +372,11 @@ const CreatePromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Additional Details Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Additional Details</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -392,7 +392,7 @@ const CreatePromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     PAN Number
@@ -409,13 +409,13 @@ const CreatePromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Bank Details Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiCreditCard className="mr-2" /> Bank Details
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -431,7 +431,7 @@ const CreatePromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Account Number
@@ -446,7 +446,7 @@ const CreatePromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     IFSC Code
@@ -461,7 +461,7 @@ const CreatePromotorPage = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Branch
@@ -478,7 +478,7 @@ const CreatePromotorPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Submit Button */}
             <div className="flex justify-end">
               <button

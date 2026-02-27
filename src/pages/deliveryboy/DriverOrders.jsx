@@ -14,13 +14,13 @@ const DriverOrders = () => {
   const { id } = useParams();
 
   const ORDERS_PER_PAGE = 10;
-  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers`;
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/drivers`;
 
   const fetchDriverOrders = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('adminToken');
-      
+
       const driverResponse = await axios.get(`${API_BASE_URL}/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -29,7 +29,7 @@ const DriverOrders = () => {
       const ordersResponse = await axios.get(`${API_BASE_URL}/${id}/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       const ordersData = ordersResponse.data.data?.orders || ordersResponse.data.data || [];
       setOrders(ordersData);
     } catch (error) {
@@ -55,7 +55,7 @@ const DriverOrders = () => {
       'cancelled': 'bg-red-100 text-red-800',
       'out_for_delivery': 'bg-orange-100 text-orange-800'
     };
-    
+
     const statusIcons = {
       'pending': <FiClock className="w-3 h-3 mr-1" />,
       'confirmed': <FiCheckCircle className="w-3 h-3 mr-1" />,
@@ -64,7 +64,7 @@ const DriverOrders = () => {
       'cancelled': <FiX className="w-3 h-3 mr-1" />,
       'out_for_delivery': <FiPackage className="w-3 h-3 mr-1" />
     };
-    
+
     return (
       <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${badgeClasses[status] || badgeClasses.pending}`}>
         {statusIcons[status]}
@@ -75,7 +75,7 @@ const DriverOrders = () => {
 
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
-      const matchesSearch = 
+      const matchesSearch =
         order._id?.toLowerCase().includes(search.toLowerCase()) ||
         order.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
         order.user?.phone?.includes(search) ||
@@ -191,7 +191,7 @@ const DriverOrders = () => {
                         <FiPackage className="w-12 h-12 text-gray-400 mb-2" />
                         <span className="text-gray-500 dark:text-gray-400">No orders found.</span>
                         {(search || statusFilter !== "all") && (
-                          <button 
+                          <button
                             onClick={() => {
                               setSearch("");
                               setStatusFilter("all");
@@ -265,7 +265,7 @@ const DriverOrders = () => {
               >
                 Previous
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
                 if (totalPages <= 5) {
@@ -277,22 +277,21 @@ const DriverOrders = () => {
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
-                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                      currentPage === pageNum
+                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
                         ? "bg-blue-500 text-white border-blue-500"
                         : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    }`}
+                      }`}
                     onClick={() => setCurrentPage(pageNum)}
                   >
                     {pageNum}
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}

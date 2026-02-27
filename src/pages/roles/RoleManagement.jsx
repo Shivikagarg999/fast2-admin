@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FiPlus, 
-  FiEdit2, 
-  FiTrash2, 
-  FiSearch, 
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiSearch,
   FiShield,
   FiCheckCircle,
   FiXCircle,
@@ -27,9 +27,9 @@ const RoleManagement = () => {
   const fetchRoles = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles`);
       const data = await response.json();
-      
+
       if (data.success) {
         setRoles(data.roles);
       }
@@ -43,14 +43,14 @@ const RoleManagement = () => {
   const handleDelete = async (roleId) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles/${roleId}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles/${roleId}`,
         {
           method: 'DELETE',
         }
       );
 
       const data = await response.json();
-      
+
       if (response.ok) {
         fetchRoles();
         setShowDeleteModal(false);
@@ -165,8 +165,8 @@ const RoleManagement = () => {
               <button
                 onClick={() => navigate('/admin/create-role')}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                style= {{backgroundColor: 'black'}}
-             >
+                style={{ backgroundColor: 'black' }}
+              >
                 <FiPlus className="w-4 h-4" />
                 Add Role
               </button>
@@ -230,8 +230,8 @@ const RoleManagement = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {role.permissions.includes('*') 
-                          ? 'All Permissions' 
+                        {role.permissions.includes('*')
+                          ? 'All Permissions'
                           : `${role.permissions.length} permissions`}
                       </div>
                     </td>

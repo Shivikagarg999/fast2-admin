@@ -21,7 +21,7 @@ const WarehouseList = () => {
   const fetchWarehouses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse`);
       setWarehouses(response.data || []);
     } catch (error) {
       console.error("Error fetching warehouses:", error);
@@ -59,10 +59,10 @@ const WarehouseList = () => {
 
   const handleDelete = async () => {
     if (!deletingWarehouse) return;
-    
+
     setDeleteLoading(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/${deletingWarehouse._id}`);
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/${deletingWarehouse._id}`);
       alert("Warehouse deleted successfully!");
       fetchWarehouses();
       closeDeleteModal();
@@ -75,7 +75,7 @@ const WarehouseList = () => {
   };
 
   const getStorageTypeIcon = (type) => {
-    switch(type) {
+    switch (type) {
       case 'cold-storage':
         return <FiThermometer className="w-4 h-4 text-blue-500" />;
       case 'frozen':
@@ -91,7 +91,7 @@ const WarehouseList = () => {
       'cold-storage': 'bg-blue-100 text-blue-800',
       'frozen': 'bg-cyan-100 text-cyan-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${badgeClasses[type] || badgeClasses.ambient}`}>
         {type?.replace('-', ' ').toUpperCase() || 'AMBIENT'}
@@ -131,7 +131,7 @@ const WarehouseList = () => {
               {filteredWarehouses.length} warehouses
             </span>
           </div>
-          <button 
+          <button
             onClick={() => navigate('/admin/create-warehouse')}
             className="flex items-center px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors"
           >
@@ -196,7 +196,7 @@ const WarehouseList = () => {
                         <FiPackage className="w-12 h-12 text-gray-400 mb-2" />
                         <span className="text-gray-500 dark:text-gray-400">No warehouses found.</span>
                         {search && (
-                          <button 
+                          <button
                             onClick={() => setSearch("")}
                             className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
                           >
@@ -247,10 +247,10 @@ const WarehouseList = () => {
                           {warehouse.currentStock || 0} / {warehouse.capacity || 0}
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                          <div 
+                          <div
                             className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
-                            style={{ 
-                              width: `${Math.min(getCapacityUtilization(warehouse.currentStock, warehouse.capacity), 100)}%` 
+                            style={{
+                              width: `${Math.min(getCapacityUtilization(warehouse.currentStock, warehouse.capacity), 100)}%`
                             }}
                           ></div>
                         </div>
@@ -260,14 +260,14 @@ const WarehouseList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <button 
+                          <button
                             onClick={() => handleEdit(warehouse)}
                             className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
                             title="Edit Warehouse"
                           >
                             <FiEdit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => openDeleteModal(warehouse)}
                             className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
                             title="Delete Warehouse"
@@ -301,7 +301,7 @@ const WarehouseList = () => {
               >
                 Previous
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
                 if (totalPages <= 5) {
@@ -313,22 +313,21 @@ const WarehouseList = () => {
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
-                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                      currentPage === pageNum
+                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
                         ? "bg-blue-500 text-white border-blue-500"
                         : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    }`}
+                      }`}
                     onClick={() => setCurrentPage(pageNum)}
                   >
                     {pageNum}
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
@@ -363,7 +362,7 @@ const WarehouseList = () => {
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
                   Are you sure you want to delete warehouse <strong>{deletingWarehouse?.name}</strong>? This action cannot be undone.
                 </p>
-                
+
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={closeDeleteModal}

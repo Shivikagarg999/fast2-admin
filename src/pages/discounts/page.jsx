@@ -15,7 +15,7 @@ const DiscountPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showCreateDiscountModal, setShowCreateDiscountModal] = useState(false);
   const [showActiveDiscountsModal, setShowActiveDiscountsModal] = useState(false);
-  
+
   const [discountForm, setDiscountForm] = useState({
     name: "",
     discountPercentage: "",
@@ -37,7 +37,7 @@ const DiscountPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`);
       setCategories(response.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -46,7 +46,7 @@ const DiscountPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product`);
       // API returns { products: [...], pagination: {...} }
       setProducts(response.data.products || []);
     } catch (error) {
@@ -58,7 +58,7 @@ const DiscountPage = () => {
   const fetchActiveDiscounts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/discount`);
       setDiscounts(response.data.data || []);
     } catch (error) {
       console.error("Error fetching discounts:", error);
@@ -78,7 +78,7 @@ const DiscountPage = () => {
     }
 
     try {
-      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount/${discountId}`);
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/discount/${discountId}`);
       alert("Discount deleted successfully");
       fetchActiveDiscounts();
     } catch (error) {
@@ -93,7 +93,7 @@ const DiscountPage = () => {
       return;
     }
     try {
-      await axios.patch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount/${discountId}/toggle`, {
+      await axios.patch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/discount/${discountId}/toggle`, {
         isActive: !currentStatus
       });
       alert(`Discount ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
@@ -122,7 +122,7 @@ const DiscountPage = () => {
 
   const handleCreateDiscount = async (e) => {
     e.preventDefault();
-    
+
     if (!discountForm.name || !discountForm.discountPercentage) {
       alert("Please enter discount name and percentage");
       return;
@@ -140,7 +140,7 @@ const DiscountPage = () => {
 
     try {
       setCreatingDiscount(true);
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount`, discountForm);
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/discount`, discountForm);
       alert(`Successfully created discount: ${response.data.discount.name}`);
       setShowCreateDiscountModal(false);
       resetDiscountForm();
@@ -213,10 +213,10 @@ const DiscountPage = () => {
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-IN", { 
-      style: "currency", 
-      currency: "INR", 
-      maximumFractionDigits: 0 
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0
     }).format(price);
   };
 
@@ -229,7 +229,7 @@ const DiscountPage = () => {
     const now = new Date();
     const startDate = new Date(discount.startDate);
     const endDate = discount.endDate ? new Date(discount.endDate) : null;
-    
+
     return startDate <= now && (!endDate || endDate >= now);
   };
 
@@ -300,7 +300,7 @@ const DiscountPage = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
@@ -312,7 +312,7 @@ const DiscountPage = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
@@ -351,7 +351,7 @@ const DiscountPage = () => {
               <FiPlus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Category Discount</p>
             </button>
-            
+
             <button
               onClick={openCreateDiscountModal}
               className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-center"
@@ -359,7 +359,7 @@ const DiscountPage = () => {
               <FiPackage className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Product Discount</p>
             </button>
-            
+
             <button
               onClick={openActiveDiscountsModal}
               className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-center"
@@ -367,7 +367,7 @@ const DiscountPage = () => {
               <FiClock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">View Active Discounts</p>
             </button>
-            
+
             <button
               onClick={openActiveDiscountsModal}
               className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-center"
@@ -509,8 +509,8 @@ const DiscountPage = () => {
                           ))}
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {discountForm.categoryId 
-                            ? "Product selection is disabled when a category is selected" 
+                          {discountForm.categoryId
+                            ? "Product selection is disabled when a category is selected"
                             : `Selected ${discountForm.productIds.length} products`}
                         </p>
                       </div>
@@ -656,7 +656,7 @@ const DiscountPage = () => {
                               {status.status}
                             </span>
                           </div>
-                          
+
                           <div className="space-y-3">
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-600 dark:text-gray-400">Discount:</span>
@@ -664,28 +664,28 @@ const DiscountPage = () => {
                                 {discount.discountPercentage}% OFF
                               </span>
                             </div>
-                            
+
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-600 dark:text-gray-400">Scope:</span>
                               <span className="text-sm font-medium text-gray-900 dark:text-white">
                                 {discount.category ? `Category: ${discount.category.name}` : `Products: ${discount.products.length}`}
                               </span>
                             </div>
-                            
+
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-600 dark:text-gray-400">Start Date:</span>
                               <span className="text-sm text-gray-900 dark:text-white">
                                 {formatDate(discount.startDate)}
                               </span>
                             </div>
-                            
+
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-600 dark:text-gray-400">End Date:</span>
                               <span className="text-sm text-gray-900 dark:text-white">
                                 {formatDate(discount.endDate)}
                               </span>
                             </div>
-                            
+
                             {discount.products && discount.products.length > 0 && (
                               <div>
                                 <span className="text-sm text-gray-600 dark:text-gray-400">Products:</span>
@@ -704,31 +704,30 @@ const DiscountPage = () => {
                               </div>
                             )}
                           </div>
-                          
+
                           <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                             <span className="text-xs text-gray-500 dark:text-gray-400">
                               Created: {new Date(discount.createdAt).toLocaleDateString()}
                             </span>
                             <div className="flex gap-2">
-                              <button 
+                              <button
                                 onClick={() => handleToggleDiscountStatus(discount._id, discount.isActive)}
-                                className={`px-2 py-1 text-xs rounded ${
-                                  discount.isActive 
-                                    ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                                className={`px-2 py-1 text-xs rounded ${discount.isActive
+                                    ? 'bg-red-100 text-red-600 hover:bg-red-200'
                                     : 'bg-green-100 text-green-600 hover:bg-green-200'
-                                }`}
+                                  }`}
                                 title={discount.isActive ? 'Deactivate' : 'Activate'}
                               >
                                 {discount.isActive ? 'Deactivate' : 'Activate'}
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleEditDiscount(discount)}
                                 className="p-1 text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
                                 title="Edit"
                               >
                                 <FiEdit className="w-4 h-4" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleDeleteDiscount(discount._id)}
                                 className="p-1 text-red-600 hover:text-red-800 dark:hover:text-red-400"
                                 title="Delete"
@@ -777,8 +776,8 @@ const DiscountPage = () => {
                           <button
                             key={pageNum}
                             className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
-                                ? "bg-blue-500 text-white border-blue-500"
-                                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                              ? "bg-blue-500 text-white border-blue-500"
+                              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                               }`}
                             onClick={() => setCurrentPage(pageNum)}
                           >

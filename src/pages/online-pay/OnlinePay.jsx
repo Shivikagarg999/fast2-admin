@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
-import { 
-  FiCreditCard, 
-  FiEye, 
-  FiSearch, 
-  FiPackage, 
-  FiX, 
-  FiFilter,
-  FiDollarSign,
-  FiCalendar,
-  FiUser,
-  FiShoppingBag,
-  FiCheckCircle,
-  FiXCircle,
-  FiRefreshCw
+import {
+    FiCreditCard,
+    FiEye,
+    FiSearch,
+    FiPackage,
+    FiX,
+    FiFilter,
+    FiDollarSign,
+    FiCalendar,
+    FiUser,
+    FiShoppingBag,
+    FiCheckCircle,
+    FiXCircle,
+    FiRefreshCw
 } from "react-icons/fi";
 
 const OnlinePay = () => {
@@ -48,13 +48,13 @@ const OnlinePay = () => {
             });
 
             const response = await fetch(
-                `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/getonline?${params}`
+                `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/orders/getonline?${params}`
             );
-            
+
             if (!response.ok) throw new Error('Failed to fetch online orders');
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 setOrders(data.orders || []);
                 setTotalPages(data.totalPages || 1);
@@ -83,7 +83,7 @@ const OnlinePay = () => {
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
             const response = await fetch(
-                `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/${orderId}/status`, 
+                `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/orders/${orderId}/status`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -206,34 +206,32 @@ const OnlinePay = () => {
                             {totalOrders} orders
                         </span>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setViewMode("table")}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                    viewMode === "table" 
-                                        ? "bg-black text-white" 
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === "table"
+                                        ? "bg-black text-white"
                                         : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                }`}
-                                style={{backgroundColor: 'black'}}
+                                    }`}
+                                style={{ backgroundColor: 'black' }}
                             >
                                 Table
                             </button>
                             <button
                                 onClick={() => setViewMode("grid")}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
-                                    viewMode === "grid" 
-                                        ? "bg-black text-white" 
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${viewMode === "grid"
+                                        ? "bg-black text-white"
                                         : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                }`}
-                                
-                                style={{backgroundColor: 'black'}}
+                                    }`}
+
+                                style={{ backgroundColor: 'black' }}
                             >
                                 Grid
                             </button>
                         </div>
-                        <button 
+                        <button
                             onClick={fetchOrders}
                             className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                             title="Refresh"
@@ -524,15 +522,14 @@ const OnlinePay = () => {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className={`px-3 py-2 text-sm rounded-lg border ${
-                                    currentPage === 1
+                                className={`px-3 py-2 text-sm rounded-lg border ${currentPage === 1
                                         ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                         : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                                }`}
+                                    }`}
                             >
                                 Previous
                             </button>
-                            
+
                             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                                 let pageNum;
                                 if (totalPages <= 5) {
@@ -549,25 +546,23 @@ const OnlinePay = () => {
                                     <button
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
-                                        className={`px-3 py-2 text-sm rounded-lg border ${
-                                            currentPage === pageNum
+                                        className={`px-3 py-2 text-sm rounded-lg border ${currentPage === pageNum
                                                 ? "bg-black text-white border-black"
                                                 : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                                        }`}
+                                            }`}
                                     >
                                         {pageNum}
                                     </button>
                                 );
                             })}
-                            
+
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className={`px-3 py-2 text-sm rounded-lg border ${
-                                    currentPage === totalPages
+                                className={`px-3 py-2 text-sm rounded-lg border ${currentPage === totalPages
                                         ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                         : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                                }`}
+                                    }`}
                             >
                                 Next
                             </button>
@@ -729,7 +724,7 @@ const OnlinePay = () => {
                                 >
                                     Close
                                 </button>
-                               
+
                             </div>
                         </div>
                     </div>

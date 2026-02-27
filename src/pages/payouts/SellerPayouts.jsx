@@ -32,15 +32,15 @@ const SellerPayouts = () => {
 
   const fetchPayoutSummary = async () => {
     try {
-      const response = await fetch('https://api.fast2.in/api/payout/summary', {
+      const response = await fetch('http://localhost:5000/api/payout/summary', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch payout summary');
       const result = await response.json();
-      
+
       setSummary(result);
     } catch (error) {
       console.error('Error fetching payout summary:', error);
@@ -50,19 +50,19 @@ const SellerPayouts = () => {
   const fetchSellerPayouts = async () => {
     try {
       setRefreshing(true);
-      
+
       const viewParam = aggregatedView ? '?view=aggregated' : '';
-      const response = await fetch(`https://api.fast2.in/api/payout/seller-payouts${viewParam}`, {
+      const response = await fetch(`http://localhost:5000/api/payout/seller-payouts${viewParam}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch seller payouts');
       const result = await response.json();
-      
+
       console.log('API Response:', result); // Debug log to see structure
-      
+
       if (result.payouts) {
         if (aggregatedView) {
           // Simplified transformation - backend now provides proper seller details
@@ -74,12 +74,12 @@ const SellerPayouts = () => {
             sellerEmail: payout.sellerEmail || '',
             sellerPhone: payout.sellerPhone || '',
             bankDetails: payout.bankDetails || {},
-            
+
             // Aggregated Totals
             totalOrders: payout.totalOrders || 0,
             pendingOrders: payout.pendingOrders || 0,
             paidOrders: payout.paidOrders || 0,
-            
+
             // Financial Totals (using backend field names)
             orderAmount: payout.totalOrderAmount || 0,
             platformFee: payout.totalPlatformFee || 0,
@@ -87,25 +87,25 @@ const SellerPayouts = () => {
             tdsDeduction: payout.totalTdsDeduction || 0,
             payableAmount: payout.totalPayableAmount || 0,
             netAmount: payout.totalNetAmount || 0,
-            
+
             // Status-based amounts
             pendingAmount: payout.pendingAmount || 0,
             paidAmount: payout.paidAmount || 0,
-            
+
             // Date info
             lastUpdated: payout.lastUpdated,
             earliestPayout: payout.earliestPayout,
             latestPayout: payout.latestPayout,
-            
+
             // For status display
             status: (payout.pendingOrders || 0) > 0 ? 'pending' : 'paid',
-            
+
             // For compatibility
             _id: payout._id,
             orderId: `AGG-${payout._id}`,
             createdAt: payout.earliestPayout || new Date().toISOString()
           }));
-          
+
           console.log('Transformed Aggregated Payouts:', transformedPayouts); // Debug
           setPayouts(transformedPayouts);
         } else {
@@ -146,30 +146,30 @@ const SellerPayouts = () => {
   const fetchSellerDetails = async (sellerId) => {
     try {
       setLoadingDetails(true);
-    
+
       console.log('Fetching details for sellerId:', sellerId);
-      
+
       if (!sellerId || sellerId === 'undefined') {
         throw new Error('Invalid seller ID');
       }
-      
-      const response = await fetch(`https://api.fast2.in/api/payout/seller/${sellerId}`, {
+
+      const response = await fetch(`http://localhost:5000/api/payout/seller/${sellerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('API Error:', errorText);
         throw new Error(`Failed to fetch seller details: ${response.status}`);
       }
-      
+
       const result = await response.json();
-      
+
       if (result.success && result.data) {
         const data = result.data;
-        
+
         const ordersWithDetails = data.payouts.map(payout => ({
           _id: payout._id,
           orderId: payout.order?.orderId || 'N/A',
@@ -222,10 +222,10 @@ const SellerPayouts = () => {
       alert('Unable to fetch seller details: Missing seller ID');
       return;
     }
-    
+
     setSelectedSeller(payout);
     setShowDetailsModal(true);
-    fetchSellerDetails(payout.sellerId); 
+    fetchSellerDetails(payout.sellerId);
   };
 
   const closeModal = () => {
@@ -283,7 +283,7 @@ const SellerPayouts = () => {
       setSubmittingPayment(true);
 
       if (aggregatedView) {
-        const response = await fetch(`https://api.fast2.in/api/payout/bulk-payout/${selectedSeller.sellerId}`, {
+        const response = await fetch(`http://localhost:5000/api/payout/bulk-payout/${selectedSeller.sellerId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -309,7 +309,7 @@ const SellerPayouts = () => {
           throw new Error(result.error || 'Failed to process bulk payment');
         }
       } else {
-        const response = await fetch(`https://api.fast2.in/api/payout/seller-payouts/${selectedSeller._id}/status`, {
+        const response = await fetch(`http://localhost:5000/api/payout/seller-payouts/${selectedSeller._id}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -373,14 +373,14 @@ const SellerPayouts = () => {
     );
   }
 
-  const totalPendingPayout = aggregatedView 
+  const totalPendingPayout = aggregatedView
     ? payouts.reduce((sum, p) => sum + (p.pendingAmount || 0), 0)
     : payouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.netAmount || 0), 0);
-    
+
   const totalPaidPayout = aggregatedView
     ? payouts.reduce((sum, p) => sum + (p.paidAmount || 0), 0)
     : payouts.filter(p => p.status === 'paid').reduce((sum, p) => sum + (p.netAmount || 0), 0);
-    
+
   const totalOrderAmount = payouts.reduce((sum, p) => sum + (p.orderAmount || 0), 0);
 
   return (
@@ -432,7 +432,7 @@ const SellerPayouts = () => {
                 {formatCurrency(totalPendingPayout)}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {aggregatedView 
+                {aggregatedView
                   ? `${payouts.filter(p => (p.pendingOrders || 0) > 0).length} sellers with pending payouts`
                   : `${payouts.filter(p => p.status === 'pending').length} pending payouts`
                 }
@@ -536,13 +536,13 @@ const SellerPayouts = () => {
             {aggregatedView ? 'Seller Payout Summary' : 'Seller Payout Details'}
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {aggregatedView 
+            {aggregatedView
               ? `Showing ${payouts.length} sellers with payout records`
               : `Showing ${payouts.length} payout records`
             }
           </p>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
@@ -632,11 +632,10 @@ const SellerPayouts = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            (payout.pendingOrders || 0) > 0 
+                          <span className={`px-2 py-1 text-xs rounded-full ${(payout.pendingOrders || 0) > 0
                               ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                               : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          }`}>
+                            }`}>
                             {(payout.pendingOrders || 0) > 0 ? 'Pending' : 'Paid'}
                           </span>
                         </td>
@@ -710,11 +709,10 @@ const SellerPayouts = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            payout.status === 'paid' 
+                          <span className={`px-2 py-1 text-xs rounded-full ${payout.status === 'paid'
                               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                               : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                          }`}>
+                            }`}>
                             {payout.status ? payout.status.charAt(0).toUpperCase() + payout.status.slice(1) : 'Pending'}
                           </span>
                         </td>
@@ -977,11 +975,10 @@ const SellerPayouts = () => {
                                 </p>
                               </div>
                               <div className="flex flex-col items-end gap-1">
-                                <span className={`px-2 py-1 text-xs rounded-full ${
-                                  order.status === 'paid' 
+                                <span className={`px-2 py-1 text-xs rounded-full ${order.status === 'paid'
                                     ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                     : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                                }`}>
+                                  }`}>
                                   {order.status === 'paid' ? 'Paid' : 'Pending'}
                                 </span>
                                 <div className="text-right">
