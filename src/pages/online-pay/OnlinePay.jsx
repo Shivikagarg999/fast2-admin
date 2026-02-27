@@ -48,7 +48,7 @@ const OnlinePay = () => {
             });
 
             const response = await fetch(
-                `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/orders/getonline?${params}`
+                `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/getonline?${params}`
             );
 
             if (!response.ok) throw new Error('Failed to fetch online orders');
@@ -83,7 +83,7 @@ const OnlinePay = () => {
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
             const response = await fetch(
-                `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/orders/${orderId}/status`,
+                `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/${orderId}/status`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -212,8 +212,8 @@ const OnlinePay = () => {
                             <button
                                 onClick={() => setViewMode("table")}
                                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === "table"
-                                        ? "bg-black text-white"
-                                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                                    ? "bg-black text-white"
+                                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                                     }`}
                                 style={{ backgroundColor: 'black' }}
                             >
@@ -222,8 +222,8 @@ const OnlinePay = () => {
                             <button
                                 onClick={() => setViewMode("grid")}
                                 className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${viewMode === "grid"
-                                        ? "bg-black text-white"
-                                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                                    ? "bg-black text-white"
+                                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                                     }`}
 
                                 style={{ backgroundColor: 'black' }}
@@ -523,8 +523,8 @@ const OnlinePay = () => {
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
                                 className={`px-3 py-2 text-sm rounded-lg border ${currentPage === 1
-                                        ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                                     }`}
                             >
                                 Previous
@@ -547,8 +547,8 @@ const OnlinePay = () => {
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
                                         className={`px-3 py-2 text-sm rounded-lg border ${currentPage === pageNum
-                                                ? "bg-black text-white border-black"
-                                                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                            ? "bg-black text-white border-black"
+                                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                                             }`}
                                     >
                                         {pageNum}
@@ -560,8 +560,8 @@ const OnlinePay = () => {
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
                                 className={`px-3 py-2 text-sm rounded-lg border ${currentPage === totalPages
-                                        ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                                     }`}
                             >
                                 Next

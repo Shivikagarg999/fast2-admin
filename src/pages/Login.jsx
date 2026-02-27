@@ -12,7 +12,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/login`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -148,8 +148,8 @@ export default function LoginPage() {
                 type="submit"
                 disabled={loading}
                 className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 ${loading
-                    ? "bg-blue-500/50 cursor-not-allowed"
-                    : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                  ? "bg-blue-500/50 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
                   }`}
               >
                 {loading ? (

@@ -21,7 +21,7 @@ const WarehouseList = () => {
   const fetchWarehouses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse`);
       setWarehouses(response.data || []);
     } catch (error) {
       console.error("Error fetching warehouses:", error);
@@ -62,7 +62,7 @@ const WarehouseList = () => {
 
     setDeleteLoading(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/${deletingWarehouse._id}`);
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/${deletingWarehouse._id}`);
       alert("Warehouse deleted successfully!");
       fetchWarehouses();
       closeDeleteModal();
@@ -318,8 +318,8 @@ const WarehouseList = () => {
                   <button
                     key={pageNum}
                     className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
-                        ? "bg-blue-500 text-white border-blue-500"
-                        : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                       }`}
                     onClick={() => setCurrentPage(pageNum)}
                   >

@@ -33,7 +33,7 @@ const PromotorPayouts = () => {
   const fetchPayoutSummary = async () => {
     try {
       const response = await fetch(
-        'http://localhost:5000/api/payout/summary',
+        'https://api.fast2.in/api/payout/summary',
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -54,7 +54,7 @@ const PromotorPayouts = () => {
     try {
       setRefreshing(true);
       const viewParam = aggregatedView ? '?view=aggregated' : '';
-      const response = await fetch(`http://localhost:5000/api/payout/promotor-payouts${viewParam}`, {
+      const response = await fetch(`https://api.fast2.in/api/payout/promotor-payouts${viewParam}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -116,7 +116,7 @@ const PromotorPayouts = () => {
   const fetchPromotorDetails = async (promotorId) => {
     try {
       setLoadingDetails(true);
-      const response = await fetch(`http://localhost:5000/api/payout/promotor/${promotorId}`, {
+      const response = await fetch(`https://api.fast2.in/api/payout/promotor/${promotorId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -227,7 +227,7 @@ const PromotorPayouts = () => {
 
       if (aggregatedView) {
         // Bulk payment for all pending orders of this promotor
-        const response = await fetch(`http://localhost:5000/api/payout/bulk-promotor-payout/${selectedPromotor.promotorId}`, {
+        const response = await fetch(`https://api.fast2.in/api/payout/bulk-promotor-payout/${selectedPromotor.promotorId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ const PromotorPayouts = () => {
         }
       } else {
         // Original single payout payment
-        const response = await fetch(`http://localhost:5000/api/payout/promotor-payouts/${selectedPromotor._id}/status`, {
+        const response = await fetch(`https://api.fast2.in/api/payout/promotor-payouts/${selectedPromotor._id}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -553,8 +553,8 @@ const PromotorPayouts = () => {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 text-xs rounded-full ${(payout.pendingOrders || 0) > 0
-                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                              : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                             }`}>
                             {(payout.pendingOrders || 0) > 0 ? 'Pending' : 'Paid'}
                           </span>
@@ -610,10 +610,10 @@ const PromotorPayouts = () => {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 text-xs rounded-full ${payout.status === 'paid'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : payout.status === 'processing'
-                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                                : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : payout.status === 'processing'
+                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                              : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                             }`}>
                             {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
                           </span>
@@ -875,8 +875,8 @@ const PromotorPayouts = () => {
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 <span className={`px-2 py-1 text-xs rounded-full ${order.status === 'paid'
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                    : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                                   }`}>
                                   {order.status === 'paid' ? 'Paid' : 'Pending'}
                                 </span>

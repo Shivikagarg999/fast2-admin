@@ -58,7 +58,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
       setError(null);
       console.log('Fetching fresh orders from API...');
 
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/orders/admin/fresh-orders`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/admin/fresh-orders`);
 
       console.log('API Response status:', response.status);
 
@@ -339,10 +339,10 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
                               <div className="flex items-center justify-between mt-1">
                                 <p className="text-xs text-gray-400 dark:text-gray-500">{order.time}</p>
                                 <span className={`text-xs px-2 py-1 rounded-full capitalize ${order.type === 'new' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                                    order.type === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                                      order.type === 'processing' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
-                                        order.type === 'shipped' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
-                                          'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  order.type === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                    order.type === 'processing' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
+                                      order.type === 'shipped' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                   }`}>
                                   {order.type}
                                 </span>

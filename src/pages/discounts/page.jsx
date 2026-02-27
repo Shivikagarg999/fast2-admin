@@ -37,7 +37,7 @@ const DiscountPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
       setCategories(response.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -46,7 +46,7 @@ const DiscountPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product`);
       // API returns { products: [...], pagination: {...} }
       setProducts(response.data.products || []);
     } catch (error) {
@@ -58,7 +58,7 @@ const DiscountPage = () => {
   const fetchActiveDiscounts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/discount`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount`);
       setDiscounts(response.data.data || []);
     } catch (error) {
       console.error("Error fetching discounts:", error);
@@ -78,7 +78,7 @@ const DiscountPage = () => {
     }
 
     try {
-      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/discount/${discountId}`);
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount/${discountId}`);
       alert("Discount deleted successfully");
       fetchActiveDiscounts();
     } catch (error) {
@@ -93,7 +93,7 @@ const DiscountPage = () => {
       return;
     }
     try {
-      await axios.patch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/discount/${discountId}/toggle`, {
+      await axios.patch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount/${discountId}/toggle`, {
         isActive: !currentStatus
       });
       alert(`Discount ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
@@ -140,7 +140,7 @@ const DiscountPage = () => {
 
     try {
       setCreatingDiscount(true);
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/discount`, discountForm);
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/discount`, discountForm);
       alert(`Successfully created discount: ${response.data.discount.name}`);
       setShowCreateDiscountModal(false);
       resetDiscountForm();
@@ -713,8 +713,8 @@ const DiscountPage = () => {
                               <button
                                 onClick={() => handleToggleDiscountStatus(discount._id, discount.isActive)}
                                 className={`px-2 py-1 text-xs rounded ${discount.isActive
-                                    ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                                    : 'bg-green-100 text-green-600 hover:bg-green-200'
+                                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                                  : 'bg-green-100 text-green-600 hover:bg-green-200'
                                   }`}
                                 title={discount.isActive ? 'Deactivate' : 'Activate'}
                               >

@@ -66,7 +66,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       setLoadingPromotors(true);
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -216,7 +216,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       console.log('Submitting seller data:', submitData);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers/create`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers/create`,
         submitData,
         {
           headers: {
@@ -1152,7 +1152,7 @@ const SellerPage = () => {
       params.append('limit', filters.limit);
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers?${params.toString()}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1228,7 +1228,7 @@ const SellerPage = () => {
       const adminId = adminData ? JSON.parse(adminData)._id : null;
 
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/approval`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/approval`,
         {
           action: 'approve',
           adminId: adminId
@@ -1264,7 +1264,7 @@ const SellerPage = () => {
       const adminId = adminData ? JSON.parse(adminData)._id : null;
 
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/approval`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/approval`,
         {
           action: 'reject',
           adminId: adminId,
@@ -1300,7 +1300,7 @@ const SellerPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/status`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/status`,
         {
           isActive: !currentStatus
         },
@@ -1338,7 +1338,7 @@ const SellerPage = () => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.delete(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

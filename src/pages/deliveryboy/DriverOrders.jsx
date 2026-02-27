@@ -14,7 +14,7 @@ const DriverOrders = () => {
   const { id } = useParams();
 
   const ORDERS_PER_PAGE = 10;
-  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/drivers`;
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/drivers`;
 
   const fetchDriverOrders = async () => {
     try {
@@ -282,8 +282,8 @@ const DriverOrders = () => {
                   <button
                     key={pageNum}
                     className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
-                        ? "bg-blue-500 text-white border-blue-500"
-                        : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                       }`}
                     onClick={() => setCurrentPage(pageNum)}
                   >

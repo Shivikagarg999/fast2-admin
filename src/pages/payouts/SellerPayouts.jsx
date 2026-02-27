@@ -32,7 +32,7 @@ const SellerPayouts = () => {
 
   const fetchPayoutSummary = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/payout/summary', {
+      const response = await fetch('https://api.fast2.in/api/payout/summary', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -52,7 +52,7 @@ const SellerPayouts = () => {
       setRefreshing(true);
 
       const viewParam = aggregatedView ? '?view=aggregated' : '';
-      const response = await fetch(`http://localhost:5000/api/payout/seller-payouts${viewParam}`, {
+      const response = await fetch(`https://api.fast2.in/api/payout/seller-payouts${viewParam}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -153,7 +153,7 @@ const SellerPayouts = () => {
         throw new Error('Invalid seller ID');
       }
 
-      const response = await fetch(`http://localhost:5000/api/payout/seller/${sellerId}`, {
+      const response = await fetch(`https://api.fast2.in/api/payout/seller/${sellerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -283,7 +283,7 @@ const SellerPayouts = () => {
       setSubmittingPayment(true);
 
       if (aggregatedView) {
-        const response = await fetch(`http://localhost:5000/api/payout/bulk-payout/${selectedSeller.sellerId}`, {
+        const response = await fetch(`https://api.fast2.in/api/payout/bulk-payout/${selectedSeller.sellerId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -309,7 +309,7 @@ const SellerPayouts = () => {
           throw new Error(result.error || 'Failed to process bulk payment');
         }
       } else {
-        const response = await fetch(`http://localhost:5000/api/payout/seller-payouts/${selectedSeller._id}/status`, {
+        const response = await fetch(`https://api.fast2.in/api/payout/seller-payouts/${selectedSeller._id}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -633,8 +633,8 @@ const SellerPayouts = () => {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 text-xs rounded-full ${(payout.pendingOrders || 0) > 0
-                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                              : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                             }`}>
                             {(payout.pendingOrders || 0) > 0 ? 'Pending' : 'Paid'}
                           </span>
@@ -710,8 +710,8 @@ const SellerPayouts = () => {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 text-xs rounded-full ${payout.status === 'paid'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                             }`}>
                             {payout.status ? payout.status.charAt(0).toUpperCase() + payout.status.slice(1) : 'Pending'}
                           </span>
@@ -976,8 +976,8 @@ const SellerPayouts = () => {
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 <span className={`px-2 py-1 text-xs rounded-full ${order.status === 'paid'
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                    : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                                   }`}>
                                   {order.status === 'paid' ? 'Paid' : 'Pending'}
                                 </span>

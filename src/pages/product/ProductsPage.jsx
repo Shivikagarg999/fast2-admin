@@ -123,7 +123,7 @@ const ProductsPage = () => {
   const fetchPromotors = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`
       );
       setPromotors(response.data || []);
     } catch (error) {
@@ -134,7 +134,7 @@ const ProductsPage = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`
       );
       setWarehouses(response.data || []);
     } catch (error) {
@@ -145,7 +145,7 @@ const ProductsPage = () => {
   const fetchSellers = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers?limit=1000`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers?limit=1000`
       );
       setSellers(response.data.data || []);
     } catch (error) {
@@ -156,7 +156,7 @@ const ProductsPage = () => {
   const fetchAllCategories = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`
       );
       setAllCategories(response.data || []);
 
@@ -174,7 +174,7 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/get-products-admin`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/get-products-admin`
       );
 
       let productsArray = [];
@@ -213,7 +213,7 @@ const ProductsPage = () => {
   const fetchProductStatus = async (productId) => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}/status`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/status`
       );
       if (response.data.success) {
         return response.data.isActive;
@@ -235,7 +235,7 @@ const ProductsPage = () => {
       }
 
       const response = await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}/toggle-active`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/toggle-active`
       );
 
       if (response.data.success) {
@@ -270,7 +270,7 @@ const ProductsPage = () => {
     try {
       setOrdersLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/orders/${productId}/orders`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/orders/${productId}/orders`
       );
       setProductOrders(response.data.orders || []);
     } catch (error) {
@@ -627,7 +627,7 @@ const ProductsPage = () => {
       }
 
       await axios.put(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${editingProduct._id}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${editingProduct._id}`,
         submitData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -655,7 +655,7 @@ const ProductsPage = () => {
     }
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
       try {
-        await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}`);
+        await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}`);
         alert("Product deleted successfully!");
         fetchProducts();
       } catch (error) {

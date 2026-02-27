@@ -67,7 +67,7 @@ const ProductCreate = () => {
     try {
       setLoadingPromotors(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/admin/promotor/', {
+      const response = await fetch('https://api.fast2.in/api/admin/promotor/', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ const ProductCreate = () => {
     try {
       setLoadingSellers(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -109,7 +109,7 @@ const ProductCreate = () => {
     try {
       setLoadingWarehouses(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -129,7 +129,7 @@ const ProductCreate = () => {
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
@@ -409,7 +409,7 @@ const ProductCreate = () => {
       }
 
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/product/create', {
+      const response = await fetch('https://api.fast2.in/api/product/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

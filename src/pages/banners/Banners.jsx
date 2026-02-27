@@ -60,7 +60,7 @@ const BannersPage = () => {
   const fetchBanners = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/banners/getall`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/getall`);
       const data = await response.json();
 
       if (data.success) {
@@ -89,8 +89,8 @@ const BannersPage = () => {
     }
     try {
       const url = editingBanner
-        ? `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/banners/update/${editingBanner._id}`
-        : `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/banners/create`;
+        ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update/${editingBanner._id}`
+        : `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/create`;
 
       const method = editingBanner ? 'PUT' : 'POST';
 
@@ -158,7 +158,7 @@ const BannersPage = () => {
     if (!deleteConfirm) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/banners/delete/${deleteConfirm._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/delete/${deleteConfirm._id}`, {
         method: 'DELETE'
       });
 
@@ -179,7 +179,7 @@ const BannersPage = () => {
 
   const toggleBannerStatus = async (banner) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/banners/update/${banner._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update/${banner._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ const BannersPage = () => {
     if (!swapBanner) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/banners/update-order/update-order`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/banners/update-order/update-order`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
