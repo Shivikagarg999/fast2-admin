@@ -327,7 +327,7 @@ const UsersPage = () => {
   const downloadCSV = async () => {
     try {
       const params = new URLSearchParams();
-      
+
       // Add filters based on current state
       if (roleFilter) {
         params.append('role', roleFilter);
@@ -337,7 +337,7 @@ const UsersPage = () => {
         const unverifiedUsers = filteredUsers.filter(u => !u.isVerified);
         const usersWithWallet = filteredUsers.filter(u => u.wallet > 0);
         const usersWithoutWallet = filteredUsers.filter(u => u.wallet <= 0);
-        
+
         if (verifiedUsers.length === filteredUsers.length) {
           params.append('isVerified', 'true');
         } else if (unverifiedUsers.length === filteredUsers.length) {
@@ -350,7 +350,7 @@ const UsersPage = () => {
       }
 
       const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/download/csv?${params.toString()}`);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to download CSV');
@@ -361,7 +361,7 @@ const UsersPage = () => {
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      
+
       const filterName = params.toString() || 'all';
       a.download = `users_${filterName}_${new Date().toISOString().split('T')[0]}.csv`;
       document.body.appendChild(a);
@@ -468,431 +468,725 @@ const UsersPage = () => {
   };
 
   return (
-    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', width: '100%', padding: '24px' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FiUsers style={{ width: '24px', height: '24px', color: '#2563eb' }} />
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>All Users</h1>
-            <span style={{
-              padding: '4px 12px',
-              fontSize: '12px',
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
-              borderRadius: '9999px'
-            }}>
-              {filteredUsers.length} users
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '16px', flexDirection: 'column', width: '100%' }}>
-              <div style={{ display: 'flex', gap: '16px', flexDirection: 'row' }}>
-                {/* Search Input */}
-                <div style={{ flex: 1, position: 'relative' }}>
-                  <FiSearch style={{
-                    position: 'absolute',
-                    left: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: '#9ca3af',
-                    width: '16px',
-                    height: '16px'
-                  }} />
-                  <input
-                    type="text"
-                    placeholder="Search by name, email, phone..."
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px 10px 40px',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
-                      backgroundColor: '#ffffff',
-                      color: '#111827',
-                      fontSize: '14px'
-                    }}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-
-                {/* Role Filter */}
-                {roles.length > 0 && (
-                  <div style={{ width: '200px' }}>
-                    <select
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid #d1d5db',
-                        backgroundColor: '#ffffff',
-                        color: '#111827',
-                        fontSize: '14px'
-                      }}
-                      value={roleFilter}
-                      onChange={(e) => setRoleFilter(e.target.value)}
-                    >
-                      <option value="">All Roles</option>
-                      {roles.map(role => (
-                        <option key={role} value={role}>{role}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Add User Button */}
-                {hasPermission(PERMISSIONS.USERS_CREATE) && (
-                  <button
-                    onClick={openAddUserModal}
-                    style={buttonStyles.primary}
-                  >
-                    <FiUserPlus style={{ width: '16px', height: '16px' }} />
-                    Add User
-                  </button>
-                )}
-                <button
-                  onClick={downloadCSV}
-                  style={buttonStyles.success}
-                >
-                  <FiDownload style={{ width: '16px', height: '16px' }} />
-                  Download CSV
-                </button>
-              </div>
+    <div
+      style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', width: '100%' }}
+      className="dark:bg-gray-900"
+    >
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FiUsers style={{ width: "24px", height: "24px", color: "#2563eb" }} />
+              <h1 style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                color: "#111827"
+              }} className="dark:text-white">
+                Users Management
+              </h1>
+              <span style={{
+                padding: "4px 12px",
+                fontSize: "12px",
+                backgroundColor: "#e5e7eb",
+                color: "#374151",
+                borderRadius: "9999px"
+              }} className="dark:bg-gray-700 dark:text-gray-300">
+                {filteredUsers.length} users
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* Users Table */}
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden'
-        }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead style={{ backgroundColor: '#f9fafb' }}>
+          {/* Search and Filters */}
+          <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
+            {/* Search Input */}
+            <div style={{ flex: 1, position: 'relative' }}>
+              <FiSearch style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#9ca3af',
+                width: '16px',
+                height: '16px'
+              }} />
+              <input
+                type="text"
+                placeholder="Search by name, email, phone..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px 10px 40px',
+                  borderRadius: '8px',
+                  border: '1px solid #d1d5db',
+                  backgroundColor: '#ffffff',
+                  color: '#111827',
+                  fontSize: '14px'
+                }}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Role Filter */}
+            {roles.length > 0 && (
+              <div style={{ width: '200px' }}>
+                <select
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #d1d5db',
+                    backgroundColor: '#ffffff',
+                    color: '#111827',
+                    fontSize: '14px'
+                  }}
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                >
+                  <option value="">All Roles</option>
+                  {roles.map(role => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Add User Button */}
+            {hasPermission(PERMISSIONS.USERS_CREATE) && (
+              <button
+                onClick={openAddUserModal}
+                style={{
+                  backgroundColor: "#2563eb",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "10px 16px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  transition: "all 0.2s"
+                }}
+                className="hover:bg-blue-700"
+                onMouseEnter={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                onMouseLeave={(e) => e.target.style.backgroundColor = "#2563eb"}
+              >
+                <FiUserPlus style={{ width: "16px", height: "16px" }} />
+                Add User
+              </button>
+            )}
+            <button
+              onClick={downloadCSV}
+              style={{
+                backgroundColor: "#16a34a",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "10px 16px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "14px",
+                fontWeight: "500",
+                transition: "all 0.2s"
+              }}
+              className="hover:bg-green-600"
+              onMouseEnter={(e) => e.target.style.backgroundColor = "#15803d"}
+              onMouseLeave={(e) => e.target.style.backgroundColor = "#16a34a"}
+            >
+              <FiDownload style={{ width: "16px", height: "16px" }} />
+              Download CSV
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Users Table */}
+      <div style={{
+        backgroundColor: "#ffffff",
+        borderRadius: "8px",
+        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+        overflow: "hidden"
+      }} className="dark:bg-gray-800">
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%" }} className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead style={{ backgroundColor: "#f9fafb" }} className="dark:bg-gray-900">
+              <tr>
+                <th style={{
+                  padding: "12px 24px",
+                  textAlign: "left",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }} className="dark:text-gray-400">
+                  Name
+                </th>
+                <th style={{
+                  padding: "12px 24px",
+                  textAlign: "left",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }} className="dark:text-gray-400">
+                  Email
+                </th>
+                <th style={{
+                  padding: "12px 24px",
+                  textAlign: "left",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }} className="dark:text-gray-400">
+                  Phone
+                </th>
+                <th style={{
+                  padding: "12px 24px",
+                  textAlign: "left",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }} className="dark:text-gray-400">
+                  Role
+                </th>
+                <th style={{
+                  padding: "12px 24px",
+                  textAlign: "left",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }} className="dark:text-gray-400">
+                  Wallet
+                </th>
+                <th style={{
+                  padding: "12px 24px",
+                  textAlign: "center",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }} className="dark:text-gray-400">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {loading ? (
                 <tr>
-                  <th style={{
-                    padding: '12px 24px',
-                    textAlign: 'left',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    color: '#6b7280',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Name
-                  </th>
-                  <th style={{
-                    padding: '12px 24px',
-                    textAlign: 'left',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    color: '#6b7280',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Email
-                  </th>
-                  <th style={{
-                    padding: '12px 24px',
-                    textAlign: 'left',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    color: '#6b7280',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Phone
-                  </th>
-                  <th style={{
-                    padding: '12px 24px',
-                    textAlign: 'left',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    color: '#6b7280',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Role
-                  </th>
-                  <th style={{
-                    padding: '12px 24px',
-                    textAlign: 'left',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    color: '#6b7280',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Wallet
-                  </th>
-                  <th style={{
-                    padding: '12px 24px',
-                    textAlign: 'center',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    color: '#6b7280',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Actions
-                  </th>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <div style={{
+                        animation: 'spin 1s linear infinite',
+                        borderRadius: '9999px',
+                        width: '24px',
+                        height: '24px',
+                        borderBottom: '2px solid #2563eb'
+                      }}></div>
+                      <span style={{ color: '#6b7280' }}>Loading users...</span>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>
+              ) : currentUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                      <FiUsers style={{ width: '48px', height: '48px', color: '#9ca3af' }} />
+                      <span style={{ color: '#6b7280' }}>No users found.</span>
+                      {search && (
+                        <button
+                          onClick={() => setSearch("")}
+                          style={{ color: '#2563eb', fontSize: '14px' }}
+                        >
+                          Clear search
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                currentUsers.map((user) => (
+                  <tr key={user._id} style={{ borderTop: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ fontSize: '14px', fontWeight: '500', color: '#111827' }}>
+                        {user.name || "N/A"}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ fontSize: '14px', color: '#111827' }}>
+                        {user.email || "N/A"}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ fontSize: '14px', color: '#111827' }}>
+                        {user.phone || "N/A"}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 24px' }}>
+                      {getRoleBadge(user.role)}
+                    </td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ fontSize: '14px', fontWeight: '500', color: '#111827' }}>
+                        ₹{user.wallet || 0}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <div style={{
-                          animation: 'spin 1s linear infinite',
-                          borderRadius: '9999px',
-                          width: '24px',
-                          height: '24px',
-                          borderBottom: '2px solid #2563eb'
-                        }}></div>
-                        <span style={{ color: '#6b7280' }}>Loading users...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : currentUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                        <FiUsers style={{ width: '48px', height: '48px', color: '#9ca3af' }} />
-                        <span style={{ color: '#6b7280' }}>No users found.</span>
-                        {search && (
-                          <button
-                            onClick={() => setSearch("")}
-                            style={{ color: '#2563eb', fontSize: '14px' }}
-                          >
-                            Clear search
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  currentUsers.map((user) => (
-                    <tr key={user._id} style={{ borderTop: '1px solid #e5e7eb' }}>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ fontSize: '14px', fontWeight: '500', color: '#111827' }}>
-                          {user.name || "N/A"}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ fontSize: '14px', color: '#111827' }}>
-                          {user.email || "N/A"}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ fontSize: '14px', color: '#111827' }}>
-                          {user.phone || "N/A"}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        {getRoleBadge(user.role)}
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ fontSize: '14px', fontWeight: '500', color: '#111827' }}>
-                          ₹{user.wallet || 0}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        <button
+                          style={{
+                            color: '#16a34a',
+                            padding: '8px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            backgroundColor: 'transparent'
+                          }}
+                          title="Add Money to Wallet"
+                          onClick={() => openWalletModal(user)}
+                        >
+                          <FiDollarSign style={{ width: '16px', height: '16px' }} />
+                        </button>
+                        {hasPermission(PERMISSIONS.USERS_EDIT) && (
                           <button
                             style={{
-                              color: '#16a34a',
+                              color: '#2563eb',
                               padding: '8px',
                               borderRadius: '6px',
                               border: 'none',
                               cursor: 'pointer',
                               backgroundColor: 'transparent'
                             }}
-                            title="Add Money to Wallet"
-                            onClick={() => openWalletModal(user)}
+                            title="Edit User"
+                            onClick={() => openEditUserModal(user)}
                           >
-                            <FiDollarSign style={{ width: '16px', height: '16px' }} />
+                            <FiEdit style={{ width: '16px', height: '16px' }} />
                           </button>
-                          {hasPermission(PERMISSIONS.USERS_EDIT) && (
-                            <button
-                              style={{
-                                color: '#2563eb',
-                                padding: '8px',
-                                borderRadius: '6px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                backgroundColor: 'transparent'
-                              }}
-                              title="Edit User"
-                              onClick={() => openEditUserModal(user)}
-                            >
-                              <FiEdit style={{ width: '16px', height: '16px' }} />
-                            </button>
-                          )}
-                          {hasPermission(PERMISSIONS.USERS_DELETE) && (
-                            <button
-                              style={{
-                                color: '#dc2626',
-                                padding: '8px',
-                                borderRadius: '6px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                backgroundColor: 'transparent'
-                              }}
-                              title="Delete User"
-                              onClick={() => handleDeleteUser(user._id, user.name)}
-                            >
-                              <FiTrash2 style={{ width: '16px', height: '16px' }} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                        )}
+                        {hasPermission(PERMISSIONS.USERS_DELETE) && (
+                          <button
+                            style={{
+                              color: '#dc2626',
+                              padding: '8px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              backgroundColor: 'transparent'
+                            }}
+                            title="Delete User"
+                            onClick={() => handleDeleteUser(user._id, user.name)}
+                          >
+                            <FiTrash2 style={{ width: '16px', height: '16px' }} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+          marginTop: '24px'
+        }}>
+          <div style={{ fontSize: '14px', color: '#374151' }}>
+            Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              style={{
+                ...buttonStyles.secondary,
+                opacity: currentPage === 1 ? 0.5 : 1,
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+              }}
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+
+              return (
+                <button
+                  key={pageNum}
+                  style={{
+                    padding: '8px 12px',
+                    fontSize: '14px',
+                    borderRadius: '8px',
+                    border: '1px solid #d1d5db',
+                    backgroundColor: currentPage === pageNum ? '#000000' : '#ffffff',
+                    color: currentPage === pageNum ? '#ffffff' : '#374151',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setCurrentPage(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              style={{
+                ...buttonStyles.secondary,
+                opacity: currentPage === totalPages ? 0.5 : 1,
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+              }}
+            >
+              Next
+            </button>
           </div>
         </div>
+      )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
+      {/* Wallet Modal */}
+      {showWalletModal && (
+        <div style={{
+          position: 'fixed',
+          inset: '0',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: '50',
+          padding: '16px'
+        }}>
           <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '16px',
-            marginTop: '24px'
-          }}>
-            <div style={{ fontSize: '14px', color: '#374151' }}>
-              Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                style={{
-                  ...buttonStyles.secondary,
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Previous
-              </button>
-
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-
-                return (
-                  <button
-                    key={pageNum}
-                    style={{
-                      padding: '8px 12px',
-                      fontSize: '14px',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
-                      backgroundColor: currentPage === pageNum ? '#000000' : '#ffffff',
-                      color: currentPage === pageNum ? '#ffffff' : '#374151',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => setCurrentPage(pageNum)}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                style={{
-                  ...buttonStyles.secondary,
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Wallet Modal */}
-        {showWalletModal && (
-          <div style={{
-            position: 'fixed',
-            inset: '0',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: '50',
-            padding: '16px'
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            width: '100%',
+            maxWidth: '400px'
           }}>
             <div style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '8px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              width: '100%',
-              maxWidth: '400px'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '24px',
+              borderBottom: '1px solid #e5e7eb'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '24px',
-                borderBottom: '1px solid #e5e7eb'
-              }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
-                  Add Money to Wallet
-                </h2>
-                <button
-                  onClick={closeWalletModal}
-                  style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
-                >
-                  <FiX style={{ width: '24px', height: '24px' }} />
-                </button>
+              <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
+                Add Money to Wallet
+              </h2>
+              <button
+                onClick={closeWalletModal}
+                style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+              >
+                <FiX style={{ width: '24px', height: '24px' }} />
+              </button>
+            </div>
+
+            <div style={{ padding: '24px' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>User</p>
+                <p style={{ fontSize: '16px', fontWeight: '500', color: '#111827' }}>{selectedUser?.name || "N/A"}</p>
+                <p style={{ fontSize: '14px', color: '#6b7280' }}>{selectedUser?.phone || "N/A"}</p>
               </div>
 
-              <div style={{ padding: '24px' }}>
-                <div style={{ marginBottom: '16px' }}>
-                  <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>User</p>
-                  <p style={{ fontSize: '16px', fontWeight: '500', color: '#111827' }}>{selectedUser?.name || "N/A"}</p>
-                  <p style={{ fontSize: '14px', color: '#6b7280' }}>{selectedUser?.phone || "N/A"}</p>
-                </div>
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>Current Wallet Balance</p>
+                <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>
+                  ₹{selectedUser?.wallet || 0}
+                </p>
+              </div>
 
-                <div style={{ marginBottom: '16px' }}>
-                  <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>Current Wallet Balance</p>
-                  <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>
-                    ₹{selectedUser?.wallet || 0}
-                  </p>
-                </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                  Amount to Add (₹) *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  value={walletAmount}
+                  onChange={(e) => setWalletAmount(e.target.value)}
+                  placeholder="Enter amount"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #d1d5db',
+                    backgroundColor: '#ffffff',
+                    color: '#111827',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
 
-                <div style={{ marginBottom: '16px' }}>
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                  Note (Optional)
+                </label>
+                <textarea
+                  value={walletNote}
+                  onChange={(e) => setWalletNote(e.target.value)}
+                  placeholder="Add a note for this transaction"
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #d1d5db',
+                    backgroundColor: '#ffffff',
+                    color: '#111827',
+                    fontSize: '14px',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={closeWalletModal}
+                  style={{
+                    ...buttonStyles.secondary,
+                    flex: 1
+                  }}
+                  disabled={walletLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddMoney}
+                  disabled={walletLoading || !walletAmount || parseFloat(walletAmount) <= 0}
+                  style={{
+                    ...buttonStyles.success,
+                    flex: 1,
+                    opacity: (walletLoading || !walletAmount || parseFloat(walletAmount) <= 0) ? 0.5 : 1,
+                    cursor: (walletLoading || !walletAmount || parseFloat(walletAmount) <= 0) ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {walletLoading ? (
+                    <>
+                      <div style={{
+                        animation: 'spin 1s linear infinite',
+                        borderRadius: '9999px',
+                        width: '16px',
+                        height: '16px',
+                        borderBottom: '2px solid #ffffff'
+                      }}></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <FiDollarSign style={{ width: '16px', height: '16px' }} />
+                      Add Money
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div style={{
+          position: 'fixed',
+          inset: '0',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: '50',
+          padding: '16px'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            width: '100%',
+            maxWidth: '500px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '24px',
+              borderBottom: '1px solid #e5e7eb'
+            }}>
+              <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
+                Add New User
+              </h2>
+              <button
+                onClick={closeAddUserModal}
+                style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+              >
+                <FiX style={{ width: '24px', height: '24px' }} />
+              </button>
+            </div>
+
+            <div style={{ padding: '24px' }}>
+              {error && (
+                <div style={{
+                  backgroundColor: '#fee2e2',
+                  border: '1px solid #fecaca',
+                  color: '#dc2626',
+                  padding: '12px 16px',
+                  borderRadius: '6px',
+                  marginBottom: '16px',
+                  fontSize: '14px'
+                }}>
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div style={{
+                  backgroundColor: '#dcfce7',
+                  border: '1px solid #bbf7d0',
+                  color: '#16a34a',
+                  padding: '12px 16px',
+                  borderRadius: '6px',
+                  marginBottom: '16px',
+                  fontSize: '14px'
+                }}>
+                  {success}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                    Amount to Add (₹) *
+                    Name *
                   </label>
-                  <input
-                    type="number"
-                    min="1"
-                    step="0.01"
-                    value={walletAmount}
-                    onChange={(e) => setWalletAmount(e.target.value)}
-                    placeholder="Enter amount"
+                  <div style={{ position: 'relative' }}>
+                    <FiUser style={{
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      width: '16px',
+                      height: '16px'
+                    }} />
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleFormChange}
+                      placeholder="Enter user name"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 40px',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        backgroundColor: '#ffffff',
+                        color: '#111827',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Email *
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <FiMail style={{
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      width: '16px',
+                      height: '16px'
+                    }} />
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                      placeholder="Enter user email"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 40px',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        backgroundColor: '#ffffff',
+                        color: '#111827',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Phone
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <FiPhone style={{
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      width: '16px',
+                      height: '16px'
+                    }} />
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleFormChange}
+                      placeholder="Enter user phone"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 40px',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        backgroundColor: '#ffffff',
+                        color: '#111827',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Role
+                  </label>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleFormChange}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -902,18 +1196,279 @@ const UsersPage = () => {
                       color: '#111827',
                       fontSize: '14px'
                     }}
-                  />
+                  >
+                    <option value="user">User</option>
+                    <option value="customer">Customer</option>
+                    <option value="moderator">Moderator</option>
+                  </select>
                 </div>
 
-                <div style={{ marginBottom: '24px' }}>
+                <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                    Note (Optional)
+                    Password *
                   </label>
-                  <textarea
-                    value={walletNote}
-                    onChange={(e) => setWalletNote(e.target.value)}
-                    placeholder="Add a note for this transaction"
-                    rows="3"
+                  <div style={{ position: 'relative' }}>
+                    <FiLock style={{
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      width: '16px',
+                      height: '16px'
+                    }} />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleFormChange}
+                      placeholder="Enter password"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 40px',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        backgroundColor: '#ffffff',
+                        color: '#111827',
+                        fontSize: '14px'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        cursor: 'pointer',
+                        color: '#9ca3af'
+                      }}
+                    >
+                      {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                <button
+                  onClick={closeAddUserModal}
+                  style={{
+                    ...buttonStyles.secondary,
+                    flex: 1
+                  }}
+                  disabled={formLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddUser}
+                  disabled={formLoading || !formData.name || !formData.email || !formData.password}
+                  style={{
+                    ...buttonStyles.primary,
+                    flex: 1,
+                    opacity: (formLoading || !formData.name || !formData.email || !formData.password) ? 0.5 : 1,
+                    cursor: (formLoading || !formData.name || !formData.email || !formData.password) ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {formLoading ? (
+                    <>
+                      <div style={{
+                        animation: 'spin 1s linear infinite',
+                        borderRadius: '9999px',
+                        width: '16px',
+                        height: '16px',
+                        borderBottom: '2px solid #ffffff'
+                      }}></div>
+                      Creating...
+                    </>
+                  ) : (
+                    "Add User"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditUserModal && (
+        <div style={{
+          position: 'fixed',
+          inset: '0',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: '50',
+          padding: '16px'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            width: '100%',
+            maxWidth: '500px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '24px',
+              borderBottom: '1px solid #e5e7eb'
+            }}>
+              <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
+                Edit User
+              </h2>
+              <button
+                onClick={closeEditUserModal}
+                style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+              >
+                <FiX style={{ width: '24px', height: '24px' }} />
+              </button>
+            </div>
+
+            <div style={{ padding: '24px' }}>
+              {error && (
+                <div style={{
+                  backgroundColor: '#fee2e2',
+                  border: '1px solid #fecaca',
+                  color: '#dc2626',
+                  padding: '12px 16px',
+                  borderRadius: '6px',
+                  marginBottom: '16px',
+                  fontSize: '14px'
+                }}>
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div style={{
+                  backgroundColor: '#dcfce7',
+                  border: '1px solid #bbf7d0',
+                  color: '#16a34a',
+                  padding: '12px 16px',
+                  borderRadius: '6px',
+                  marginBottom: '16px',
+                  fontSize: '14px'
+                }}>
+                  {success}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Name *
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <FiUser style={{
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      width: '16px',
+                      height: '16px'
+                    }} />
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleFormChange}
+                      placeholder="Enter user name"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 40px',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        backgroundColor: '#ffffff',
+                        color: '#111827',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Email *
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <FiMail style={{
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      width: '16px',
+                      height: '16px'
+                    }} />
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                      placeholder="Enter user email"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 40px',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        backgroundColor: '#ffffff',
+                        color: '#111827',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Phone
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <FiPhone style={{
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      width: '16px',
+                      height: '16px'
+                    }} />
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleFormChange}
+                      placeholder="Enter user phone"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 40px',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        backgroundColor: '#ffffff',
+                        color: '#111827',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Role
+                  </label>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleFormChange}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -921,621 +1476,106 @@ const UsersPage = () => {
                       border: '1px solid #d1d5db',
                       backgroundColor: '#ffffff',
                       color: '#111827',
-                      fontSize: '14px',
-                      resize: 'vertical'
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button
-                    onClick={closeWalletModal}
-                    style={{
-                      ...buttonStyles.secondary,
-                      flex: 1
-                    }}
-                    disabled={walletLoading}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddMoney}
-                    disabled={walletLoading || !walletAmount || parseFloat(walletAmount) <= 0}
-                    style={{
-                      ...buttonStyles.success,
-                      flex: 1,
-                      opacity: (walletLoading || !walletAmount || parseFloat(walletAmount) <= 0) ? 0.5 : 1,
-                      cursor: (walletLoading || !walletAmount || parseFloat(walletAmount) <= 0) ? 'not-allowed' : 'pointer'
+                      fontSize: '14px'
                     }}
                   >
-                    {walletLoading ? (
-                      <>
-                        <div style={{
-                          animation: 'spin 1s linear infinite',
-                          borderRadius: '9999px',
-                          width: '16px',
-                          height: '16px',
-                          borderBottom: '2px solid #ffffff'
-                        }}></div>
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <FiDollarSign style={{ width: '16px', height: '16px' }} />
-                        Add Money
-                      </>
-                    )}
-                  </button>
+                    <option value="user">User</option>
+                    <option value="customer">Customer</option>
+                    <option value="moderator">Moderator</option>
+                  </select>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Add User Modal */}
-        {showAddUserModal && (
-          <div style={{
-            position: 'fixed',
-            inset: '0',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: '50',
-            padding: '16px'
-          }}>
-            <div style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '8px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              width: '100%',
-              maxWidth: '500px'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '24px',
-                borderBottom: '1px solid #e5e7eb'
-              }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
-                  Add New User
-                </h2>
-                <button
-                  onClick={closeAddUserModal}
-                  style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
-                >
-                  <FiX style={{ width: '24px', height: '24px' }} />
-                </button>
-              </div>
-
-              <div style={{ padding: '24px' }}>
-                {error && (
-                  <div style={{
-                    backgroundColor: '#fee2e2',
-                    border: '1px solid #fecaca',
-                    color: '#dc2626',
-                    padding: '12px 16px',
-                    borderRadius: '6px',
-                    marginBottom: '16px',
-                    fontSize: '14px'
-                  }}>
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div style={{
-                    backgroundColor: '#dcfce7',
-                    border: '1px solid #bbf7d0',
-                    color: '#16a34a',
-                    padding: '12px 16px',
-                    borderRadius: '6px',
-                    marginBottom: '16px',
-                    fontSize: '14px'
-                  }}>
-                    {success}
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Name *
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FiUser style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                        width: '16px',
-                        height: '16px'
-                      }} />
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleFormChange}
-                        placeholder="Enter user name"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px 10px 40px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: '#ffffff',
-                          color: '#111827',
-                          fontSize: '14px'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Email *
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FiMail style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                        width: '16px',
-                        height: '16px'
-                      }} />
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleFormChange}
-                        placeholder="Enter user email"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px 10px 40px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: '#ffffff',
-                          color: '#111827',
-                          fontSize: '14px'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Phone
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FiPhone style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                        width: '16px',
-                        height: '16px'
-                      }} />
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleFormChange}
-                        placeholder="Enter user phone"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px 10px 40px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: '#ffffff',
-                          color: '#111827',
-                          fontSize: '14px'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Role
-                    </label>
-                    <select
-                      name="role"
-                      value={formData.role}
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    New Password (Leave blank to keep current)
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <FiLock style={{
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      width: '16px',
+                      height: '16px'
+                    }} />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
                       onChange={handleFormChange}
+                      placeholder="Enter new password"
                       style={{
                         width: '100%',
-                        padding: '10px 12px',
+                        padding: '10px 12px 10px 40px',
                         borderRadius: '6px',
                         border: '1px solid #d1d5db',
                         backgroundColor: '#ffffff',
                         color: '#111827',
                         fontSize: '14px'
                       }}
-                    >
-                      <option value="user">User</option>
-                      <option value="customer">Customer</option>
-                      <option value="moderator">Moderator</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Password *
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FiLock style={{
+                    />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      style={{
                         position: 'absolute',
-                        left: '12px',
+                        right: '12px',
                         top: '50%',
                         transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                        width: '16px',
-                        height: '16px'
-                      }} />
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleFormChange}
-                        placeholder="Enter password"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px 10px 40px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: '#ffffff',
-                          color: '#111827',
-                          fontSize: '14px'
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={togglePasswordVisibility}
-                        style={{
-                          position: 'absolute',
-                          right: '12px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          border: 'none',
-                          backgroundColor: 'transparent',
-                          cursor: 'pointer',
-                          color: '#9ca3af'
-                        }}
-                      >
-                        {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                      </button>
-                    </div>
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        cursor: 'pointer',
+                        color: '#9ca3af'
+                      }}
+                    >
+                      {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                    </button>
                   </div>
                 </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                  <button
-                    onClick={closeAddUserModal}
-                    style={{
-                      ...buttonStyles.secondary,
-                      flex: 1
-                    }}
-                    disabled={formLoading}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddUser}
-                    disabled={formLoading || !formData.name || !formData.email || !formData.password}
-                    style={{
-                      ...buttonStyles.primary,
-                      flex: 1,
-                      opacity: (formLoading || !formData.name || !formData.email || !formData.password) ? 0.5 : 1,
-                      cursor: (formLoading || !formData.name || !formData.email || !formData.password) ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    {formLoading ? (
-                      <>
-                        <div style={{
-                          animation: 'spin 1s linear infinite',
-                          borderRadius: '9999px',
-                          width: '16px',
-                          height: '16px',
-                          borderBottom: '2px solid #ffffff'
-                        }}></div>
-                        Creating...
-                      </>
-                    ) : (
-                      "Add User"
-                    )}
-                  </button>
-                </div>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* Edit User Modal */}
-        {showEditUserModal && (
-          <div style={{
-            position: 'fixed',
-            inset: '0',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: '50',
-            padding: '16px'
-          }}>
-            <div style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '8px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              width: '100%',
-              maxWidth: '500px'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '24px',
-                borderBottom: '1px solid #e5e7eb'
-              }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
-                  Edit User
-                </h2>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                 <button
                   onClick={closeEditUserModal}
-                  style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+                  style={{
+                    ...buttonStyles.secondary,
+                    flex: 1
+                  }}
+                  disabled={formLoading}
                 >
-                  <FiX style={{ width: '24px', height: '24px' }} />
+                  Cancel
                 </button>
-              </div>
-
-              <div style={{ padding: '24px' }}>
-                {error && (
-                  <div style={{
-                    backgroundColor: '#fee2e2',
-                    border: '1px solid #fecaca',
-                    color: '#dc2626',
-                    padding: '12px 16px',
-                    borderRadius: '6px',
-                    marginBottom: '16px',
-                    fontSize: '14px'
-                  }}>
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div style={{
-                    backgroundColor: '#dcfce7',
-                    border: '1px solid #bbf7d0',
-                    color: '#16a34a',
-                    padding: '12px 16px',
-                    borderRadius: '6px',
-                    marginBottom: '16px',
-                    fontSize: '14px'
-                  }}>
-                    {success}
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Name *
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FiUser style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
+                <button
+                  onClick={handleEditUser}
+                  disabled={formLoading || !formData.name || !formData.email}
+                  style={{
+                    ...buttonStyles.primary,
+                    flex: 1,
+                    opacity: (formLoading || !formData.name || !formData.email) ? 0.5 : 1,
+                    cursor: (formLoading || !formData.name || !formData.email) ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {formLoading ? (
+                    <>
+                      <div style={{
+                        animation: 'spin 1s linear infinite',
+                        borderRadius: '9999px',
                         width: '16px',
-                        height: '16px'
-                      }} />
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleFormChange}
-                        placeholder="Enter user name"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px 10px 40px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: '#ffffff',
-                          color: '#111827',
-                          fontSize: '14px'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Email *
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FiMail style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                        width: '16px',
-                        height: '16px'
-                      }} />
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleFormChange}
-                        placeholder="Enter user email"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px 10px 40px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: '#ffffff',
-                          color: '#111827',
-                          fontSize: '14px'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Phone
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FiPhone style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                        width: '16px',
-                        height: '16px'
-                      }} />
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleFormChange}
-                        placeholder="Enter user phone"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px 10px 40px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: '#ffffff',
-                          color: '#111827',
-                          fontSize: '14px'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Role
-                    </label>
-                    <select
-                      name="role"
-                      value={formData.role}
-                      onChange={handleFormChange}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        borderRadius: '6px',
-                        border: '1px solid #d1d5db',
-                        backgroundColor: '#ffffff',
-                        color: '#111827',
-                        fontSize: '14px'
-                      }}
-                    >
-                      <option value="user">User</option>
-                      <option value="customer">Customer</option>
-                      <option value="moderator">Moderator</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      New Password (Leave blank to keep current)
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FiLock style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#9ca3af',
-                        width: '16px',
-                        height: '16px'
-                      }} />
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleFormChange}
-                        placeholder="Enter new password"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px 10px 40px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: '#ffffff',
-                          color: '#111827',
-                          fontSize: '14px'
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={togglePasswordVisibility}
-                        style={{
-                          position: 'absolute',
-                          right: '12px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          border: 'none',
-                          backgroundColor: 'transparent',
-                          cursor: 'pointer',
-                          color: '#9ca3af'
-                        }}
-                      >
-                        {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                  <button
-                    onClick={closeEditUserModal}
-                    style={{
-                      ...buttonStyles.secondary,
-                      flex: 1
-                    }}
-                    disabled={formLoading}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleEditUser}
-                    disabled={formLoading || !formData.name || !formData.email}
-                    style={{
-                      ...buttonStyles.primary,
-                      flex: 1,
-                      opacity: (formLoading || !formData.name || !formData.email) ? 0.5 : 1,
-                      cursor: (formLoading || !formData.name || !formData.email) ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    {formLoading ? (
-                      <>
-                        <div style={{
-                          animation: 'spin 1s linear infinite',
-                          borderRadius: '9999px',
-                          width: '16px',
-                          height: '16px',
-                          borderBottom: '2px solid #ffffff'
-                        }}></div>
-                        Updating...
-                      </>
-                    ) : (
-                      "Update User"
-                    )}
-                  </button>
-                </div>
+                        height: '16px',
+                        borderBottom: '2px solid #ffffff'
+                      }}></div>
+                      Updating...
+                    </>
+                  ) : (
+                    "Update User"
+                  )}
+                </button>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

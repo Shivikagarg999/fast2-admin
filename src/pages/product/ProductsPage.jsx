@@ -14,6 +14,7 @@ import {
   FiBarChart2,
   FiGrid,
   FiDownload,
+  FiUpload,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
@@ -96,6 +97,9 @@ const ProductsPage = () => {
   const [newServiceablePincode, setNewServiceablePincode] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
+  const [csvFile, setCsvFile] = useState(null);
+  const [uploadingCSV, setUploadingCSV] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
 
   const commonVariantTypes = [
     {
@@ -745,13 +749,13 @@ const ProductsPage = () => {
   const downloadCSV = async () => {
     try {
       const params = new URLSearchParams();
-      
+
       // Add filters based on current state
       const activeProducts = filteredProducts.filter(p => p.isActive);
       const inactiveProducts = filteredProducts.filter(p => !p.isActive);
       const inStockProducts = filteredProducts.filter(p => p.stockStatus === 'in-stock');
       const outOfStockProducts = filteredProducts.filter(p => p.stockStatus === 'out-of-stock');
-      
+
       // Determine which filter to apply based on current view
       if (activeProducts.length === filteredProducts.length) {
         params.append('isActive', 'true');
@@ -764,7 +768,7 @@ const ProductsPage = () => {
       }
 
       const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/download/csv?${params.toString()}`);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to download CSV');
@@ -775,7 +779,7 @@ const ProductsPage = () => {
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      
+
       const filterName = params.toString() || 'all';
       a.download = `products_${filterName}_${new Date().toISOString().split('T')[0]}.csv`;
       document.body.appendChild(a);
@@ -786,6 +790,83 @@ const ProductsPage = () => {
       console.error('Error downloading CSV:', error);
       alert('Error downloading CSV: ' + error.message);
     }
+  };
+
+  const handleCSVUpload = async () => {
+    if (!csvFile) {
+      alert('Please select a CSV file first');
+      return;
+    }
+
+    setUploadingCSV(true);
+    setUploadResult(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('csvFile', csvFile);
+
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/upload/csv`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setUploadResult({
+          success: true,
+          message: response.data.message,
+          imported: response.data.imported,
+          errors: response.data.errors
+        });
+
+        // Refresh products list
+        await fetchProducts();
+
+        // Reset file input
+        setCsvFile(null);
+        const fileInput = document.getElementById('csvFileInput');
+        if (fileInput) fileInput.value = '';
+      } else {
+        setUploadResult({
+          success: false,
+          message: response.data.message,
+          errors: response.data.errors
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading CSV:', error);
+      setUploadResult({
+        success: false,
+        message: error.response?.data?.message || 'Failed to upload CSV',
+        errors: error.response?.data?.errors || []
+      });
+    } finally {
+      setUploadingCSV(false);
+    }
+  };
+
+  const downloadTemplate = () => {
+    const templateContent = `Product Name,Description,Brand,Category,Price,Quantity,Stock Status,Active Status,Low Stock Threshold,Min Order Quantity,Max Order Quantity,Weight,Weight Unit,SKU,Seller,Warehouse,Storage Type,Estimated Delivery Time,Delivery Charges,Free Delivery Threshold,Serviceable Pincodes,Images,Video
+"Fresh Tomato","Fresh and juicy tomatoes perfect for salads and cooking","Farm Fresh","Fresh Vegetables","25","50","in-stock","Active","10","1","10","500","g","TOMATO001","Thakuri Prasad","Indra Nagar Warehouse","ambient","2-3 days","0","500","110001;110002;110003","https://example.com/image1.jpg;https://example.com/image2.jpg","https://example.com/video.mp4"
+"Organic Apple","Crisp and sweet organic apples","Nature's Best","Fresh Fruits","80","30","in-stock","Active","10","1","10","1000","g","APPLE001","Shivika Garg","Chandpur Warehouse","cold-storage","1-2 days","10","1000","110004;110005;110006","https://example.com/apple1.jpg;https://example.com/apple2.jpg",""
+"Whole Wheat Bread","Healthy whole wheat bread for daily consumption","Bakery Fresh","Bakery","40","0","out-of-stock","Active","5","1","10","500","g","BREAD001","Rajesh Kumar","Central Warehouse","ambient","1 day","20","800","110007;110008","https://example.com/bread.jpg",""`;
+
+    const blob = new Blob([templateContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'product_upload_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   };
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
@@ -960,7 +1041,10 @@ const ProductsPage = () => {
                 </div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   {hasPermission(PERMISSIONS.PRODUCTS_CREATE) && (
-                    <button onClick={openAddModal} style={buttonStyles.primary}>
+                    <button
+                      onClick={openAddModal}
+                      style={buttonStyles.primary}
+                    >
                       <FiPlus style={{ width: "16px", height: "16px" }} />
                       Add Product
                     </button>
@@ -969,13 +1053,134 @@ const ProductsPage = () => {
                     <FiDownload style={{ width: "16px", height: "16px" }} />
                     Download CSV
                   </button>
+                  <button
+                    onClick={() => document.getElementById('csvFileInput').click()}
+                    style={buttonStyles.outline}
+                  >
+                    <FiUpload style={{ width: "16px", height: "16px" }} />
+                    Upload CSV
+                  </button>
+                  <button onClick={downloadTemplate} style={buttonStyles.outline}>
+                    Download Template
+                  </button>
+                  <input
+                    id="csvFileInput"
+                    type="file"
+                    accept=".csv"
+                    style={{ display: 'none' }}
+                    onChange={(e) => setCsvFile(e.target.files[0])}
+                  />
                 </div>
               </div>
+
+              {csvFile && (
+                <div style={{ marginBottom: "16px" }}>
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "12px 16px",
+                    backgroundColor: "#f0f9ff",
+                    border: "1px solid #0ea5e9",
+                    borderRadius: "8px"
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <FiUpload style={{ color: "#0ea5e9" }} />
+                      <span style={{ fontSize: "14px", color: "#0c4a6e" }}>
+                        Selected: {csvFile.name}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button
+                        onClick={handleCSVUpload}
+                        disabled={uploadingCSV}
+                        style={{
+                          ...buttonStyles.success,
+                          opacity: uploadingCSV ? 0.6 : 1,
+                          cursor: uploadingCSV ? "not-allowed" : "pointer"
+                        }}
+                      >
+                        {uploadingCSV ? "Uploading..." : "Upload"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCsvFile(null);
+                          document.getElementById('csvFileInput').value = '';
+                        }}
+                        style={buttonStyles.danger}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {uploadResult && (
+                <div style={{ marginBottom: "16px" }}>
+                  <div style={{
+                    padding: "12px 16px",
+                    backgroundColor: uploadResult.success ? "#f0fdf4" : "#fef2f2",
+                    border: `1px solid ${uploadResult.success ? "#16a34a" : "#dc2626"}`,
+                    borderRadius: "8px"
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                      <span style={{
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        color: uploadResult.success ? "#15803d" : "#991b1b"
+                      }}>
+                        {uploadResult.success ? "✓ Upload Successful" : "✗ Upload Failed"}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: "14px", color: "#374151", marginBottom: "8px" }}>
+                      {uploadResult.message}
+                    </div>
+                    {uploadResult.imported && (
+                      <div style={{ fontSize: "14px", color: "#059669" }}>
+                        {uploadResult.imported} products imported successfully
+                      </div>
+                    )}
+                    {uploadResult.errors && uploadResult.errors.length > 0 && (
+                      <div style={{ marginTop: "8px" }}>
+                        <div style={{ fontSize: "14px", fontWeight: "500", color: "#dc2626", marginBottom: "4px" }}>
+                          Errors:
+                        </div>
+                        {uploadResult.errors.slice(0, 5).map((error, index) => (
+                          <div key={index} style={{ fontSize: "12px", color: "#991b1b", marginBottom: "2px" }}>
+                            • {error}
+                          </div>
+                        ))}
+                        {uploadResult.errors.length > 5 && (
+                          <div style={{ fontSize: "12px", color: "#991b1b" }}>
+                            ... and {uploadResult.errors.length - 5} more errors
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setUploadResult(null)}
+                      style={{
+                        marginTop: "8px",
+                        padding: "4px 8px",
+                        fontSize: "12px",
+                        backgroundColor: "transparent",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "4px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div
                 style={{
                   display: "flex",
-                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                   gap: "16px",
                   marginBottom: "24px",
                 }}
@@ -3377,8 +3582,11 @@ const ProductsPage = () => {
                         onClick={addVariant}
                         style={{
                           ...buttonStyles.primary,
-                          padding: "6px 12px",
+                          display: "block",
                           fontSize: "14px",
+                          fontWeight: "500",
+                          color: "#374151",
+                          marginBottom: "8px",
                         }}
                       >
                         <FiPlus style={{ width: "14px", height: "14px" }} /> Add
