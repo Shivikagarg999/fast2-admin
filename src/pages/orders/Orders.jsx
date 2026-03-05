@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Edit, Trash2, Plus, Package, X, Search, Eye, Truck } from "lucide-react";
+import { Edit, Trash2, Plus, Package, X, Search, Eye, Truck, Download } from "lucide-react";
 
 const OrdersPage = () => {
     const [orders, setOrders] = useState([]);
@@ -98,6 +98,36 @@ const OrdersPage = () => {
         }).format(amount);
     };
 
+    const downloadCSV = async () => {
+        try {
+            const params = new URLSearchParams();
+            if (statusFilter !== "all") {
+                params.append('status', statusFilter);
+            }
+
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/download/csv?${params.toString()}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to download CSV');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `orders_${statusFilter !== 'all' ? statusFilter : 'all'}_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error downloading CSV:', error);
+            alert('Error downloading CSV: ' + error.message);
+        }
+    };
+
     const getStatusBadge = (status) => {
         const statusConfig = {
             pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100', label: 'Pending' },
@@ -162,6 +192,14 @@ const OrdersPage = () => {
                             {totalOrders} orders
                         </span>
                     </div>
+                    <button
+                        onClick={downloadCSV}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                        title="Download CSV"
+                    >
+                        <Download className="w-4 h-4" />
+                        Download CSV
+                    </button>
                 </div>
 
                 {/* Search and Filters */}

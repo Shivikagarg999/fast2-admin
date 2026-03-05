@@ -13,7 +13,8 @@ import {
   FiUser,
   FiLock,
   FiEye,
-  FiEyeOff
+  FiEyeOff,
+  FiDownload
 } from "react-icons/fi";
 import usePermissions from "../hooks/usePermissions";
 import { PERMISSIONS } from "../config/permissions";
@@ -323,10 +324,59 @@ const UsersPage = () => {
     return matchesSearch && matchesRole;
   });
 
+  const downloadCSV = async () => {
+    try {
+      const params = new URLSearchParams();
+      
+      // Add filters based on current state
+      if (roleFilter) {
+        params.append('role', roleFilter);
+      } else {
+        // Check if all users are verified or have wallet
+        const verifiedUsers = filteredUsers.filter(u => u.isVerified);
+        const unverifiedUsers = filteredUsers.filter(u => !u.isVerified);
+        const usersWithWallet = filteredUsers.filter(u => u.wallet > 0);
+        const usersWithoutWallet = filteredUsers.filter(u => u.wallet <= 0);
+        
+        if (verifiedUsers.length === filteredUsers.length) {
+          params.append('isVerified', 'true');
+        } else if (unverifiedUsers.length === filteredUsers.length) {
+          params.append('isVerified', 'false');
+        } else if (usersWithWallet.length === filteredUsers.length) {
+          params.append('hasWallet', 'true');
+        } else if (usersWithoutWallet.length === filteredUsers.length) {
+          params.append('hasWallet', 'false');
+        }
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/download/csv?${params.toString()}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to download CSV');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      
+      const filterName = params.toString() || 'all';
+      a.download = `users_${filterName}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV: ' + error.message);
+    }
+  };
+
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
   const getRoleBadge = (role) => {
@@ -501,6 +551,13 @@ const UsersPage = () => {
                     Add User
                   </button>
                 )}
+                <button
+                  onClick={downloadCSV}
+                  style={buttonStyles.success}
+                >
+                  <FiDownload style={{ width: '16px', height: '16px' }} />
+                  Download CSV
+                </button>
               </div>
             </div>
           </div>

@@ -13,6 +13,7 @@ import {
   FiEye,
   FiBarChart2,
   FiGrid,
+  FiDownload,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
@@ -741,6 +742,52 @@ const ProductsPage = () => {
     );
   }, [products, search, categoryFilter, categories]);
 
+  const downloadCSV = async () => {
+    try {
+      const params = new URLSearchParams();
+      
+      // Add filters based on current state
+      const activeProducts = filteredProducts.filter(p => p.isActive);
+      const inactiveProducts = filteredProducts.filter(p => !p.isActive);
+      const inStockProducts = filteredProducts.filter(p => p.stockStatus === 'in-stock');
+      const outOfStockProducts = filteredProducts.filter(p => p.stockStatus === 'out-of-stock');
+      
+      // Determine which filter to apply based on current view
+      if (activeProducts.length === filteredProducts.length) {
+        params.append('isActive', 'true');
+      } else if (inactiveProducts.length === filteredProducts.length) {
+        params.append('isActive', 'false');
+      } else if (inStockProducts.length === filteredProducts.length) {
+        params.append('stockStatus', 'in-stock');
+      } else if (outOfStockProducts.length === filteredProducts.length) {
+        params.append('stockStatus', 'out-of-stock');
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/download/csv?${params.toString()}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to download CSV');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      
+      const filterName = params.toString() || 'all';
+      a.download = `products_${filterName}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV: ' + error.message);
+    }
+  };
+
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const indexOfLastProduct = currentPage * PRODUCTS_PER_PAGE;
   const indexOfFirstProduct = indexOfLastProduct - PRODUCTS_PER_PAGE;
@@ -911,12 +958,18 @@ const ProductsPage = () => {
                     </button>
                   </div>
                 </div>
-                {hasPermission(PERMISSIONS.PRODUCTS_CREATE) && (
-                  <button onClick={openAddModal} style={buttonStyles.primary}>
-                    <FiPlus style={{ width: "16px", height: "16px" }} />
-                    Add Product
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {hasPermission(PERMISSIONS.PRODUCTS_CREATE) && (
+                    <button onClick={openAddModal} style={buttonStyles.primary}>
+                      <FiPlus style={{ width: "16px", height: "16px" }} />
+                      Add Product
+                    </button>
+                  )}
+                  <button onClick={downloadCSV} style={buttonStyles.success}>
+                    <FiDownload style={{ width: "16px", height: "16px" }} />
+                    Download CSV
                   </button>
-                )}
+                </div>
               </div>
 
               <div
