@@ -100,6 +100,11 @@ const ProductsPage = () => {
   const [csvFile, setCsvFile] = useState(null);
   const [uploadingCSV, setUploadingCSV] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
+  const [inlineEdit, setInlineEdit] = useState({
+    productId: null,
+    field: null,
+    value: "",
+  });
 
   const commonVariantTypes = [
     {
@@ -653,6 +658,33 @@ const ProductsPage = () => {
     }
   };
 
+  const handleInlineUpdate = async (productId, field, value) => {
+    try {
+      const fieldMapping = {
+        price: 'price',
+        weight: 'weight',
+        unit: 'unit'
+      };
+
+      const backendField = fieldMapping[field];
+      if (!backendField) return;
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}`,
+        { [backendField]: value },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      if (response.data.success || response.status === 200) {
+        setProducts(prev => prev.map(p => p._id === productId ? { ...p, [backendField]: value } : p));
+        setInlineEdit({ productId: null, field: null, value: "" });
+      }
+    } catch (error) {
+      console.error("Error updating product inline:", error);
+      alert("Failed to update product: " + (error.response?.data?.message || error.message));
+    }
+  };
+
   const handleDelete = async (productId, productName) => {
     if (!hasPermission(PERMISSIONS.PRODUCTS_DELETE)) {
       alert("You don't have permission to delete products");
@@ -851,22 +883,37 @@ const ProductsPage = () => {
     }
   };
 
-  const downloadTemplate = () => {
-    const templateContent = `Product Name,Description,Brand,Category,Price,Quantity,Stock Status,Active Status,Low Stock Threshold,Min Order Quantity,Max Order Quantity,Weight,Weight Unit,SKU,Seller,Warehouse,Storage Type,Estimated Delivery Time,Delivery Charges,Free Delivery Threshold,Serviceable Pincodes,Images,Video
-"Fresh Tomato","Fresh and juicy tomatoes perfect for salads and cooking","Farm Fresh","Fresh Vegetables","25","50","in-stock","Active","10","1","10","500","g","TOMATO001","Thakuri Prasad","Indra Nagar Warehouse","ambient","2-3 days","0","500","110001;110002;110003","https://example.com/image1.jpg;https://example.com/image2.jpg","https://example.com/video.mp4"
-"Organic Apple","Crisp and sweet organic apples","Nature's Best","Fresh Fruits","80","30","in-stock","Active","10","1","10","1000","g","APPLE001","Shivika Garg","Chandpur Warehouse","cold-storage","1-2 days","10","1000","110004;110005;110006","https://example.com/apple1.jpg;https://example.com/apple2.jpg",""
-"Whole Wheat Bread","Healthy whole wheat bread for daily consumption","Bakery Fresh","Bakery","40","0","out-of-stock","Active","5","1","10","500","g","BREAD001","Rajesh Kumar","Central Warehouse","ambient","1 day","20","800","110007;110008","https://example.com/bread.jpg",""`;
+  const downloadTemplate = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/download/template`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
 
-    const blob = new Blob([templateContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = 'product_upload_template.csv';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to download template');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'product_upload_template.csv';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      alert('Error downloading template: ' + error.message);
+    }
   };
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
@@ -1301,6 +1348,34 @@ const ProductsPage = () => {
                             }}
                             className="dark:text-gray-400"
                           >
+                            Weight
+                          </th>
+                          <th
+                            style={{
+                              padding: "12px 24px",
+                              textAlign: "left",
+                              fontSize: "12px",
+                              fontWeight: "500",
+                              color: "#6b7280",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                            className="dark:text-gray-400"
+                          >
+                            Unit
+                          </th>
+                          <th
+                            style={{
+                              padding: "12px 24px",
+                              textAlign: "left",
+                              fontSize: "12px",
+                              fontWeight: "500",
+                              color: "#6b7280",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                            className="dark:text-gray-400"
+                          >
                             Stock
                           </th>
                           <th
@@ -1425,11 +1500,24 @@ const ProductsPage = () => {
                               }}
                             >
                               <div
-                                style={{ fontSize: "14px", color: "#111827" }}
+                                style={{ fontSize: "14px", color: "#111827", cursor: "pointer" }}
                                 className="dark:text-white"
+                                onClick={() => setInlineEdit({ productId: product._id, field: 'price', value: product.price })}
                               >
-                                {formatPrice(product.price)}
-                                {product.oldPrice && (
+                                {inlineEdit.productId === product._id && inlineEdit.field === 'price' ? (
+                                  <input
+                                    type="number"
+                                    value={inlineEdit.value}
+                                    onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
+                                    onBlur={() => handleInlineUpdate(product._id, 'price', inlineEdit.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'price', inlineEdit.value)}
+                                    autoFocus
+                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
+                                  />
+                                ) : (
+                                  formatPrice(product.price)
+                                )}
+                                {product.oldPrice && inlineEdit.productId !== product._id && (
                                   <div
                                     style={{
                                       fontSize: "12px",
@@ -1440,6 +1528,58 @@ const ProductsPage = () => {
                                   >
                                     {formatPrice(product.oldPrice)}
                                   </div>
+                                )}
+                              </div>
+                            </td>
+                            <td
+                              style={{
+                                padding: "16px 24px",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <div
+                                style={{ fontSize: "14px", color: "#111827", cursor: "pointer" }}
+                                className="dark:text-white"
+                                onClick={() => setInlineEdit({ productId: product._id, field: 'weight', value: product.weight })}
+                              >
+                                {inlineEdit.productId === product._id && inlineEdit.field === 'weight' ? (
+                                  <input
+                                    type="number"
+                                    value={inlineEdit.value}
+                                    onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
+                                    onBlur={() => handleInlineUpdate(product._id, 'weight', inlineEdit.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'weight', inlineEdit.value)}
+                                    autoFocus
+                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
+                                  />
+                                ) : (
+                                  `${product.weight || 0} ${product.weightUnit || 'g'}`
+                                )}
+                              </div>
+                            </td>
+                            <td
+                              style={{
+                                padding: "16px 24px",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <div
+                                style={{ fontSize: "14px", color: "#111827", cursor: "pointer" }}
+                                className="dark:text-white"
+                                onClick={() => setInlineEdit({ productId: product._id, field: 'unit', value: product.unit })}
+                              >
+                                {inlineEdit.productId === product._id && inlineEdit.field === 'unit' ? (
+                                  <input
+                                    type="text"
+                                    value={inlineEdit.value}
+                                    onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
+                                    onBlur={() => handleInlineUpdate(product._id, 'unit', inlineEdit.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'unit', inlineEdit.value)}
+                                    autoFocus
+                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
+                                  />
+                                ) : (
+                                  product.unit || "piece"
                                 )}
                               </div>
                             </td>

@@ -3,7 +3,8 @@ import {
     Building2, RefreshCw, Search, X,
     MapPin, CheckCircle, XCircle, Trash2,
     Eye, Star, BadgeCheck,
-    Loader2, Plus, Edit2, Save
+    Loader2, Plus, Edit2, Save,
+    Image, Video, Camera, Upload
 } from 'lucide-react';
 import usePermissions from '../../hooks/usePermissions';
 import { PERMISSIONS } from '../../config/permissions';
@@ -55,9 +56,13 @@ const ShopsPage = () => {
         isVerified: false,
         isActive: true,
         isOpen: true,
+        shopType: 'general',
     });
     const [actionLoading, setActionLoading] = useState(null);
     const [formError, setFormError] = useState('');
+    const [logoPreview, setLogoPreview] = useState(null);
+    const [coverPreview, setCoverPreview] = useState(null);
+    const [videoPreview, setVideoPreview] = useState(null);
 
     // ─── Fetch Shops ──────────────────────────────────────────────────────────────
     const fetchShops = useCallback(async (page = pagination.currentPage) => {
@@ -178,6 +183,8 @@ const ShopsPage = () => {
                 isVerified: shop.isVerified || false,
                 isActive: shop.isActive !== undefined ? shop.isActive : true,
                 isOpen: shop.isOpen !== undefined ? shop.isOpen : true,
+                shopType: shop.shopType || 'general',
+                seller: shop.seller?._id || shop.seller || '',
             });
         } else {
             setIsEditing(false);
@@ -193,8 +200,12 @@ const ShopsPage = () => {
                 isVerified: false,
                 isActive: true,
                 isOpen: true,
+                shopType: 'general',
             });
         }
+        setLogoPreview(shop?.logo?.url || null);
+        setCoverPreview(shop?.coverImage?.url || null);
+        setVideoPreview(shop?.video?.url || null);
         setIsFormModalOpen(true);
     };
 
@@ -218,10 +229,35 @@ const ShopsPage = () => {
                 ? `${BASE_URL}/api/admin/shops/${selectedShop._id}`
                 : `${BASE_URL}/api/admin/shops`;
 
+            const formDataToSend = new FormData();
+            
+            // Append all non-file fields
+            Object.keys(formData).forEach(key => {
+                if (key === 'address' || key === 'socialLinks') {
+                    formDataToSend.append(key, JSON.stringify(formData[key]));
+                } else {
+                    formDataToSend.append(key, formData[key]);
+                }
+            });
+
+            // Append files
+            const logoInput = document.getElementById('shop-logo-input');
+            const coverInput = document.getElementById('shop-cover-input');
+            const videoInput = document.getElementById('shop-video-input');
+
+            if (logoInput?.files[0]) formDataToSend.append('logo', logoInput.files[0]);
+            if (coverInput?.files[0]) formDataToSend.append('coverImage', coverInput.files[0]);
+            if (videoInput?.files[0]) formDataToSend.append('video', videoInput.files[0]);
+
+            // Create custom headers (no Content-Type for FormData as browser sets boundary)
+            const headers = {
+                'Authorization': `Bearer ${getToken()}`
+            };
+
             const response = await fetch(url, {
                 method: isEditing ? 'PUT' : 'POST',
-                headers: authHeaders(),
-                body: JSON.stringify(formData),
+                headers,
+                body: formDataToSend,
             });
 
             const result = await response.json();
@@ -503,6 +539,11 @@ const ShopsPage = () => {
                                                     <p className="font-semibold text-gray-900 flex items-center gap-1">
                                                         {shop.shopName}
                                                         {shop.isVerified && <BadgeCheck className="w-4 h-4 text-blue-500" />}
+                                                        {shop.shopType === 'medical' && (
+                                                            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded leading-none border border-emerald-200">
+                                                                MEDICAL
+                                                            </span>
+                                                        )}
                                                     </p>
                                                     <p className="text-xs text-gray-500 font-mono">/{shop.shopSlug}</p>
                                                 </div>
@@ -679,32 +720,30 @@ const ShopsPage = () => {
                                     </div>
                                 )}
 
-                                {/* Seller selector — only on create */}
-                                {!isEditing && (
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-semibold text-gray-700">
-                                            Select Seller *
-                                        </label>
-                                        <select
-                                            required
-                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                                            value={formData.seller}
-                                            onChange={(e) => setFormData(d => ({ ...d, seller: e.target.value }))}
-                                        >
-                                            <option value="">
-                                                {sellersLoading ? 'Loading sellers...' : 'Choose a seller...'}
+                                {/* Seller selector */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700">
+                                        Select Seller *
+                                    </label>
+                                    <select
+                                        required
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={formData.seller}
+                                        onChange={(e) => setFormData(d => ({ ...d, seller: e.target.value }))}
+                                    >
+                                        <option value="">
+                                            {sellersLoading ? 'Loading sellers...' : 'Choose a seller...'}
+                                        </option>
+                                        {sellers.map(s => (
+                                            <option key={s._id} value={s._id}>
+                                                {s.name}{s.businessName ? ` — ${s.businessName}` : ''} ({s.email})
                                             </option>
-                                            {sellers.map(s => (
-                                                <option key={s._id} value={s._id}>
-                                                    {s.name}{s.businessName ? ` — ${s.businessName}` : ''} ({s.email})
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {sellers.length === 0 && !sellersLoading && (
-                                            <p className="text-xs text-orange-600">No sellers found. Make sure sellers exist before creating a shop.</p>
-                                        )}
-                                    </div>
-                                )}
+                                        ))}
+                                    </select>
+                                    {sellers.length === 0 && !sellersLoading && (
+                                        <p className="text-xs text-orange-600">No sellers found. Make sure sellers exist before creating a shop.</p>
+                                    )}
+                                </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
@@ -725,6 +764,18 @@ const ShopsPage = () => {
                                             value={formData.tagline}
                                             onChange={(e) => setFormData(d => ({ ...d, tagline: e.target.value }))}
                                         />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-gray-700">Shop Type *</label>
+                                        <select
+                                            required
+                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                            value={formData.shopType}
+                                            onChange={(e) => setFormData(d => ({ ...d, shopType: e.target.value }))}
+                                        >
+                                            <option value="general">General Shop</option>
+                                            <option value="medical">Medical Shop</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -796,6 +847,100 @@ const ShopsPage = () => {
                                                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                                                 value={formData.address.pincode}
                                                 onChange={(e) => setFormData(d => ({ ...d, address: { ...d.address, pincode: e.target.value } }))}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-gray-100 pt-5">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Shop Media</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Logo Upload */}
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-gray-700">Shop Logo</label>
+                                            <div 
+                                                className="relative group w-32 h-32 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden hover:border-blue-500 transition-colors bg-gray-50 cursor-pointer"
+                                                onClick={() => document.getElementById('shop-logo-input').click()}
+                                            >
+                                                {logoPreview ? (
+                                                    <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="text-center">
+                                                        <Camera className="w-8 h-8 text-gray-400 mx-auto" />
+                                                        <span className="text-[10px] text-gray-400 font-bold uppercase mt-1 block">Upload Logo</span>
+                                                    </div>
+                                                )}
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <Upload className="w-6 h-6 text-white" />
+                                                </div>
+                                            </div>
+                                            <input 
+                                                id="shop-logo-input"
+                                                type="file" 
+                                                accept="image/*" 
+                                                className="hidden" 
+                                                onChange={(e) => handleFileChange(e, 'logo')} 
+                                            />
+                                        </div>
+
+                                        {/* Cover Image Upload */}
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-gray-700">Cover Image</label>
+                                            <div 
+                                                className="relative group w-full h-32 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden hover:border-blue-500 transition-colors bg-gray-50 cursor-pointer"
+                                                onClick={() => document.getElementById('shop-cover-input').click()}
+                                            >
+                                                {coverPreview ? (
+                                                    <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="text-center">
+                                                        <Image className="w-8 h-8 text-gray-400 mx-auto" />
+                                                        <span className="text-[10px] text-gray-400 font-bold uppercase mt-1 block">Upload Cover</span>
+                                                    </div>
+                                                )}
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <Upload className="w-6 h-6 text-white" />
+                                                </div>
+                                            </div>
+                                            <input 
+                                                id="shop-cover-input"
+                                                type="file" 
+                                                accept="image/*" 
+                                                className="hidden" 
+                                                onChange={(e) => handleFileChange(e, 'coverImage')} 
+                                            />
+                                        </div>
+
+                                        {/* Video Upload */}
+                                        <div className="space-y-2 md:col-span-2">
+                                            <label className="text-sm font-semibold text-gray-700">Introduction Video</label>
+                                            <div 
+                                                className="relative group w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden hover:border-blue-500 transition-colors bg-gray-50 cursor-pointer"
+                                                onClick={() => document.getElementById('shop-video-input').click()}
+                                            >
+                                                {videoPreview ? (
+                                                    <div className="w-full h-full relative">
+                                                        <video src={videoPreview} className="w-full h-full object-cover" />
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                                            <Video className="w-10 h-10 text-white opacity-80" />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center">
+                                                        <Video className="w-10 h-10 text-gray-400 mx-auto" />
+                                                        <span className="text-[10px] text-gray-400 font-bold uppercase mt-1 block">Upload Promo Video</span>
+                                                    </div>
+                                                )}
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <Upload className="w-8 h-8 text-white" />
+                                                </div>
+                                            </div>
+                                            <input 
+                                                id="shop-video-input"
+                                                type="file" 
+                                                accept="video/*" 
+                                                className="hidden" 
+                                                onChange={(e) => handleFileChange(e, 'video')} 
                                             />
                                         </div>
                                     </div>
@@ -896,6 +1041,9 @@ const ShopsPage = () => {
                                                     {selectedShop.isOpen
                                                         ? <span className="bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded text-[10px] font-bold">OPEN</span>
                                                         : <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold">ON VACATION</span>}
+                                                    {selectedShop.shopType === 'medical' && (
+                                                        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-200">MEDICAL</span>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -922,6 +1070,18 @@ const ShopsPage = () => {
                                                     ⭐ {selectedShop.rating?.average || 0} ({selectedShop.rating?.totalReviews || 0} reviews)
                                                 </span>
                                             </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-500">Shop Type</span>
+                                                <span className="font-medium text-gray-900 capitalize">{selectedShop.shopType || 'General'}</span>
+                                            </div>
+                                            {selectedShop.video?.url && (
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-gray-500">Introduction Video</span>
+                                                    <a href={selectedShop.video.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                                        View Video
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </section>

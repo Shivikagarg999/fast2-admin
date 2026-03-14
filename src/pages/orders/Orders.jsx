@@ -195,6 +195,7 @@ const OrdersPage = () => {
                     <button
                         onClick={downloadCSV}
                         className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                         style={{backgroundColor: 'black'}} 
                         title="Download CSV"
                     >
                         <Download className="w-4 h-4" />
@@ -483,7 +484,6 @@ const OrdersPage = () => {
                                         <div className="space-y-2">
                                             <p><strong>Order Date:</strong> {formatDate(selectedOrder.createdAt)}</p>
                                             <p><strong>Status:</strong> {getStatusBadge(selectedOrder.status)}</p>
-                                            <p><strong>Seller:</strong> {getStatusBadge(selectedOrder.seller)}</p>
                                             <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod?.toUpperCase()}</p>
                                             <p><strong>Payment Status:</strong> {getPaymentStatusBadge(selectedOrder.paymentStatus)}</p>
                                             <p><strong>Total Amount:</strong> {formatCurrency(selectedOrder.total)}</p>
@@ -529,6 +529,52 @@ const OrdersPage = () => {
                                         ))}
                                     </div>
                                 </div>
+
+                                {selectedOrder.prescriptionImage?.url && (
+                                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Medical Prescription</h3>
+                                            <button 
+                                                onClick={() => {
+                                                    const win = window.open('', '_blank');
+                                                    win.document.write(`
+                                                        <html>
+                                                            <head>
+                                                                <title>Prescription - ${selectedOrder.orderId}</title>
+                                                                <style>
+                                                                    body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: white; }
+                                                                    img { max-width: 100%; height: auto; }
+                                                                    @media print {
+                                                                        .no-print { display: none; }
+                                                                        body { margin: 0; }
+                                                                        img { width: 100%; }
+                                                                    }
+                                                                </style>
+                                                            </head>
+                                                            <body>
+                                                                <img src="${selectedOrder.prescriptionImage.url}" onload="window.print();" />
+                                                            </body>
+                                                        </html>
+                                                    `);
+                                                    win.document.close();
+                                                }}
+                                                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors"
+                                                style={{backgroundColor: 'black'}} 
+                                           >
+                                                <Download className="w-4 h-4" style={{backgroundColor: 'black'}} />
+                                                Print Prescription
+                                            </button>
+                                        </div>
+                                        <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg flex justify-center">
+                                            <img 
+                                                src={selectedOrder.prescriptionImage.url} 
+                                                alt="Prescription" 
+                                                className="max-h-96 rounded-lg shadow-sm cursor-zoom-in"
+                                                onClick={() => window.open(selectedOrder.prescriptionImage.url, '_blank')}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Order Total */}
                                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
