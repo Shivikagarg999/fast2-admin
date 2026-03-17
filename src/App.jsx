@@ -32,6 +32,7 @@ import PromotorPayouts from "./pages/payouts/PromotorPayouts";
 import SellerPayouts from "./pages/payouts/SellerPayouts";
 import OnlinePay from "./pages/online-pay/OnlinePay";
 import DriverPayouts from "./pages/payouts/DriverPayout";
+import PopupManagement from "./pages/popup/PopupManagement";
 
 function App() {
   return (
@@ -321,6 +322,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
                 <DriverPayouts />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Popup Management */}
+          <Route
+            path="/admin/popups"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
+                <PopupManagement />
               </ProtectedRoute>
             }
           />
