@@ -41,10 +41,13 @@ const PopupManagement = () => {
       
       const result = await response.json();
       if (result.success) {
-        setPopups(result.data);
+        setPopups(result.data || []);
+      } else {
+        setPopups([]);
       }
     } catch (error) {
       console.error('Error fetching popups:', error);
+      setPopups([]);
       showMessage('Failed to fetch popups', 'error');
     } finally {
       setLoading(false);
@@ -582,7 +585,8 @@ const PopupManagement = () => {
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
+                 style= {{backgroundColor: 'black'}}
+             >
                   {editingPopup ? 'Update Popup' : 'Create Popup'}
                 </button>
               </div>
@@ -628,7 +632,7 @@ const PopupManagement = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {popups.map((popup) => (
+                {popups && popups.map((popup) => (
                   <tr key={popup._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div>
