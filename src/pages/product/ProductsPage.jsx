@@ -2284,7 +2284,7 @@ const ProductsPage = () => {
                           }}
                           className="dark:text-gray-300"
                         >
-                          Old Price
+                          MRP
                         </label>
                         <input
                           type="number"
