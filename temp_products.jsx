@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+﻿import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import {
   FiEdit,
@@ -1179,7 +1179,7 @@ const ProductsPage = () => {
                         fontWeight: "500",
                         color: uploadResult.success ? "#15803d" : "#991b1b"
                       }}>
-                        {uploadResult.success ? "✓ Upload Successful" : "✗ Upload Failed"}
+                        {uploadResult.success ? "âœ“ Upload Successful" : "âœ— Upload Failed"}
                       </span>
                     </div>
                     <div style={{ fontSize: "14px", color: "#374151", marginBottom: "8px" }}>
@@ -1197,7 +1197,7 @@ const ProductsPage = () => {
                         </div>
                         {uploadResult.errors.slice(0, 5).map((error, index) => (
                           <div key={index} style={{ fontSize: "12px", color: "#991b1b", marginBottom: "2px" }}>
-                            • {error}
+                            â€¢ {error}
                           </div>
                         ))}
                         {uploadResult.errors.length > 5 && (
@@ -1544,32 +1544,6 @@ const ProductsPage = () => {
                                   >
                                     {formatPrice(product.oldPrice)}
                                   </div>
-                                )}
-                              </div>
-                            </td>
-                                                        <td
-                              style={{
-                                padding: "16px 24px",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <div
-                                style={{ fontSize: "14px", color: "#111827", cursor: "pointer" }}
-                                className="dark:text-white"
-                                onClick={() => setInlineEdit({ productId: product._id, field: 'oldPrice', value: product.oldPrice })}
-                              >
-                                {inlineEdit.productId === product._id && inlineEdit.field === 'oldPrice' ? (
-                                  <input
-                                    type="number"
-                                    value={inlineEdit.value}
-                                    onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
-                                    onBlur={() => handleInlineUpdate(product._id, 'oldPrice', inlineEdit.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'oldPrice', inlineEdit.value)}
-                                    autoFocus
-                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
-                                  />
-                                ) : (
-                                  product.oldPrice ? formatPrice(product.oldPrice) : "-"
                                 )}
                               </div>
                             </td>
@@ -2995,7 +2969,7 @@ const ProductsPage = () => {
                           }}
                           className="dark:text-gray-300"
                         >
-                          Dimensions (L × W × H)
+                          Dimensions (L Ã— W Ã— H)
                         </label>
                         <div style={{ display: "flex", gap: "8px" }}>
                           <input
@@ -3403,7 +3377,7 @@ const ProductsPage = () => {
                               onClick={() => removePincode(pin, "available")}
                               style={{ color: "#0369a1", fontWeight: "bold" }}
                             >
-                              ×
+                              Ã—
                             </button>
                           </span>
                         ))}
@@ -3485,7 +3459,7 @@ const ProductsPage = () => {
                             onClick={() => removePincode(pin, "serviceable")}
                             style={{ color: "#16a34a", fontWeight: "bold" }}
                           >
-                            ×
+                            Ã—
                           </button>
                         </span>
                       ))}
@@ -4862,7 +4836,7 @@ const ProductsPage = () => {
                           style={{ fontSize: "13px", color: "#6b7280" }}
                           className="dark:text-gray-400"
                         >
-                          Dimensions (L×W×H):
+                          Dimensions (LÃ—WÃ—H):
                         </span>
                         <p
                           style={{
@@ -4876,8 +4850,8 @@ const ProductsPage = () => {
                             (selectedProduct.dimensions.length ||
                               selectedProduct.dimensions.width ||
                               selectedProduct.dimensions.height)
-                            ? `${selectedProduct.dimensions.length || 0}×${selectedProduct.dimensions.width || 0
-                            }×${selectedProduct.dimensions.height || 0} ${selectedProduct.dimensions.unit || "cm"
+                            ? `${selectedProduct.dimensions.length || 0}Ã—${selectedProduct.dimensions.width || 0
+                            }Ã—${selectedProduct.dimensions.height || 0} ${selectedProduct.dimensions.unit || "cm"
                             }`
                             : "N/A"}
                         </p>
@@ -5651,7 +5625,6 @@ const ProductsPage = () => {
                                       item.product?._id === selectedProduct._id
                                   )?.quantity || 0}
                                 </td>
-                                
                                 <td style={{ padding: "12px 16px" }}>
                                   <span
                                     style={{
@@ -5759,7 +5732,7 @@ const ProductsPage = () => {
                             : "#dc2626",
                         }}
                       >
-                        {selectedProduct.isActive ? "✓ Active" : "✗ Inactive"}
+                        {selectedProduct.isActive ? "âœ“ Active" : "âœ— Inactive"}
                       </span>
                       <span
                         style={{ fontSize: "14px", color: "#6b7280" }}
@@ -5775,7 +5748,7 @@ const ProductsPage = () => {
                           style={{ fontSize: "14px", color: "#6b7280" }}
                           className="dark:text-gray-400"
                         >
-                          • Last Updated:{" "}
+                          â€¢ Last Updated:{" "}
                           {new Date(
                             selectedProduct.updatedAt
                           ).toLocaleDateString()}

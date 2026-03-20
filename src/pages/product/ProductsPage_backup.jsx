@@ -1547,32 +1547,6 @@ const ProductsPage = () => {
                                 )}
                               </div>
                             </td>
-                                                        <td
-                              style={{
-                                padding: "16px 24px",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <div
-                                style={{ fontSize: "14px", color: "#111827", cursor: "pointer" }}
-                                className="dark:text-white"
-                                onClick={() => setInlineEdit({ productId: product._id, field: 'oldPrice', value: product.oldPrice })}
-                              >
-                                {inlineEdit.productId === product._id && inlineEdit.field === 'oldPrice' ? (
-                                  <input
-                                    type="number"
-                                    value={inlineEdit.value}
-                                    onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
-                                    onBlur={() => handleInlineUpdate(product._id, 'oldPrice', inlineEdit.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'oldPrice', inlineEdit.value)}
-                                    autoFocus
-                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
-                                  />
-                                ) : (
-                                  product.oldPrice ? formatPrice(product.oldPrice) : "-"
-                                )}
-                              </div>
-                            </td>
                             <td
                               style={{
                                 padding: "16px 24px",
@@ -5651,7 +5625,6 @@ const ProductsPage = () => {
                                       item.product?._id === selectedProduct._id
                                   )?.quantity || 0}
                                 </td>
-                                
                                 <td style={{ padding: "12px 16px" }}>
                                   <span
                                     style={{

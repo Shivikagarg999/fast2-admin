@@ -57,6 +57,16 @@ const ShopsPage = () => {
         isActive: true,
         isOpen: true,
         shopType: 'general',
+        timings: {
+            monday: { open: '09:00', close: '18:00', closed: false },
+            tuesday: { open: '09:00', close: '18:00', closed: false },
+            wednesday: { open: '09:00', close: '18:00', closed: false },
+            thursday: { open: '09:00', close: '18:00', closed: false },
+            friday: { open: '09:00', close: '18:00', closed: false },
+            saturday: { open: '09:00', close: '18:00', closed: false },
+            sunday: { open: '09:00', close: '18:00', closed: false },
+            timezone: 'Asia/Kolkata'
+        }
     });
     const [actionLoading, setActionLoading] = useState(null);
     const [formError, setFormError] = useState('');
@@ -185,6 +195,16 @@ const ShopsPage = () => {
                 isOpen: shop.isOpen !== undefined ? shop.isOpen : true,
                 shopType: shop.shopType || 'general',
                 seller: shop.seller?._id || shop.seller || '',
+                timings: shop.timings || {
+                    monday: { open: '09:00', close: '18:00', closed: false },
+                    tuesday: { open: '09:00', close: '18:00', closed: false },
+                    wednesday: { open: '09:00', close: '18:00', closed: false },
+                    thursday: { open: '09:00', close: '18:00', closed: false },
+                    friday: { open: '09:00', close: '18:00', closed: false },
+                    saturday: { open: '09:00', close: '18:00', closed: false },
+                    sunday: { open: '09:00', close: '18:00', closed: false },
+                    timezone: 'Asia/Kolkata'
+                }
             });
         } else {
             setIsEditing(false);
@@ -201,6 +221,16 @@ const ShopsPage = () => {
                 isActive: true,
                 isOpen: true,
                 shopType: 'general',
+                timings: {
+                    monday: { open: '09:00', close: '18:00', closed: false },
+                    tuesday: { open: '09:00', close: '18:00', closed: false },
+                    wednesday: { open: '09:00', close: '18:00', closed: false },
+                    thursday: { open: '09:00', close: '18:00', closed: false },
+                    friday: { open: '09:00', close: '18:00', closed: false },
+                    saturday: { open: '09:00', close: '18:00', closed: false },
+                    sunday: { open: '09:00', close: '18:00', closed: false },
+                    timezone: 'Asia/Kolkata'
+                }
             });
         }
         setLogoPreview(shop?.logo?.url || null);
@@ -233,7 +263,7 @@ const ShopsPage = () => {
             
             // Append all non-file fields
             Object.keys(formData).forEach(key => {
-                if (key === 'address' || key === 'socialLinks') {
+                if (key === 'address' || key === 'socialLinks' || key === 'timings') {
                     formDataToSend.append(key, JSON.stringify(formData[key]));
                 } else {
                     formDataToSend.append(key, formData[key]);
@@ -343,6 +373,29 @@ const ShopsPage = () => {
         } finally {
             setActionLoading(null);
         }
+    };
+
+    // ─── Handle File Change ───────────────────────────────────────────────────────
+    const handleFileChange = (e, type) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const preview = reader.result;
+            switch (type) {
+                case 'logo':
+                    setLogoPreview(preview);
+                    break;
+                case 'coverImage':
+                    setCoverPreview(preview);
+                    break;
+                case 'video':
+                    setVideoPreview(preview);
+                    break;
+            }
+        };
+        reader.readAsDataURL(file);
     };
 
     // ─── Effects ──────────────────────────────────────────────────────────────────
@@ -853,6 +906,88 @@ const ShopsPage = () => {
                                 </div>
 
                                 <div className="border-t border-gray-100 pt-5">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Shop Timings</h3>
+                                    <div className="space-y-3">
+                                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                                            <div key={day} className="grid grid-cols-12 gap-3 items-center">
+                                                <div className="col-span-3">
+                                                    <label className="text-sm font-semibold text-gray-700 capitalize">{day}</label>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <input
+                                                        type="time"
+                                                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                        value={formData.timings[day].open}
+                                                        onChange={(e) => setFormData(d => ({ 
+                                                            ...d, 
+                                                            timings: { 
+                                                                ...d.timings, 
+                                                                [day]: { ...d.timings[day], open: e.target.value }
+                                                            } 
+                                                        }))}
+                                                    />
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <input
+                                                        type="time"
+                                                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                        value={formData.timings[day].close}
+                                                        onChange={(e) => setFormData(d => ({ 
+                                                            ...d, 
+                                                            timings: { 
+                                                                ...d.timings, 
+                                                                [day]: { ...d.timings[day], close: e.target.value }
+                                                            } 
+                                                        }))}
+                                                    />
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="w-4 h-4 text-red-600 rounded"
+                                                            checked={formData.timings[day].closed}
+                                                            onChange={(e) => setFormData(d => ({ 
+                                                                ...d, 
+                                                                timings: { 
+                                                                    ...d.timings, 
+                                                                    [day]: { ...d.timings[day], closed: e.target.checked }
+                                                                } 
+                                                            }))}
+                                                        />
+                                                        <span className="text-sm font-medium text-gray-700">Closed</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div className="grid grid-cols-12 gap-3 items-center pt-2">
+                                            <div className="col-span-3">
+                                                <label className="text-sm font-semibold text-gray-700">Timezone</label>
+                                            </div>
+                                            <div className="col-span-9">
+                                                <select
+                                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                    value={formData.timings.timezone}
+                                                    onChange={(e) => setFormData(d => ({ 
+                                                        ...d, 
+                                                        timings: { 
+                                                            ...d.timings, 
+                                                            timezone: e.target.value 
+                                                        } 
+                                                    }))}
+                                                >
+                                                    <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                                                    <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+                                                    <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+                                                    <option value="Europe/London">Europe/London (GMT)</option>
+                                                    <option value="America/New_York">America/New_York (EST)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-gray-100 pt-5">
                                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Shop Media</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {/* Logo Upload */}
@@ -1137,6 +1272,33 @@ const ShopsPage = () => {
                                     <div className="p-4 bg-white border border-gray-100 rounded-xl">
                                         <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Street</p>
                                         <p className="text-sm font-semibold">{selectedShop.address?.street || '—'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Shop Timings</h4>
+                                <div className="p-4 bg-white border border-gray-100 rounded-xl">
+                                    <div className="grid grid-cols-7 gap-2 text-xs">
+                                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                                            <div key={day} className="text-center">
+                                                <p className="font-bold text-gray-700 capitalize mb-1">{day.slice(0, 3)}</p>
+                                                {selectedShop.timings?.[day]?.closed ? (
+                                                    <p className="text-red-600 font-medium">Closed</p>
+                                                ) : (
+                                                    <div>
+                                                        <p className="text-gray-900">{selectedShop.timings?.[day]?.open || '09:00'}</p>
+                                                        <p className="text-gray-500">to</p>
+                                                        <p className="text-gray-900">{selectedShop.timings?.[day]?.close || '18:00'}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-3 pt-3 border-t border-gray-100">
+                                        <p className="text-xs text-gray-500">
+                                            Timezone: <span className="font-medium text-gray-700">{selectedShop.timings?.timezone || 'Asia/Kolkata'}</span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
