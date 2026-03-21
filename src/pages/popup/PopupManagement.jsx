@@ -1,322 +1,199 @@
-import React, { useState, useEffect } from "react";
-import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight, FiClock, FiImage, FiTarget, FiZap, FiX, FiCheck, FiAlertCircle } from "react-icons/fi";
+import React, { useState, useEffect, useRef } from "react";
+import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight, FiClock, FiImage, FiX, FiCheck, FiAlertCircle, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+
+const BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/popups`;
+const LIMIT = 10;
+
+const defaultForm = { startTime: '', endTime: '', isActive: true };
 
 const PopupManagement = () => {
   const [popups, setPopups] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filterActive, setFilterActive] = useState(''); // '' | 'true' | 'false'
   const [showForm, setShowForm] = useState(false);
   const [editingPopup, setEditingPopup] = useState(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    message: '',
-    imageUrl: '',
-    startTime: '',
-    endTime: '',
-    isActive: true,
-    type: 'info',
-    position: 'top-center',
-    showCloseButton: true,
-    autoCloseAfter: '',
-    targetPages: '',
-    targetUsers: '',
-    priority: 1
-  });
+  const [formData, setFormData] = useState(defaultForm);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState([]);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [toast, setToast] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const imageInputRef = useRef(null);
 
-  useEffect(() => {
-    fetchPopups();
-  }, []);
+  useEffect(() => { fetchPopups(page, filterActive); }, [page, filterActive]);
 
-  const fetchPopups = async () => {
+  const getHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem('token')}`
+  });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  const fetchPopups = async (p = 1, activeFilter = '') => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('https://api.fast2.in/api/popups', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const params = new URLSearchParams({ page: p, limit: LIMIT });
+      if (activeFilter !== '') params.append('isActive', activeFilter);
+      const res = await fetch(`${BASE_URL}?${params}`, {
+        headers: { ...getHeaders(), 'Content-Type': 'application/json' }
       });
-      
-      const result = await response.json();
+      const result = await res.json();
       if (result.success) {
         setPopups(result.data || []);
+        const pagination = result.pagination || {};
+        setTotalPages(pagination.totalPages || 1);
+        setTotalCount(pagination.total ?? (result.data?.length ?? 0));
       } else {
         setPopups([]);
       }
-    } catch (error) {
-      console.error('Error fetching popups:', error);
+    } catch (err) {
+      console.error(err);
       setPopups([]);
-      showMessage('Failed to fetch popups', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleFilterChange = (val) => {
+    setFilterActive(val);
+    setPage(1);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const validate = () => {
+    const errs = [];
+    if (!formData.startTime) errs.push('Start time is required');
+    if (!formData.endTime) errs.push('End time is required');
+    if (formData.startTime && formData.endTime && new Date(formData.endTime) <= new Date(formData.startTime))
+      errs.push('End time must be after start time');
+    if (!editingPopup && !imageFile) errs.push('Image is required');
+    return errs;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors([]);
-    setSuccessMessage('');
+    const errs = validate();
+    if (errs.length > 0) { setErrors(errs); return; }
 
-    // Format target pages and users
-    const popupData = {
-      ...formData,
-      targetPages: formData.targetPages ? formData.targetPages.split(',').map(p => p.trim()) : [],
-      targetUsers: formData.targetUsers ? formData.targetUsers.split(',').map(u => u.trim()) : [],
-      autoCloseAfter: formData.autoCloseAfter ? parseInt(formData.autoCloseAfter) : null
-    };
+    const body = new FormData();
+    body.append('startTime', new Date(formData.startTime).toISOString());
+    body.append('endTime', new Date(formData.endTime).toISOString());
+    body.append('isActive', formData.isActive);
+    if (imageFile) body.append('image', imageFile);
 
-    // Validate data
-    const validationErrors = validatePopupData(popupData);
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    // Format data for API
-    const formattedData = formatPopupData(popupData);
-
+    setSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
-      let response;
-      
-      if (editingPopup) {
-        response = await fetch(`https://api.fast2.in/api/popups/${editingPopup._id}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formattedData)
-        });
-      } else {
-        response = await fetch('https://api.fast2.in/api/popups', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formattedData)
-        });
-      }
-
-      const result = await response.json();
-      
+      const url = editingPopup ? `${BASE_URL}/${editingPopup._id}` : BASE_URL;
+      const res = await fetch(url, {
+        method: editingPopup ? 'PUT' : 'POST',
+        headers: getHeaders(),
+        body
+      });
+      const result = await res.json();
       if (result.success) {
-        await fetchPopups();
-        resetForm();
-        setShowForm(false);
-        showMessage(editingPopup ? 'Popup updated successfully!' : 'Popup created successfully!', 'success');
+        await fetchPopups(page, filterActive);
+        closeForm();
+        showToast(editingPopup ? 'Popup updated successfully!' : 'Popup created successfully!');
       } else {
         setErrors([result.message || 'Failed to save popup']);
       }
-    } catch (error) {
-      console.error('Error saving popup:', error);
+    } catch {
       setErrors(['Failed to save popup. Please try again.']);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleEdit = (popup) => {
     setEditingPopup(popup);
     setFormData({
-      title: popup.title,
-      message: popup.message,
-      imageUrl: popup.imageUrl || '',
       startTime: new Date(popup.startTime).toISOString().slice(0, 16),
       endTime: new Date(popup.endTime).toISOString().slice(0, 16),
-      isActive: popup.isActive,
-      type: popup.type,
-      position: popup.position,
-      showCloseButton: popup.showCloseButton,
-      autoCloseAfter: popup.autoCloseAfter || '',
-      targetPages: popup.targetPages ? popup.targetPages.join(', ') : '',
-      targetUsers: popup.targetUsers ? popup.targetUsers.join(', ') : '',
-      priority: popup.priority
+      isActive: popup.isActive
     });
+    setImageFile(null);
+    setImagePreview(popup.imageUrl || null);
+    setErrors([]);
     setShowForm(true);
-    setErrors([]);
-    setSuccessMessage('');
   };
 
-  const handleDelete = async (popupId) => {
+  const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this popup?')) return;
-
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`https://api.fast2.in/api/popups/${popupId}`, {
+      const res = await fetch(`${BASE_URL}/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { ...getHeaders(), 'Content-Type': 'application/json' }
       });
-
-      const result = await response.json();
-      
+      const result = await res.json();
       if (result.success) {
-        await fetchPopups();
-        showMessage('Popup deleted successfully!', 'success');
+        // if last item on page > 1, go back
+        const newPage = popups.length === 1 && page > 1 ? page - 1 : page;
+        setPage(newPage);
+        await fetchPopups(newPage, filterActive);
+        showToast('Popup deleted successfully!');
       } else {
-        showMessage('Failed to delete popup', 'error');
+        showToast('Failed to delete popup', 'error');
       }
-    } catch (error) {
-      console.error('Error deleting popup:', error);
-      showMessage('Failed to delete popup. Please try again.', 'error');
-    }
+    } catch { showToast('Failed to delete popup.', 'error'); }
   };
 
-  const handleToggle = async (popupId) => {
+  const handleToggle = async (id) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`https://api.fast2.in/api/popups/${popupId}/toggle`, {
+      const res = await fetch(`${BASE_URL}/${id}/toggle`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { ...getHeaders(), 'Content-Type': 'application/json' }
       });
-
-      const result = await response.json();
-      
+      const result = await res.json();
       if (result.success) {
-        await fetchPopups();
-        showMessage('Popup status updated successfully!', 'success');
+        await fetchPopups(page, filterActive);
+        showToast('Popup status updated!');
       } else {
-        showMessage('Failed to toggle popup', 'error');
+        showToast('Failed to toggle popup', 'error');
       }
-    } catch (error) {
-      console.error('Error toggling popup:', error);
-      showMessage('Failed to toggle popup. Please try again.', 'error');
-    }
+    } catch { showToast('Failed to toggle popup.', 'error'); }
   };
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      message: '',
-      imageUrl: '',
-      startTime: '',
-      endTime: '',
-      isActive: true,
-      type: 'info',
-      position: 'top-center',
-      showCloseButton: true,
-      autoCloseAfter: '',
-      targetPages: '',
-      targetUsers: '',
-      priority: 1
-    });
+  const closeForm = () => {
+    setShowForm(false);
     setEditingPopup(null);
+    setFormData(defaultForm);
+    setImageFile(null);
+    setImagePreview(null);
     setErrors([]);
-    setSuccessMessage('');
   };
 
-  const showMessage = (message, type) => {
-    setSuccessMessage(message);
-    setTimeout(() => setSuccessMessage(''), 5000);
-  };
-
-  const validatePopupData = (data) => {
-    const errors = [];
-
-    if (!data.title || data.title.trim().length === 0) {
-      errors.push('Title is required');
-    }
-
-    if (!data.message || data.message.trim().length === 0) {
-      errors.push('Message is required');
-    }
-
-    if (data.title && data.title.length > 100) {
-      errors.push('Title must be less than 100 characters');
-    }
-
-    if (data.message && data.message.length > 500) {
-      errors.push('Message must be less than 500 characters');
-    }
-
-    if (!data.startTime) {
-      errors.push('Start time is required');
-    }
-
-    if (!data.endTime) {
-      errors.push('End time is required');
-    }
-
-    if (data.startTime && data.endTime && new Date(data.endTime) <= new Date(data.startTime)) {
-      errors.push('End time must be after start time');
-    }
-
-    if (data.autoCloseAfter && (data.autoCloseAfter < 1 || data.autoCloseAfter > 300)) {
-      errors.push('Auto-close time must be between 1 and 300 seconds');
-    }
-
-    if (data.priority && (data.priority < 1 || data.priority > 10)) {
-      errors.push('Priority must be between 1 and 10');
-    }
-
-    return errors;
-  };
-
-  const formatPopupData = (data) => {
-    return {
-      title: data.title?.trim(),
-      message: data.message?.trim(),
-      imageUrl: data.imageUrl || null,
-      startTime: new Date(data.startTime).toISOString(),
-      endTime: new Date(data.endTime).toISOString(),
-      isActive: data.isActive !== undefined ? data.isActive : true,
-      type: data.type || 'info',
-      position: data.position || 'top-center',
-      showCloseButton: data.showCloseButton !== undefined ? data.showCloseButton : true,
-      autoCloseAfter: data.autoCloseAfter || null,
-      targetPages: Array.isArray(data.targetPages) ? data.targetPages : [],
-      targetUsers: Array.isArray(data.targetUsers) ? data.targetUsers : [],
-      priority: data.priority || 1,
-    };
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
-  };
-
-  const isPopupActive = (popup) => {
+  const isLive = (popup) => {
     const now = new Date();
-    const start = new Date(popup.startTime);
-    const end = new Date(popup.endTime);
-    return popup.isActive && start <= now && end >= now;
+    return popup.isActive && new Date(popup.startTime) <= now && new Date(popup.endTime) >= now;
   };
 
-  const getPopupTypeColor = (type) => {
-    const colors = {
-      'info': 'bg-blue-100 text-blue-800',
-      'success': 'bg-green-100 text-green-800',
-      'warning': 'bg-yellow-100 text-yellow-800',
-      'error': 'bg-red-100 text-red-800'
-    };
-    return colors[type] || colors['info'];
+  const getStatusBadge = (popup) => {
+    if (isLive(popup)) return { label: 'Live', cls: 'bg-green-100 text-green-800' };
+    if (popup.isActive) return { label: 'Scheduled', cls: 'bg-yellow-100 text-yellow-800' };
+    return { label: 'Inactive', cls: 'bg-gray-100 text-gray-600' };
   };
 
-  const getStatusColor = (popup) => {
-    if (isPopupActive(popup)) {
-      return 'bg-green-100 text-green-800';
-    } else if (popup.isActive) {
-      return 'bg-yellow-100 text-yellow-800';
-    } else {
-      return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const fmt = (d) => new Date(d).toLocaleString();
 
-  const getStatusText = (popup) => {
-    if (isPopupActive(popup)) {
-      return 'Active Now';
-    } else if (popup.isActive) {
-      return 'Scheduled';
-    } else {
-      return 'Inactive';
-    }
-  };
+  const filterTabs = [
+    { label: 'All', value: '' },
+    { label: 'Active', value: 'true' },
+    { label: 'Inactive', value: 'false' },
+  ];
 
   return (
     <div className="p-6">
@@ -324,124 +201,83 @@ const PopupManagement = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Popup Management</h1>
-          <p className="text-gray-600 mt-1">Manage time-based popup notifications for users</p>
+          <p className="text-gray-500 mt-1 text-sm">Manage image-based popups shown to users during a scheduled time window</p>
         </div>
         <button
-          onClick={() => {
-            resetForm();
-            setShowForm(true);
-          }}
-          style={{backgroundColor: 'black'}}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          onClick={() => { closeForm(); setShowForm(true); }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium"
+          style={{ backgroundColor: 'black' }}
         >
           <FiPlus className="w-4 h-4" />
-          Create New Popup
+          Create Popup
         </button>
       </div>
 
-      {/* Success/Error Messages */}
-      {successMessage && (
-        <div className={`mb-4 p-4 rounded-lg flex items-center gap-2 ${
-          successMessage.includes('success') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
-        }`}>
-          {successMessage.includes('success') ? <FiCheck className="w-5 h-5" /> : <FiAlertCircle className="w-5 h-5" />}
-          {successMessage}
+      {/* Toast */}
+      {toast && (
+        <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-green-50 text-green-800 border border-green-200'}`}>
+          {toast.type === 'error' ? <FiAlertCircle className="w-4 h-4" /> : <FiCheck className="w-4 h-4" />}
+          {toast.message}
         </div>
       )}
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {editingPopup ? 'Edit Popup' : 'Create New Popup'}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-lg shadow-xl">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-bold text-gray-900">
+                {editingPopup ? 'Edit Popup' : 'Create Popup'}
               </h2>
-              <button
-                onClick={() => setShowForm(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <FiX className="w-6 h-6" />
+              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600">
+                <FiX className="w-5 h-5" />
               </button>
             </div>
 
-            {errors.length > 0 && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-                <ul className="list-disc list-inside">
-                  {errors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Title <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    maxLength={100}
-                    required
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Max 100 characters</p>
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              {errors.length > 0 && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  <ul className="list-disc list-inside space-y-1">
+                    {errors.map((e, i) => <li key={i}>{e}</li>)}
+                  </ul>
                 </div>
+              )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Popup Type
-                  </label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="info">Info (Blue)</option>
-                    <option value="success">Success (Green)</option>
-                    <option value="warning">Warning (Yellow)</option>
-                    <option value="error">Error (Red)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  rows={3}
-                  maxLength={500}
-                  required
-                />
-                <p className="text-xs text-gray-500 mt-1">Max 500 characters</p>
-              </div>
-
+              {/* Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <FiImage className="inline w-4 h-4 mr-1" />
-                  Image URL
+                  Popup Image {!editingPopup && <span className="text-red-500">*</span>}
                 </label>
+                <div
+                  onClick={() => imageInputRef.current?.click()}
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400 transition-colors"
+                >
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="mx-auto max-h-40 object-contain rounded" />
+                  ) : (
+                    <div className="py-4 text-gray-400">
+                      <FiImage className="w-8 h-8 mx-auto mb-2" />
+                      <p className="text-sm">Click to upload image</p>
+                    </div>
+                  )}
+                </div>
                 <input
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="https://example.com/image.jpg"
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
                 />
-                <p className="text-xs text-gray-500 mt-1">Optional: Add an image to the popup</p>
+                {editingPopup && (
+                  <p className="text-xs text-gray-500 mt-1">Leave empty to keep the current image</p>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Start & End Time */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     <FiClock className="inline w-4 h-4 mr-1" />
                     Start Time <span className="text-red-500">*</span>
                   </label>
@@ -449,13 +285,12 @@ const PopupManagement = () => {
                     type="datetime-local"
                     value={formData.startTime}
                     onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
                     required
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     <FiClock className="inline w-4 h-4 mr-1" />
                     End Time <span className="text-red-500">*</span>
                   </label>
@@ -463,132 +298,38 @@ const PopupManagement = () => {
                     type="datetime-local"
                     value={formData.endTime}
                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
                     required
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Position
-                  </label>
-                  <select
-                    value={formData.position}
-                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="top-left">Top Left</option>
-                    <option value="top-center">Top Center</option>
-                    <option value="top-right">Top Right</option>
-                    <option value="bottom-left">Bottom Left</option>
-                    <option value="bottom-center">Bottom Center</option>
-                    <option value="bottom-right">Bottom Right</option>
-                  </select>
-                </div>
+              {/* Active Toggle */}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span className="text-sm font-medium text-gray-700">Active</span>
+              </label>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Priority (1-10)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Higher number = higher priority</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FiZap className="inline w-4 h-4 mr-1" />
-                    Auto Close (seconds)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="300"
-                    value={formData.autoCloseAfter}
-                    onChange={(e) => setFormData({ ...formData, autoCloseAfter: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Leave empty for manual close"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">1-300 seconds</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FiTarget className="inline w-4 h-4 mr-1" />
-                    Target Pages (comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.targetPages}
-                    onChange={(e) => setFormData({ ...formData, targetPages: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="/home, /products, /about"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Leave empty for all pages</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FiTarget className="inline w-4 h-4 mr-1" />
-                    Target Users (comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.targetUsers}
-                    onChange={(e) => setFormData({ ...formData, targetUsers: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="premium, new, vip"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Leave empty for all users</p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-6">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="mr-2 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Active</span>
-                </label>
-
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.showCloseButton}
-                    onChange={(e) => setFormData({ ...formData, showCloseButton: e.target.checked })}
-                    className="mr-2 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Show Close Button</span>
-                </label>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4 border-t">
+              <div className="flex justify-end gap-3 pt-2 border-t">
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={closeForm}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                 style= {{backgroundColor: 'black'}}
-             >
-                  {editingPopup ? 'Update Popup' : 'Create Popup'}
+                  disabled={submitting}
+                  className="px-4 py-2 text-sm text-white rounded-lg transition-colors disabled:opacity-60"
+                  style={{ backgroundColor: 'black' }}
+                >
+                  {submitting ? 'Saving...' : editingPopup ? 'Update Popup' : 'Create Popup'}
                 </button>
               </div>
             </form>
@@ -596,149 +337,174 @@ const PopupManagement = () => {
         </div>
       )}
 
-      {/* Popups List */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">All Popups</h3>
+      {/* List */}
+      <div className="bg-white rounded-xl shadow overflow-hidden">
+        {/* Table header with filter tabs */}
+        <div className="px-6 py-4 border-b flex items-center justify-between gap-4 flex-wrap">
+          <h3 className="text-base font-semibold text-gray-900">
+            All Popups
+            {totalCount > 0 && (
+              <span className="ml-2 text-sm font-normal text-gray-400">({totalCount})</span>
+            )}
+          </h3>
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+            {filterTabs.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => handleFilterChange(value)}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  filterActive === value
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-gray-600">Loading popups...</p>
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
+            <p className="mt-3 text-sm text-gray-500">Loading popups...</p>
+          </div>
+        ) : popups.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <FiImage className="w-12 h-12 mx-auto mb-3" />
+            <p className="font-medium">No popups found</p>
+            <p className="text-sm mt-1">
+              {filterActive !== '' ? 'Try changing the filter' : 'Create your first popup to get started'}
+            </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title & Message
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Schedule
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Priority
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {popups && popups.map((popup) => (
-                  <tr key={popup._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{popup.title}</div>
-                        <div className="text-sm text-gray-500 truncate max-w-xs">
-                          {popup.message}
-                        </div>
-                        {popup.imageUrl && (
-                          <div className="flex items-center mt-1 text-xs text-blue-600">
-                            <FiImage className="w-3 h-3 mr-1" />
-                            Has image
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPopupTypeColor(popup.type)}`}>
-                        {popup.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <FiClock className="w-3 h-3 mr-1" />
-                        <div>
-                          <div>{formatDate(popup.startTime)}</div>
-                          <div className="text-xs">to {formatDate(popup.endTime)}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(popup)}`}>
-                        {getStatusText(popup)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        {popup.priority}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEdit(popup)}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Edit"
-                        >
-                          <FiEdit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleToggle(popup._id)}
-                          className="text-yellow-600 hover:text-yellow-900"
-                          title={popup.isActive ? 'Disable' : 'Enable'}
-                        >
-                          {popup.isActive ? <FiToggleRight className="w-4 h-4" /> : <FiToggleLeft className="w-4 h-4" />}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(popup._id)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Delete"
-                        >
-                          <FiTrash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+          <>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Schedule</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {popups.map((popup) => {
+                    const { label, cls } = getStatusBadge(popup);
+                    return (
+                      <tr key={popup._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          {popup.imageUrl ? (
+                            <img
+                              src={popup.imageUrl}
+                              alt="Popup"
+                              className="h-14 w-24 object-cover rounded-lg border border-gray-200"
+                            />
+                          ) : (
+                            <div className="h-14 w-24 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                              <FiImage className="w-5 h-5" />
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          <div className="flex items-start gap-1">
+                            <FiClock className="w-4 h-4 mt-0.5 text-gray-400 flex-shrink-0" />
+                            <div>
+                              <div>{fmt(popup.startTime)}</div>
+                              <div className="text-xs text-gray-400 mt-0.5">→ {fmt(popup.endTime)}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${cls}`}>
+                            {label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => handleEdit(popup)}
+                              className="text-blue-600 hover:text-blue-800"
+                              title="Edit"
+                            >
+                              <FiEdit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleToggle(popup._id)}
+                              className={popup.isActive ? 'text-green-600 hover:text-green-800' : 'text-gray-400 hover:text-gray-600'}
+                              title={popup.isActive ? 'Deactivate' : 'Activate'}
+                            >
+                              {popup.isActive ? <FiToggleRight className="w-5 h-5" /> : <FiToggleLeft className="w-5 h-5" />}
+                            </button>
+                            <button
+                              onClick={() => handleDelete(popup._id)}
+                              className="text-red-500 hover:text-red-700"
+                              title="Delete"
+                            >
+                              <FiTrash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-            {popups.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <FiAlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                <p>No popups found.</p>
-                <p className="text-sm">Create your first popup to get started!</p>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t flex items-center justify-between text-sm text-gray-600">
+                <span>
+                  Page {page} of {totalPages}
+                  {totalCount > 0 && ` · ${totalCount} total`}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="p-1.5 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <FiChevronLeft className="w-4 h-4" />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                    .reduce((acc, p, idx, arr) => {
+                      if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((item, idx) =>
+                      item === '...' ? (
+                        <span key={`ellipsis-${idx}`} className="px-2 text-gray-400">…</span>
+                      ) : (
+                        <button
+                          key={item}
+                          onClick={() => setPage(item)}
+                          className={`w-8 h-8 rounded-md text-xs font-medium border transition-colors ${
+                            page === item
+                              ? 'text-white border-transparent'
+                              : 'border-gray-200 hover:bg-gray-50'
+                          }`}
+                          style={page === item ? { backgroundColor: 'black' } : {}}
+                        >
+                          {item}
+                        </button>
+                      )
+                    )}
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="p-1.5 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <FiChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
-          </div>
+          </>
         )}
-      </div>
-
-      {/* Info Section */}
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-blue-900 mb-3">
-          <FiAlertCircle className="inline w-5 h-5 mr-2" />
-          How Popup Scheduling Works
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
-          <div>
-            <h4 className="font-medium mb-2">Time-based Display:</h4>
-            <ul className="space-y-1 list-disc list-inside">
-              <li>Popups only appear during the specified time window</li>
-              <li>Set start and end times in your local timezone</li>
-              <li>System automatically checks and shows/hides popups</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-medium mb-2">Best Practices:</h4>
-            <ul className="space-y-1 list-disc list-inside">
-              <li>Use clear, concise messages (max 500 characters)</li>
-              <li>Set appropriate auto-close times (5-30 seconds)</li>
-              <li>Target specific pages for better user experience</li>
-              <li>Use priority to handle multiple overlapping popups</li>
-            </ul>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -330,7 +330,7 @@ function App() {
           <Route
             path="/admin/popups"
             element={
-              <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
+              <ProtectedRoute requiredPermission={PERMISSIONS.POPUPS_VIEW}>
                 <PopupManagement />
               </ProtectedRoute>
             }

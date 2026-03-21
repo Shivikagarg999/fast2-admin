@@ -71,6 +71,11 @@ export const PERMISSIONS = {
   DISCOUNTS_EDIT: 'discounts.edit',
   DISCOUNTS_DELETE: 'discounts.delete',
 
+  POPUPS_VIEW: 'popups.view',
+  POPUPS_CREATE: 'popups.create',
+  POPUPS_EDIT: 'popups.edit',
+  POPUPS_DELETE: 'popups.delete',
+
   // Terms & Conditions
   TERMS_VIEW: 'terms.view',
   TERMS_EDIT: 'terms.edit',

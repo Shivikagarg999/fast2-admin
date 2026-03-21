@@ -147,13 +147,13 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           path: "/admin/banners",
           icon: <FiImage className="w-4 h-4" />,
           permission: PERMISSIONS.BANNERS_VIEW,
+        },
+        {
+          name: "Popups",
+          path: "/admin/popups",
+          icon: <FiBell className="w-4 h-4" />,
+          permission: PERMISSIONS.POPUPS_VIEW,
         }
-        // {
-        //   name: "Popup Notifications",
-        //   path: "/admin/popups",
-        //   icon: <FiBell className="w-4 h-4" />,
-        //   permission: PERMISSIONS.DASHBOARD_VIEW,
-        // },
       ]
     },
     {
