@@ -15,6 +15,7 @@ import {
   FiGrid,
   FiDownload,
   FiUpload,
+  FiGift,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
@@ -92,6 +93,12 @@ const ProductsPage = () => {
     isActive: true,
     variants: [],
   });
+
+  const [showScratchGiftModal, setShowScratchGiftModal] = useState(false);
+  const [scratchGiftProduct, setScratchGiftProduct] = useState(null);
+  const [scratchGiftCoins, setScratchGiftCoins] = useState("");
+  const [scratchGiftLoading, setScratchGiftLoading] = useState(false);
+  const [scratchGiftCurrent, setScratchGiftCurrent] = useState(null);
 
   const [newPincode, setNewPincode] = useState("");
   const [newServiceablePincode, setNewServiceablePincode] = useState("");
@@ -984,6 +991,63 @@ const ProductsPage = () => {
     },
   };
 
+  const openScratchGiftModal = async (product) => {
+    setScratchGiftProduct(product);
+    setScratchGiftCoins(product.scratchGift?.coinsAmount || "");
+    setScratchGiftCurrent(product.scratchGift?.isEnabled ? product.scratchGift : null);
+    setShowScratchGiftModal(true);
+  };
+
+  const closeScratchGiftModal = () => {
+    setShowScratchGiftModal(false);
+    setScratchGiftProduct(null);
+    setScratchGiftCoins("");
+    setScratchGiftCurrent(null);
+  };
+
+  const handleAttachScratchGift = async () => {
+    if (!scratchGiftCoins || Number(scratchGiftCoins) <= 0) {
+      alert("Please enter a valid coins amount.");
+      return;
+    }
+    setScratchGiftLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL || "https://api.fast2.in"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
+        { coinsAmount: Number(scratchGiftCoins) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setScratchGiftCurrent(response.data.scratchGift);
+      fetchProducts();
+      alert("Scratch gift attached successfully!");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to attach scratch gift.");
+    } finally {
+      setScratchGiftLoading(false);
+    }
+  };
+
+  const handleRemoveScratchGift = async () => {
+    if (!window.confirm("Remove scratch gift from this product?")) return;
+    setScratchGiftLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `${import.meta.env.VITE_BASE_URL || "https://api.fast2.in"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setScratchGiftCurrent(null);
+      setScratchGiftCoins("");
+      fetchProducts();
+      alert("Scratch gift removed.");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to remove scratch gift.");
+    } finally {
+      setScratchGiftLoading(false);
+    }
+  };
+
   return (
     <div
       style={{ backgroundColor: "#f3f4f6", minHeight: "100vh", width: "100%" }}
@@ -1759,6 +1823,20 @@ const ProductsPage = () => {
                                     />
                                   </button>
                                 )}
+                                {hasPermission(PERMISSIONS.PRODUCTS_EDIT) && product.price > 200 && (
+                                  <button
+                                    onClick={() => openScratchGiftModal(product)}
+                                    style={{
+                                      color: product.scratchGift?.isEnabled ? "#f59e0b" : "#9ca3af",
+                                      padding: "4px",
+                                      borderRadius: "4px",
+                                    }}
+                                    className="hover:text-yellow-600"
+                                    title={product.scratchGift?.isEnabled ? `Scratch Gift: ${product.scratchGift.coinsAmount} coins` : "Add Scratch Gift"}
+                                  >
+                                    <FiGift style={{ width: "16px", height: "16px" }} />
+                                  </button>
+                                )}
                                 {hasPermission(PERMISSIONS.PRODUCTS_DELETE) && (
                                   <button
                                     onClick={() =>
@@ -1891,6 +1969,26 @@ const ProductsPage = () => {
                           >
                             <FiEdit style={{ width: "14px", height: "14px" }} />
                             Edit
+                          </button>
+                        )}
+                        {hasPermission(PERMISSIONS.PRODUCTS_EDIT) && product.price > 200 && (
+                          <button
+                            onClick={() => openScratchGiftModal(product)}
+                            style={{
+                              backgroundColor: product.scratchGift?.isEnabled ? "#fef3c7" : "#f3f4f6",
+                              color: product.scratchGift?.isEnabled ? "#d97706" : "#6b7280",
+                              border: "none",
+                              borderRadius: "8px",
+                              padding: "6px 10px",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              fontSize: "14px",
+                            }}
+                            title="Scratch Gift"
+                          >
+                            <FiGift style={{ width: "14px", height: "14px" }} />
                           </button>
                         )}
                       </div>
@@ -4083,6 +4181,161 @@ const ProductsPage = () => {
                   </div>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Scratch Gift Modal */}
+        {showScratchGiftModal && scratchGiftProduct && (
+          <div
+            style={{
+              position: "fixed",
+              inset: "0",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: "60",
+              padding: "16px",
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                borderRadius: "12px",
+                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+                width: "100%",
+                maxWidth: "440px",
+                padding: "24px",
+              }}
+              className="dark:bg-gray-800"
+            >
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ backgroundColor: "#fef3c7", borderRadius: "8px", padding: "8px" }}>
+                    <FiGift style={{ width: "20px", height: "20px", color: "#d97706" }} />
+                  </div>
+                  <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#111827" }} className="dark:text-white">
+                    Scratch Gift
+                  </h2>
+                </div>
+                <button onClick={closeScratchGiftModal} style={{ color: "#9ca3af", padding: "4px", borderRadius: "4px" }}>
+                  <FiX style={{ width: "20px", height: "20px" }} />
+                </button>
+              </div>
+
+              {/* Product info */}
+              <div style={{ backgroundColor: "#f9fafb", borderRadius: "8px", padding: "12px", marginBottom: "20px" }} className="dark:bg-gray-700">
+                <p style={{ fontSize: "14px", fontWeight: "500", color: "#111827" }} className="dark:text-white">
+                  {scratchGiftProduct.name}
+                </p>
+                <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }} className="dark:text-gray-400">
+                  Price: ₹{scratchGiftProduct.price}
+                </p>
+              </div>
+
+              {/* Current gift status */}
+              {scratchGiftCurrent ? (
+                <div style={{ backgroundColor: "#fef3c7", borderRadius: "8px", padding: "12px", marginBottom: "20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div>
+                    <p style={{ fontSize: "13px", fontWeight: "500", color: "#92400e" }}>Active Scratch Gift</p>
+                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#d97706", marginTop: "2px" }}>
+                      {scratchGiftCurrent.coinsAmount} coins
+                    </p>
+                  </div>
+                  <FiGift style={{ width: "28px", height: "28px", color: "#d97706" }} />
+                </div>
+              ) : (
+                <div style={{ backgroundColor: "#f3f4f6", borderRadius: "8px", padding: "12px", marginBottom: "20px" }} className="dark:bg-gray-700">
+                  <p style={{ fontSize: "13px", color: "#6b7280" }} className="dark:text-gray-400">No scratch gift attached to this product.</p>
+                </div>
+              )}
+
+              {/* Coins input */}
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#374151", marginBottom: "6px" }} className="dark:text-gray-300">
+                  Coins to award on scratch
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={scratchGiftCoins}
+                  onChange={(e) => setScratchGiftCoins(e.target.value)}
+                  placeholder="e.g. 50"
+                  style={{
+                    width: "100%",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+                <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }} className="dark:text-gray-400">
+                  These coins will be credited to the user's wallet when they scratch the card after delivery.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  onClick={handleAttachScratchGift}
+                  disabled={scratchGiftLoading}
+                  style={{
+                    flex: "1",
+                    backgroundColor: scratchGiftLoading ? "#fbbf24" : "#f59e0b",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "10px 16px",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    cursor: scratchGiftLoading ? "not-allowed" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                  }}
+                >
+                  {scratchGiftLoading ? "Saving..." : (scratchGiftCurrent ? "Update Gift" : "Attach Gift")}
+                </button>
+                {scratchGiftCurrent && (
+                  <button
+                    onClick={handleRemoveScratchGift}
+                    disabled={scratchGiftLoading}
+                    style={{
+                      backgroundColor: "#fee2e2",
+                      color: "#dc2626",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "10px 16px",
+                      fontWeight: "600",
+                      fontSize: "14px",
+                      cursor: scratchGiftLoading ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
+                <button
+                  onClick={closeScratchGiftModal}
+                  style={{
+                    backgroundColor: "#f3f4f6",
+                    color: "#374151",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "10px 16px",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                  }}
+                  className="dark:bg-gray-700 dark:text-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}
