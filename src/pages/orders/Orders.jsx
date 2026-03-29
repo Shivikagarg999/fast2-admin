@@ -237,6 +237,7 @@ const OrdersPage = () => {
     body {
       font-family: 'Courier New', Courier, monospace;
       font-size: 12px;
+      font-weight: bold;
       width: 72mm;
       color: #000;
       background: #fff;
