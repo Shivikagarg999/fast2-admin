@@ -98,6 +98,7 @@ const ProductsPage = () => {
   const [scratchGiftProduct, setScratchGiftProduct] = useState(null);
   const [scratchGiftCoins, setScratchGiftCoins] = useState("");
   const [scratchGiftLoading, setScratchGiftLoading] = useState(false);
+  const [scratchGiftFetching, setScratchGiftFetching] = useState(false);
   const [scratchGiftCurrent, setScratchGiftCurrent] = useState(null);
 
   const [newPincode, setNewPincode] = useState("");
@@ -993,9 +994,29 @@ const ProductsPage = () => {
 
   const openScratchGiftModal = async (product) => {
     setScratchGiftProduct(product);
-    setScratchGiftCoins(product.scratchGift?.coinsAmount || "");
-    setScratchGiftCurrent(product.scratchGift?.isEnabled ? product.scratchGift : null);
+    setScratchGiftCoins("");
+    setScratchGiftCurrent(null);
     setShowScratchGiftModal(true);
+    setScratchGiftFetching(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL || "https://api.fast2.in"}/api/admin/products/${product._id}/scratch-gift`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const gift = response.data.scratchGift || response.data;
+      setScratchGiftCurrent(gift.isEnabled ? gift : null);
+      setScratchGiftCoins(gift.isEnabled ? gift.coinsAmount : "");
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setScratchGiftCurrent(null);
+        setScratchGiftCoins("");
+      } else {
+        console.error("Error fetching scratch gift:", err);
+      }
+    } finally {
+      setScratchGiftFetching(false);
+    }
   };
 
   const closeScratchGiftModal = () => {
@@ -1003,6 +1024,7 @@ const ProductsPage = () => {
     setScratchGiftProduct(null);
     setScratchGiftCoins("");
     setScratchGiftCurrent(null);
+    setScratchGiftFetching(false);
   };
 
   const handleAttachScratchGift = async () => {
@@ -4236,7 +4258,11 @@ const ProductsPage = () => {
               </div>
 
               {/* Current gift status */}
-              {scratchGiftCurrent ? (
+              {scratchGiftFetching ? (
+                <div style={{ backgroundColor: "#f3f4f6", borderRadius: "8px", padding: "12px", marginBottom: "20px", textAlign: "center" }} className="dark:bg-gray-700">
+                  <p style={{ fontSize: "13px", color: "#6b7280" }} className="dark:text-gray-400">Loading scratch gift details...</p>
+                </div>
+              ) : scratchGiftCurrent ? (
                 <div style={{ backgroundColor: "#fef3c7", borderRadius: "8px", padding: "12px", marginBottom: "20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div>
                     <p style={{ fontSize: "13px", fontWeight: "500", color: "#92400e" }}>Active Scratch Gift</p>
@@ -4283,17 +4309,17 @@ const ProductsPage = () => {
               <div style={{ display: "flex", gap: "10px" }}>
                 <button
                   onClick={handleAttachScratchGift}
-                  disabled={scratchGiftLoading}
+                  disabled={scratchGiftLoading || scratchGiftFetching}
                   style={{
                     flex: "1",
-                    backgroundColor: scratchGiftLoading ? "#fbbf24" : "#f59e0b",
+                    backgroundColor: (scratchGiftLoading || scratchGiftFetching) ? "#fbbf24" : "#f59e0b",
                     color: "#ffffff",
                     border: "none",
                     borderRadius: "8px",
                     padding: "10px 16px",
                     fontWeight: "600",
                     fontSize: "14px",
-                    cursor: scratchGiftLoading ? "not-allowed" : "pointer",
+                    cursor: (scratchGiftLoading || scratchGiftFetching) ? "not-allowed" : "pointer",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -4305,7 +4331,7 @@ const ProductsPage = () => {
                 {scratchGiftCurrent && (
                   <button
                     onClick={handleRemoveScratchGift}
-                    disabled={scratchGiftLoading}
+                    disabled={scratchGiftLoading || scratchGiftFetching}
                     style={{
                       backgroundColor: "#fee2e2",
                       color: "#dc2626",
@@ -4314,7 +4340,7 @@ const ProductsPage = () => {
                       padding: "10px 16px",
                       fontWeight: "600",
                       fontSize: "14px",
-                      cursor: scratchGiftLoading ? "not-allowed" : "pointer",
+                      cursor: (scratchGiftLoading || scratchGiftFetching) ? "not-allowed" : "pointer",
                     }}
                   >
                     Remove

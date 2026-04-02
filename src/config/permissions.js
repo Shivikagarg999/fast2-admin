@@ -76,6 +76,11 @@ export const PERMISSIONS = {
   POPUPS_EDIT: 'popups.edit',
   POPUPS_DELETE: 'popups.delete',
 
+  // Contact Us
+  CONTACTS_VIEW: 'contacts.view',
+  CONTACTS_EDIT: 'contacts.edit',
+  CONTACTS_DELETE: 'contacts.delete',
+
   // Terms & Conditions
   TERMS_VIEW: 'terms.view',
   TERMS_EDIT: 'terms.edit',
@@ -195,6 +200,14 @@ export const PERMISSION_GROUPS = {
       PERMISSIONS.DISCOUNTS_DELETE,
     ],
   },
+  contacts: {
+    label: 'Contact Us',
+    permissions: [
+      PERMISSIONS.CONTACTS_VIEW,
+      PERMISSIONS.CONTACTS_EDIT,
+      PERMISSIONS.CONTACTS_DELETE,
+    ],
+  },
   terms: {
     label: 'Terms & Conditions',
     permissions: [
@@ -277,6 +290,9 @@ export const getPermissionLabel = (permission) => {
     [PERMISSIONS.DISCOUNTS_CREATE]: 'Create Discounts',
     [PERMISSIONS.DISCOUNTS_EDIT]: 'Edit Discounts',
     [PERMISSIONS.DISCOUNTS_DELETE]: 'Delete Discounts',
+    [PERMISSIONS.CONTACTS_VIEW]: 'View Contacts',
+    [PERMISSIONS.CONTACTS_EDIT]: 'Edit Contacts',
+    [PERMISSIONS.CONTACTS_DELETE]: 'Delete Contacts',
     [PERMISSIONS.TERMS_VIEW]: 'View Terms',
     [PERMISSIONS.TERMS_EDIT]: 'Edit Terms',
     [PERMISSIONS.ADMINS_VIEW]: 'View Admins',

@@ -28,7 +28,8 @@ import {
   FiBarChart2,
   FiSettings,
   FiLayers,
-  FiBell
+  FiBell,
+  FiMail,
 } from "react-icons/fi";
 
 const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
@@ -153,6 +154,12 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           path: "/admin/popups",
           icon: <FiBell className="w-4 h-4" />,
           permission: PERMISSIONS.POPUPS_VIEW,
+        },
+        {
+          name: "Scratch Cards",
+          path: "/admin/scratch-cards",
+          icon: <FiGift className="w-4 h-4" />,
+          permission: PERMISSIONS.PRODUCTS_VIEW,
         }
       ]
     },
@@ -201,6 +208,18 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           path: "/admin/payouts/driver",
           icon: <FiDollarSign className="w-4 h-4" />
         },
+      ]
+    },
+    {
+      name: "Support",
+      icon: <FiMail className="w-3.5 h-3.5" />,
+      items: [
+        {
+          name: "Contact Us",
+          path: "/admin/contacts",
+          icon: <FiMail className="w-4 h-4" />,
+          permission: PERMISSIONS.CONTACTS_VIEW,
+        }
       ]
     },
     {

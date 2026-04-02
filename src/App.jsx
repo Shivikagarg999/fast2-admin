@@ -33,6 +33,8 @@ import SellerPayouts from "./pages/payouts/SellerPayouts";
 import OnlinePay from "./pages/online-pay/OnlinePay";
 import DriverPayouts from "./pages/payouts/DriverPayout";
 import PopupManagement from "./pages/popup/PopupManagement";
+import ContactPage from "./pages/contact/ContactPage";
+import ScratchCardsPage from "./pages/scratch-cards/ScratchCardsPage";
 
 function App() {
   return (
@@ -332,6 +334,26 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.POPUPS_VIEW}>
                 <PopupManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Contact Us */}
+          <Route
+            path="/admin/contacts"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.CONTACTS_VIEW}>
+                <ContactPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Scratch Cards */}
+          <Route
+            path="/admin/scratch-cards"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.PRODUCTS_VIEW}>
+                <ScratchCardsPage />
               </ProtectedRoute>
             }
           />
