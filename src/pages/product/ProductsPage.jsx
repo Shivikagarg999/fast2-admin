@@ -784,7 +784,9 @@ const ProductsPage = () => {
           (categories[p.category] || "")
             .toLowerCase()
             .includes(search.toLowerCase())) &&
-        (categoryFilter ? p.category === categoryFilter : true)
+        (categoryFilter
+          ? (p.category?._id || p.category) === categoryFilter
+          : true)
     );
   }, [products, search, categoryFilter, categories]);
 
