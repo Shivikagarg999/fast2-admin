@@ -288,7 +288,7 @@ const ProductsPage = () => {
     try {
       setOrdersLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/orders/${productId}/orders`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/orders`
       );
       setProductOrders(response.data.orders || []);
     } catch (error) {
@@ -1424,6 +1424,20 @@ const ProductsPage = () => {
                             }}
                             className="dark:text-gray-400"
                           >
+                            Seller
+                          </th>
+                          <th
+                            style={{
+                              padding: "12px 24px",
+                              textAlign: "left",
+                              fontSize: "12px",
+                              fontWeight: "500",
+                              color: "#6b7280",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                            className="dark:text-gray-400"
+                          >
                             Price
                           </th>
                           <th
@@ -1596,6 +1610,22 @@ const ProductsPage = () => {
                                   "Uncategorized"
                                   : "Uncategorized"}
                               </span>
+                            </td>
+                            <td style={{ padding: "16px 24px", whiteSpace: "nowrap" }}>
+                              {product.seller ? (
+                                <div>
+                                  <div style={{ fontSize: "14px", fontWeight: "500", color: "#111827" }} className="dark:text-white">
+                                    {product.seller.name || "-"}
+                                  </div>
+                                  {product.seller.businessName && (
+                                    <div style={{ fontSize: "12px", color: "#6b7280" }} className="dark:text-gray-400">
+                                      {product.seller.businessName}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span style={{ fontSize: "14px", color: "#9ca3af" }}>-</span>
+                              )}
                             </td>
                             <td
                               style={{
@@ -4759,6 +4789,55 @@ const ProductsPage = () => {
                     gap: "24px",
                   }}
                 >
+                  {/* Seller Information */}
+                  {selectedProduct.seller && (
+                    <div
+                      style={{
+                        backgroundColor: "#f9fafb",
+                        padding: "20px",
+                        borderRadius: "12px",
+                      }}
+                      className="dark:bg-gray-900"
+                    >
+                      <h4
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: "600",
+                          color: "#111827",
+                          marginBottom: "16px",
+                        }}
+                        className="dark:text-white"
+                      >
+                        Seller Information
+                      </h4>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(2, 1fr)",
+                          gap: "16px",
+                        }}
+                        className="md:grid-cols-3"
+                      >
+                        <div>
+                          <span style={{ fontSize: "13px", color: "#6b7280" }} className="dark:text-gray-400">
+                            Name:
+                          </span>
+                          <p style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }} className="dark:text-white">
+                            {selectedProduct.seller.name || "N/A"}
+                          </p>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: "13px", color: "#6b7280" }} className="dark:text-gray-400">
+                            Business Name:
+                          </span>
+                          <p style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }} className="dark:text-white">
+                            {selectedProduct.seller.businessName || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Pricing & Tax Details */}
                   <div
                     style={{
