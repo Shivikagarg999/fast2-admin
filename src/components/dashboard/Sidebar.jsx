@@ -291,29 +291,29 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
         }
         
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(148, 163, 184, 0.3);
+          background: rgba(100, 116, 139, 0.2);
           border-radius: 2px;
           transition: background-color 0.2s ease;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(148, 163, 184, 0.5);
+          background: rgba(100, 116, 139, 0.35);
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-thumb:active {
-          background: rgba(148, 163, 184, 0.7);
+          background: rgba(100, 116, 139, 0.5);
         }
-        
+
         .sidebar-gradient {
-          background: linear-gradient(195deg, #0f172a 0%, #1e293b 100%);
+          background: #ffffff;
         }
-        
+
         .active-item-glow {
-          box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.35), 0 2px 6px -1px rgba(59, 130, 246, 0.2);
         }
-        
+
         .hover-glow:hover {
-          box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.15);
         }
         
         .text-2xs {
@@ -327,8 +327,8 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
         className={`
           fixed top-0 left-0 h-full z-50
           sidebar-gradient
-          shadow-2xl shadow-blue-900/10
-          border-r border-gray-800/50
+          shadow-md shadow-gray-200/80
+          border-r border-gray-200
           transition-all duration-300 ease-in-out
           w-64
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -337,7 +337,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
       >
         <div className="flex flex-col h-full">
           {/* Header with Logo */}
-          <div className="p-4 border-b border-gray-800/50 bg-gradient-to-r from-slate-900/50 to-slate-800/30">
+          <div className="p-4 border-b border-gray-200 bg-white">
             <Link
               to="/dashboard"
               className="flex items-center justify-center"
@@ -356,7 +356,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
             </Link>
             <div className="mt-3 hidden lg:flex items-center justify-center space-x-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-2xs font-medium text-emerald-400">System Active</span>
+              <span className="text-2xs font-medium text-emerald-600">System Active</span>
             </div>
           </div>
 
@@ -366,8 +366,8 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
               <div key={category.name} className="space-y-1.5 mb-4">
                 {/* Category Header */}
                 <div className="px-3 py-1.5 flex items-center">
-                  <div className="mr-2 text-slate-400 opacity-80">{category.icon}</div>
-                  <h3 className="text-2xs font-semibold text-slate-400 uppercase tracking-wider truncate">
+                  <div className="mr-1.5 text-indigo-400">{category.icon}</div>
+                  <h3 className="text-2xs font-bold text-indigo-400 uppercase tracking-widest truncate">
                     {category.name}
                   </h3>
                   {activeCategory === category.name && (
@@ -390,21 +390,21 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
                               text-sm font-medium transition-all duration-200
                               border border-transparent
                               ${isOrdersActive
-                                ? "bg-gradient-to-r from-blue-600/20 to-blue-500/10 text-blue-100 border-blue-500/20 active-item-glow"
-                                : "text-slate-300 hover:bg-slate-800/50 hover:text-white hover-glow hover:border-slate-700/50"
+                                ? "bg-blue-600 text-white border-blue-600 active-item-glow"
+                                : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
                               }
                               focus:outline-none focus:ring-1 focus:ring-blue-500/30
                               active:scale-[0.98]
                             `}
                           >
                             <div className="flex items-center">
-                              <span className="mr-2.5 flex-shrink-0 text-slate-400">
+                              <span className={`mr-2.5 flex-shrink-0 ${isOrdersActive ? "text-white" : "text-blue-400"}`}>
                                 {item.icon}
                               </span>
                               <span className="truncate text-sm">{item.name}</span>
                             </div>
                             <span className={`flex-shrink-0 transition-all duration-200 ${expandOrders ? 'rotate-180' : 'rotate-0'
-                              } text-slate-400`}>
+                              } ${isOrdersActive ? "text-white" : "text-gray-400"}`}>
                               <FiChevronDown className="w-3.5 h-3.5" />
                             </span>
                           </button>
@@ -413,7 +413,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
                             overflow-hidden transition-all duration-300 ease-in-out
                             ${expandOrders ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}
                           `}>
-                            <div className="ml-3 pl-3 border-l-2 border-slate-700/50 space-y-0.5 py-0.5">
+                            <div className="ml-3 pl-3 border-l-2 border-blue-200 space-y-0.5 py-0.5">
                               {item.subItems?.map((sub) => {
                                 const isSubActive = pathname === sub.path;
                                 return (
@@ -425,15 +425,15 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
                                       block px-3 py-2 text-sm rounded-lg transition-all duration-200
                                       border border-transparent
                                       ${isSubActive
-                                        ? "bg-gradient-to-r from-blue-500/20 to-blue-400/10 text-blue-100 border-blue-500/20 font-medium"
-                                        : "text-slate-400 hover:bg-slate-800/30 hover:text-slate-200 hover:border-slate-700/30"
+                                        ? "bg-blue-600 text-white border-blue-600 font-medium active-item-glow"
+                                        : "text-gray-500 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-100"
                                       }
                                       focus:outline-none focus:ring-1 focus:ring-blue-500/30
                                       active:scale-[0.98]
                                     `}
                                   >
                                     <div className="flex items-center">
-                                      <FiChevronRight className="w-2.5 h-2.5 mr-2 text-slate-500" />
+                                      <FiChevronRight className={`w-2.5 h-2.5 mr-2 ${isSubActive ? "text-white" : "text-blue-300"}`} />
                                       <span className="truncate text-sm">{sub.name}</span>
                                     </div>
                                   </Link>
@@ -456,8 +456,8 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
                           transition-all duration-200
                           border border-transparent
                           ${isActive
-                            ? "bg-gradient-to-r from-blue-600/20 to-blue-500/10 text-blue-100 border-blue-500/20 active-item-glow"
-                            : "text-slate-300 hover:bg-slate-800/50 hover:text-white hover-glow hover:border-slate-700/50"
+                            ? "bg-blue-600 text-white border-blue-600 active-item-glow"
+                            : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
                           }
                           focus:outline-none focus:ring-1 focus:ring-blue-500/30
                           active:scale-[0.98]
@@ -466,13 +466,13 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
                       >
                         <span className={`
                           mr-2.5 flex-shrink-0 transition-colors duration-200
-                          ${isActive ? "text-blue-400" : "text-slate-400 group-hover:text-slate-300"}
+                          ${isActive ? "text-white" : "text-blue-400 group-hover:text-blue-500"}
                         `}>
                           {item.icon}
                         </span>
                         <span className="truncate text-sm">{item.name}</span>
                         {isActive && (
-                          <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse flex-shrink-0"></div>
+                          <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse flex-shrink-0"></div>
                         )}
                       </Link>
                     );
@@ -483,16 +483,16 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           </nav>
 
           {/* Bottom section */}
-          <div className="p-4 border-t border-gray-800/50 bg-gradient-to-t from-slate-900/80 to-slate-800/30">
+          <div className="p-4 border-t border-gray-200 bg-white">
             <button
               onClick={() => {
                 handleLogout();
                 handleLinkClick();
               }}
-              className="w-full flex items-center justify-center px-3 py-2.5 rounded-lg text-sm font-medium 
-                bg-gradient-to-r from-red-900/20 to-red-800/10
-                text-red-300 hover:text-red-200 hover:bg-gradient-to-r hover:from-red-900/30 hover:to-red-800/20
-                border border-red-800/20 hover:border-red-700/30
+              className="w-full flex items-center justify-center px-3 py-2.5 rounded-lg text-sm font-medium
+                bg-red-50
+                text-red-600 hover:text-red-700 hover:bg-red-100
+                border border-red-200 hover:border-red-300
                 transition-all duration-200
                 focus:outline-none focus:ring-1 focus:ring-red-500/30
                 active:scale-[0.98]
@@ -502,10 +502,10 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
               <span>Logout</span>
             </button>
 
-            <div className="mt-4 pt-3 border-t border-slate-800/50">
+            <div className="mt-4 pt-3 border-t border-gray-200">
               <div className="text-center space-y-1">
-                <p className="text-2xs font-medium text-slate-400">v2.1.0</p>
-                <p className="text-2xs text-slate-500">
+                <p className="text-2xs font-medium text-gray-400">v2.1.0</p>
+                <p className="text-2xs text-gray-400">
                   © {new Date().getFullYear()}
                 </p>
                 <div className="flex items-center justify-center space-x-1 mt-1.5">
