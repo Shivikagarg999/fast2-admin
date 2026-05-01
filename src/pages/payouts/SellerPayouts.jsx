@@ -32,7 +32,7 @@ const SellerPayouts = () => {
 
   const fetchPayoutSummary = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/payout/summary', {
+      const response = await fetch('https://api.fast2.in/api/payout/summary', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -52,7 +52,7 @@ const SellerPayouts = () => {
       setRefreshing(true);
 
       const viewParam = aggregatedView ? '?view=aggregated' : '';
-      const response = await fetch(`http://localhost:5000/api/payout/seller-payouts${viewParam}`, {
+      const response = await fetch(`https://api.fast2.in/api/payout/seller-payouts${viewParam}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -153,7 +153,7 @@ const SellerPayouts = () => {
         throw new Error('Invalid seller ID');
       }
 
-      const response = await fetch(`http://localhost:5000/api/payout/seller/${sellerId}`, {
+      const response = await fetch(`https://api.fast2.in/api/payout/seller/${sellerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -283,7 +283,7 @@ const SellerPayouts = () => {
       setSubmittingPayment(true);
 
       if (aggregatedView) {
-        const response = await fetch(`http://localhost:5000/api/payout/bulk-payout/${selectedSeller.sellerId}`, {
+        const response = await fetch(`https://api.fast2.in/api/payout/bulk-payout/${selectedSeller.sellerId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -309,7 +309,7 @@ const SellerPayouts = () => {
           throw new Error(result.error || 'Failed to process bulk payment');
         }
       } else {
-        const response = await fetch(`http://localhost:5000/api/payout/seller-payouts/${selectedSeller._id}/status`, {
+        const response = await fetch(`https://api.fast2.in/api/payout/seller-payouts/${selectedSeller._id}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

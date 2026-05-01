@@ -55,7 +55,7 @@ const UsersPage = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(res.data.users);
@@ -114,7 +114,7 @@ const UsersPage = () => {
       setError("");
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -195,7 +195,7 @@ const UsersPage = () => {
       }
 
       const res = await axios.put(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users/${selectedUser._id}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${selectedUser._id}`,
         updateData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -229,7 +229,7 @@ const UsersPage = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.delete(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users/${userId}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -258,7 +258,7 @@ const UsersPage = () => {
       setWalletLoading(true);
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users/${selectedUser._id}/wallet/add`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/${selectedUser._id}/wallet/add`,
         {
           amount: parseFloat(walletAmount),
           note: walletNote || "Admin credit"
@@ -349,7 +349,7 @@ const UsersPage = () => {
         }
       }
 
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/users/download/csv?${params.toString()}`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/users/download/csv?${params.toString()}`);
 
       if (!response.ok) {
         const errorData = await response.json();

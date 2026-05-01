@@ -21,7 +21,7 @@ const WarehouseList = () => {
   const fetchWarehouses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse`);
       setWarehouses(response.data || []);
     } catch (error) {
       console.error("Error fetching warehouses:", error);
@@ -62,7 +62,7 @@ const WarehouseList = () => {
 
     setDeleteLoading(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/${deletingWarehouse._id}`);
+      await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/${deletingWarehouse._id}`);
       alert("Warehouse deleted successfully!");
       fetchWarehouses();
       closeDeleteModal();

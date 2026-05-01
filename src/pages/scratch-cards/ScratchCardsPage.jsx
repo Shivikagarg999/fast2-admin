@@ -19,7 +19,7 @@ import {
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_BASE_URL || "https://api.fast2.in";
 
 const showToast = (message, type = "success") => {
   const toast = document.createElement("div");

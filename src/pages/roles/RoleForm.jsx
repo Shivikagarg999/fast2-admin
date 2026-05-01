@@ -28,7 +28,7 @@ const RoleForm = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles/${id}`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles/${id}`
       );
       const data = await response.json();
 
@@ -56,8 +56,8 @@ const RoleForm = () => {
 
     try {
       const url = isEditMode
-        ? `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles/${id}`
-        : `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/roles`;
+        ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles/${id}`
+        : `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles`;
 
       const response = await fetch(url, {
         method: isEditMode ? 'PUT' : 'POST',

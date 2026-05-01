@@ -141,7 +141,7 @@ const ProductsPage = () => {
   const fetchPromotors = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`
       );
       setPromotors(response.data || []);
     } catch (error) {
@@ -152,7 +152,7 @@ const ProductsPage = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/warehouse/`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/warehouse/`
       );
       setWarehouses(response.data || []);
     } catch (error) {
@@ -163,7 +163,7 @@ const ProductsPage = () => {
   const fetchSellers = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers?limit=1000`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers?limit=1000`
       );
       setSellers(response.data.data || []);
     } catch (error) {
@@ -174,7 +174,7 @@ const ProductsPage = () => {
   const fetchAllCategories = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`
       );
       setAllCategories(response.data || []);
 
@@ -192,7 +192,7 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/get-products-admin?limit=1000`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/get-products-admin?limit=1000`
       );
 
       let productsArray = [];
@@ -231,7 +231,7 @@ const ProductsPage = () => {
   const fetchProductStatus = async (productId) => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}/status`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/status`
       );
       if (response.data.success) {
         return response.data.isActive;
@@ -253,7 +253,7 @@ const ProductsPage = () => {
       }
 
       const response = await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}/toggle-active`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/toggle-active`
       );
 
       if (response.data.success) {
@@ -288,7 +288,7 @@ const ProductsPage = () => {
     try {
       setOrdersLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}/orders`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}/orders`
       );
       setProductOrders(response.data.orders || []);
     } catch (error) {
@@ -645,7 +645,7 @@ const ProductsPage = () => {
       }
 
       await axios.put(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${editingProduct._id}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${editingProduct._id}`,
         submitData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -680,7 +680,7 @@ const ProductsPage = () => {
       if (!backendField) return;
 
       const response = await axios.put(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}`,
         { [backendField]: value },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -702,7 +702,7 @@ const ProductsPage = () => {
     }
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
       try {
-        await axios.delete(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/product/${productId}`);
+        await axios.delete(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/product/${productId}`);
         alert("Product deleted successfully!");
         fetchProducts();
       } catch (error) {
@@ -811,7 +811,7 @@ const ProductsPage = () => {
         params.append('stockStatus', 'out-of-stock');
       }
 
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/products/download/csv?${params.toString()}`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/download/csv?${params.toString()}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -851,7 +851,7 @@ const ProductsPage = () => {
 
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/products/upload/csv`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/upload/csv`,
         formData,
         {
           headers: {
@@ -899,7 +899,7 @@ const ProductsPage = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/products/download/template`,
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/products/download/template`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -1003,7 +1003,7 @@ const ProductsPage = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/admin/products/${product._id}/scratch-gift`,
+        `${import.meta.env.VITE_BASE_URL || "https://api.fast2.in"}/api/admin/products/${product._id}/scratch-gift`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const gift = response.data.scratchGift || response.data;
@@ -1038,7 +1038,7 @@ const ProductsPage = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
+        `${import.meta.env.VITE_BASE_URL || "https://api.fast2.in"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
         { coinsAmount: Number(scratchGiftCoins) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -1058,7 +1058,7 @@ const ProductsPage = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
+        `${import.meta.env.VITE_BASE_URL || "https://api.fast2.in"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setScratchGiftCurrent(null);

@@ -31,7 +31,7 @@ const PayoutHistory = () => {
       queryParams.append('limit', filters.limit);
 
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/payouts/records?${queryParams}`
+        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/payouts/records?${queryParams}`
       );
 
       if (!response.ok) throw new Error('Failed to fetch payout history');

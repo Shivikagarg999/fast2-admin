@@ -29,7 +29,7 @@ const PoliciesManagement = () => {
   });
   const editorRef = useRef(null);
 
-  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/policy`;
+  const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/policy`;
 
   const policyTypes = [
     { value: "terms", label: "Terms & Conditions", icon: "📜" },
