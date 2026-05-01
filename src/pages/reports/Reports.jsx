@@ -57,7 +57,7 @@ const ReportsPage = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       
-      let url = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/reports/`;
+      let url = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/reports/`;
       let params = new URLSearchParams();
       params.append("page", page);
       params.append("limit", 20);
@@ -121,7 +121,7 @@ const ReportsPage = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       
-      let url = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/reports/`;
+      let url = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/reports/`;
       let params = new URLSearchParams();
       params.append("format", "csv");
       
