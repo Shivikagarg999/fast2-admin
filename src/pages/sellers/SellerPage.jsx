@@ -66,7 +66,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       setLoadingPromotors(true);
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/promotor/`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/promotor/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -216,7 +216,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       console.log('Submitting seller data:', submitData);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers/create`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers/create`,
         submitData,
         {
           headers: {
@@ -1110,12 +1110,252 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
   );
 };
 
+const EditSellerModal = ({ seller, onClose, onSuccess }) => {
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('basic');
+
+  const [formData, setFormData] = useState({
+    name: seller.name || '',
+    email: seller.email || '',
+    phone: seller.phone || '',
+    businessName: seller.businessName || '',
+    gstNumber: seller.gstNumber || '',
+    panNumber: seller.panNumber || '',
+    address: {
+      street: seller.address?.street || '',
+      city: seller.address?.city || '',
+      state: seller.address?.state || '',
+      pincode: seller.address?.pincode || '',
+      coordinates: {
+        lat: seller.address?.coordinates?.lat || '',
+        lng: seller.address?.coordinates?.lng || ''
+      }
+    },
+    bankDetails: {
+      accountHolder: seller.bankDetails?.accountHolder || '',
+      accountNumber: seller.bankDetails?.accountNumber || '',
+      ifscCode: seller.bankDetails?.ifscCode || '',
+      bankName: seller.bankDetails?.bankName || ''
+    },
+    approvalStatus: seller.approvalStatus || 'pending',
+    isActive: seller.isActive ?? true,
+    newPassword: ''
+  });
+
+  const [errors, setErrors] = useState({});
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (name.includes('.')) {
+      const keys = name.split('.');
+      setFormData(prev => {
+        const newData = { ...prev };
+        let current = newData;
+        for (let i = 0; i < keys.length - 1; i++) current = current[keys[i]];
+        current[keys[keys.length - 1]] = type === 'checkbox' ? checked : value;
+        return newData;
+      });
+    } else {
+      setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    if (apiError) setApiError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setApiError('');
+    setSuccessMessage('');
+
+    try {
+      const token = localStorage.getItem('token');
+      const submitData = {
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.replace(/\D/g, ''),
+        businessName: formData.businessName.trim(),
+        gstNumber: formData.gstNumber?.trim().toUpperCase() || '',
+        panNumber: formData.panNumber?.trim().toUpperCase() || '',
+        address: {
+          street: formData.address.street.trim(),
+          city: formData.address.city.trim(),
+          state: formData.address.state.trim(),
+          pincode: formData.address.pincode.trim(),
+          coordinates: {
+            lat: parseFloat(formData.address.coordinates.lat) || 0,
+            lng: parseFloat(formData.address.coordinates.lng) || 0
+          }
+        },
+        bankDetails: {
+          accountHolder: formData.bankDetails.accountHolder.trim(),
+          accountNumber: formData.bankDetails.accountNumber.trim(),
+          ifscCode: formData.bankDetails.ifscCode.trim().toUpperCase(),
+          bankName: formData.bankDetails.bankName.trim()
+        },
+        approvalStatus: formData.approvalStatus,
+        isActive: formData.isActive
+      };
+
+      if (formData.newPassword) submitData.password = formData.newPassword;
+
+      await axios.put(
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${seller._id}`,
+        submitData,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
+
+      setSuccessMessage('Seller updated successfully!');
+      setTimeout(() => { onSuccess(); onClose(); }, 1200);
+    } catch (error) {
+      setApiError(error.response?.data?.message || 'Failed to update seller');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputStyle = (hasError) => ({
+    width: '100%', padding: '10px 12px', borderRadius: '6px',
+    border: `1px solid ${hasError ? '#ef4444' : '#d1d5db'}`,
+    backgroundColor: '#ffffff', color: '#111827', fontSize: '14px'
+  });
+
+  return (
+    <div style={{ position: 'fixed', inset: '0', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: '50', padding: '16px' }}>
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '8px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px', borderBottom: '1px solid #e5e7eb' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Edit style={{ width: '20px', height: '20px' }} /> Edit Seller
+          </h2>
+          <button onClick={onClose} disabled={loading} style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}>
+            <X style={{ width: '20px', height: '20px' }} />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ borderBottom: '1px solid #e5e7eb' }}>
+          <div style={{ display: 'flex', padding: '0 24px' }}>
+            {['basic', 'address', 'bank', 'account'].map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)} disabled={loading} style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '500', borderBottom: '2px solid', borderColor: activeTab === tab ? '#000000' : 'transparent', color: activeTab === tab ? '#111827' : '#6b7280', backgroundColor: 'transparent', borderTop: 'none', borderLeft: 'none', borderRight: 'none', cursor: 'pointer' }}>
+                {tab === 'basic' && 'Basic Info'}{tab === 'address' && 'Address'}{tab === 'bank' && 'Bank'}{tab === 'account' && 'Account'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ padding: '24px' }}>
+            {apiError && (
+              <div style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#dc2626', padding: '12px 16px', borderRadius: '6px', marginBottom: '16px', fontSize: '14px' }}>
+                {apiError}
+              </div>
+            )}
+            {successMessage && (
+              <div style={{ backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#16a34a', padding: '12px 16px', borderRadius: '6px', marginBottom: '16px', fontSize: '14px' }}>
+                {successMessage}
+              </div>
+            )}
+
+            {activeTab === 'basic' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {[['name', 'Full Name', 'text'], ['email', 'Email Address', 'email'], ['phone', 'Phone Number', 'tel'], ['businessName', 'Business Name', 'text'], ['gstNumber', 'GST Number (Optional)', 'text'], ['panNumber', 'PAN Number (Optional)', 'text']].map(([field, label, type]) => (
+                  <div key={field}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>{label}</label>
+                    <input type={type} name={field} value={formData[field]} onChange={handleInputChange} disabled={loading} style={inputStyle(errors[field])} />
+                    {errors[field] && <p style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>{errors[field]}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'address' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Street Address</label>
+                  <textarea name="address.street" value={formData.address.street} onChange={handleInputChange} rows="3" disabled={loading} style={{ ...inputStyle(false), resize: 'vertical' }} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  {[['address.city', 'City'], ['address.state', 'State'], ['address.pincode', 'Pincode']].map(([name, label]) => (
+                    <div key={name}>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>{label}</label>
+                      <input type="text" name={name} value={name.split('.').reduce((o, k) => o?.[k], formData)} onChange={handleInputChange} disabled={loading} style={inputStyle(false)} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'bank' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {[['bankDetails.accountHolder', 'Account Holder Name'], ['bankDetails.accountNumber', 'Account Number'], ['bankDetails.ifscCode', 'IFSC Code'], ['bankDetails.bankName', 'Bank Name']].map(([name, label]) => (
+                  <div key={name}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>{label}</label>
+                    <input type="text" name={name} value={name.split('.').reduce((o, k) => o?.[k], formData)} onChange={handleInputChange} disabled={loading} style={inputStyle(false)} />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'account' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Approval Status</label>
+                  <select name="approvalStatus" value={formData.approvalStatus} onChange={handleInputChange} disabled={loading} style={inputStyle(false)}>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>New Password (leave blank to keep unchanged)</label>
+                  <input type="password" name="newPassword" value={formData.newPassword} onChange={handleInputChange} placeholder="Enter new password" disabled={loading} style={inputStyle(false)} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="checkbox" id="editIsActive" name="isActive" checked={formData.isActive} onChange={handleInputChange} disabled={loading} style={{ width: '16px', height: '16px' }} />
+                  <label htmlFor="editIsActive" style={{ fontSize: '14px', color: '#374151' }}>Account is active</label>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+            <div style={{ fontSize: '14px', color: '#6b7280' }}>
+              Step {['basic', 'address', 'bank', 'account'].indexOf(activeTab) + 1} of 4
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {activeTab !== 'basic' && (
+                <button type="button" disabled={loading} onClick={() => { const tabs = ['basic','address','bank','account']; setActiveTab(tabs[tabs.indexOf(activeTab) - 1]); }} style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '500', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: '#ffffff', color: '#374151', cursor: 'pointer' }}>
+                  Previous
+                </button>
+              )}
+              {activeTab !== 'account' ? (
+                <button type="button" disabled={loading} onClick={() => { const tabs = ['basic','address','bank','account']; setActiveTab(tabs[tabs.indexOf(activeTab) + 1]); }} style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '500', borderRadius: '8px', border: 'none', backgroundColor: '#000000', color: '#ffffff', cursor: 'pointer' }}>
+                  Next Step
+                </button>
+              ) : (
+                <button type="submit" disabled={loading} style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '500', borderRadius: '8px', border: 'none', backgroundColor: '#2563eb', color: '#ffffff', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {loading ? 'Saving...' : <><Save style={{ width: '16px', height: '16px' }} /> Save Changes</>}
+                </button>
+              )}
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const SellerPage = () => {
   const { hasPermission, isSuperAdmin } = usePermissions();
   const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingSeller, setEditingSeller] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -1152,7 +1392,7 @@ const SellerPage = () => {
       params.append('limit', filters.limit);
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/sellers?${params.toString()}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/sellers?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1228,7 +1468,7 @@ const SellerPage = () => {
       const adminId = adminData ? JSON.parse(adminData)._id : null;
 
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/approval`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/approval`,
         {
           action: 'approve',
           adminId: adminId
@@ -1264,7 +1504,7 @@ const SellerPage = () => {
       const adminId = adminData ? JSON.parse(adminData)._id : null;
 
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/approval`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/approval`,
         {
           action: 'reject',
           adminId: adminId,
@@ -1300,7 +1540,7 @@ const SellerPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}/status`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}/status`,
         {
           isActive: !currentStatus
         },
@@ -1321,8 +1561,8 @@ const SellerPage = () => {
   };
 
   const handleEditSeller = (seller) => {
-    // Implement edit functionality
-    console.log('Edit seller:', seller);
+    setEditingSeller(seller);
+    setShowEditModal(true);
   };
 
   const handleDeleteSeller = async (sellerId, sellerName) => {
@@ -1338,7 +1578,7 @@ const SellerPage = () => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.delete(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/seller/seller/${sellerId}`,
+        `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/seller/seller/${sellerId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1995,6 +2235,15 @@ const SellerPage = () => {
         {showCreateModal && (
           <CreateSellerModal
             onClose={() => setShowCreateModal(false)}
+            onSuccess={fetchSellers}
+          />
+        )}
+
+        {/* Edit Seller Modal */}
+        {showEditModal && editingSeller && (
+          <EditSellerModal
+            seller={editingSeller}
+            onClose={() => { setShowEditModal(false); setEditingSeller(null); }}
             onSuccess={fetchSellers}
           />
         )}

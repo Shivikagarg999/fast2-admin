@@ -33,7 +33,7 @@ const PromotorPayouts = () => {
   const fetchPayoutSummary = async () => {
     try {
       const response = await fetch(
-        'https://api.fast2.in/api/payout/summary',
+        'http://localhost:5000/api/payout/summary',
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -54,7 +54,7 @@ const PromotorPayouts = () => {
     try {
       setRefreshing(true);
       const viewParam = aggregatedView ? '?view=aggregated' : '';
-      const response = await fetch(`https://api.fast2.in/api/payout/promotor-payouts${viewParam}`, {
+      const response = await fetch(`http://localhost:5000/api/payout/promotor-payouts${viewParam}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -116,7 +116,7 @@ const PromotorPayouts = () => {
   const fetchPromotorDetails = async (promotorId) => {
     try {
       setLoadingDetails(true);
-      const response = await fetch(`https://api.fast2.in/api/payout/promotor/${promotorId}`, {
+      const response = await fetch(`http://localhost:5000/api/payout/promotor/${promotorId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -227,7 +227,7 @@ const PromotorPayouts = () => {
 
       if (aggregatedView) {
         // Bulk payment for all pending orders of this promotor
-        const response = await fetch(`https://api.fast2.in/api/payout/bulk-promotor-payout/${selectedPromotor.promotorId}`, {
+        const response = await fetch(`http://localhost:5000/api/payout/bulk-promotor-payout/${selectedPromotor.promotorId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ const PromotorPayouts = () => {
         }
       } else {
         // Original single payout payment
-        const response = await fetch(`https://api.fast2.in/api/payout/promotor-payouts/${selectedPromotor._id}/status`, {
+        const response = await fetch(`http://localhost:5000/api/payout/promotor-payouts/${selectedPromotor._id}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

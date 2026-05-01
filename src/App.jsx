@@ -35,6 +35,7 @@ import DriverPayouts from "./pages/payouts/DriverPayout";
 import PopupManagement from "./pages/popup/PopupManagement";
 import ContactPage from "./pages/contact/ContactPage";
 import ScratchCardsPage from "./pages/scratch-cards/ScratchCardsPage";
+import ReportsPage from "./pages/reports/Reports";
 
 function App() {
   return (
@@ -317,6 +318,13 @@ function App() {
               <ProtectedRoute requiredPermission={PERMISSIONS.SELLERS_VIEW}>
                 <SellerPayouts />
               </ProtectedRoute>
+            }
+          />
+            <Route
+            path="/admin/reports"
+            element={
+             
+                <ReportsPage />
             }
           />
           <Route

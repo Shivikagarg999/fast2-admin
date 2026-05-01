@@ -34,7 +34,7 @@ const CategoriesPage = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/getall`);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/getall`);
             if (!response.ok) throw new Error('Failed to fetch categories');
             const data = await response.json();
             setCategories(data);
@@ -152,13 +152,13 @@ const CategoriesPage = () => {
             let response;
             if (editingCategory) {
                 // Update category - adjust the endpoint as needed
-                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/update/${editingCategory._id}`, {
+                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/update/${editingCategory._id}`, {
                     method: 'PUT',
                     body: submitData,
                 });
             } else {
                 // Create category
-                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/create`, {
+                response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/create`, {
                     method: 'POST',
                     body: submitData,
                 });
@@ -187,7 +187,7 @@ const CategoriesPage = () => {
         }
         if (window.confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone.`)) {
             try {
-                const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/category/delete/${categoryId}`, {
+                const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/category/delete/${categoryId}`, {
                     method: 'DELETE',
                 });
 

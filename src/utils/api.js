@@ -1,4 +1,4 @@
-const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api`;
+const API_BASE_URL = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api`;
 
 // Fetch order statistics
 export const fetchOrderStats = async (period = 'month') => {

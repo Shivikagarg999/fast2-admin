@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import {
   FiChevronDown,
+  FiChevronLeft,
+  FiChevronRight,
   FiLogOut,
   FiUser,
   FiMenu,
@@ -17,7 +19,7 @@ import {
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
+export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebarCollapsed, onToggleCollapse }) {
   const [isOpen, setIsOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [adminData, setAdminData] = useState({
@@ -58,7 +60,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
       setError(null);
       console.log('Fetching fresh orders from API...');
 
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/admin/fresh-orders`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/orders/admin/fresh-orders`);
 
       console.log('API Response status:', response.status);
 
@@ -231,12 +233,25 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme }) {
       <div className="flex justify-between items-center px-4 md:px-6 py-3">
         {/* Left section */}
         <div className="flex items-center gap-4">
+          {/* Mobile sidebar toggle */}
           <button
             onClick={toggleSidebar}
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
             aria-label="Toggle sidebar"
           >
             <FiMenu size={20} />
+          </button>
+          {/* Desktop collapse/expand toggle */}
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:flex items-center justify-center p-1.5 rounded-lg text-white transition-all duration-200"
+            style={{ backgroundColor: "black" }}
+            title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isSidebarCollapsed
+              ? <FiChevronRight className="w-6 h-6" />
+              : <FiChevronLeft className="w-6 h-6" />
+            }
           </button>
         </div>
 

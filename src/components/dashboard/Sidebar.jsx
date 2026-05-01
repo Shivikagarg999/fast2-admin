@@ -32,7 +32,7 @@ import {
   FiMail,
 } from "react-icons/fi";
 
-const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
+const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme, isCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const pathname = location.pathname;
@@ -70,6 +70,11 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           path: "/dashboard",
           icon: <FiBarChart2 className="w-4 h-4" />,
           permission: PERMISSIONS.DASHBOARD_VIEW,
+        },
+        {
+          name: "Reports",
+          path: "/admin/reports",
+          icon: <FiBarChart2 className="w-4 h-4" />
         },
       ]
     },
@@ -330,7 +335,7 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
           shadow-md shadow-gray-200/80
           border-r border-gray-200
           transition-all duration-300 ease-in-out
-          w-64
+          ${isCollapsed ? 'w-16' : 'w-64'}
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0
         `}
@@ -338,26 +343,34 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
         <div className="flex flex-col h-full">
           {/* Header with Logo */}
           <div className="p-4 border-b border-gray-200 bg-white">
-            <Link
-              to="/dashboard"
-              className="flex items-center justify-center"
-              onClick={handleLinkClick}
-            >
-              <div className="relative">
-                <img
-                  src={Logo}
-                  alt="Enterprise Admin Panel"
-                  height={28}
-                  width={120}
-                  className="object-contain transition-all duration-300 hover:scale-105 brightness-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              </div>
-            </Link>
-            <div className="mt-3 hidden lg:flex items-center justify-center space-x-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-2xs font-medium text-emerald-600">System Active</span>
-            </div>
+            {!isCollapsed ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center justify-center"
+                  onClick={handleLinkClick}
+                >
+                  <div className="relative">
+                    <img
+                      src={Logo}
+                      alt="Enterprise Admin Panel"
+                      height={28}
+                      width={120}
+                      className="object-contain transition-all duration-300 hover:scale-105 brightness-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                  </div>
+                </Link>
+                <div className="mt-3 hidden lg:flex items-center justify-center space-x-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-2xs font-medium text-emerald-600">System Active</span>
+                </div>
+              </>
+            ) : (
+              <Link to="/dashboard" className="flex items-center justify-center py-1" onClick={handleLinkClick}>
+                <FiHome className="w-5 h-5 text-blue-500" />
+              </Link>
+            )}
           </div>
 
           {/* Navigation */}
@@ -365,15 +378,17 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
             {menuCategories.map((category) => (
               <div key={category.name} className="space-y-1.5 mb-4">
                 {/* Category Header */}
-                <div className="px-3 py-1.5 flex items-center">
-                  <div className="mr-1.5 text-indigo-400">{category.icon}</div>
-                  <h3 className="text-2xs font-bold text-indigo-400 uppercase tracking-widest truncate">
-                    {category.name}
-                  </h3>
-                  {activeCategory === category.name && (
-                    <div className="ml-auto w-1 h-3 bg-blue-500 rounded-full"></div>
-                  )}
-                </div>
+                {!isCollapsed && (
+                  <div className="px-3 py-1.5 flex items-center">
+                    <div className="mr-1.5 text-indigo-400">{category.icon}</div>
+                    <h3 className="text-2xs font-bold text-indigo-400 uppercase tracking-widest truncate">
+                      {category.name}
+                    </h3>
+                    {activeCategory === category.name && (
+                      <div className="ml-auto w-1 h-3 bg-blue-500 rounded-full"></div>
+                    )}
+                  </div>
+                )}
 
                 {/* Category Items */}
                 <div className="space-y-0.5">
@@ -383,64 +398,89 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
 
                       return (
                         <div key={item.name} className="space-y-1">
-                          <button
-                            onClick={() => setExpandOrders(!expandOrders)}
-                            className={`
-                              w-full flex items-center justify-between px-3 py-2.5 rounded-lg
-                              text-sm font-medium transition-all duration-200
-                              border border-transparent
-                              ${isOrdersActive
-                                ? "bg-blue-600 text-white border-blue-600 active-item-glow"
-                                : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
-                              }
-                              focus:outline-none focus:ring-1 focus:ring-blue-500/30
-                              active:scale-[0.98]
-                            `}
-                          >
-                            <div className="flex items-center">
-                              <span className={`mr-2.5 flex-shrink-0 ${isOrdersActive ? "text-white" : "text-blue-400"}`}>
+                          {isCollapsed ? (
+                            <Link
+                              to={item.subItems?.[0]?.path || '/admin/orders'}
+                              onClick={handleLinkClick}
+                              title={item.name}
+                              className={`
+                                flex items-center justify-center px-2 py-2.5 rounded-lg
+                                text-sm font-medium transition-all duration-200
+                                border border-transparent
+                                ${isOrdersActive
+                                  ? "bg-blue-600 text-white border-blue-600 active-item-glow"
+                                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
+                                }
+                                focus:outline-none focus:ring-1 focus:ring-blue-500/30
+                                active:scale-[0.98]
+                              `}
+                            >
+                              <span className={`flex-shrink-0 ${isOrdersActive ? "text-white" : "text-blue-400"}`}>
                                 {item.icon}
                               </span>
-                              <span className="truncate text-sm">{item.name}</span>
-                            </div>
-                            <span className={`flex-shrink-0 transition-all duration-200 ${expandOrders ? 'rotate-180' : 'rotate-0'
-                              } ${isOrdersActive ? "text-white" : "text-gray-400"}`}>
-                              <FiChevronDown className="w-3.5 h-3.5" />
-                            </span>
-                          </button>
+                            </Link>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => setExpandOrders(!expandOrders)}
+                                className={`
+                                  w-full flex items-center justify-between px-3 py-2.5 rounded-lg
+                                  text-sm font-medium transition-all duration-200
+                                  border border-transparent
+                                  ${isOrdersActive
+                                    ? "bg-blue-600 text-white border-blue-600 active-item-glow"
+                                    : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
+                                  }
+                                  focus:outline-none focus:ring-1 focus:ring-blue-500/30
+                                  active:scale-[0.98]
+                                `}
+                              >
+                                <div className="flex items-center">
+                                  <span className={`mr-2.5 flex-shrink-0 ${isOrdersActive ? "text-white" : "text-blue-400"}`}>
+                                    {item.icon}
+                                  </span>
+                                  <span className="truncate text-sm">{item.name}</span>
+                                </div>
+                                <span className={`flex-shrink-0 transition-all duration-200 ${expandOrders ? 'rotate-180' : 'rotate-0'
+                                  } ${isOrdersActive ? "text-white" : "text-gray-400"}`}>
+                                  <FiChevronDown className="w-3.5 h-3.5" />
+                                </span>
+                              </button>
 
-                          <div className={`
-                            overflow-hidden transition-all duration-300 ease-in-out
-                            ${expandOrders ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}
-                          `}>
-                            <div className="ml-3 pl-3 border-l-2 border-blue-200 space-y-0.5 py-0.5">
-                              {item.subItems?.map((sub) => {
-                                const isSubActive = pathname === sub.path;
-                                return (
-                                  <Link
-                                    key={sub.name}
-                                    to={sub.path}
-                                    onClick={handleLinkClick}
-                                    className={`
-                                      block px-3 py-2 text-sm rounded-lg transition-all duration-200
-                                      border border-transparent
-                                      ${isSubActive
-                                        ? "bg-blue-600 text-white border-blue-600 font-medium active-item-glow"
-                                        : "text-gray-500 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-100"
-                                      }
-                                      focus:outline-none focus:ring-1 focus:ring-blue-500/30
-                                      active:scale-[0.98]
-                                    `}
-                                  >
-                                    <div className="flex items-center">
-                                      <FiChevronRight className={`w-2.5 h-2.5 mr-2 ${isSubActive ? "text-white" : "text-blue-300"}`} />
-                                      <span className="truncate text-sm">{sub.name}</span>
-                                    </div>
-                                  </Link>
-                                );
-                              })}
-                            </div>
-                          </div>
+                              <div className={`
+                                overflow-hidden transition-all duration-300 ease-in-out
+                                ${expandOrders ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}
+                              `}>
+                                <div className="ml-3 pl-3 border-l-2 border-blue-200 space-y-0.5 py-0.5">
+                                  {item.subItems?.map((sub) => {
+                                    const isSubActive = pathname === sub.path;
+                                    return (
+                                      <Link
+                                        key={sub.name}
+                                        to={sub.path}
+                                        onClick={handleLinkClick}
+                                        className={`
+                                          block px-3 py-2 text-sm rounded-lg transition-all duration-200
+                                          border border-transparent
+                                          ${isSubActive
+                                            ? "bg-blue-600 text-white border-blue-600 font-medium active-item-glow"
+                                            : "text-gray-500 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-100"
+                                          }
+                                          focus:outline-none focus:ring-1 focus:ring-blue-500/30
+                                          active:scale-[0.98]
+                                        `}
+                                      >
+                                        <div className="flex items-center">
+                                          <FiChevronRight className={`w-2.5 h-2.5 mr-2 ${isSubActive ? "text-white" : "text-blue-300"}`} />
+                                          <span className="truncate text-sm">{sub.name}</span>
+                                        </div>
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </div>
                       );
                     }
@@ -451,8 +491,9 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
                         key={item.name}
                         to={item.path}
                         onClick={handleLinkClick}
+                        title={isCollapsed ? item.name : undefined}
                         className={`
-                          flex items-center px-3 py-2.5 rounded-lg text-sm font-medium 
+                          flex items-center ${isCollapsed ? 'justify-center px-2' : 'px-3'} py-2.5 rounded-lg text-sm font-medium
                           transition-all duration-200
                           border border-transparent
                           ${isActive
@@ -465,13 +506,13 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
                         `}
                       >
                         <span className={`
-                          mr-2.5 flex-shrink-0 transition-colors duration-200
+                          ${isCollapsed ? '' : 'mr-2.5'} flex-shrink-0 transition-colors duration-200
                           ${isActive ? "text-white" : "text-blue-400 group-hover:text-blue-500"}
                         `}>
                           {item.icon}
                         </span>
-                        <span className="truncate text-sm">{item.name}</span>
-                        {isActive && (
+                        {!isCollapsed && <span className="truncate text-sm">{item.name}</span>}
+                        {!isCollapsed && isActive && (
                           <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse flex-shrink-0"></div>
                         )}
                       </Link>
@@ -489,32 +530,35 @@ const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme }) => {
                 handleLogout();
                 handleLinkClick();
               }}
-              className="w-full flex items-center justify-center px-3 py-2.5 rounded-lg text-sm font-medium
+              title={isCollapsed ? 'Logout' : undefined}
+              className={`w-full flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-center px-3'} py-2.5 rounded-lg text-sm font-medium
                 bg-red-50
                 text-red-600 hover:text-red-700 hover:bg-red-100
                 border border-red-200 hover:border-red-300
                 transition-all duration-200
                 focus:outline-none focus:ring-1 focus:ring-red-500/30
                 active:scale-[0.98]
-                group"
+                group`}
             >
-              <FiLogOut className="mr-2.5 flex-shrink-0 transition-transform duration-200 group-hover:-translate-x-0.5" />
-              <span>Logout</span>
+              <FiLogOut className={`${isCollapsed ? '' : 'mr-2.5'} flex-shrink-0 transition-transform duration-200 group-hover:-translate-x-0.5`} />
+              {!isCollapsed && <span>Logout</span>}
             </button>
 
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <div className="text-center space-y-1">
-                <p className="text-2xs font-medium text-gray-400">v2.1.0</p>
-                <p className="text-2xs text-gray-400">
-                  © {new Date().getFullYear()}
-                </p>
-                <div className="flex items-center justify-center space-x-1 mt-1.5">
-                  <div className="w-1 h-1 rounded-full bg-emerald-500/50"></div>
-                  <div className="w-1 h-1 rounded-full bg-blue-500/50"></div>
-                  <div className="w-1 h-1 rounded-full bg-purple-500/50"></div>
+            {!isCollapsed && (
+              <div className="mt-4 pt-3 border-t border-gray-200">
+                <div className="text-center space-y-1">
+                  <p className="text-2xs font-medium text-gray-400">v2.1.0</p>
+                  <p className="text-2xs text-gray-400">
+                    © {new Date().getFullYear()}
+                  </p>
+                  <div className="flex items-center justify-center space-x-1 mt-1.5">
+                    <div className="w-1 h-1 rounded-full bg-emerald-500/50"></div>
+                    <div className="w-1 h-1 rounded-full bg-blue-500/50"></div>
+                    <div className="w-1 h-1 rounded-full bg-purple-500/50"></div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </aside>

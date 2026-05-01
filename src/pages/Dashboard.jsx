@@ -44,6 +44,7 @@ import {
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [stats, setStats] = useState({
@@ -117,7 +118,7 @@ const DashboardLayout = () => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://api.fast2.in/api/admin/dashboard/overview?filter=${selectedPeriod}`, {
+      const response = await fetch(`http://localhost:5000/api/admin/dashboard/overview?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -145,7 +146,7 @@ const DashboardLayout = () => {
   const fetchDailySales = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch('https://api.fast2.in/api/admin/dashboard/daily-sales?days=30', {
+      const response = await fetch('http://localhost:5000/api/admin/dashboard/daily-sales?days=30', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -168,7 +169,7 @@ const DashboardLayout = () => {
   const fetchTopSellers = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://api.fast2.in/api/admin/dashboard/top-sellers?filter=${selectedPeriod}`, {
+      const response = await fetch(`http://localhost:5000/api/admin/dashboard/top-sellers?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -191,7 +192,7 @@ const DashboardLayout = () => {
   const fetchTopPromotors = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://api.fast2.in/api/admin/dashboard/top-promotors?filter=${selectedPeriod}`, {
+      const response = await fetch(`http://localhost:5000/api/admin/dashboard/top-promotors?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -534,13 +535,16 @@ const DashboardLayout = () => {
         onClose={() => setIsSidebarOpen(false)}
         darkMode={darkMode}
         toggleTheme={toggleTheme}
+        isCollapsed={isSidebarCollapsed}
       />
 
-      <div className="lg:ml-64 min-h-screen flex flex-col">
+      <div className={`${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} min-h-screen flex flex-col transition-all duration-300`}>
         <Header
           toggleSidebar={toggleSidebar}
           darkMode={darkMode}
           toggleTheme={toggleTheme}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
 
         <main className="flex-1 p-6">
