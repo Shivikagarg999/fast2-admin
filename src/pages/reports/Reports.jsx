@@ -16,15 +16,7 @@ import {
   FiClock,
   FiChevronLeft,
   FiChevronRight,
-  FiEye,
-  FiPhone,
-  FiMail,
-  FiMapPin,
-  FiGrid,
-  FiTag,
-  FiPercent,
-  FiHeart,
-  FiAward
+  FiGrid
 } from "react-icons/fi";
 
 const ReportsPage = () => {
@@ -65,7 +57,7 @@ const ReportsPage = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       
-      let url = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/reports/`;
+      let url = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/reports/`;
       let params = new URLSearchParams();
       params.append("page", page);
       params.append("limit", 20);
@@ -100,13 +92,9 @@ const ReportsPage = () => {
         url += `?${params.toString()}`;
       }
       
-      console.log("Fetching URL:", url);
-      
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
-      console.log("API Response:", response.data);
       
       if (response.data.success) {
         setReportData(response.data.data || []);
@@ -118,7 +106,6 @@ const ReportsPage = () => {
             totalRecords: response.data.pagination.totalRecords,
             recordsPerPage: response.data.pagination.recordsPerPage
           });
-          console.log("Pagination set to:", response.data.pagination);
         }
       }
     } catch (error) {
@@ -134,7 +121,7 @@ const ReportsPage = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       
-      let url = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/reports/`;
+      let url = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/admin/reports/`;
       let params = new URLSearchParams();
       params.append("format", "csv");
       
@@ -182,6 +169,8 @@ const ReportsPage = () => {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url_);
+      
+      alert("CSV downloaded successfully!");
     } catch (error) {
       console.error("Error downloading CSV:", error);
       alert("Failed to download CSV: " + (error.response?.data?.message || error.message));
@@ -191,9 +180,7 @@ const ReportsPage = () => {
   };
 
   const handlePageChange = (newPage) => {
-    console.log("Changing to page:", newPage);
     if (newPage >= 1 && newPage <= pagination.totalPages) {
-      setPagination({ ...pagination, currentPage: newPage });
       fetchReport(newPage);
     }
   };
@@ -867,12 +854,6 @@ const ReportsPage = () => {
                 Last
               </button>
             </div>
-          </div>
-        )}
-        
-        {pagination.totalRecords > pagination.recordsPerPage && pagination.totalPages === 1 && (
-          <div className="mt-6 text-center text-sm text-gray-500">
-            Total {pagination.totalRecords} records found
           </div>
         )}
       </div>
