@@ -67,9 +67,11 @@ export default function LoginPage() {
         {/* Branding Section - Left Side */}
         <div className="w-full lg:w-1/2 text-white space-y-6 lg:space-y-8 text-center lg:text-left px-4">
           <div className="space-y-3">
-            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-              Fast2
-            </h1>
+            <img
+              src="/src/assets/images/logo.png"
+              alt="Fast2 Logo"
+              className="h-20 lg:h-24 xl:h-28 object-contain mx-auto lg:mx-0"
+            />
             <h2 className="text-2xl lg:text-3xl font-light text-blue-100">
               Admin Portal
             </h2>
