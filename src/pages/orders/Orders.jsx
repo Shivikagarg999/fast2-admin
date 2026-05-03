@@ -37,7 +37,7 @@ const OrdersPage = () => {
                 ...(search && { search: search })
             });
 
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/getall?${params.toString()}`);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/orders/getall?${params.toString()}`);
             if (!response.ok) throw new Error('Failed to fetch orders');
             const data = await response.json();
 
@@ -59,7 +59,7 @@ const OrdersPage = () => {
 
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/${orderId}/status`, {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ const OrdersPage = () => {
                 params.append('status', statusFilter);
             }
 
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/orders/download/csv?${params.toString()}`);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/orders/download/csv?${params.toString()}`);
             
             if (!response.ok) {
                 const errorData = await response.json();
@@ -139,7 +139,7 @@ const OrdersPage = () => {
 
     const handleDownloadInvoice = async (orderId) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/order/${orderId}/invoice`);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/order/${orderId}/invoice`);
             if (!response.ok) throw new Error('Failed to download invoice');
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);

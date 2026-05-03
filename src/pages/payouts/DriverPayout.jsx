@@ -39,7 +39,7 @@ const DriverPayouts = () => {
 
   const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
 
-  const BASE_URL = 'https://api.fast2.in/api/driver-earnings';
+  const BASE_URL = 'https://admin.fast2.in/proxy/api/driver-earnings';
 
   useEffect(() => {
     fetchEarningsSummary();
@@ -97,7 +97,7 @@ const DriverPayouts = () => {
 
       // If the earnings detail endpoint doesn't work, try the regular driver endpoint
       console.log('Trying regular driver API endpoint...');
-      const driverResponse = await fetch(`https://api.fast2.in/api/admin/drivers/${driverId}`, {
+      const driverResponse = await fetch(`https://admin.fast2.in/proxy/api/admin/drivers/${driverId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -30,7 +30,7 @@ const AdminManagement = () => {
   const fetchAdmins = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/all`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/all`);
       const data = await response.json();
 
       if (data.success) {
@@ -46,7 +46,7 @@ const AdminManagement = () => {
   const handleDelete = async (adminId) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/${adminId}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/${adminId}`,
         {
           method: 'DELETE',
         }

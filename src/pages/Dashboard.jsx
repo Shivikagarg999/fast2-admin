@@ -118,7 +118,7 @@ const DashboardLayout = () => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://api.fast2.in/api/admin/dashboard/overview?filter=${selectedPeriod}`, {
+      const response = await fetch(`https://admin.fast2.in/proxy/api/admin/dashboard/overview?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -146,7 +146,7 @@ const DashboardLayout = () => {
   const fetchDailySales = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch('https://api.fast2.in/api/admin/dashboard/daily-sales?days=30', {
+      const response = await fetch('https://admin.fast2.in/proxy/api/admin/dashboard/daily-sales?days=30', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -169,7 +169,7 @@ const DashboardLayout = () => {
   const fetchTopSellers = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://api.fast2.in/api/admin/dashboard/top-sellers?filter=${selectedPeriod}`, {
+      const response = await fetch(`https://admin.fast2.in/proxy/api/admin/dashboard/top-sellers?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -192,7 +192,7 @@ const DashboardLayout = () => {
   const fetchTopPromotors = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://api.fast2.in/api/admin/dashboard/top-promotors?filter=${selectedPeriod}`, {
+      const response = await fetch(`https://admin.fast2.in/proxy/api/admin/dashboard/top-promotors?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

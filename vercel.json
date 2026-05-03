@@ -1,5 +1,8 @@
-{
+﻿{
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/proxy/:path*",
+      "destination": "https://api.fast2.in/:path*"
+    }
   ]
 }

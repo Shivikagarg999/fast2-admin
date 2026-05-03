@@ -60,7 +60,7 @@ const LoadingSpinner = ({ size = 24, color = '#2563eb' }) => (
 
 class CouponService {
   constructor() {
-    this.baseURL = import.meta.env.VITE_BASE_URL || 'https://api.fast2.in';
+    this.baseURL = import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy';
   }
 
   async request(endpoint, options = {}) {

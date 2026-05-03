@@ -28,7 +28,7 @@ const AdminForm = () => {
   const fetchRoles = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles`
+        `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/roles`
       );
       const data = await response.json();
 
@@ -44,7 +44,7 @@ const AdminForm = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/${id}`
+        `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/${id}`
       );
       const data = await response.json();
 
@@ -70,8 +70,8 @@ const AdminForm = () => {
 
     try {
       const url = isEditMode
-        ? `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/${id}`
-        : `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/register`;
+        ? `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/${id}`
+        : `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/register`;
 
       const method = isEditMode ? 'PUT' : 'POST';
 

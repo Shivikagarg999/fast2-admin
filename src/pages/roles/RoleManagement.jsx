@@ -27,7 +27,7 @@ const RoleManagement = () => {
   const fetchRoles = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/roles`);
       const data = await response.json();
 
       if (data.success) {
@@ -43,7 +43,7 @@ const RoleManagement = () => {
   const handleDelete = async (roleId) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/roles/${roleId}`,
+        `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/roles/${roleId}`,
         {
           method: 'DELETE',
         }

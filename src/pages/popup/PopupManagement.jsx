@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight, FiClock, FiImage, FiX, FiCheck, FiAlertCircle, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-const BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://api.fast2.in'}/api/admin/popups`;
+const BASE_URL = `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/popups`;
 const LIMIT = 10;
 
 const defaultForm = { startTime: '', endTime: '', isActive: true };
