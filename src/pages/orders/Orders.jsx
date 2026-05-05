@@ -12,7 +12,10 @@ import {
 
 const OrdersPage = () => {
     const [orders, setOrders] = useState([]);
+    const [drivers, setDrivers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [driversLoading, setDriversLoading] = useState(false);
+    const [assigningOrderId, setAssigningOrderId] = useState(null);
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showModal, setShowModal] = useState(false);
@@ -26,6 +29,10 @@ const OrdersPage = () => {
     useEffect(() => {
         fetchOrders();
     }, [currentPage, statusFilter]);
+
+    useEffect(() => {
+        fetchDrivers();
+    }, []);
 
     const fetchOrders = async () => {
         try {
@@ -48,6 +55,26 @@ const OrdersPage = () => {
         } catch (err) {
             console.error("Error fetching orders:", err);
             setLoading(false);
+        }
+    };
+
+    const fetchDrivers = async () => {
+        try {
+            setDriversLoading(true);
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/drivers/getall`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch drivers');
+
+            const data = await response.json();
+            const driversData = data.data?.drivers || data.data || data.drivers || [];
+            setDrivers(driversData);
+        } catch (err) {
+            console.error("Error fetching drivers:", err);
+        } finally {
+            setDriversLoading(false);
         }
     };
 
@@ -78,6 +105,92 @@ const OrdersPage = () => {
             console.error('Error updating order status:', error);
             alert('Error updating order status: ' + error.message);
         }
+    };
+
+    const getDriverId = (driver) => {
+        if (!driver) return "";
+        return typeof driver === "string" ? driver : driver._id;
+    };
+
+    const getDriverName = (driver) => {
+        if (!driver || typeof driver === "string") return "";
+        return driver.personalInfo?.name || driver.name || driver.workInfo?.driverId || "Driver";
+    };
+
+    const getDriverPhone = (driver) => {
+        if (!driver || typeof driver === "string") return "";
+        return driver.personalInfo?.phone || driver.phone || "";
+    };
+
+    const getDriverOptionLabel = (driver) => {
+        const name = getDriverName(driver);
+        const phone = getDriverPhone(driver);
+        const driverId = driver.workInfo?.driverId;
+        return [name, phone, driverId].filter(Boolean).join(" - ");
+    };
+
+    const getAssignedDriver = (order) => {
+        const assignedDriverId = getDriverId(order.driver);
+        return drivers.find(driver => driver._id === assignedDriverId) || order.driver;
+    };
+
+    const handleDriverAssignment = async (order, driverId) => {
+        const orderId = order._id;
+        try {
+            setAssigningOrderId(orderId);
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/orders/${orderId}/driver`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({ driverId: driverId || null }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update driver assignment');
+            }
+
+            const data = await response.json();
+            const updatedOrder = data.order || data.data?.order || data.data;
+            const selectedDriver = drivers.find(driver => driver._id === driverId) || null;
+            const nextOrder = updatedOrder?._id ? updatedOrder : { ...order, driver: selectedDriver };
+
+            setOrders(prevOrders => prevOrders.map(item => item._id === orderId ? nextOrder : item));
+            setSelectedOrder(prevOrder => prevOrder?._id === orderId ? nextOrder : prevOrder);
+        } catch (error) {
+            console.error('Error assigning driver:', error);
+            alert('Error assigning driver: ' + error.message);
+        } finally {
+            setAssigningOrderId(null);
+        }
+    };
+
+    const renderDriverAssignmentSelect = (order) => {
+        const assignedDriver = getAssignedDriver(order);
+        const assignedDriverId = getDriverId(assignedDriver);
+        const isAssigning = assigningOrderId === order._id;
+
+        return (
+            <select
+                value={assignedDriverId}
+                onChange={(e) => handleDriverAssignment(order, e.target.value)}
+                disabled={driversLoading || isAssigning || order.status === 'delivered' || order.status === 'cancelled'}
+                className="w-full mt-2 text-xs border border-gray-300 dark:border-gray-600 rounded 
+                    bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300
+                    focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
+                title="Assign or change driver"
+            >
+                <option value="">{driversLoading ? "Loading drivers..." : "Assign driver"}</option>
+                {drivers.map(driver => (
+                    <option key={driver._id} value={driver._id}>
+                        {getDriverOptionLabel(driver)}
+                    </option>
+                ))}
+            </select>
+        );
     };
 
     const openOrderDetails = (order) => {
@@ -386,6 +499,32 @@ const OrdersPage = () => {
         { value: 'cancelled', label: 'Cancel' }
     ];
 
+    const OrderSummaryCard = ({ label, value, tone = "gray" }) => {
+        const toneClasses = {
+            gray: "bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-white",
+            green: "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200",
+            blue: "bg-blue-50 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200",
+            amber: "bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
+        };
+
+        return (
+            <div className={`rounded-lg p-4 ${toneClasses[tone] || toneClasses.gray}`}>
+                <span className="text-xs font-medium opacity-80">{label}</span>
+                <p className="text-lg font-semibold mt-1 break-words">{value || value === 0 ? value : 'N/A'}</p>
+            </div>
+        );
+    };
+
+    const DetailSection = ({ title, icon, children }) => (
+        <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                {icon}
+                {title}
+            </h3>
+            {children}
+        </section>
+    );
+
     return (
         <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
             <div className="max-w-7xl mx-auto p-6">
@@ -552,23 +691,34 @@ const OrdersPage = () => {
                                             
                                             {/* Driver */}
                                             <td className="px-6 py-4">
-                                                <div className="text-sm text-gray-900 dark:text-white">
-                                                    {order.driver?.personalInfo?.name || 'Not Assigned'}
-                                                </div>
-                                                <div className="text-xs text-gray-500 dark:text-gray-400">
-                                                    {order.driver?.personalInfo?.phone}
-                                                </div>
-                                                {order.driver?.workInfo?.availability && (
-                                                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
-                                                        order.driver.workInfo.availability === 'online' 
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : order.driver.workInfo.availability === 'on-delivery'
-                                                            ? 'bg-blue-100 text-blue-800'
-                                                            : 'bg-gray-100 text-gray-800'
-                                                    }`}>
-                                                        {order.driver.workInfo.availability}
-                                                    </span>
-                                                )}
+                                                {(() => {
+                                                    const assignedDriver = getAssignedDriver(order);
+                                                    return (
+                                                        <>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`inline-flex h-2 w-2 rounded-full ${assignedDriver ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                                                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    {assignedDriver ? getDriverName(assignedDriver) : 'Not Assigned'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                                {assignedDriver ? getDriverPhone(assignedDriver) || 'No phone' : 'Assign before dispatch'}
+                                                            </div>
+                                                            {assignedDriver?.workInfo?.availability && (
+                                                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
+                                                                    assignedDriver.workInfo.availability === 'online'
+                                                                        ? 'bg-green-100 text-green-800'
+                                                                        : assignedDriver.workInfo.availability === 'on-delivery'
+                                                                        ? 'bg-blue-100 text-blue-800'
+                                                                        : 'bg-gray-100 text-gray-800'
+                                                                }`}>
+                                                                    {assignedDriver.workInfo.availability}
+                                                                </span>
+                                                            )}
+                                                            {renderDriverAssignmentSelect(order)}
+                                                        </>
+                                                    );
+                                                })()}
                                             </td>
                                             
                                             {/* Items */}
@@ -719,24 +869,55 @@ const OrdersPage = () => {
                     </div>
                 )}
 
-                {/* Order Details Modal - Keeping the same as before, just with Fi icons */}
+                {/* Order Details Modal */}
                 {showModal && selectedOrder && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <div
+                        className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm"
+                        style={{ backgroundColor: "rgba(0, 0, 0, 0.55)" }}
+                    >
+                        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl my-8 max-h-[95vh] overflow-hidden">
                             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
-                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                    Order Details - #{selectedOrder.orderId}
-                                </h2>
+                                <div>
+                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                        Order Details
+                                    </h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        #{selectedOrder.orderId} • {selectedOrder.user?.name || 'Customer'} • {formatDate(selectedOrder.createdAt)}
+                                    </p>
+                                </div>
                                 <button
                                     onClick={closeModal}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                 >
                                     <FiX className="w-6 h-6" />
                                 </button>
                             </div>
 
-                            <div className="p-6 space-y-6">
+                            <div className="p-6 space-y-6 max-h-[calc(95vh-97px)] overflow-y-auto">
+                                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                #{selectedOrder.orderId}
+                                            </h3>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                                {selectedOrder.items?.length || 0} item{selectedOrder.items?.length !== 1 ? 's' : ''} ordered by {selectedOrder.user?.name || 'Customer'}
+                                            </p>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            {getStatusBadge(selectedOrder.status)}
+                                            {getPaymentStatusBadge(selectedOrder.paymentStatus)}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                        <OrderSummaryCard label="Total Amount" value={formatCurrency(selectedOrder.total)} tone="green" />
+                                        <OrderSummaryCard label="Payment Method" value={selectedOrder.paymentMethod?.toUpperCase()} tone="blue" />
+                                        <OrderSummaryCard label="Assigned Driver" value={getDriverName(getAssignedDriver(selectedOrder)) || 'Not Assigned'} tone="amber" />
+                                        <OrderSummaryCard label="Order Date" value={formatDate(selectedOrder.createdAt)} />
+                                    </div>
+                                </div>
                                 {/* Order Summary */}
+                                <DetailSection title="Order Summary" icon={<FiPackage className="w-5 h-5" />}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <h3 className="text-lg font-medium mb-4">Customer Information</h3>
@@ -757,6 +938,7 @@ const OrdersPage = () => {
                                         </div>
                                     </div>
                                 </div>
+                                </DetailSection>
 
                                 {/* Seller Details */}
                                 {selectedOrder.seller && (
@@ -830,39 +1012,79 @@ const OrdersPage = () => {
                                 )}
 
                                 {/* Driver Information */}
-                                {selectedOrder.driver && (
-                                    <div>
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                            <FiTruck className="w-5 h-5" />
-                                            Driver Information
-                                        </h3>
-                                        
-                                        {/* Personal Information */}
-                                        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-4">
-                                            <h4 className="font-medium text-green-800 dark:text-green-300 mb-3">Personal Information</h4>
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                                <div>
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400">Full Name</p>
-                                                    <p className="font-medium text-gray-900 dark:text-white">
-                                                        {selectedOrder.driver.personalInfo?.name || 'N/A'}
-                                                    </p>
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <FiTruck className="w-5 h-5" />
+                                        Driver Assignment
+                                    </h3>
+
+                                    {(() => {
+                                        const assignedDriver = getAssignedDriver(selectedOrder);
+
+                                        return (
+                                            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-4">
+                                                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                                                    <div>
+                                                        <h4 className="font-medium text-green-800 dark:text-green-300">
+                                                            {assignedDriver ? 'Assigned Driver' : 'No Driver Assigned'}
+                                                        </h4>
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                            {assignedDriver ? 'Use the selector to change this driver.' : 'Assign a driver before pickup or delivery.'}
+                                                        </p>
+                                                    </div>
+                                                    <div className="w-full md:w-72">
+                                                        {renderDriverAssignmentSelect(selectedOrder)}
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400">Email</p>
-                                                    <p className="font-medium text-gray-900 dark:text-white">
-                                                        {selectedOrder.driver.personalInfo?.email || 'N/A'}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400">Phone</p>
-                                                    <p className="font-medium text-gray-900 dark:text-white">
-                                                        {selectedOrder.driver.personalInfo?.phone || 'N/A'}
-                                                    </p>
-                                                </div>
+
+                                                {assignedDriver ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                        <div>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">Full Name</p>
+                                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                                {getDriverName(assignedDriver) || 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">Email</p>
+                                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                                {assignedDriver.personalInfo?.email || assignedDriver.email || 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">Phone</p>
+                                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                                {getDriverPhone(assignedDriver) || 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">Driver ID</p>
+                                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                                {assignedDriver.workInfo?.driverId || 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">Availability</p>
+                                                            <p className="font-medium text-gray-900 dark:text-white capitalize">
+                                                                {assignedDriver.workInfo?.availability || 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">Vehicle</p>
+                                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                                {[assignedDriver.vehicle?.type, assignedDriver.vehicle?.registrationNumber].filter(Boolean).join(' - ') || 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                        This order will show as unassigned in the orders table until a driver is selected.
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
-                                    </div>
-                                )}
+                                        );
+                                    })()}
+                                </div>
 
                                 {/* Payout Summary */}
                                 {selectedOrder.payout && (

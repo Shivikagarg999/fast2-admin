@@ -22,6 +22,7 @@ import {
 const ReportsPage = () => {
   const [activeTab, setActiveTab] = useState("orders");
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [reportData, setReportData] = useState([]);
   const [summary, setSummary] = useState(null);
   const [pagination, setPagination] = useState({
@@ -52,46 +53,56 @@ const ReportsPage = () => {
     { id: "products", label: "Products Report", icon: FiGrid }
   ];
 
+  const getAuthToken = () => localStorage.getItem("adminToken") || localStorage.getItem("token");
+
+  const buildReportRequest = ({ page, csv = false } = {}) => {
+    const params = new URLSearchParams();
+
+    if (csv) {
+      params.append("format", "csv");
+      params.append("download", "true");
+      params.append("all", "true");
+    } else {
+      params.append("page", page || 1);
+      params.append("limit", 20);
+    }
+
+    switch (activeTab) {
+      case "orders":
+        if (filters.startDate) params.append("startDate", filters.startDate);
+        if (filters.endDate) params.append("endDate", filters.endDate);
+        if (filters.orderStatus) params.append("status", filters.orderStatus);
+        if (filters.paymentStatus) params.append("paymentStatus", filters.paymentStatus);
+        break;
+      case "sellers":
+        if (filters.sellerId) params.append("sellerId", filters.sellerId);
+        if (filters.approvalStatus) params.append("approvalStatus", filters.approvalStatus);
+        break;
+      case "promotors":
+        if (filters.promotorId) params.append("promotorId", filters.promotorId);
+        if (filters.active) params.append("active", filters.active);
+        break;
+      case "products":
+        if (filters.minPrice) params.append("minPrice", filters.minPrice);
+        if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
+        if (filters.stockStatus) params.append("stockStatus", filters.stockStatus);
+        break;
+      default:
+        break;
+    }
+
+    const queryString = params.toString();
+    const url = `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/reports/${activeTab}${queryString ? `?${queryString}` : ""}`;
+
+    return { url, params };
+  };
+
   const fetchReport = async (page = 1) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      
-      let url = `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/reports/`;
-      let params = new URLSearchParams();
-      params.append("page", page);
-      params.append("limit", 20);
-      
-      switch (activeTab) {
-        case "orders":
-          url += "orders";
-          if (filters.startDate) params.append("startDate", filters.startDate);
-          if (filters.endDate) params.append("endDate", filters.endDate);
-          if (filters.orderStatus) params.append("status", filters.orderStatus);
-          if (filters.paymentStatus) params.append("paymentStatus", filters.paymentStatus);
-          break;
-        case "sellers":
-          url += "sellers";
-          if (filters.sellerId) params.append("sellerId", filters.sellerId);
-          if (filters.approvalStatus) params.append("approvalStatus", filters.approvalStatus);
-          break;
-        case "promotors":
-          url += "promotors";
-          if (filters.promotorId) params.append("promotorId", filters.promotorId);
-          if (filters.active) params.append("active", filters.active);
-          break;
-        case "products":
-          url += "products";
-          if (filters.minPrice) params.append("minPrice", filters.minPrice);
-          if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
-          if (filters.stockStatus) params.append("stockStatus", filters.stockStatus);
-          break;
-      }
-      
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
-      
+      const token = getAuthToken();
+      const { url } = buildReportRequest({ page });
+
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -116,66 +127,87 @@ const ReportsPage = () => {
     }
   };
 
+  const getCSVFileName = (contentDisposition) => {
+    const fallback = `${activeTab}_report_${new Date().toISOString().split('T')[0]}.csv`;
+    if (!contentDisposition) return fallback;
+
+    const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
+    return filenameMatch?.[1] || fallback;
+  };
+
+  const escapeCSVValue = (value) => {
+    if (value === null || value === undefined) return "";
+    const stringValue = String(value);
+    if (/[",\n\r]/.test(stringValue)) {
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    }
+    return stringValue;
+  };
+
+  const flattenRecord = (record, prefix = "") => {
+    return Object.entries(record || {}).reduce((acc, [key, value]) => {
+      const nextKey = prefix ? `${prefix}.${key}` : key;
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        return { ...acc, ...flattenRecord(value, nextKey) };
+      }
+      acc[nextKey] = Array.isArray(value) ? value.join(" | ") : value;
+      return acc;
+    }, {});
+  };
+
+  const convertRecordsToCSV = (records) => {
+    if (!records?.length) return "";
+    const flattened = records.map(record => flattenRecord(record));
+    const headers = Array.from(new Set(flattened.flatMap(record => Object.keys(record))));
+    const rows = flattened.map(record => headers.map(header => escapeCSVValue(record[header])).join(","));
+    return [headers.join(","), ...rows].join("\n");
+  };
+
+  const triggerCSVDownload = (csvContent, fileName) => {
+    const blob = csvContent instanceof Blob
+      ? csvContent
+      : new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   const downloadCSV = async () => {
     try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      
-      let url = `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/reports/`;
-      let params = new URLSearchParams();
-      params.append("format", "csv");
-      
-      switch (activeTab) {
-        case "orders":
-          url += "orders";
-          if (filters.startDate) params.append("startDate", filters.startDate);
-          if (filters.endDate) params.append("endDate", filters.endDate);
-          if (filters.orderStatus) params.append("status", filters.orderStatus);
-          if (filters.paymentStatus) params.append("paymentStatus", filters.paymentStatus);
-          break;
-        case "sellers":
-          url += "sellers";
-          if (filters.sellerId) params.append("sellerId", filters.sellerId);
-          if (filters.approvalStatus) params.append("approvalStatus", filters.approvalStatus);
-          break;
-        case "promotors":
-          url += "promotors";
-          if (filters.promotorId) params.append("promotorId", filters.promotorId);
-          if (filters.active) params.append("active", filters.active);
-          break;
-        case "products":
-          url += "products";
-          if (filters.minPrice) params.append("minPrice", filters.minPrice);
-          if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
-          if (filters.stockStatus) params.append("stockStatus", filters.stockStatus);
-          break;
-      }
-      
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
-      
+      setDownloading(true);
+      const token = getAuthToken();
+      const { url } = buildReportRequest({ csv: true });
+
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: "blob"
       });
-      
-      const blob = new Blob([response.data], { type: "text/csv" });
-      const url_ = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url_;
-      a.download = `${activeTab}_report_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url_);
-      
+
+      const contentType = response.headers["content-type"] || "";
+      const fileName = getCSVFileName(response.headers["content-disposition"]);
+
+      if (contentType.includes("application/json")) {
+        const text = await response.data.text();
+        const json = JSON.parse(text);
+        const records = json.data || json.records || [];
+        const csvContent = convertRecordsToCSV(records);
+        if (!csvContent) throw new Error("No records available to export");
+        triggerCSVDownload(csvContent, fileName);
+      } else {
+        triggerCSVDownload(response.data, fileName);
+      }
+
       alert("CSV downloaded successfully!");
     } catch (error) {
       console.error("Error downloading CSV:", error);
       alert("Failed to download CSV: " + (error.response?.data?.message || error.message));
     } finally {
-      setLoading(false);
+      setDownloading(false);
     }
   };
 
@@ -257,11 +289,16 @@ const ReportsPage = () => {
             </button>
             <button
               onClick={downloadCSV}
+              disabled={downloading}
               style={{ backgroundColor: "#000000" }}
-              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors hover:opacity-90"
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <FiDownload className="w-4 h-4" />
-              Download CSV
+              {downloading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              ) : (
+                <FiDownload className="w-4 h-4" />
+              )}
+              {downloading ? "Downloading..." : "Download CSV"}
             </button>
           </div>
         </div>

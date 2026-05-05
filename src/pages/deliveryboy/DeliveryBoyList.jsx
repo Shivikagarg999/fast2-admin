@@ -172,6 +172,73 @@ const DriverList = () => {
     };
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(amount || 0);
+  };
+
+  const formatDetailValue = (value) => {
+    if (value === null || value === undefined || value === "") return 'N/A';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (typeof value === 'object') return value._id || value.id || JSON.stringify(value);
+    return value;
+  };
+
+  const DetailField = ({ label, value, className = "" }) => (
+    <div className={className}>
+      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</label>
+      <p className="text-gray-900 dark:text-white break-words">{formatDetailValue(value)}</p>
+    </div>
+  );
+
+  const DetailSection = ({ title, icon, children }) => (
+    <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+      <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        {icon}
+        {title}
+      </h3>
+      {children}
+    </section>
+  );
+
+  const SummaryCard = ({ label, value, tone = "gray" }) => {
+    const toneClasses = {
+      gray: "bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-white",
+      green: "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200",
+      blue: "bg-blue-50 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200",
+      amber: "bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
+    };
+
+    return (
+      <div className={`rounded-lg p-4 ${toneClasses[tone] || toneClasses.gray}`}>
+        <span className="text-xs font-medium opacity-80">{label}</span>
+        <p className="text-lg font-semibold mt-1">{formatDetailValue(value)}</p>
+      </div>
+    );
+  };
+
   const filteredDrivers = useMemo(() => {
     return drivers.filter(driver => {
       const matchesSearch =
@@ -273,9 +340,6 @@ const DriverList = () => {
                     Contact
                   </th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
-                    Vehicle
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Status
                   </th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
@@ -292,7 +356,7 @@ const DriverList = () => {
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8">
+                    <td colSpan={6} className="text-center py-8">
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                         <span className="ml-2 text-gray-500 dark:text-gray-400">Loading drivers...</span>
@@ -301,7 +365,7 @@ const DriverList = () => {
                   </tr>
                 ) : currentDrivers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8">
+                    <td colSpan={6} className="text-center py-8">
                       <div className="flex flex-col items-center">
                         <FiUser className="w-12 h-12 text-gray-400 mb-2" />
                         <span className="text-gray-500 dark:text-gray-400">No drivers found.</span>
@@ -344,19 +408,6 @@ const DriverList = () => {
                           <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
                             <FiMail className="w-3 h-3 mr-1 text-gray-400 flex-shrink-0" />
                             <span className="truncate max-w-[120px]">{driver.personalInfo?.email || "N/A"}</span>
-                          </div>
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg flex-shrink-0">{getVehicleIcon(driver.vehicle?.type)}</span>
-                            <div>
-                              <div className="text-sm text-gray-900 dark:text-white">
-                                {driver.vehicle?.type ? driver.vehicle.type.toUpperCase() : "N/A"}
-                              </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[100px]">
-                                {driver.vehicle?.registrationNumber || "N/A"}
-                              </div>
-                            </div>
                           </div>
                         </td>
                         <td className="px-3 py-3">
@@ -527,12 +578,20 @@ const DriverList = () => {
 
         {/* Driver Details/Review Modal */}
         {showDetailsModal && selectedDriver && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl my-8">
+          <div
+            className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          >
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl my-8 max-h-[95vh] overflow-hidden">
               <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  Driver Details & Documents
-                </h2>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Driver Details
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {selectedDriver.personalInfo?.name || 'Driver'} • {selectedDriver.workInfo?.driverId || selectedDriver._id}
+                  </p>
+                </div>
                 <button
                   onClick={closeDetailsModal}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -541,13 +600,44 @@ const DriverList = () => {
                 </button>
               </div>
 
-              <div className="p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div className="p-6 space-y-6 max-h-[calc(95vh-153px)] overflow-y-auto">
+                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                  <div className="flex flex-col lg:flex-row lg:items-center gap-5">
+                    <img
+                      src={selectedDriver.personalInfo?.profilePhoto || 'https://via.placeholder.com/120?text=Driver'}
+                      alt={selectedDriver.personalInfo?.name || 'Driver'}
+                      className="w-24 h-24 rounded-xl object-cover border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/120?text=Driver';
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-3 mb-2">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                          {selectedDriver.personalInfo?.name || 'N/A'}
+                        </h3>
+                        {getStatusBadge(selectedDriver.workInfo?.status)}
+                        {getAvailabilityBadge(selectedDriver.workInfo?.availability)}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-sm text-gray-600 dark:text-gray-300">
+                        <p>{selectedDriver.personalInfo?.phone || 'N/A'}</p>
+                        <p>{selectedDriver.personalInfo?.email || 'N/A'}</p>
+                        <p>{selectedDriver.vehicle?.registrationNumber || 'No vehicle number'}</p>
+                        <p>{selectedDriver.fullAddress || selectedDriver.address?.currentAddress?.city || 'No address available'}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+                    <SummaryCard label="Total Earnings" value={formatCurrency(selectedDriver.earnings?.totalEarnings)} tone="green" />
+                    <SummaryCard label="Current Balance" value={formatCurrency(selectedDriver.earnings?.currentBalance)} tone="blue" />
+                    <SummaryCard label="Completed Orders" value={selectedDriver.deliveryStats?.completedOrders} tone="amber" />
+                    <SummaryCard label="Pending Payout" value={formatCurrency(selectedDriver.earnings?.pendingPayout)} />
+                  </div>
+                </div>
+
                 {/* Personal Information */}
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <FiUser className="w-5 h-5 mr-2" />
-                    Personal Information
-                  </h3>
+                <DetailSection title="Personal Information" icon={<FiUser className="w-5 h-5" />}>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                       <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Full Name</label>
@@ -563,11 +653,7 @@ const DriverList = () => {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Date of Birth</label>
-                      <p className="text-gray-900 dark:text-white">
-                        {selectedDriver.personalInfo?.dateOfBirth
-                          ? new Date(selectedDriver.personalInfo.dateOfBirth).toLocaleDateString('en-IN')
-                          : 'N/A'}
-                      </p>
+                      <p className="text-gray-900 dark:text-white">{formatDate(selectedDriver.personalInfo?.dateOfBirth)}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Gender</label>
@@ -577,41 +663,35 @@ const DriverList = () => {
                       <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Blood Group</label>
                       <p className="text-gray-900 dark:text-white">{selectedDriver.personalInfo?.bloodGroup || 'N/A'}</p>
                     </div>
+                    <DetailField label="Driver Mongo ID" value={selectedDriver._id || selectedDriver.id} />
+                    <DetailField label="Created At" value={formatDateTime(selectedDriver.createdAt)} />
                   </div>
-                </div>
+                </DetailSection>
 
                 {/* Address Information */}
-                {selectedDriver.personalInfo?.address && (
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Address</h3>
+                {(selectedDriver.address?.currentAddress || selectedDriver.personalInfo?.address || selectedDriver.fullAddress) && (
+                  <DetailSection title="Address" icon={null}>
+                    {(() => {
+                      const address = selectedDriver.address?.currentAddress || selectedDriver.personalInfo?.address || {};
+                      return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Street Address</label>
-                        <p className="text-gray-900 dark:text-white">{selectedDriver.personalInfo.address.street || 'N/A'}</p>
+                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Full Address</label>
+                        <p className="text-gray-900 dark:text-white">{selectedDriver.fullAddress || address.addressLine || address.street || 'N/A'}</p>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">City</label>
-                        <p className="text-gray-900 dark:text-white">{selectedDriver.personalInfo.address.city || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">State</label>
-                        <p className="text-gray-900 dark:text-white">{selectedDriver.personalInfo.address.state || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">PIN Code</label>
-                        <p className="text-gray-900 dark:text-white">{selectedDriver.personalInfo.address.pinCode || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Country</label>
-                        <p className="text-gray-900 dark:text-white">{selectedDriver.personalInfo.address.country || 'N/A'}</p>
-                      </div>
+                      <DetailField label="Address Line" value={address.addressLine || address.street} />
+                      <DetailField label="City" value={address.city} />
+                      <DetailField label="State" value={address.state} />
+                      <DetailField label="PIN Code" value={address.pinCode} />
+                      <DetailField label="Country" value={address.country} />
                     </div>
-                  </div>
+                      );
+                    })()}
+                  </DetailSection>
                 )}
 
                 {/* Work Information */}
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Work Information</h3>
+                <DetailSection title="Work Information" icon={null}>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                       <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Driver ID</label>
@@ -628,9 +708,7 @@ const DriverList = () => {
                     <div>
                       <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Join Date</label>
                       <p className="text-gray-900 dark:text-white">
-                        {selectedDriver.workInfo?.joinDate
-                          ? new Date(selectedDriver.workInfo.joinDate).toLocaleDateString('en-IN')
-                          : 'N/A'}
+                        {formatDate(selectedDriver.workInfo?.joiningDate || selectedDriver.workInfo?.joinDate)}
                       </p>
                     </div>
                     <div>
@@ -640,17 +718,17 @@ const DriverList = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </DetailSection>
 
                 {/* Vehicle Information */}
                 {selectedDriver.vehicle && (
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vehicle Information</h3>
+                  <DetailSection title="Vehicle Information" icon={null}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div>
                         <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Vehicle Type</label>
                         <p className="text-gray-900 dark:text-white capitalize">{selectedDriver.vehicle.type || 'N/A'}</p>
                       </div>
+                      <DetailField label="Make" value={selectedDriver.vehicle.make} />
                       <div>
                         <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Registration Number</label>
                         <p className="text-gray-900 dark:text-white font-medium">{selectedDriver.vehicle.registrationNumber || 'N/A'}</p>
@@ -668,11 +746,11 @@ const DriverList = () => {
                         <p className="text-gray-900 dark:text-white">{selectedDriver.vehicle.year || 'N/A'}</p>
                       </div>
                     </div>
-                  </div>
+                  </DetailSection>
                 )}
 
                 {/* Documents Section */}
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                       <FiFileText className="w-5 h-5 mr-2" />
@@ -683,7 +761,7 @@ const DriverList = () => {
                   {/* Document Status Summary */}
                   <div className="mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Upload Status:</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${selectedDriver.documents?.aadharCard?.frontImage ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                         <span className="text-gray-700 dark:text-gray-300">Aadhaar Card</span>
@@ -695,6 +773,10 @@ const DriverList = () => {
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${selectedDriver.vehicle?.rcDocument ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                         <span className="text-gray-700 dark:text-gray-300">Vehicle RC</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${selectedDriver.documents?.panCard?.image ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                        <span className="text-gray-700 dark:text-gray-300">PAN Card</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${selectedDriver.personalInfo?.profilePhoto ? 'bg-green-500' : 'bg-gray-300'}`}></div>
@@ -842,6 +924,40 @@ const DriverList = () => {
                         </div>
                       )}
 
+                      {/* PAN Card */}
+                      {selectedDriver.documents?.panCard?.image && (
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                          <h4 className="font-medium text-gray-900 dark:text-white mb-3">PAN Card</h4>
+                          {selectedDriver.documents.panCard.number && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                              Number: {selectedDriver.documents.panCard.number}
+                            </p>
+                          )}
+                          <div className="relative group">
+                            <img
+                              src={selectedDriver.documents.panCard.image}
+                              alt="PAN Card"
+                              className="w-full h-48 object-contain bg-gray-100 dark:bg-gray-800 rounded cursor-pointer"
+                              onClick={() => window.open(selectedDriver.documents.panCard.image, '_blank')}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://via.placeholder.com/400x250?text=Image+Not+Available';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded flex items-center justify-center">
+                              <a
+                                href={selectedDriver.documents.panCard.image}
+                                download
+                                className="opacity-0 group-hover:opacity-100 bg-white dark:bg-gray-800 p-2 rounded-full"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <FiDownload className="w-5 h-5 text-gray-900 dark:text-white" />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Vehicle RC Document */}
                       {selectedDriver.vehicle?.rcDocument && (
                         <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4">
@@ -911,8 +1027,7 @@ const DriverList = () => {
 
                 {/* Bank Details */}
                 {selectedDriver.bankDetails && (
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bank Details</h3>
+                  <DetailSection title="Bank Details" icon={null}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div>
                         <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Account Holder Name</label>
@@ -934,8 +1049,58 @@ const DriverList = () => {
                         <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Branch</label>
                         <p className="text-gray-900 dark:text-white">{selectedDriver.bankDetails.branch || 'N/A'}</p>
                       </div>
+                      <DetailField label="UPI ID" value={selectedDriver.bankDetails.upiId} />
                     </div>
-                  </div>
+                  </DetailSection>
+                )}
+
+                {/* Earnings */}
+                {selectedDriver.earnings && (
+                  <DetailSection title="Earnings" icon={null}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <DetailField label="Total Earnings" value={formatCurrency(selectedDriver.earnings.totalEarnings)} />
+                      <DetailField label="Current Balance" value={formatCurrency(selectedDriver.earnings.currentBalance)} />
+                      <DetailField label="Pending Payout" value={formatCurrency(selectedDriver.earnings.pendingPayout)} />
+                      <DetailField label="Today Earnings" value={formatCurrency(selectedDriver.earnings.todayEarnings)} />
+                      <DetailField label="Total Payouts" value={formatCurrency(selectedDriver.earnings.totalPayouts)} />
+                      <DetailField label="Last Payout Date" value={formatDate(selectedDriver.earnings.lastPayoutDate)} />
+                      <DetailField label="Last Payout Amount" value={formatCurrency(selectedDriver.earnings.lastPayoutAmount)} />
+                    </div>
+                  </DetailSection>
+                )}
+
+                {/* Payout Details */}
+                {selectedDriver.payoutDetails && (
+                  <DetailSection title="Payout Details" icon={null}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <DetailField label="Preferred Method" value={selectedDriver.payoutDetails.preferredMethod} />
+                      <DetailField label="UPI ID" value={selectedDriver.payoutDetails.upiId} />
+                      <DetailField label="Payout Threshold" value={formatCurrency(selectedDriver.payoutDetails.payoutThreshold)} />
+                    </div>
+
+                    {selectedDriver.payoutDetails.bankAccount && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-3">Payout Bank Account</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <DetailField label="Account Holder" value={selectedDriver.payoutDetails.bankAccount.accountHolder} />
+                          <DetailField label="Account Number" value={selectedDriver.payoutDetails.bankAccount.accountNumber} />
+                          <DetailField label="IFSC Code" value={selectedDriver.payoutDetails.bankAccount.ifscCode} />
+                          <DetailField label="Bank Name" value={selectedDriver.payoutDetails.bankAccount.bankName} />
+                        </div>
+                      </div>
+                    )}
+                  </DetailSection>
+                )}
+
+                {/* Delivery Stats */}
+                {selectedDriver.deliveryStats && (
+                  <DetailSection title="Delivery Stats" icon={null}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <DetailField label="Total Orders" value={selectedDriver.deliveryStats.totalOrders} />
+                      <DetailField label="Completed Orders" value={selectedDriver.deliveryStats.completedOrders} />
+                      <DetailField label="Cancelled Orders" value={selectedDriver.deliveryStats.cancelledOrders} />
+                    </div>
+                  </DetailSection>
                 )}
               </div>
 
