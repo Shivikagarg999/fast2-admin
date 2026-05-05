@@ -1,8 +1,13 @@
-﻿{
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "source": "/proxy/:path*",
-      "destination": "https://api.fast2.in/:path*"
+      "source": "/proxy/:match*",
+      "destination": "https://api.fast2.in/:match*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
