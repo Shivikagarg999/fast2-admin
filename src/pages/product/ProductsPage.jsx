@@ -143,9 +143,11 @@ const ProductsPage = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/promotor/`
       );
-      setPromotors(response.data || []);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setPromotors(data);
     } catch (error) {
       console.error("Error fetching promotors:", error);
+      setPromotors([]);
     }
   };
 
@@ -154,9 +156,11 @@ const ProductsPage = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/warehouse/`
       );
-      setWarehouses(response.data || []);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setWarehouses(data);
     } catch (error) {
       console.error("Error fetching warehouses:", error);
+      setWarehouses([]);
     }
   };
 
@@ -165,9 +169,16 @@ const ProductsPage = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/seller/sellers?limit=1000`
       );
-      setSellers(response.data.data || []);
+      let data = [];
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        data = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        data = response.data;
+      }
+      setSellers(data);
     } catch (error) {
       console.error("Error fetching sellers:", error);
+      setSellers([]);
     }
   };
 
@@ -176,15 +187,17 @@ const ProductsPage = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/category/getall`
       );
-      setAllCategories(response.data || []);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setAllCategories(data);
 
       const categoryMap = {};
-      response.data.forEach((cat) => {
+      data.forEach((cat) => {
         categoryMap[cat._id] = cat.name;
       });
       setCategories(categoryMap);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      setAllCategories([]);
     }
   };
 
