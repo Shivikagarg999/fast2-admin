@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, FiX, FiImage, FiVideo, FiShoppingBag } from 'react-icons/fi';
 import { Editor } from '@tinymce/tinymce-react';
+import axios from 'axios';
 
 const ProductCreate = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ const ProductCreate = () => {
   const [loadingSellers, setLoadingSellers] = useState(true);
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [promotorError, setPromotorError] = useState('');
+  const [warehouseError, setWarehouseError] = useState('');
   const editorRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -66,19 +69,18 @@ const ProductCreate = () => {
   const fetchPromotors = async () => {
     try {
       setLoadingPromotors(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('https://admin.fast2.in/proxy/api/admin/promotor/', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch promotors');
-      const data = await response.json();
+      setPromotorError('');
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/promotor/`);
+      const data = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.data)
+          ? response.data.data
+          : [];
       setPromotors(data);
     } catch (error) {
       console.error('Error fetching promotors:', error);
-      setError('Failed to load promotors');
+      setPromotors([]);
+      setPromotorError('Failed to load promotors');
     } finally {
       setLoadingPromotors(false);
     }
@@ -108,19 +110,18 @@ const ProductCreate = () => {
   const fetchWarehouses = async () => {
     try {
       setLoadingWarehouses(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/warehouse/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch warehouses');
-      const data = await response.json();
+      setWarehouseError('');
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/warehouse/`);
+      const data = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.data)
+          ? response.data.data
+          : [];
       setWarehouses(data);
     } catch (error) {
       console.error('Error fetching warehouses:', error);
-      setError('Failed to load warehouses');
+      setWarehouses([]);
+      setWarehouseError('Failed to load warehouses');
     } finally {
       setLoadingWarehouses(false);
     }
@@ -815,6 +816,11 @@ const ProductCreate = () => {
                             </option>
                           ))}
                         </select>
+                        {promotorError && (
+                          <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                            {promotorError}
+                          </p>
+                        )}
                       </div>
 
                       <div>
@@ -1054,6 +1060,11 @@ const ProductCreate = () => {
                       </option>
                     ))}
                   </select>
+                  {warehouseError && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                      {warehouseError}
+                    </p>
+                  )}
                 </div>
 
                 <div>

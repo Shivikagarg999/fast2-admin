@@ -17,6 +17,7 @@ import {
   FiMessageSquare,
   FiBarChart2,
 } from "react-icons/fi";
+
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
 
@@ -265,7 +266,6 @@ export default function ContactPage() {
     }
   };
 
-  // ── Inline status change ──────────────────────────────────────────────────────
   const [statusUpdating, setStatusUpdating] = useState(null); // contact _id being updated
 
   const handleInlineStatusChange = async (contactId, newStatus, e) => {
