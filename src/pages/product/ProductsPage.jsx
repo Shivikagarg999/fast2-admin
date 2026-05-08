@@ -378,6 +378,19 @@ const ProductsPage = () => {
     setNewServiceablePincode("");
   };
 
+  const getDisplayWeightValue = (weight, weightUnit) => {
+    if (weight === null || weight === undefined || weight === "") return "";
+    const numericWeight = Number(weight);
+    if (!Number.isFinite(numericWeight)) return weight;
+    return weightUnit === "kg" ? numericWeight / 1000 : numericWeight;
+  };
+
+  const formatWeight = (weight, weightUnit = "g") => {
+    const displayWeight = getDisplayWeightValue(weight, weightUnit);
+    if (displayWeight === "") return "N/A";
+    return `${displayWeight} ${weightUnit}`;
+  };
+
   const openAddModal = () => {
     if (!hasPermission(PERMISSIONS.PRODUCTS_CREATE)) {
       alert("You don't have permission to create products");
@@ -414,7 +427,7 @@ const ProductsPage = () => {
       maxOrderQuantity: product.maxOrderQuantity || "10",
       stockStatus: product.stockStatus || "out-of-stock",
       lowStockThreshold: product.lowStockThreshold || "10",
-      weight: product.weight || "",
+      weight: getDisplayWeightValue(product.weight, product.weightUnit || "g"),
       weightUnit: product.weightUnit || "g",
       dimensions: product.dimensions || {
         length: "",
@@ -699,7 +712,11 @@ const ProductsPage = () => {
       );
 
       if (response.data.success || response.status === 200) {
-        setProducts(prev => prev.map(p => p._id === productId ? { ...p, [backendField]: value } : p));
+        const currentProduct = products.find((product) => product._id === productId);
+        const updatedValue = field === "weight" && currentProduct?.weightUnit === "kg"
+          ? Number(value) * 1000
+          : value;
+        setProducts(prev => prev.map(p => p._id === productId ? { ...p, [backendField]: updatedValue } : p));
         setInlineEdit({ productId: null, field: null, value: "" });
       }
     } catch (error) {
@@ -1713,7 +1730,7 @@ const ProductsPage = () => {
                               <div
                                 style={{ fontSize: "14px", color: "#111827", cursor: "pointer" }}
                                 className="dark:text-white"
-                                onClick={() => setInlineEdit({ productId: product._id, field: 'weight', value: product.weight })}
+                                onClick={() => setInlineEdit({ productId: product._id, field: 'weight', value: getDisplayWeightValue(product.weight, product.weightUnit || 'g') })}
                               >
                                 {inlineEdit.productId === product._id && inlineEdit.field === 'weight' ? (
                                   <input
@@ -1726,7 +1743,7 @@ const ProductsPage = () => {
                                     style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
                                   />
                                 ) : (
-                                  `${product.weight || 0} ${product.weightUnit || 'g'}`
+                                  formatWeight(product.weight, product.weightUnit || 'g')
                                 )}
                               </div>
                             </td>
@@ -5224,10 +5241,7 @@ const ProductsPage = () => {
                           }}
                           className="dark:text-white"
                         >
-                          {selectedProduct.weight
-                            ? `${selectedProduct.weight}${selectedProduct.weightUnit || "g"
-                            }`
-                            : "N/A"}
+                          {formatWeight(selectedProduct.weight, selectedProduct.weightUnit || "g")}
                         </p>
                       </div>
                       <div>
