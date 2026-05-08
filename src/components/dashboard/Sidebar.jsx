@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import Logo from "../../../src/assets/images/logo.png";
+import Logo from "../../assets/images/logo.png";
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
 import {
@@ -32,7 +32,7 @@ import {
   FiMail,
 } from "react-icons/fi";
 
-const Sidebar = ({ isOpen, onClose, darkMode, toggleTheme, isCollapsed }) => {
+const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const pathname = location.pathname;

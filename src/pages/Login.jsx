@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Logo from "../assets/images/logo.png";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -46,7 +47,7 @@ export default function LoginPage() {
       } else {
         setError(data.message || "Login failed");
       }
-    } catch (err) {
+    } catch {
       setError("Login failed. Please try again.");
     } finally {
       setLoading(false);
@@ -68,7 +69,7 @@ export default function LoginPage() {
         <div className="w-full lg:w-1/2 text-white space-y-6 lg:space-y-8 text-center lg:text-left px-4">
           <div className="space-y-3">
             <img
-              src="/src/assets/images/logo.png"
+              src={Logo}
               alt="Fast2 Logo"
               className="h-20 lg:h-24 xl:h-28 object-contain mx-auto lg:mx-0"
             />

@@ -4,6 +4,8 @@ import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, F
 import { Editor } from '@tinymce/tinymce-react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'https://api.fast2.in';
+
 const ProductCreate = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -70,7 +72,7 @@ const ProductCreate = () => {
     try {
       setLoadingPromotors(true);
       setPromotorError('');
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/promotor/`);
+      const response = await axios.get(`${API_BASE_URL}/api/admin/promotor/`);
       const data = Array.isArray(response.data)
         ? response.data
         : Array.isArray(response.data?.data)
@@ -90,7 +92,7 @@ const ProductCreate = () => {
     try {
       setLoadingSellers(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/seller/sellers`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/seller/sellers`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -111,7 +113,7 @@ const ProductCreate = () => {
     try {
       setLoadingWarehouses(true);
       setWarehouseError('');
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/warehouse/`);
+      const response = await axios.get(`${API_BASE_URL}/api/admin/warehouse/`);
       const data = Array.isArray(response.data)
         ? response.data
         : Array.isArray(response.data?.data)
@@ -130,7 +132,7 @@ const ProductCreate = () => {
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/category/getall`);
+      const response = await fetch(`${API_BASE_URL}/api/category/getall`);
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
@@ -410,7 +412,7 @@ const ProductCreate = () => {
       }
 
       const token = localStorage.getItem('token');
-      const response = await fetch('https://admin.fast2.in/proxy/api/product/create', {
+      const response = await fetch(`${API_BASE_URL}/api/product/create`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
