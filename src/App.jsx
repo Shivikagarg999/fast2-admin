@@ -36,6 +36,7 @@ import PopupManagement from "./pages/popup/PopupManagement";
 import ContactPage from "./pages/contact/ContactPage";
 import ScratchCardsPage from "./pages/scratch-cards/ScratchCardsPage";
 import ReportsPage from "./pages/reports/Reports";
+import PasswordPage from "./pages/password/PasswordPage";
 
 function App() {
   return (
@@ -362,6 +363,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.PRODUCTS_VIEW}>
                 <ScratchCardsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Password Management */}
+          <Route
+            path="/admin/passwords"
+            element={
+              <ProtectedRoute requireSuperAdmin={true}>
+                <PasswordPage />
               </ProtectedRoute>
             }
           />

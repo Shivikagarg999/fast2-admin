@@ -30,6 +30,7 @@ import {
   FiLayers,
   FiBell,
   FiMail,
+  FiLock,
 } from "react-icons/fi";
 
 const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
@@ -253,6 +254,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           name: "Role Management",
           path: "/admin/roles",
           icon: <FiShield className="w-4 h-4" />,
+          permission: null,
+        },
+        {
+          name: "Password Management",
+          path: "/admin/passwords",
+          icon: <FiLock className="w-4 h-4" />,
           permission: null,
         },
       ]
