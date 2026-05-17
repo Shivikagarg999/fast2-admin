@@ -12,6 +12,8 @@ const DiscountPage = () => {
   const [loading, setLoading] = useState(true);
   const [creatingDiscount, setCreatingDiscount] = useState(false);
   const [search, setSearch] = useState("");
+  const [productSearch, setProductSearch] = useState("");
+  const [productCategoryFilter, setProductCategoryFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showCreateDiscountModal, setShowCreateDiscountModal] = useState(false);
   const [showActiveDiscountsModal, setShowActiveDiscountsModal] = useState(false);
@@ -46,12 +48,19 @@ const DiscountPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/product`);
-      // API returns { products: [...], pagination: {...} }
-      setProducts(response.data.products || []);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/product/get-products-admin?limit=1000`);
+      let productsArray = [];
+      if (Array.isArray(response.data)) {
+        productsArray = response.data;
+      } else if (response.data && Array.isArray(response.data.products)) {
+        productsArray = response.data.products;
+      } else if (response.data && Array.isArray(response.data.data)) {
+        productsArray = response.data.data;
+      }
+      setProducts(productsArray);
     } catch (error) {
       console.error("Error fetching products:", error);
-      setProducts([]); // Ensure products is always an array
+      setProducts([]);
     }
   };
 
@@ -196,6 +205,8 @@ const DiscountPage = () => {
       endDate: ""
     });
     setSelectedProducts([]);
+    setProductSearch("");
+    setProductCategoryFilter("");
   };
 
   const openCreateDiscountModal = () => {
@@ -254,6 +265,15 @@ const DiscountPage = () => {
       (discount.category?.name || "").toLowerCase().includes(search.toLowerCase())
     );
   }, [discounts, search]);
+
+  // Filtering for product selection in discount modal
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      const matchesSearch = !productSearch || product.name?.toLowerCase().includes(productSearch.toLowerCase());
+      const matchesCategory = !productCategoryFilter || product.category?._id === productCategoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, productSearch, productCategoryFilter]);
 
   const totalPages = Math.ceil(filteredDiscounts.length / DISCOUNTS_PER_PAGE);
   const indexOfLastDiscount = currentPage * DISCOUNTS_PER_PAGE;
@@ -474,8 +494,45 @@ const DiscountPage = () => {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Or Select Specific Products
                         </label>
+
+                        {/* Product search and category filter */}
+                        <div className="flex gap-2 mb-2">
+                          <div className="relative flex-1">
+                            <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Search products..."
+                              value={productSearch}
+                              onChange={(e) => setProductSearch(e.target.value)}
+                              disabled={!!discountForm.categoryId}
+                              className="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md
+                                bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                focus:outline-none focus:ring-2 focus:ring-blue-500
+                                disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
+                          </div>
+                          <select
+                            value={productCategoryFilter}
+                            onChange={(e) => setProductCategoryFilter(e.target.value)}
+                            disabled={!!discountForm.categoryId}
+                            className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md
+                              bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                              focus:outline-none focus:ring-2 focus:ring-blue-500
+                              disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <option value="">All categories</option>
+                            {categories.map(category => (
+                              <option key={category._id} value={category._id}>
+                                {category.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
                         <div className="max-h-60 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md">
-                          {products.map(product => (
+                          {filteredProducts.length === 0 ? (
+                            <p className="p-4 text-sm text-center text-gray-500 dark:text-gray-400">No products found</p>
+                          ) : filteredProducts.map(product => (
                             <div key={product._id} className="flex items-center p-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
                               <input
                                 type="checkbox"
