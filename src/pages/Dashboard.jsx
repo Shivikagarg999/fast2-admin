@@ -67,6 +67,8 @@ const DashboardLayout = () => {
     topSellers: [],
     topPromotors: []
   });
+  const [liveOrders, setLiveOrders] = useState({ ongoing: [], completedToday: [] });
+  const [liveTab, setLiveTab] = useState('ongoing');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showFreshOrdersNotification, setShowFreshOrdersNotification] = useState(false);
@@ -99,6 +101,20 @@ const DashboardLayout = () => {
     }
   }, [selectedPeriod]);
 
+  const fetchLiveOrders = async () => {
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/orders/live`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.success) setLiveOrders({ ongoing: data.ongoing || [], completedToday: data.completedToday || [] });
+    } catch (error) {
+      console.error('Error fetching live orders:', error);
+    }
+  };
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -106,7 +122,8 @@ const DashboardLayout = () => {
         fetchDashboardData(),
         fetchDailySales(),
         fetchTopSellers(),
-        fetchTopPromotors()
+        fetchTopPromotors(),
+        fetchLiveOrders()
       ]);
       setLoading(false);
     } catch (error) {
@@ -499,6 +516,88 @@ const DashboardLayout = () => {
     </div>
   );
 
+  const statusColors = {
+    accepted: 'bg-blue-100 text-blue-800',
+    'picked-up': 'bg-orange-100 text-orange-800',
+    delivered: 'bg-green-100 text-green-800',
+  };
+
+  const LiveOrdersCard = () => {
+    const activeList = liveTab === 'ongoing' ? liveOrders.ongoing : liveOrders.completedToday;
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+        <div className="flex items-center justify-between p-6 pb-0">
+          <div className="flex items-center gap-2">
+            <FiTruck className="w-5 h-5 text-blue-500" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Live Orders</h2>
+          </div>
+          <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 text-sm">
+            <button
+              onClick={() => setLiveTab('ongoing')}
+              className="px-4 py-1.5 font-medium transition-colors"
+              style={liveTab === 'ongoing' ? { backgroundColor: '#3b82f6', color: 'white' } : { color: '#4B5563' }}
+            >
+              Ongoing ({liveOrders.ongoing.length})
+            </button>
+            <button
+              onClick={() => setLiveTab('completed')}
+              className="px-4 py-1.5 font-medium transition-colors"
+              style={liveTab === 'completed' ? { backgroundColor: '#22c55e', color: 'white' } : { color: '#4B5563' }}
+            >
+              Completed Today ({liveOrders.completedToday.length})
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto p-4">
+          {activeList.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+              {liveTab === 'ongoing' ? 'No active orders right now' : 'No deliveries completed today yet'}
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-gray-500 dark:text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700">
+                  <th className="pb-2 pr-4">Order ID</th>
+                  <th className="pb-2 pr-4">Customer</th>
+                  <th className="pb-2 pr-4">Driver</th>
+                  <th className="pb-2 pr-4">Status</th>
+                  <th className="pb-2 pr-4">Area</th>
+                  <th className="pb-2">Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activeList.map(order => (
+                  <tr key={order._id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="py-3 pr-4 font-medium text-blue-600 dark:text-blue-400">{order.orderId}</td>
+                    <td className="py-3 pr-4 text-gray-700 dark:text-gray-300">
+                      <div>{order.user?.name || '—'}</div>
+                      <div className="text-xs text-gray-400">{order.user?.phone || ''}</div>
+                    </td>
+                    <td className="py-3 pr-4 text-gray-700 dark:text-gray-300">
+                      {order.driver?.personalInfo?.name || <span className="text-gray-400 italic">Unassigned</span>}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-4 text-gray-500 dark:text-gray-400 text-xs">
+                      {order.shippingAddress?.city || ''}{order.shippingAddress?.pinCode ? ` - ${order.shippingAddress.pinCode}` : ''}
+                    </td>
+                    <td className="py-3 text-gray-500 dark:text-gray-400 text-xs">
+                      {new Date(liveTab === 'completed' ? order.updatedAt : order.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const TopPromotorsCard = () => (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Promotors</h2>
@@ -676,6 +775,9 @@ const DashboardLayout = () => {
                       subtitle="Active promotors"
                     />
                   </div>
+
+                  {/* Live Orders */}
+                  <LiveOrdersCard />
 
                   {/* Charts Section */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
