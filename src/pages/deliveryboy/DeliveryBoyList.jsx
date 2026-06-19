@@ -761,7 +761,7 @@ const DriverList = () => {
                   {/* Document Status Summary */}
                   <div className="mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Upload Status:</p>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${selectedDriver.documents?.aadharCard?.frontImage ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                         <span className="text-gray-700 dark:text-gray-300">Aadhaar Card</span>
@@ -771,12 +771,20 @@ const DriverList = () => {
                         <span className="text-gray-700 dark:text-gray-300">Driving License</span>
                       </div>
                       <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${selectedDriver.documents?.panCard?.image ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                        <span className="text-gray-700 dark:text-gray-300">PAN Card</span>
+                      </div>
+                      <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${selectedDriver.vehicle?.rcDocument ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                         <span className="text-gray-700 dark:text-gray-300">Vehicle RC</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${selectedDriver.documents?.panCard?.image ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                        <span className="text-gray-700 dark:text-gray-300">PAN Card</span>
+                        <div className={`w-2 h-2 rounded-full ${selectedDriver.vehicle?.insuranceDocument ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                        <span className="text-gray-700 dark:text-gray-300">Insurance</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${selectedDriver.bankDetails?.passbookOrChequeImage ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                        <span className="text-gray-700 dark:text-gray-300">Bank Passbook/Cheque</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${selectedDriver.personalInfo?.profilePhoto ? 'bg-green-500' : 'bg-gray-300'}`}></div>
@@ -976,6 +984,69 @@ const DriverList = () => {
                             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded flex items-center justify-center">
                               <a
                                 href={selectedDriver.vehicle.rcDocument}
+                                download
+                                className="opacity-0 group-hover:opacity-100 bg-white dark:bg-gray-800 p-2 rounded-full"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <FiDownload className="w-5 h-5 text-gray-900 dark:text-white" />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Insurance Document */}
+                      {selectedDriver.vehicle?.insuranceDocument && (
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                          <h4 className="font-medium text-gray-900 dark:text-white mb-3">Insurance</h4>
+                          <div className="relative group">
+                            <img
+                              src={selectedDriver.vehicle.insuranceDocument}
+                              alt="Insurance"
+                              className="w-full h-48 object-contain bg-gray-100 dark:bg-gray-800 rounded cursor-pointer"
+                              onClick={() => window.open(selectedDriver.vehicle.insuranceDocument, '_blank')}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://via.placeholder.com/400x250?text=Image+Not+Available';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded flex items-center justify-center">
+                              <a
+                                href={selectedDriver.vehicle.insuranceDocument}
+                                download
+                                className="opacity-0 group-hover:opacity-100 bg-white dark:bg-gray-800 p-2 rounded-full"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <FiDownload className="w-5 h-5 text-gray-900 dark:text-white" />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bank Passbook / Cheque */}
+                      {selectedDriver.bankDetails?.passbookOrChequeImage && (
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                          <h4 className="font-medium text-gray-900 dark:text-white mb-3">Bank Passbook / Cheque</h4>
+                          {selectedDriver.bankDetails.accountNumber && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                              A/C: {selectedDriver.bankDetails.accountNumber}
+                            </p>
+                          )}
+                          <div className="relative group">
+                            <img
+                              src={selectedDriver.bankDetails.passbookOrChequeImage}
+                              alt="Bank Passbook or Cheque"
+                              className="w-full h-48 object-contain bg-gray-100 dark:bg-gray-800 rounded cursor-pointer"
+                              onClick={() => window.open(selectedDriver.bankDetails.passbookOrChequeImage, '_blank')}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://via.placeholder.com/400x250?text=Image+Not+Available';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded flex items-center justify-center">
+                              <a
+                                href={selectedDriver.bankDetails.passbookOrChequeImage}
                                 download
                                 className="opacity-0 group-hover:opacity-100 bg-white dark:bg-gray-800 p-2 rounded-full"
                                 onClick={(e) => e.stopPropagation()}
