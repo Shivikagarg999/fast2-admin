@@ -50,6 +50,29 @@ const CategoriesPage = () => {
         }
     };
 
+    const downloadCategoriesCSV = async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/api/category/download/csv`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to download CSV');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `categories_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error downloading categories CSV:', error);
+            alert('Error downloading categories CSV: ' + error.message);
+        }
+    };
+
     const downloadCategoryTemplate = async () => {
         try {
             const response = await fetch(`${BASE_URL}/api/category/download/template`);
@@ -101,6 +124,7 @@ const CategoriesPage = () => {
                 success: true,
                 message: data.message,
                 imported: data.imported,
+                updated: data.updated,
                 skipped: data.skipped,
                 errors: data.errors
             });
@@ -311,6 +335,14 @@ const CategoriesPage = () => {
                         >
                             <Plus className="w-4 h-4 mr-2" />
                             Add Category
+                        </button>
+                        <button
+                            onClick={downloadCategoriesCSV}
+                            className="flex items-center px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            title="Export all categories - edit this file and re-upload to bulk-edit them"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download CSV
                         </button>
                         <button
                             onClick={() => document.getElementById('categoryCsvFileInput').click()}
