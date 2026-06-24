@@ -18,6 +18,7 @@ const CategoriesPage = () => {
     const [csvFile, setCsvFile] = useState(null);
     const [uploadingCSV, setUploadingCSV] = useState(false);
     const [uploadResult, setUploadResult] = useState(null);
+    const [statusFilter, setStatusFilter] = useState("all"); // 'all' | 'active' | 'inactive'
 
     const [formData, setFormData] = useState({
         name: "",
@@ -33,13 +34,16 @@ const CategoriesPage = () => {
     const categoriesPerPage = 10;
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
+        fetchCategories(statusFilter);
+        setCurrentPage(1);
+    }, [statusFilter]);
 
-    const fetchCategories = async () => {
+    const isActiveParam = (filter) => (filter === 'active' ? 'true' : filter === 'inactive' ? 'false' : 'all');
+
+    const fetchCategories = async (filter = statusFilter) => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/category/getall`);
+            const response = await fetch(`${BASE_URL}/api/category/getall?isActive=${isActiveParam(filter)}`);
             if (!response.ok) throw new Error('Failed to fetch categories');
             const data = await response.json();
             setCategories(data);
@@ -52,7 +56,7 @@ const CategoriesPage = () => {
 
     const downloadCategoriesCSV = async () => {
         try {
-            const response = await fetch(`${BASE_URL}/api/category/download/csv`);
+            const response = await fetch(`${BASE_URL}/api/category/download/csv?isActive=${isActiveParam(statusFilter)}`);
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Failed to download CSV');
@@ -62,7 +66,7 @@ const CategoriesPage = () => {
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = `categories_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `categories_${statusFilter}_${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -313,6 +317,64 @@ const CategoriesPage = () => {
         });
     };
 
+    const buttonStyles = {
+        primary: {
+            backgroundColor: "#000000",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+        },
+        secondary: {
+            backgroundColor: "#ffffff",
+            color: "#374151",
+            border: "1px solid #d1d5db",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+        },
+        danger: {
+            backgroundColor: "#dc2626",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+        },
+        success: {
+            backgroundColor: "#16a34a",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+        },
+        outline: {
+            backgroundColor: "transparent",
+            color: "#3b82f6",
+            border: "1px solid #3b82f6",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+        },
+    };
+
     return (
         <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
             <div className="max-w-7xl mx-auto p-6">
@@ -326,36 +388,27 @@ const CategoriesPage = () => {
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={openAddModal}
-                            className="flex items-center px-4 py-2 text-black rounded-lg transition-colors"
-                            style={{ backgroundColor: '#2563eb' }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-                        >
-                            <Plus className="w-4 h-4 mr-2" />
+                        <button onClick={openAddModal} style={buttonStyles.primary}>
+                            <Plus className="w-4 h-4" />
                             Add Category
                         </button>
                         <button
                             onClick={downloadCategoriesCSV}
-                            className="flex items-center px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            style={buttonStyles.success}
                             title="Export all categories - edit this file and re-upload to bulk-edit them"
                         >
-                            <Download className="w-4 h-4 mr-2" />
+                            <Download className="w-4 h-4" />
                             Download CSV
                         </button>
                         <button
                             onClick={() => document.getElementById('categoryCsvFileInput').click()}
-                            className="flex items-center px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            style={buttonStyles.outline}
                         >
-                            <Upload className="w-4 h-4 mr-2" />
+                            <Upload className="w-4 h-4" />
                             Upload CSV
                         </button>
-                        <button
-                            onClick={downloadCategoryTemplate}
-                            className="flex items-center px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                        >
-                            <Download className="w-4 h-4 mr-2" />
+                        <button onClick={downloadCategoryTemplate} style={buttonStyles.outline}>
+                            <Download className="w-4 h-4" />
                             Download Template
                         </button>
                         <input
@@ -379,7 +432,11 @@ const CategoriesPage = () => {
                             <button
                                 onClick={handleCategoryCSVUpload}
                                 disabled={uploadingCSV}
-                                className="px-3 py-1.5 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                style={{
+                                    ...buttonStyles.success,
+                                    opacity: uploadingCSV ? 0.6 : 1,
+                                    cursor: uploadingCSV ? "not-allowed" : "pointer",
+                                }}
                             >
                                 {uploadingCSV ? 'Uploading...' : 'Upload'}
                             </button>
@@ -389,7 +446,7 @@ const CategoriesPage = () => {
                                     const fileInput = document.getElementById('categoryCsvFileInput');
                                     if (fileInput) fileInput.value = '';
                                 }}
-                                className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                                style={buttonStyles.danger}
                             >
                                 Cancel
                             </button>
@@ -432,18 +489,37 @@ const CategoriesPage = () => {
                     </div>
                 )}
 
-                {/* Search */}
-                <div className="mb-6">
-                    <div className="max-w-md">
+                {/* Search & status filter */}
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="max-w-md flex-1">
                         <input
                             type="text"
                             placeholder="Search categories by name..."
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
                 bg-white dark:bg-gray-800 text-gray-900 dark:text-white
                 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
+                    </div>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                        {[
+                            { value: "all", label: "All" },
+                            { value: "active", label: "Active" },
+                            { value: "inactive", label: "Inactive" },
+                        ].map((option) => (
+                            <button
+                                key={option.value}
+                                onClick={() => setStatusFilter(option.value)}
+                                style={{
+                                    ...buttonStyles.secondary,
+                                    backgroundColor: statusFilter === option.value ? "#000000" : "#ffffff",
+                                    color: statusFilter === option.value ? "#ffffff" : "#374151",
+                                }}
+                            >
+                                {option.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -578,13 +654,15 @@ const CategoriesPage = () => {
                         <div className="text-sm text-gray-700 dark:text-gray-300">
                             Showing {indexOfFirstCategory + 1} to {Math.min(indexOfLastCategory, filteredCategories.length)} of {filteredCategories.length} categories
                         </div>
-                        <div className="flex gap-1">
+                        <div style={{ display: "flex", gap: "4px" }}>
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 
-                  bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
-                  hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                style={{
+                                    ...buttonStyles.secondary,
+                                    opacity: currentPage === 1 ? 0.5 : 1,
+                                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                                }}
                             >
                                 Previous
                             </button>
@@ -604,11 +682,13 @@ const CategoriesPage = () => {
                                 return (
                                     <button
                                         key={pageNum}
-                                        className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
-                                            ? "bg-blue-500 text-white border-blue-500"
-                                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                                            }`}
                                         onClick={() => setCurrentPage(pageNum)}
+                                        style={{
+                                            ...buttonStyles.secondary,
+                                            backgroundColor: currentPage === pageNum ? "#000000" : "#ffffff",
+                                            color: currentPage === pageNum ? "#ffffff" : "#374151",
+                                            borderColor: currentPage === pageNum ? "#000000" : "#d1d5db",
+                                        }}
                                     >
                                         {pageNum}
                                     </button>
@@ -618,9 +698,11 @@ const CategoriesPage = () => {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 
-                  bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
-                  hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                style={{
+                                    ...buttonStyles.secondary,
+                                    opacity: currentPage === totalPages ? 0.5 : 1,
+                                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                                }}
                             >
                                 Next
                             </button>
@@ -806,9 +888,7 @@ const CategoriesPage = () => {
                                     <button
                                         type="button"
                                         onClick={closeModal}
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 
-      bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
-      rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                        style={buttonStyles.secondary}
                                     >
                                         Cancel
                                     </button>
@@ -816,12 +896,11 @@ const CategoriesPage = () => {
                                     <button
                                         type="submit"
                                         disabled={modalLoading}
-                                        className="px-4 py-2 text-sm font-medium text-black 
-      rounded-md disabled:opacity-50 disabled:cursor-not-allowed 
-      transition-colors flex items-center gap-2"
-                                        style={{ backgroundColor: '#2563eb' }}
-                                        onMouseEnter={(e) => !modalLoading && (e.target.style.backgroundColor = '#1d4ed8')}
-                                        onMouseLeave={(e) => !modalLoading && (e.target.style.backgroundColor = '#2563eb')}
+                                        style={{
+                                            ...buttonStyles.primary,
+                                            opacity: modalLoading ? 0.5 : 1,
+                                            cursor: modalLoading ? "not-allowed" : "pointer",
+                                        }}
                                     >
                                         {modalLoading && (
                                             <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
