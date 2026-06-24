@@ -9,8 +9,38 @@ import {
   FiPrinter,
   FiTruck
 } from "react-icons/fi";
+import usePermissions from "../../hooks/usePermissions";
+import { PERMISSIONS } from "../../config/permissions";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy';
+
+const buttonStyles = {
+    danger: {
+        backgroundColor: "#dc2626",
+        color: "#ffffff",
+        border: "none",
+        borderRadius: "8px",
+        padding: "8px 16px",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+    },
+    secondary: {
+        backgroundColor: "#ffffff",
+        color: "#374151",
+        border: "1px solid #d1d5db",
+        borderRadius: "8px",
+        padding: "8px 16px",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+    },
+};
 
 const OrdersPage = () => {
+    const { hasPermission } = usePermissions();
     const [orders, setOrders] = useState([]);
     const [drivers, setDrivers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,6 +53,8 @@ const OrdersPage = () => {
     const [statusFilter, setStatusFilter] = useState("all");
     const [totalPages, setTotalPages] = useState(1);
     const [totalOrders, setTotalOrders] = useState(0);
+    const [selectedIds, setSelectedIds] = useState(new Set());
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     const ordersPerPage = 10;
 
@@ -33,6 +65,10 @@ const OrdersPage = () => {
     useEffect(() => {
         fetchDrivers();
     }, []);
+
+    useEffect(() => {
+        setSelectedIds(new Set());
+    }, [orders]);
 
     const fetchOrders = async () => {
         try {
@@ -82,6 +118,63 @@ const OrdersPage = () => {
         e.preventDefault();
         setCurrentPage(1);
         fetchOrders();
+    };
+
+    const toggleSelected = (orderId) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(orderId)) next.delete(orderId);
+            else next.add(orderId);
+            return next;
+        });
+    };
+
+    const toggleSelectAllVisible = () => {
+        const visibleIds = orders.map(o => o._id);
+        const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (allSelected) {
+                visibleIds.forEach(id => next.delete(id));
+            } else {
+                visibleIds.forEach(id => next.add(id));
+            }
+            return next;
+        });
+    };
+
+    const handleBulkDeleteSelected = async () => {
+        if (!hasPermission(PERMISSIONS.ORDERS_DELETE)) {
+            alert("You don't have permission to delete orders");
+            return;
+        }
+        if (selectedIds.size === 0) return;
+
+        const confirmed = window.confirm(
+            `Permanently delete ${selectedIds.size} selected order(s)?\n\nThis removes the order records (and their payout records) entirely - it is NOT the same as cancelling, and CANNOT be undone.`
+        );
+        if (!confirmed) return;
+
+        setBulkDeleting(true);
+        try {
+            const response = await fetch(`${BASE_URL}/api/admin/orders/bulk-delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderIds: Array.from(selectedIds) }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to delete orders');
+            }
+            alert(data.message);
+            setSelectedIds(new Set());
+            fetchOrders();
+        } catch (error) {
+            console.error('Error bulk deleting orders:', error);
+            alert('Error deleting orders: ' + error.message);
+        } finally {
+            setBulkDeleting(false);
+        }
     };
 
     const handleStatusUpdate = async (orderId, newStatus) => {
@@ -594,12 +687,43 @@ const OrdersPage = () => {
                     </div>
                 </div>
 
+                {/* Bulk actions toolbar */}
+                {selectedIds.size > 0 && (
+                    <div className="mb-4 flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{selectedIds.size} selected</span>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                            <button
+                                onClick={handleBulkDeleteSelected}
+                                disabled={bulkDeleting}
+                                style={{
+                                    ...buttonStyles.danger,
+                                    opacity: bulkDeleting ? 0.6 : 1,
+                                    cursor: bulkDeleting ? "not-allowed" : "pointer",
+                                }}
+                            >
+                                {bulkDeleting ? "Deleting..." : `Delete Selected (${selectedIds.size})`}
+                            </button>
+                            <button onClick={() => setSelectedIds(new Set())} style={buttonStyles.secondary}>
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Orders Table */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-x-auto">
                     <div>
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead className="bg-gray-50 dark:bg-gray-900">
                                 <tr>
+                                    <th className="px-4 py-3 text-left">
+                                        <input
+                                            type="checkbox"
+                                            checked={orders.length > 0 && orders.every(o => selectedIds.has(o._id))}
+                                            onChange={toggleSelectAllVisible}
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                        />
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         Order & Customer
                                     </th>
@@ -632,7 +756,7 @@ const OrdersPage = () => {
                             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={9} className="text-center py-8">
+                                        <td colSpan={10} className="text-center py-8">
                                             <div className="flex items-center justify-center">
                                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                                 <span className="ml-2 text-gray-500 dark:text-gray-400">Loading orders...</span>
@@ -641,7 +765,7 @@ const OrdersPage = () => {
                                     </tr>
                                 ) : orders.length === 0 ? (
                                     <tr>
-                                        <td colSpan={9} className="text-center py-8">
+                                        <td colSpan={10} className="text-center py-8">
                                             <div className="flex flex-col items-center">
                                                 <FiPackage className="w-12 h-12 text-gray-400 mb-2" />
                                                 <span className="text-gray-500 dark:text-gray-400">No orders found.</span>
@@ -664,6 +788,14 @@ const OrdersPage = () => {
                                 ) : (
                                     orders.map((order) => (
                                         <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                            <td className="px-4 py-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedIds.has(order._id)}
+                                                    onChange={() => toggleSelected(order._id)}
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                            </td>
                                             {/* Order & Customer */}
                                             <td className="px-6 py-4">
                                                 <div>

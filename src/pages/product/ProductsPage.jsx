@@ -35,6 +35,8 @@ const ProductsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // 'all' | 'active' | 'inactive'
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
@@ -138,6 +140,10 @@ const ProductsPage = () => {
     fetchWarehouses();
     fetchAllCategories();
   }, []);
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [search, categoryFilter, statusFilter, currentPage]);
 
   const fetchPromotors = async () => {
     try {
@@ -744,6 +750,70 @@ const ProductsPage = () => {
         );
       }
     }
+  };
+
+  const deleteProductIds = async (productIds, confirmMessage) => {
+    if (!hasPermission(PERMISSIONS.PRODUCTS_DELETE)) {
+      alert("You don't have permission to delete products");
+      return;
+    }
+    if (productIds.length === 0) return;
+    if (!window.confirm(confirmMessage)) return;
+
+    setBulkDeleting(true);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/products/bulk-delete`,
+        { productIds }
+      );
+      alert(response.data.message || `Deleted ${response.data.deletedCount} products`);
+      setSelectedIds(new Set());
+      fetchProducts();
+    } catch (error) {
+      console.error("Error bulk deleting products:", error);
+      alert(
+        "Error deleting products: " +
+        (error.response?.data?.message || error.message)
+      );
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const handleBulkDeleteInactive = () => {
+    const inactiveProductIds = filteredProducts.filter(p => !p.isActive).map(p => p._id);
+    deleteProductIds(
+      inactiveProductIds,
+      `Delete all ${inactiveProductIds.length} inactive product(s) shown here? This cannot be undone.`
+    );
+  };
+
+  const handleBulkDeleteSelected = () => {
+    const ids = Array.from(selectedIds);
+    deleteProductIds(ids, `Delete ${ids.length} selected product(s)? This cannot be undone.`);
+  };
+
+  const toggleSelected = (productId) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(productId)) next.delete(productId);
+      else next.add(productId);
+      return next;
+    });
+  };
+
+  const toggleSelectAllVisible = () => {
+    const visibleIds = currentProducts.map(p => p._id);
+    const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (allSelected) {
+        visibleIds.forEach(id => next.delete(id));
+      } else {
+        visibleIds.forEach(id => next.add(id));
+      }
+      return next;
+    });
   };
 
   const getStatusBadge = (stock) => {
@@ -1416,7 +1486,56 @@ const ProductsPage = () => {
                     </button>
                   ))}
                 </div>
+                {statusFilter === "inactive" && filteredProducts.length > 0 && (
+                  <button
+                    onClick={handleBulkDeleteInactive}
+                    disabled={bulkDeleting}
+                    style={{
+                      ...buttonStyles.danger,
+                      opacity: bulkDeleting ? 0.6 : 1,
+                      cursor: bulkDeleting ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {bulkDeleting ? "Deleting..." : `Delete All Inactive (${filteredProducts.length})`}
+                  </button>
+                )}
               </div>
+
+              {selectedIds.size > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "12px 16px",
+                    marginBottom: "16px",
+                    backgroundColor: "#f9fafb",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "8px",
+                  }}
+                  className="dark:bg-gray-800 dark:border-gray-600"
+                >
+                  <span style={{ fontSize: "14px", color: "#374151" }} className="dark:text-gray-300">
+                    {selectedIds.size} selected
+                  </span>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      onClick={handleBulkDeleteSelected}
+                      disabled={bulkDeleting}
+                      style={{
+                        ...buttonStyles.danger,
+                        opacity: bulkDeleting ? 0.6 : 1,
+                        cursor: bulkDeleting ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      {bulkDeleting ? "Deleting..." : `Delete Selected (${selectedIds.size})`}
+                    </button>
+                    <button onClick={() => setSelectedIds(new Set())} style={buttonStyles.secondary}>
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {viewMode === "table" ? (
                 <div
@@ -1438,6 +1557,14 @@ const ProductsPage = () => {
                         className="dark:bg-gray-900"
                       >
                         <tr>
+                          <th style={{ padding: "12px 16px", textAlign: "left" }}>
+                            <input
+                              type="checkbox"
+                              checked={currentProducts.length > 0 && currentProducts.every(p => selectedIds.has(p._id))}
+                              onChange={toggleSelectAllVisible}
+                              style={{ width: "16px", height: "16px" }}
+                            />
+                          </th>
                           <th
                             style={{
                               padding: "12px 24px",
@@ -1586,6 +1713,14 @@ const ProductsPage = () => {
                             key={product._id}
                             className="hover:bg-gray-50 dark:hover:bg-gray-700"
                           >
+                            <td style={{ padding: "16px" }}>
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(product._id)}
+                                onChange={() => toggleSelected(product._id)}
+                                style={{ width: "16px", height: "16px" }}
+                              />
+                            </td>
                             <td style={{ padding: "16px 24px" }}>
                               {/* Product info remains the same */}
                               <div
@@ -1988,9 +2123,23 @@ const ProductsPage = () => {
                         borderRadius: "12px",
                         padding: "16px",
                         boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+                        position: "relative",
                       }}
                       className="dark:bg-gray-800"
                     >
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(product._id)}
+                        onChange={() => toggleSelected(product._id)}
+                        style={{
+                          position: "absolute",
+                          top: "24px",
+                          left: "24px",
+                          width: "18px",
+                          height: "18px",
+                          zIndex: 1,
+                        }}
+                      />
                       <img
                         src={
                           (product.images &&

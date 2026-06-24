@@ -25,6 +25,7 @@ export const PERMISSIONS = {
   ORDERS_VIEW: 'orders.view',
   ORDERS_UPDATE: 'orders.update',
   ORDERS_CANCEL: 'orders.cancel',
+  ORDERS_DELETE: 'orders.delete',
 
   // Drivers Management
   DRIVERS_VIEW: 'drivers.view',
@@ -137,6 +138,7 @@ export const PERMISSION_GROUPS = {
       PERMISSIONS.ORDERS_VIEW,
       PERMISSIONS.ORDERS_UPDATE,
       PERMISSIONS.ORDERS_CANCEL,
+      PERMISSIONS.ORDERS_DELETE,
     ],
   },
   drivers: {
@@ -259,6 +261,7 @@ export const getPermissionLabel = (permission) => {
     [PERMISSIONS.ORDERS_VIEW]: 'View Orders',
     [PERMISSIONS.ORDERS_UPDATE]: 'Update Orders',
     [PERMISSIONS.ORDERS_CANCEL]: 'Cancel Orders',
+    [PERMISSIONS.ORDERS_DELETE]: 'Delete Orders',
     [PERMISSIONS.DRIVERS_VIEW]: 'View Drivers',
     [PERMISSIONS.DRIVERS_CREATE]: 'Create Drivers',
     [PERMISSIONS.DRIVERS_EDIT]: 'Edit Drivers',

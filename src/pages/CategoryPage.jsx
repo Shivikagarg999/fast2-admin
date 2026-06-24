@@ -19,6 +19,8 @@ const CategoriesPage = () => {
     const [uploadingCSV, setUploadingCSV] = useState(false);
     const [uploadResult, setUploadResult] = useState(null);
     const [statusFilter, setStatusFilter] = useState("all"); // 'all' | 'active' | 'inactive'
+    const [selectedIds, setSelectedIds] = useState(new Set());
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -36,7 +38,12 @@ const CategoriesPage = () => {
     useEffect(() => {
         fetchCategories(statusFilter);
         setCurrentPage(1);
+        setSelectedIds(new Set());
     }, [statusFilter]);
+
+    useEffect(() => {
+        setSelectedIds(new Set());
+    }, [search, currentPage]);
 
     const isActiveParam = (filter) => (filter === 'active' ? 'true' : filter === 'inactive' ? 'false' : 'all');
 
@@ -309,6 +316,62 @@ const CategoriesPage = () => {
         }
     };
 
+    const toggleSelected = (categoryId) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(categoryId)) next.delete(categoryId);
+            else next.add(categoryId);
+            return next;
+        });
+    };
+
+    const toggleSelectAllVisible = () => {
+        const visibleIds = currentCategories.map(c => c._id);
+        const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (allSelected) {
+                visibleIds.forEach(id => next.delete(id));
+            } else {
+                visibleIds.forEach(id => next.add(id));
+            }
+            return next;
+        });
+    };
+
+    const handleBulkDeleteSelected = async () => {
+        if (!hasPermission(PERMISSIONS.CATEGORIES_DELETE)) {
+            alert("You don't have permission to delete categories");
+            return;
+        }
+        if (selectedIds.size === 0) return;
+
+        if (!window.confirm(`Delete ${selectedIds.size} selected category(ies)? This cannot be undone.`)) {
+            return;
+        }
+
+        setBulkDeleting(true);
+        try {
+            const response = await fetch(`${BASE_URL}/api/category/bulk-delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ categoryIds: Array.from(selectedIds) }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to delete categories');
+            }
+            alert(data.message);
+            setSelectedIds(new Set());
+            fetchCategories();
+        } catch (error) {
+            console.error('Error bulk deleting categories:', error);
+            alert('Error deleting categories: ' + error.message);
+        } finally {
+            setBulkDeleting(false);
+        }
+    };
+
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-IN', {
             year: 'numeric',
@@ -523,12 +586,43 @@ const CategoriesPage = () => {
                     </div>
                 </div>
 
+                {/* Bulk actions toolbar */}
+                {selectedIds.size > 0 && (
+                    <div className="mb-4 flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{selectedIds.size} selected</span>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                            <button
+                                onClick={handleBulkDeleteSelected}
+                                disabled={bulkDeleting}
+                                style={{
+                                    ...buttonStyles.danger,
+                                    opacity: bulkDeleting ? 0.6 : 1,
+                                    cursor: bulkDeleting ? "not-allowed" : "pointer",
+                                }}
+                            >
+                                {bulkDeleting ? "Deleting..." : `Delete Selected (${selectedIds.size})`}
+                            </button>
+                            <button onClick={() => setSelectedIds(new Set())} style={buttonStyles.secondary}>
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Table */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead className="bg-gray-50 dark:bg-gray-900">
                                 <tr>
+                                    <th className="px-4 py-3 text-left">
+                                        <input
+                                            type="checkbox"
+                                            checked={currentCategories.length > 0 && currentCategories.every(c => selectedIds.has(c._id))}
+                                            onChange={toggleSelectAllVisible}
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                        />
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         Category
                                     </th>
@@ -552,7 +646,7 @@ const CategoriesPage = () => {
                             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={6} className="text-center py-8">
+                                        <td colSpan={7} className="text-center py-8">
                                             <div className="flex items-center justify-center">
                                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                                 <span className="ml-2 text-gray-500 dark:text-gray-400">Loading categories...</span>
@@ -561,7 +655,7 @@ const CategoriesPage = () => {
                                     </tr>
                                 ) : currentCategories.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="text-center py-8">
+                                        <td colSpan={7} className="text-center py-8">
                                             <div className="flex flex-col items-center">
                                                 <Tag className="w-12 h-12 text-gray-400 mb-2" />
                                                 <span className="text-gray-500 dark:text-gray-400">No categories found.</span>
@@ -579,6 +673,14 @@ const CategoriesPage = () => {
                                 ) : (
                                     currentCategories.map((category) => (
                                         <tr key={category._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                            <td className="px-4 py-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedIds.has(category._id)}
+                                                    onChange={() => toggleSelected(category._id)}
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center">
                                                     <img
