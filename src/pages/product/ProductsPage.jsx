@@ -34,6 +34,7 @@ const ProductsPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all"); // 'all' | 'active' | 'inactive'
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
@@ -816,29 +817,33 @@ const ProductsPage = () => {
             .includes(search.toLowerCase())) &&
         (categoryFilter
           ? (p.category?._id || p.category) === categoryFilter
-          : true)
+          : true) &&
+        (statusFilter === "active"
+          ? p.isActive
+          : statusFilter === "inactive"
+            ? !p.isActive
+            : true)
     );
-  }, [products, search, categoryFilter, categories]);
+  }, [products, search, categoryFilter, categories, statusFilter]);
 
   const downloadCSV = async () => {
     try {
       const params = new URLSearchParams();
 
-      // Add filters based on current state
-      const activeProducts = filteredProducts.filter(p => p.isActive);
-      const inactiveProducts = filteredProducts.filter(p => !p.isActive);
-      const inStockProducts = filteredProducts.filter(p => p.stockStatus === 'in-stock');
-      const outOfStockProducts = filteredProducts.filter(p => p.stockStatus === 'out-of-stock');
-
-      // Determine which filter to apply based on current view
-      if (activeProducts.length === filteredProducts.length) {
+      if (statusFilter === 'active') {
         params.append('isActive', 'true');
-      } else if (inactiveProducts.length === filteredProducts.length) {
+      } else if (statusFilter === 'inactive') {
         params.append('isActive', 'false');
-      } else if (inStockProducts.length === filteredProducts.length) {
-        params.append('stockStatus', 'in-stock');
-      } else if (outOfStockProducts.length === filteredProducts.length) {
-        params.append('stockStatus', 'out-of-stock');
+      } else if (filteredProducts.length > 0) {
+        // No explicit active/inactive filter selected - fall back to guessing
+        // from stock-status tabs/views that load a pre-filtered product list.
+        const inStockProducts = filteredProducts.filter(p => p.stockStatus === 'in-stock');
+        const outOfStockProducts = filteredProducts.filter(p => p.stockStatus === 'out-of-stock');
+        if (inStockProducts.length === filteredProducts.length) {
+          params.append('stockStatus', 'in-stock');
+        } else if (outOfStockProducts.length === filteredProducts.length) {
+          params.append('stockStatus', 'out-of-stock');
+        }
       }
 
       const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/products/download/csv?${params.toString()}`);
@@ -854,7 +859,7 @@ const ProductsPage = () => {
       a.style.display = 'none';
       a.href = url;
 
-      const filterName = params.toString() || 'all';
+      const filterName = statusFilter !== 'all' ? statusFilter : (params.toString() || 'all');
       a.download = `products_${filterName}_${new Date().toISOString().split('T')[0]}.csv`;
       document.body.appendChild(a);
       a.click();
@@ -1391,6 +1396,25 @@ const ProductsPage = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {[
+                    { value: "all", label: "All" },
+                    { value: "active", label: "Active" },
+                    { value: "inactive", label: "Inactive" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setStatusFilter(option.value)}
+                      style={{
+                        ...buttonStyles.secondary,
+                        backgroundColor: statusFilter === option.value ? "#000000" : "#ffffff",
+                        color: statusFilter === option.value ? "#ffffff" : "#374151",
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
