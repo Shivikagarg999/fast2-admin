@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Edit, Trash2, Plus, Tag, X, Upload } from "lucide-react";
+import { Edit, Trash2, Plus, Tag, X, Upload, Download } from "lucide-react";
 import usePermissions from "../hooks/usePermissions";
 import { PERMISSIONS } from "../config/permissions";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy';
 
 const CategoriesPage = () => {
     const { hasPermission } = usePermissions();
@@ -13,6 +15,9 @@ const CategoriesPage = () => {
     const [editingCategory, setEditingCategory] = useState(null);
     const [modalLoading, setModalLoading] = useState(false);
     const [imagePreview, setImagePreview] = useState("");
+    const [csvFile, setCsvFile] = useState(null);
+    const [uploadingCSV, setUploadingCSV] = useState(false);
+    const [uploadResult, setUploadResult] = useState(null);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -42,6 +47,77 @@ const CategoriesPage = () => {
         } catch (err) {
             console.error("Error fetching categories:", err);
             setLoading(false);
+        }
+    };
+
+    const downloadCategoryTemplate = async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/api/category/download/template`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to download template');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'category_upload_template.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error downloading template:', error);
+            alert('Error downloading template: ' + error.message);
+        }
+    };
+
+    const handleCategoryCSVUpload = async () => {
+        if (!csvFile) {
+            alert('Please select a CSV file first');
+            return;
+        }
+
+        setUploadingCSV(true);
+        setUploadResult(null);
+
+        try {
+            const formData = new FormData();
+            formData.append('csvFile', csvFile);
+
+            const response = await fetch(`${BASE_URL}/api/category/upload/csv`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to upload CSV');
+            }
+
+            setUploadResult({
+                success: true,
+                message: data.message,
+                imported: data.imported,
+                skipped: data.skipped,
+                errors: data.errors
+            });
+
+            await fetchCategories();
+            setCsvFile(null);
+            const fileInput = document.getElementById('categoryCsvFileInput');
+            if (fileInput) fileInput.value = '';
+        } catch (error) {
+            console.error('Error uploading CSV:', error);
+            setUploadResult({
+                success: false,
+                message: error.message || 'Failed to upload CSV',
+                errors: []
+            });
+        } finally {
+            setUploadingCSV(false);
         }
     };
 
@@ -225,17 +301,104 @@ const CategoriesPage = () => {
                             {filteredCategories.length} items
                         </span>
                     </div>
-                    <button
-                        onClick={openAddModal}
-                        className="flex items-center px-4 py-2 text-black rounded-lg transition-colors"
-                        style={{ backgroundColor: '#2563eb' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Category
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={openAddModal}
+                            className="flex items-center px-4 py-2 text-black rounded-lg transition-colors"
+                            style={{ backgroundColor: '#2563eb' }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Category
+                        </button>
+                        <button
+                            onClick={() => document.getElementById('categoryCsvFileInput').click()}
+                            className="flex items-center px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload CSV
+                        </button>
+                        <button
+                            onClick={downloadCategoryTemplate}
+                            className="flex items-center px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download Template
+                        </button>
+                        <input
+                            id="categoryCsvFileInput"
+                            type="file"
+                            accept=".csv"
+                            className="hidden"
+                            onChange={(e) => { setCsvFile(e.target.files[0]); setUploadResult(null); }}
+                        />
+                    </div>
                 </div>
+
+                {/* CSV upload: selected file */}
+                {csvFile && (
+                    <div className="mb-6 flex items-center justify-between px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg">
+                        <div className="flex items-center gap-2 text-sm text-blue-900 dark:text-blue-200">
+                            <Upload className="w-4 h-4" />
+                            Selected: {csvFile.name}
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleCategoryCSVUpload}
+                                disabled={uploadingCSV}
+                                className="px-3 py-1.5 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                {uploadingCSV ? 'Uploading...' : 'Upload'}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setCsvFile(null);
+                                    const fileInput = document.getElementById('categoryCsvFileInput');
+                                    if (fileInput) fileInput.value = '';
+                                }}
+                                className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* CSV upload: result */}
+                {uploadResult && (
+                    <div className={`mb-6 px-4 py-3 rounded-lg border ${uploadResult.success
+                        ? 'bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-700'
+                        : 'bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-700'
+                        }`}>
+                        <div className={`text-sm font-medium mb-1 ${uploadResult.success ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}`}>
+                            {uploadResult.success ? '✓ Upload Successful' : '✗ Upload Failed'}
+                        </div>
+                        <div className="text-sm text-gray-700 dark:text-gray-300">{uploadResult.message}</div>
+                        {uploadResult.skipped && uploadResult.skipped.length > 0 && (
+                            <div className="mt-2">
+                                <div className="text-sm font-medium text-amber-700 dark:text-amber-400">Skipped:</div>
+                                {uploadResult.skipped.slice(0, 5).map((note, index) => (
+                                    <div key={index} className="text-xs text-amber-700 dark:text-amber-400">• {note}</div>
+                                ))}
+                                {uploadResult.skipped.length > 5 && (
+                                    <div className="text-xs text-amber-700 dark:text-amber-400">... and {uploadResult.skipped.length - 5} more</div>
+                                )}
+                            </div>
+                        )}
+                        {uploadResult.errors && uploadResult.errors.length > 0 && (
+                            <div className="mt-2">
+                                <div className="text-sm font-medium text-red-700 dark:text-red-400">Errors:</div>
+                                {uploadResult.errors.slice(0, 5).map((error, index) => (
+                                    <div key={index} className="text-xs text-red-700 dark:text-red-400">• {error}</div>
+                                ))}
+                                {uploadResult.errors.length > 5 && (
+                                    <div className="text-xs text-red-700 dark:text-red-400">... and {uploadResult.errors.length - 5} more</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Search */}
                 <div className="mb-6">
