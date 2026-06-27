@@ -262,6 +262,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           icon: <FiLock className="w-4 h-4" />,
           permission: null,
         },
+        {
+          name: "Payment Settings",
+          path: "/admin/payment-settings",
+          icon: <FiCreditCard className="w-4 h-4" />,
+          permission: null,
+        },
       ]
     }] : [])
   ];

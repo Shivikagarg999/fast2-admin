@@ -37,6 +37,7 @@ import ContactPage from "./pages/contact/ContactPage";
 import ScratchCardsPage from "./pages/scratch-cards/ScratchCardsPage";
 import ReportsPage from "./pages/reports/Reports";
 import PasswordPage from "./pages/password/PasswordPage";
+import PaymentSettings from "./pages/settings/PaymentSettings";
 
 function App() {
   return (
@@ -373,6 +374,16 @@ function App() {
             element={
               <ProtectedRoute requireSuperAdmin={true}>
                 <PasswordPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Payment Settings */}
+          <Route
+            path="/admin/payment-settings"
+            element={
+              <ProtectedRoute requireSuperAdmin={true}>
+                <PaymentSettings />
               </ProtectedRoute>
             }
           />
