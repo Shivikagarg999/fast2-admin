@@ -364,7 +364,7 @@ const OrdersPage = () => {
     };
 
     const handlePrintInvoice = (order) => {
-        const COMPANY_NAME = 'FAST 2';
+        const COMPANY_NAME = 'GMKART';
         const COMPANY_GSTIN = '07AABCU9603R1ZM';
         const COMPANY_ADDR = '123 Business Street, Delhi - 110001';
         const COMPANY_PAN = 'AABCU9603R';

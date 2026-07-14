@@ -70,7 +70,7 @@ export default function LoginPage() {
           <div className="space-y-3">
             <img
               src={Logo}
-              alt="Fast2 Logo"
+              alt="GMKart Logo"
               className="h-20 lg:h-24 xl:h-28 object-contain mx-auto lg:mx-0"
             />
             <h2 className="text-2xl lg:text-3xl font-light text-blue-100">
@@ -121,7 +121,7 @@ export default function LoginPage() {
                   type="email"
                   required
                   className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white placeholder-blue-200 transition-all duration-200"
-                  placeholder="admin@fast2.com"
+                  placeholder="admin@gmkart.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -168,7 +168,7 @@ export default function LoginPage() {
 
             <div className="mt-6 pt-4 border-t border-white/10">
               <p className="text-center text-xs text-blue-200">
-                © {new Date().getFullYear()} Fast2 Delivery. All rights reserved.
+                © {new Date().getFullYear()} GMKart Delivery. All rights reserved.
               </p>
             </div>
           </div>
