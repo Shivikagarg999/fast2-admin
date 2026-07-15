@@ -55,7 +55,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="h-screen w-screen bg-slate-50 flex items-center justify-center p-4 overflow-hidden">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <img
@@ -67,7 +67,7 @@ export default function LoginPage() {
 
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 lg:p-8">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Admin login</h1>
             <p className="text-slate-500 text-sm mt-1">Sign in to your admin account</p>
           </div>
 
@@ -109,9 +109,10 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
+              style={{ backgroundColor: "blue" }}
               className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 ${loading
-                ? "bg-indigo-400 cursor-not-allowed"
-                : "bg-indigo-600 hover:bg-indigo-700 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+                ? "cursor-not-allowed opacity-60"
+                : "transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
                 }`}
             >
               {loading ? (
