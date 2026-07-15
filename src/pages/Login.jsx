@@ -55,142 +55,81 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex items-center justify-center p-4 lg:p-8 overflow-hidden relative">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 overflow-hidden z-0">
-        <div className="absolute -top-4 -left-4 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-1/3 -right-4 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-1/3 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
-      </div>
-
-      {/* Main Content Container */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8 lg:gap-16">
-        {/* Branding Section - Left Side */}
-        <div className="w-full lg:w-1/2 text-white space-y-6 lg:space-y-8 text-center lg:text-left px-4">
-          <div className="space-y-3">
-            <img
-              src={Logo}
-              alt="GMKart Logo"
-              className="h-20 lg:h-24 xl:h-28 object-contain mx-auto lg:mx-0"
-            />
-            <h2 className="text-2xl lg:text-3xl font-light text-blue-100">
-              Admin Portal
-            </h2>
-            <div className="w-24 h-1.5 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mx-auto lg:mx-0"></div>
-          </div>
-
-          <div className="space-y-4 text-blue-100">
-            <p className="text-lg lg:text-xl leading-relaxed max-w-md mx-auto lg:mx-0">
-              Streamline your delivery operations with our comprehensive admin dashboard.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm lg:text-base">
-              <div className="flex items-center space-x-2 justify-center lg:justify-start">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span>Real-time tracking</span>
-              </div>
-              <div className="flex items-center space-x-2 justify-center lg:justify-start">
-                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                <span>Analytics dashboard</span>
-              </div>
-              <div className="flex items-center space-x-2 justify-center lg:justify-start">
-                <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                <span>Order management</span>
-              </div>
-              <div className="flex items-center space-x-2 justify-center lg:justify-start">
-                <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>
-                <span>Customer insights</span>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen w-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-6">
+          <img
+            src={Logo}
+            alt="GMKart Logo"
+            className="h-32 lg:h-36 object-contain"
+          />
         </div>
 
-        {/* Login Form - Right Side */}
-        <div className="w-full lg:w-1/2 flex justify-center px-4">
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-6 lg:p-8 w-full max-w-md">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl lg:text-3xl font-bold text-white mb-2">Welcome Back</h3>
-              <p className="text-blue-200 text-sm lg:text-base">Sign in to your admin account</p>
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 lg:p-8">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
+            <p className="text-slate-500 text-sm mt-1">Sign in to your admin account</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-900 placeholder-slate-400 transition-all duration-200"
+                placeholder="admin@gmkart.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-5">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-100">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white placeholder-blue-200 transition-all duration-200"
-                  placeholder="admin@gmkart.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-900 placeholder-slate-400 transition-all duration-200"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-100">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white placeholder-blue-200 transition-all duration-200"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                {error}
               </div>
+            )}
 
-              {error && (
-                <div className="bg-red-500/20 border border-red-400/50 text-red-200 px-4 py-3 rounded-lg text-sm">
-                  {error}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 ${loading
+                ? "bg-indigo-400 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+                }`}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Signing In...</span>
                 </div>
+              ) : (
+                "Sign In"
               )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 ${loading
-                  ? "bg-blue-500/50 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-                  }`}
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Signing In...</span>
-                  </div>
-                ) : (
-                  "Sign In"
-                )}
-              </button>
-            </form>
-
-            <div className="mt-6 pt-4 border-t border-white/10">
-              <p className="text-center text-xs text-blue-200">
-                © {new Date().getFullYear()} GMKart Delivery. All rights reserved.
-              </p>
-            </div>
-          </div>
+            </button>
+          </form>
         </div>
-      </div>
 
-      {/* Add custom CSS for animation delays */}
-      <style jsx>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.3; }
-        }
-        .animate-pulse {
-          animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
+        <p className="text-center text-xs text-slate-400 mt-6">
+          © {new Date().getFullYear()} GMKart Delivery. All rights reserved.
+        </p>
+      </div>
     </div>
   );
 }
