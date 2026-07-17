@@ -8,6 +8,7 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
       case 'return': return '🔄';
       case 'cancellation': return '❌';
       case 'refund': return '💰';
+      case 'privacy': return '🔒';
       default: return '📄';
     }
   };
@@ -18,6 +19,7 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
       case 'return': return '#10b981';
       case 'cancellation': return '#ef4444';
       case 'refund': return '#f59e0b';
+      case 'privacy': return '#2563eb';
       default: return '#6b7280';
     }
   };

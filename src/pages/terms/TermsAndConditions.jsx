@@ -35,7 +35,8 @@ const PoliciesManagement = () => {
     { value: "terms", label: "Terms & Conditions", icon: "📜" },
     { value: "return", label: "Return Policy", icon: "🔄" },
     { value: "cancellation", label: "Cancellation Policy", icon: "❌" },
-    { value: "refund", label: "Refund Policy", icon: "💰" }
+    { value: "refund", label: "Refund Policy", icon: "💰" },
+    { value: "privacy", label: "Privacy Policy", icon: "🔒" }
   ];
 
   // Button Styles
@@ -400,6 +401,22 @@ const PoliciesManagement = () => {
               onChange={handleMetadataChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="legal@example.com"
+            />
+          </div>
+        );
+      case 'privacy':
+        return (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Privacy Contact Email
+            </label>
+            <input
+              type="email"
+              name="contactEmail"
+              value={formData.metadata.contactEmail || ''}
+              onChange={handleMetadataChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="privacy@example.com"
             />
           </div>
         );
