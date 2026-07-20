@@ -385,11 +385,11 @@ const ProductsPage = () => {
     setNewServiceablePincode("");
   };
 
+  // weight is stored literally in whatever unit weightUnit says — no grams normalization.
   const getDisplayWeightValue = (weight, weightUnit) => {
     if (weight === null || weight === undefined || weight === "") return "";
     const numericWeight = Number(weight);
-    if (!Number.isFinite(numericWeight)) return weight;
-    return weightUnit === "kg" ? numericWeight / 1000 : numericWeight;
+    return Number.isFinite(numericWeight) ? numericWeight : weight;
   };
 
   const formatWeight = (weight, weightUnit = "g") => {
@@ -719,11 +719,7 @@ const ProductsPage = () => {
       );
 
       if (response.data.success || response.status === 200) {
-        const currentProduct = products.find((product) => product._id === productId);
-        const updatedValue = field === "weight" && currentProduct?.weightUnit === "kg"
-          ? Number(value) * 1000
-          : value;
-        setProducts(prev => prev.map(p => p._id === productId ? { ...p, [backendField]: updatedValue } : p));
+        setProducts(prev => prev.map(p => p._id === productId ? { ...p, [backendField]: value } : p));
         setInlineEdit({ productId: null, field: null, value: "" });
       }
     } catch (error) {
