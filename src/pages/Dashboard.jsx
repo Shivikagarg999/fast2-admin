@@ -104,7 +104,7 @@ const DashboardLayout = () => {
   const fetchLiveOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/orders/live`, {
+      const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/orders/live`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) return;

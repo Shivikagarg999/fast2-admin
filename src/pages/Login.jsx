@@ -13,7 +13,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/login`, {
+      const res = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

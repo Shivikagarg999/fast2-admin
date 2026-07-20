@@ -92,7 +92,7 @@ const ReportsPage = () => {
     }
 
     const queryString = params.toString();
-    const url = `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/reports/${activeTab}${queryString ? `?${queryString}` : ""}`;
+    const url = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/reports/${activeTab}${queryString ? `?${queryString}` : ""}`;
 
     return { url, params };
   };

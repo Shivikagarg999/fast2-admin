@@ -4,7 +4,7 @@ import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, F
 import { Editor } from '@tinymce/tinymce-react';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'https://api.fast2.in';
+const API_BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy';
 
 const ProductCreate = () => {
   const navigate = useNavigate();

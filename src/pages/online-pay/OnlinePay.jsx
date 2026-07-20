@@ -48,7 +48,7 @@ const OnlinePay = () => {
             });
 
             const response = await fetch(
-                `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/orders/getonline?${params}`
+                `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/orders/getonline?${params}`
             );
 
             if (!response.ok) throw new Error('Failed to fetch online orders');
@@ -83,7 +83,7 @@ const OnlinePay = () => {
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
             const response = await fetch(
-                `${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/admin/orders/${orderId}/status`,
+                `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/orders/${orderId}/status`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
