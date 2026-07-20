@@ -363,186 +363,37 @@ const OrdersPage = () => {
         }
     };
 
-    const handlePrintInvoice = (order) => {
-        const COMPANY_NAME = 'GMKART';
-        const COMPANY_GSTIN = '07AABCU9603R1ZM';
-        const COMPANY_ADDR = '123 Business Street, Delhi - 110001';
-        const COMPANY_PAN = 'AABCU9603R';
-        
-        const seller = order.seller || {};
-        const SELLER_NAME = seller.businessName || seller.name || 'HME';
-        const SELLER_GSTIN = seller.gstNumber || '235657845768';
-        const SELLER_ADDR = seller.address ? 
-            `${seller.address.street || ''}, ${seller.address.city || ''}, ${seller.address.state || ''} - ${seller.address.pincode || ''}` : 
-            'Gurgaon, Haryana - 201301';
-        const SELLER_STATE = (seller.address?.state || 'haryana').toLowerCase();
+    // Prints the same backend-generated invoice PDF used everywhere else (download
+    // button, seller auto-print) — real logo, QR, GST breakup — instead of a separate
+    // hand-rolled template that drifts out of sync with actual business/seller details.
+    const handlePrintInvoice = async (order) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'https://admin.fast2.in/proxy'}/api/order/${order._id}/invoice`);
+            if (!response.ok) throw new Error('Failed to generate invoice');
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
 
-        const addr = order.shippingAddress || {};
-        const delivState = (addr.state || '').toLowerCase().trim();
-        const isInterState = delivState !== SELLER_STATE;
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            document.body.appendChild(iframe);
 
-        const itemsSubtotal = order.items?.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0) || 0;
-        const totalGst = order.totalGst || order.items?.reduce((s, i) => s + (i.gstAmount || 0) * (i.quantity || 1), 0) || 0;
-        const grandTotal = order.total || (itemsSubtotal + totalGst);
-        const delivery = Math.max(0, grandTotal - itemsSubtotal - totalGst);
-        const walletDeduct = order.walletDeduction || 0;
-
-        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN', {
-            day: '2-digit', month: 'short', year: 'numeric'
-        });
-
-        const itemRows = order.items.map(item => {
-            const qty = item.quantity || 1;
-            const rate = (item.price || 0).toFixed(2);
-            const amt = ((item.price || 0) * qty).toFixed(2);
-            const gstPct = item.gstPercent || 0;
-            const gstAmt = ((item.gstAmount || 0) * qty).toFixed(2);
-            const hsn = item.product?.hsn || item.hsn || '';
-            const name = (item.product?.name || 'Product').substring(0, 26);
-            const gstLabel = isInterState
-                ? `IGST:${gstPct}%`
-                : `CGST:${gstPct/2}% SGST:${gstPct/2}%`;
-
-            return `
-                <tr>
-                    <td colspan="5" style="padding:4px 0 1px;font-size:12px;font-weight:bold;">${name}</td>
-                </tr>
-                <tr>
-                    <td style="padding:1px 0;font-size:11px;width:8%">${qty}</td>
-                    <td style="padding:1px 0;font-size:11px;width:23%;text-align:right">Rs ${rate}</td>
-                    <td style="padding:1px 0;font-size:11px;width:23%;text-align:right">Rs ${amt}</td>
-                    <td style="padding:1px 0;font-size:11px;width:23%;text-align:right">Rs ${gstAmt}</td>
-                    <td style="padding:1px 0;font-size:11px;width:23%"></td>
-                </tr>
-                <tr>
-                    <td colspan="5" style="padding:1px 0 4px;font-size:10px;color:#444;">
-                        ${hsn ? `HSN:${hsn}` : ''} ${gstLabel} &nbsp; Tax: Rs ${gstAmt}
-                    </td>
-                </tr>`;
-        }).join('');
-
-        const gstBreakdown = isInterState
-            ? `<tr><td style="font-size:11px;padding:2px 0">IGST</td><td style="font-size:11px;padding:2px 0;text-align:right">Rs ${totalGst.toFixed(2)}</td></tr>`
-            : `<tr><td style="font-size:11px;padding:2px 0">CGST</td><td style="font-size:11px;padding:2px 0;text-align:right">Rs ${(totalGst/2).toFixed(2)}</td></tr>
-              <tr><td style="font-size:11px;padding:2px 0">SGST</td><td style="font-size:11px;padding:2px 0;text-align:right">Rs ${(totalGst/2).toFixed(2)}</td></tr>`;
-
-        const supplyLine = isInterState
-            ? `Inter-state supply: IGST Rs ${totalGst.toFixed(2)}`
-            : `Intra-state supply: CGST Rs ${(totalGst/2).toFixed(2)} + SGST Rs ${(totalGst/2).toFixed(2)}`;
-
-        const payMethod = walletDeduct > 0 && (order.cashOnDelivery > 0)
-            ? 'WALLET + COD'
-            : walletDeduct > 0 ? 'WALLET'
-            : (order.paymentMethod || 'COD').toUpperCase();
-
-        const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8"/>
-  <title>Invoice - ${order.orderId}</title>
-  <style>
-    @page { size: 80mm auto; margin: 4mm 3mm; }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 12px;
-      font-weight: bold;
-      width: 72mm;
-      color: #000;
-      background: #fff;
-    }
-    .c  { text-align: center; }
-    .b  { font-weight: bold; }
-    .sm { font-size: 10px; }
-    p   { margin: 1px 0; line-height: 1.4; }
-    .sep  { border: none; border-top: 1px dashed #000; margin: 5px 0; }
-    .dsep { border: none; border-top: 2px solid #000; margin: 5px 0; }
-    table { width: 100%; border-collapse: collapse; }
-    .row2 { display: flex; justify-content: space-between; margin: 2px 0; font-size: 11px; }
-    .row2.bold { font-weight: bold; font-size: 12px; }
-    @media print {
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
-  </style>
-</head>
-<body>
-
-  <p class="c b" style="font-size:18px;letter-spacing:2px;">${COMPANY_NAME}</p>
-  <p class="c b" style="font-size:13px;letter-spacing:1px;">TAX INVOICE</p>
-  <hr class="dsep"/>
-  <p class="c sm">GSTIN: ${COMPANY_GSTIN}</p>
-  <p class="c sm">${COMPANY_ADDR}</p>
-  <p class="c sm">PAN: ${COMPANY_PAN}</p>
-  <hr class="sep"/>
-
-  <p><span class="b">Invoice No:</span> ${order.orderId}</p>
-  <p><span class="b">Date:</span> ${orderDate}</p>
-  <p><span class="b">Place of Supply:</span> ${addr.state || 'N/A'}</p>
-  <hr class="sep"/>
-
-  <p class="b">SOLD BY:</p>
-  <p>${SELLER_NAME}</p>
-  <p class="sm">GSTIN: ${SELLER_GSTIN}</p>
-  <p class="sm">${SELLER_ADDR}</p>
-  <hr class="sep"/>
-
-  <p class="b">BILL TO:</p>
-  <p>${order.user?.name || addr.fullName || 'Customer'}</p>
-  <p class="sm">Ph: ${order.user?.phone || addr.phone || 'N/A'}</p>
-  ${addr.addressLine ? `<p class="sm">${addr.addressLine}</p>` : ''}
-  <p class="sm">${addr.city || ''}${addr.state ? ', ' + addr.state : ''}${addr.pinCode ? ' - ' + addr.pinCode : ''}</p>
-  ${order.user?.email ? `<p class="sm">Email: ${order.user.email}</p>` : ''}
-  <hr class="sep"/>
-
-  <table>
-    <tr><th style="font-size:10px;text-align:left;width:8%">QTY</th>
-      <th style="font-size:10px;text-align:right;width:23%">RATE</th>
-      <th style="font-size:10px;text-align:right;width:23%">AMT</th>
-      <th style="font-size:10px;text-align:right;width:23%">GST</th>
-      <th style="width:23%"></th></tr>
-  </table>
-  <hr class="sep"/>
-
-  <tr>${itemRows}</table>
-  <hr class="sep"/>
-
-  <div class="row2"><span>Subtotal:</span><span>Rs ${itemsSubtotal.toFixed(2)}</span></div>
-  <div class="row2"><span>Delivery Charges:</span><span>Rs ${delivery.toFixed(2)}</span></div>
-  ${walletDeduct > 0 ? `<div class="row2"><span>Wallet Deduction:</span><span>-Rs ${walletDeduct.toFixed(2)}</span></div>` : ''}
-  <hr class="sep"/>
-
-  <p class="b" style="font-size:11px;margin-bottom:2px;">GST BREAKDOWN:</p>
-  <table>
-    ${gstBreakdown}
-    <tr><td style="font-size:11px;padding:2px 0;font-weight:bold;">Total GST</td>
-      <td style="font-size:11px;padding:2px 0;text-align:right;font-weight:bold;">Rs ${totalGst.toFixed(2)}</td>
-    </tr>
-  </table>
-  <hr class="sep"/>
-
-  <div class="row2 bold"><span>GRAND TOTAL:</span><span>Rs ${grandTotal.toFixed(2)}</span></div>
-  <hr class="dsep"/>
-
-  <p class="b">PAYMENT:</p>
-  <p class="sm">Method: ${payMethod}</p>
-  <p class="sm">Status: ${(order.paymentStatus || 'PENDING').toUpperCase()}</p>
-  ${order.secretCode ? `<p class="sm">Secret Code: ${order.secretCode}</p>` : ''}
-  <hr class="sep"/>
-
-  <p class="sm">${supplyLine}</p>
-  <hr class="dsep"/>
-
-  <p class="c sm">Computer generated invoice.</p>
-  <p class="c sm">No signature required.</p>
-  <p class="c sm" style="margin-top:4px;">Thank you for shopping with ${COMPANY_NAME}!</p>
-
-<script>window.onload = function(){ window.print(); }</script>
-</body>
-</html>`;
-
-        const win = window.open('', '_blank');
-        win.document.write(html);
-        win.document.close();
+            iframe.onload = () => {
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch (err) {
+                    console.error('Print trigger failed:', err);
+                }
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                    window.URL.revokeObjectURL(url);
+                }, 60000);
+            };
+        } catch (error) {
+            console.error('Invoice print error:', error);
+            alert('Failed to print invoice. Please try again.');
+        }
     };
 
     const getStatusBadge = (status) => {
