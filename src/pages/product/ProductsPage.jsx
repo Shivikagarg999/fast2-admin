@@ -148,7 +148,7 @@ const ProductsPage = () => {
   const fetchPromotors = async () => {
     try {
       const response = await axios.get(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/promotor/`
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/promotor/`
       );
       const data = Array.isArray(response.data) ? response.data : [];
       setPromotors(data);
@@ -161,7 +161,7 @@ const ProductsPage = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await axios.get(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/warehouse/`
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/warehouse/`
       );
       const data = Array.isArray(response.data) ? response.data : [];
       setWarehouses(data);
@@ -174,7 +174,7 @@ const ProductsPage = () => {
   const fetchSellers = async () => {
     try {
       const response = await axios.get(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/seller/sellers?limit=1000`
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/seller/sellers?limit=1000`
       );
       let data = [];
       if (response.data && response.data.data && Array.isArray(response.data.data)) {
@@ -192,7 +192,7 @@ const ProductsPage = () => {
   const fetchAllCategories = async () => {
     try {
       const response = await axios.get(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/category/getall`
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/category/getall`
       );
       const data = Array.isArray(response.data) ? response.data : [];
       setAllCategories(data);
@@ -212,7 +212,7 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/product/get-products-admin?limit=1000`
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/product/get-products-admin?limit=1000`
       );
 
       let productsArray = [];
@@ -251,7 +251,7 @@ const ProductsPage = () => {
   const fetchProductStatus = async (productId) => {
     try {
       const response = await axios.get(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/product/${productId}/status`
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/product/${productId}/status`
       );
       if (response.data.success) {
         return response.data.isActive;
@@ -273,7 +273,7 @@ const ProductsPage = () => {
       }
 
       const response = await axios.patch(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/product/${productId}/toggle-active`
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/product/${productId}/toggle-active`
       );
 
       if (response.data.success) {
@@ -308,7 +308,7 @@ const ProductsPage = () => {
     try {
       setOrdersLoading(true);
       const response = await axios.get(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/product/${productId}/orders`
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/product/${productId}/orders`
       );
       setProductOrders(response.data.orders || []);
     } catch (error) {
@@ -678,7 +678,7 @@ const ProductsPage = () => {
       }
 
       await axios.put(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/product/${editingProduct._id}`,
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/product/${editingProduct._id}`,
         submitData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -713,7 +713,7 @@ const ProductsPage = () => {
       if (!backendField) return;
 
       const response = await axios.put(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/product/${productId}`,
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/product/${productId}`,
         { [backendField]: value },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -735,7 +735,7 @@ const ProductsPage = () => {
     }
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
       try {
-        await axios.delete(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/product/${productId}`);
+        await axios.delete(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/product/${productId}`);
         alert("Product deleted successfully!");
         fetchProducts();
       } catch (error) {
@@ -759,7 +759,7 @@ const ProductsPage = () => {
     setBulkDeleting(true);
     try {
       const response = await axios.post(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/products/bulk-delete`,
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/products/bulk-delete`,
         { productIds }
       );
       alert(response.data.message || `Deleted ${response.data.deletedCount} products`);
@@ -912,7 +912,7 @@ const ProductsPage = () => {
         }
       }
 
-      const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/products/download/csv?${params.toString()}`);
+      const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/products/download/csv?${params.toString()}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -952,7 +952,7 @@ const ProductsPage = () => {
 
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/products/upload/csv`,
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/products/upload/csv`,
         formData,
         {
           headers: {
@@ -1000,7 +1000,7 @@ const ProductsPage = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/products/download/template`,
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/products/download/template`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -1104,7 +1104,7 @@ const ProductsPage = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL || "https://admin.fast2.in/proxy"}/api/admin/products/${product._id}/scratch-gift`,
+        `${import.meta.env.VITE_BASE_URL || "https://admin.gmkart.com/proxy"}/api/admin/products/${product._id}/scratch-gift`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const gift = response.data.scratchGift || response.data;
@@ -1139,7 +1139,7 @@ const ProductsPage = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL || "https://admin.fast2.in/proxy"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
+        `${import.meta.env.VITE_BASE_URL || "https://admin.gmkart.com/proxy"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
         { coinsAmount: Number(scratchGiftCoins) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -1159,7 +1159,7 @@ const ProductsPage = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `${import.meta.env.VITE_BASE_URL || "https://admin.fast2.in/proxy"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
+        `${import.meta.env.VITE_BASE_URL || "https://admin.gmkart.com/proxy"}/api/admin/products/${scratchGiftProduct._id}/scratch-gift`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setScratchGiftCurrent(null);

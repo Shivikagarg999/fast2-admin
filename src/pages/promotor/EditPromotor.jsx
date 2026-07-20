@@ -53,7 +53,7 @@ const EditPromotorPage = () => {
     const fetchPromotor = async () => {
       try {
         setFetching(true);
-        const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/promotor/${id}`);
+        const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/promotor/${id}`);
         const promotor = response.data;
 
         setFormData({
@@ -136,7 +136,7 @@ const EditPromotorPage = () => {
     setError("");
 
     try {
-      await axios.put(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/promotor/${id}`, formData);
+      await axios.put(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/promotor/${id}`, formData);
 
       // Show success modal
       setShowSuccessModal(true);

@@ -3,7 +3,7 @@ import { Edit, Trash2, Plus, Tag, X, Upload, Download } from "lucide-react";
 import usePermissions from "../hooks/usePermissions";
 import { PERMISSIONS } from "../config/permissions";
 
-const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy';
+const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
 
 const CategoriesPage = () => {
     const { hasPermission } = usePermissions();
@@ -263,13 +263,13 @@ const CategoriesPage = () => {
             let response;
             if (editingCategory) {
                 // Update category - adjust the endpoint as needed
-                response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/category/update/${editingCategory._id}`, {
+                response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/category/update/${editingCategory._id}`, {
                     method: 'PUT',
                     body: submitData,
                 });
             } else {
                 // Create category
-                response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/category/create`, {
+                response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/category/create`, {
                     method: 'POST',
                     body: submitData,
                 });
@@ -298,7 +298,7 @@ const CategoriesPage = () => {
         }
         if (window.confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone.`)) {
             try {
-                const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/category/delete/${categoryId}`, {
+                const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/category/delete/${categoryId}`, {
                     method: 'DELETE',
                 });
 

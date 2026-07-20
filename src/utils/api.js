@@ -1,4 +1,4 @@
-const API_BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api`;
+const API_BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api`;
 
 // Fetch order statistics
 export const fetchOrderStats = async (period = 'month') => {

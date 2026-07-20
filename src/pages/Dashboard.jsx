@@ -104,7 +104,7 @@ const DashboardLayout = () => {
   const fetchLiveOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/orders/live`, {
+      const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/orders/live`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) return;
@@ -135,7 +135,7 @@ const DashboardLayout = () => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://admin.fast2.in/proxy/api/admin/dashboard/overview?filter=${selectedPeriod}`, {
+      const response = await fetch(`https://admin.gmkart.com/proxy/api/admin/dashboard/overview?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -163,7 +163,7 @@ const DashboardLayout = () => {
   const fetchDailySales = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch('https://admin.fast2.in/proxy/api/admin/dashboard/daily-sales?days=30', {
+      const response = await fetch('https://admin.gmkart.com/proxy/api/admin/dashboard/daily-sales?days=30', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -186,7 +186,7 @@ const DashboardLayout = () => {
   const fetchTopSellers = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://admin.fast2.in/proxy/api/admin/dashboard/top-sellers?filter=${selectedPeriod}`, {
+      const response = await fetch(`https://admin.gmkart.com/proxy/api/admin/dashboard/top-sellers?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -209,7 +209,7 @@ const DashboardLayout = () => {
   const fetchTopPromotors = async () => {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-      const response = await fetch(`https://admin.fast2.in/proxy/api/admin/dashboard/top-promotors?filter=${selectedPeriod}`, {
+      const response = await fetch(`https://admin.gmkart.com/proxy/api/admin/dashboard/top-promotors?filter=${selectedPeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

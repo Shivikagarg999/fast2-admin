@@ -9,7 +9,7 @@ import {
 import usePermissions from '../../hooks/usePermissions';
 import { PERMISSIONS } from '../../config/permissions';
 
-const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy';
+const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
 
 const getToken = () =>
     localStorage.getItem('adminToken') || localStorage.getItem('token') || '';

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FiKey, FiSearch, FiX, FiEye, FiEyeOff, FiUser, FiPhone, FiMail, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || "https://admin.fast2.in/proxy";
+const BASE_URL = import.meta.env.VITE_BASE_URL || "https://admin.gmkart.com/proxy";
 
 const getToken = () => localStorage.getItem("adminToken") || localStorage.getItem("token");
 

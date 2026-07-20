@@ -39,7 +39,7 @@ const DiscountPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/category/getall`);
+      const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/category/getall`);
       setCategories(response.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -48,7 +48,7 @@ const DiscountPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/product/get-products-admin?limit=1000`);
+      const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/product/get-products-admin?limit=1000`);
       let productsArray = [];
       if (Array.isArray(response.data)) {
         productsArray = response.data;
@@ -67,7 +67,7 @@ const DiscountPage = () => {
   const fetchActiveDiscounts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/discount`);
+      const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/discount`);
       setDiscounts(response.data.data || []);
     } catch (error) {
       console.error("Error fetching discounts:", error);
@@ -87,7 +87,7 @@ const DiscountPage = () => {
     }
 
     try {
-      await axios.delete(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/discount/${discountId}`);
+      await axios.delete(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/discount/${discountId}`);
       alert("Discount deleted successfully");
       fetchActiveDiscounts();
     } catch (error) {
@@ -102,7 +102,7 @@ const DiscountPage = () => {
       return;
     }
     try {
-      await axios.patch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/discount/${discountId}/toggle`, {
+      await axios.patch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/discount/${discountId}/toggle`, {
         isActive: !currentStatus
       });
       alert(`Discount ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
@@ -149,7 +149,7 @@ const DiscountPage = () => {
 
     try {
       setCreatingDiscount(true);
-      const response = await axios.post(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/discount`, discountForm);
+      const response = await axios.post(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/discount`, discountForm);
       alert(`Successfully created discount: ${response.data.discount.name}`);
       setShowCreateDiscountModal(false);
       resetDiscountForm();

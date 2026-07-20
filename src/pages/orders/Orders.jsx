@@ -12,7 +12,7 @@ import {
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
 
-const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy';
+const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
 
 const buttonStyles = {
     danger: {
@@ -80,7 +80,7 @@ const OrdersPage = () => {
                 ...(search && { search: search })
             });
 
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/orders/getall?${params.toString()}`);
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/orders/getall?${params.toString()}`);
             if (!response.ok) throw new Error('Failed to fetch orders');
             const data = await response.json();
 
@@ -98,7 +98,7 @@ const OrdersPage = () => {
         try {
             setDriversLoading(true);
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/drivers/getall`, {
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/drivers/getall`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {}
             });
 
@@ -179,7 +179,7 @@ const OrdersPage = () => {
 
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/orders/${orderId}/status`, {
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -232,7 +232,7 @@ const OrdersPage = () => {
         try {
             setAssigningOrderId(orderId);
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/orders/${orderId}/driver`, {
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/orders/${orderId}/driver`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -320,7 +320,7 @@ const OrdersPage = () => {
                 params.append('status', statusFilter);
             }
 
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/orders/download/csv?${params.toString()}`);
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/orders/download/csv?${params.toString()}`);
             
             if (!response.ok) {
                 const errorData = await response.json();
@@ -345,7 +345,7 @@ const OrdersPage = () => {
 
     const handleDownloadInvoice = async (orderId) => {
         try {
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/order/${orderId}/invoice`);
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/order/${orderId}/invoice`);
             if (!response.ok) throw new Error('Failed to download invoice');
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
@@ -368,7 +368,7 @@ const OrdersPage = () => {
     // hand-rolled template that drifts out of sync with actual business/seller details.
     const handlePrintInvoice = async (order) => {
         try {
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/order/${order._id}/invoice`);
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/order/${order._id}/invoice`);
             if (!response.ok) throw new Error('Failed to generate invoice');
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);

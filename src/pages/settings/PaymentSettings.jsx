@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiCreditCard, FiCheck, FiAlertCircle } from "react-icons/fi";
 
-const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/payment-settings`;
+const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/payment-settings`;
 
 const GATEWAY_OPTIONS = [
   {

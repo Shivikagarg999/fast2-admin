@@ -21,7 +21,7 @@ const WarehouseList = () => {
   const fetchWarehouses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/warehouse`);
+      const response = await axios.get(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/warehouse`);
       setWarehouses(response.data || []);
     } catch (error) {
       console.error("Error fetching warehouses:", error);
@@ -62,7 +62,7 @@ const WarehouseList = () => {
 
     setDeleteLoading(true);
     try {
-      await axios.delete(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.fast2.in/proxy'}/api/admin/warehouse/${deletingWarehouse._id}`);
+      await axios.delete(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/warehouse/${deletingWarehouse._id}`);
       alert("Warehouse deleted successfully!");
       fetchWarehouses();
       closeDeleteModal();
