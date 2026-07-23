@@ -345,7 +345,7 @@ const OrdersPage = () => {
 
     const handleDownloadInvoice = async (orderId) => {
         try {
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/order/${orderId}/invoice`);
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/order/${orderId}/invoice`, { cache: 'no-store' });
             if (!response.ok) throw new Error('Failed to download invoice');
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
@@ -368,7 +368,7 @@ const OrdersPage = () => {
     // hand-rolled template that drifts out of sync with actual business/seller details.
     const handlePrintInvoice = async (order) => {
         try {
-            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/order/${order._id}/invoice`);
+            const response = await fetch(`${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/order/${order._id}/invoice`, { cache: 'no-store' });
             if (!response.ok) throw new Error('Failed to generate invoice');
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
