@@ -1,3 +1,14 @@
+// Selling unit — how the product is priced/sold to the customer (e.g. "₹50 per kg").
+// Distinct from weightUnit below, which is the product's physical net weight.
+export const SELLING_UNIT_OPTIONS = [
+  { value: 'piece', label: 'Piece' },
+  { value: 'kg', label: 'Kilogram (kg)' },
+  { value: 'g', label: 'Gram (g)' },
+  { value: 'l', label: 'Liter (l)' },
+  { value: 'ml', label: 'Milliliter (ml)' },
+  { value: 'pack', label: 'Pack' },
+];
+
 // Shared unit-of-measurement options for product weight/quantity dropdowns.
 export const UNIT_GROUPS = [
   {

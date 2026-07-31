@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, FiX, FiImage, FiVideo, FiShoppingBag } from 'react-icons/fi';
 import { Editor } from '@tinymce/tinymce-react';
 import axios from 'axios';
-import { UNIT_GROUPS } from '../../constants/units';
+import { UNIT_GROUPS, SELLING_UNIT_OPTIONS } from '../../constants/units';
 
 const API_BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
 
@@ -594,24 +594,24 @@ const ProductCreate = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Unit *
+                    Selling Unit *
                   </label>
                   <select
                     name="unit"
                     value={formData.unit}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    <option value="piece">Piece</option>
-                    <option value="kg">Kilogram (kg)</option>
-                    <option value="g">Gram (g)</option>
-                    <option value="l">Liter (l)</option>
-                    <option value="ml">Milliliter (ml)</option>
-                    <option value="pack">Pack</option>
+                    {SELLING_UNIT_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    How this product is priced &amp; sold, e.g. &quot;₹50 per kg&quot; or &quot;₹20 per piece&quot;.
+                  </p>
                 </div>
 
                 <div>
@@ -1035,6 +1035,9 @@ const ProductCreate = () => {
                       </optgroup>
                     ))}
                   </select>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    The product&apos;s physical net weight, e.g. &quot;500 g&quot; — used for shipping &amp; display, not pricing.
+                  </p>
                 </div>
               </div>
             </div>

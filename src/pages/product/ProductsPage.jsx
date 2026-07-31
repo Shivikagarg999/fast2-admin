@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { UNIT_GROUPS } from "../../constants/units";
+import { UNIT_GROUPS, SELLING_UNIT_OPTIONS } from "../../constants/units";
 import {
   FiEdit,
   FiTrash2,
@@ -2813,10 +2813,9 @@ const ProductsPage = () => {
                           }}
                           className="dark:text-gray-300"
                         >
-                          Unit
+                          Selling Unit
                         </label>
-                        <input
-                          type="text"
+                        <select
                           name="unit"
                           value={formData.unit}
                           onChange={handleInputChange}
@@ -2829,7 +2828,14 @@ const ProductsPage = () => {
                             color: "#111827",
                           }}
                           className="dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        >
+                          {SELLING_UNIT_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                        <p style={{ marginTop: "4px", fontSize: "12px", color: "#6b7280" }}>
+                          How this product is priced &amp; sold, e.g. &quot;per kg&quot; or &quot;per piece&quot;.
+                        </p>
                       </div>
                       <div>
                         <label
@@ -3339,6 +3345,9 @@ const ProductsPage = () => {
                             ))}
                           </select>
                         </div>
+                        <p style={{ marginTop: "4px", fontSize: "12px", color: "#6b7280" }}>
+                          Physical net weight for shipping &amp; display, not pricing.
+                        </p>
                       </div>
                       <div>
                         <label
