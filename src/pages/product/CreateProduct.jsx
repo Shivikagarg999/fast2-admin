@@ -72,7 +72,7 @@ const ProductCreate = () => {
     try {
       setLoadingPromotors(true);
       setPromotorError('');
-      const response = await axios.get(`${API_BASE_URL}/api/admin/promotor/`);
+      const response = await axios.get(`${API_BASE_URL}/api/admin/promotor`);
       const data = Array.isArray(response.data)
         ? response.data
         : Array.isArray(response.data?.data)
@@ -113,7 +113,7 @@ const ProductCreate = () => {
     try {
       setLoadingWarehouses(true);
       setWarehouseError('');
-      const response = await axios.get(`${API_BASE_URL}/api/admin/warehouse/`);
+      const response = await axios.get(`${API_BASE_URL}/api/admin/warehouse`);
       const data = Array.isArray(response.data)
         ? response.data
         : Array.isArray(response.data?.data)
