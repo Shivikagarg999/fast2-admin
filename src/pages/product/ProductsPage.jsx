@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { UNIT_GROUPS } from "../../constants/units";
 import {
   FiEdit,
   FiTrash2,
@@ -3329,9 +3330,13 @@ const ProductsPage = () => {
                             }}
                             className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                           >
-                            <option value="g">g</option>
-                            <option value="kg">kg</option>
-                            <option value="lb">lb</option>
+                            {UNIT_GROUPS.map((group) => (
+                              <optgroup key={group.label} label={group.label}>
+                                {group.options.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </optgroup>
+                            ))}
                           </select>
                         </div>
                       </div>

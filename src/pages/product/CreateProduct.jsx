@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, FiX, FiImage, FiVideo, FiShoppingBag } from 'react-icons/fi';
 import { Editor } from '@tinymce/tinymce-react';
 import axios from 'axios';
+import { UNIT_GROUPS } from '../../constants/units';
 
 const API_BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
 
@@ -1026,10 +1027,13 @@ const ProductCreate = () => {
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    <option value="g">Gram (g)</option>
-                    <option value="kg">Kilogram (kg)</option>
-                    <option value="ml">Milliliter (ml)</option>
-                    <option value="l">Liter (l)</option>
+                    {UNIT_GROUPS.map((group) => (
+                      <optgroup key={group.label} label={group.label}>
+                        {group.options.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </optgroup>
+                    ))}
                   </select>
                 </div>
               </div>
