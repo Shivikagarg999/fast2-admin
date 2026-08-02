@@ -125,10 +125,11 @@ const AppVersionSettings = () => {
             <button
               key={app.value}
               onClick={() => setSelectedApp(app.value)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-all ${
+              style={{ backgroundColor: "blue" }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-all text-white ${
                 selectedApp === app.value
-                  ? 'border-black bg-black text-white'
-                  : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                  ? 'border-black'
+                  : 'border-gray-200 hover:border-gray-300'
               }`}
             >
               {app.label}
