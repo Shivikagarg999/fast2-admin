@@ -38,6 +38,7 @@ import ScratchCardsPage from "./pages/scratch-cards/ScratchCardsPage";
 import ReportsPage from "./pages/reports/Reports";
 import PasswordPage from "./pages/password/PasswordPage";
 import PaymentSettings from "./pages/settings/PaymentSettings";
+import AppVersionSettings from "./pages/settings/AppVersionSettings";
 
 function App() {
   return (
@@ -384,6 +385,16 @@ function App() {
             element={
               <ProtectedRoute requireSuperAdmin={true}>
                 <PaymentSettings />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* App Version / Force Update Settings */}
+          <Route
+            path="/admin/app-version"
+            element={
+              <ProtectedRoute requireSuperAdmin={true}>
+                <AppVersionSettings />
               </ProtectedRoute>
             }
           />

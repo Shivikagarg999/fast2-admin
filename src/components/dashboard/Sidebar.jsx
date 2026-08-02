@@ -9,6 +9,7 @@ import {
   FiPackage,
   FiTruck,
   FiCreditCard,
+  FiSmartphone,
   FiLogOut,
   FiChevronDown,
   FiUserCheck,
@@ -266,6 +267,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           name: "Payment Settings",
           path: "/admin/payment-settings",
           icon: <FiCreditCard className="w-4 h-4" />,
+          permission: null,
+        },
+        {
+          name: "App Version / Force Update",
+          path: "/admin/app-version",
+          icon: <FiSmartphone className="w-4 h-4" />,
           permission: null,
         },
       ]
