@@ -66,7 +66,7 @@ const CreateSellerModal = ({ onClose, onSuccess }) => {
       setLoadingPromotors(true);
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/promotor/`,
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/promotor`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
