@@ -39,6 +39,7 @@ import ReportsPage from "./pages/reports/Reports";
 import PasswordPage from "./pages/password/PasswordPage";
 import PaymentSettings from "./pages/settings/PaymentSettings";
 import AppVersionSettings from "./pages/settings/AppVersionSettings";
+import ReferralsPage from "./pages/referrals/ReferralsPage";
 
 function App() {
   return (
@@ -395,6 +396,16 @@ function App() {
             element={
               <ProtectedRoute requireSuperAdmin={true}>
                 <AppVersionSettings />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Referrals */}
+          <Route
+            path="/admin/referrals"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.USERS_VIEW}>
+                <ReferralsPage />
               </ProtectedRoute>
             }
           />

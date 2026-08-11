@@ -91,6 +91,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           permission: PERMISSIONS.USERS_VIEW,
         },
         {
+          name: "Referrals",
+          path: "/admin/referrals",
+          icon: <FiGift className="w-4 h-4" />,
+          permission: PERMISSIONS.USERS_VIEW,
+        },
+        {
           name: "Products",
           path: "/admin/products",
           icon: <FiShoppingBag className="w-4 h-4" />,
