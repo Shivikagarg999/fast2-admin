@@ -13,6 +13,7 @@ const emptyForm = {
   latestVersionCode: '',
   playStoreUrl: '',
   updateMessage: '',
+  productServiceRadiusKm: '5',
 };
 
 const AppVersionSettings = () => {
@@ -28,7 +29,7 @@ const AppVersionSettings = () => {
   }, [selectedApp]);
 
   const getHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem('token')}`
+    Authorization: `Bearer ${localStorage.getItem('adminToken') || localStorage.getItem('token') || ''}`
   });
 
   const showToast = (message, type = 'success') => {
@@ -47,6 +48,7 @@ const AppVersionSettings = () => {
           latestVersionCode: String(result.latestVersionCode ?? ''),
           playStoreUrl: result.playStoreUrl || '',
           updateMessage: result.updateMessage || '',
+          productServiceRadiusKm: String(result.productServiceRadiusKm ?? 5),
         });
       } else {
         showToast('Failed to load app version settings.', 'error');
@@ -68,6 +70,11 @@ const AppVersionSettings = () => {
       showToast('Minimum required version code must be a number.', 'error');
       return;
     }
+    if (selectedApp === 'customer' &&
+        (!form.productServiceRadiusKm || Number(form.productServiceRadiusKm) < 0.1 || Number(form.productServiceRadiusKm) > 100)) {
+      showToast('Product service radius must be between 0.1 and 100 km.', 'error');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -80,6 +87,7 @@ const AppVersionSettings = () => {
           latestVersionCode: form.latestVersionCode ? Number(form.latestVersionCode) : undefined,
           playStoreUrl: form.playStoreUrl,
           updateMessage: form.updateMessage,
+          ...(selectedApp === 'customer' && { productServiceRadiusKm: Number(form.productServiceRadiusKm) }),
         })
       });
       const result = await res.json();
@@ -142,6 +150,23 @@ const AppVersionSettings = () => {
         <div className="text-sm text-gray-500">Loading...</div>
       ) : (
         <div className="space-y-5">
+          {selectedApp === 'customer' && (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Nearby Product Radius (km)
+              </label>
+              <input
+                type="number"
+                min="0.1"
+                max="100"
+                step="0.1"
+                value={form.productServiceRadiusKm}
+                onChange={(e) => handleChange('productServiceRadiusKm', e.target.value)}
+                className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-600 mt-1">Customers will only see products from shops inside this distance.</p>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Minimum Required Version Code *

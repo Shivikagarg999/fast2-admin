@@ -10,6 +10,7 @@ import usePermissions from '../../hooks/usePermissions';
 import { PERMISSIONS } from '../../config/permissions';
 
 const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiZmFzdDIiLCJhIjoiY21mbW9qbzZlMDQ5dzJpcXhlOW82ODdlcSJ9.HYJxZbPDCZHD8_Q5faa6ig';
 
 const getToken = () =>
     localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
@@ -52,7 +53,7 @@ const ShopsPage = () => {
         description: '',
         contactEmail: '',
         contactPhone: '',
-        address: { street: '', city: '', state: '', pincode: '', country: 'India' },
+        address: { street: '', city: '', state: '', pincode: '', country: 'India', coordinates: { lat: '', lng: '' } },
         isVerified: false,
         isActive: true,
         isOpen: true,
@@ -73,6 +74,7 @@ const ShopsPage = () => {
     const [logoPreview, setLogoPreview] = useState(null);
     const [coverPreview, setCoverPreview] = useState(null);
     const [videoPreview, setVideoPreview] = useState(null);
+    const [detectingLocation, setDetectingLocation] = useState(false);
 
     // ─── Fetch Shops ──────────────────────────────────────────────────────────────
     const fetchShops = useCallback(async (page = pagination.currentPage) => {
@@ -189,6 +191,10 @@ const ShopsPage = () => {
                     state: shop.address?.state || '',
                     pincode: shop.address?.pincode || '',
                     country: shop.address?.country || 'India',
+                    coordinates: {
+                        lat: shop.address?.coordinates?.lat ?? '',
+                        lng: shop.address?.coordinates?.lng ?? '',
+                    },
                 },
                 isVerified: shop.isVerified || false,
                 isActive: shop.isActive !== undefined ? shop.isActive : true,
@@ -216,7 +222,7 @@ const ShopsPage = () => {
                 description: '',
                 contactEmail: '',
                 contactPhone: '',
-                address: { street: '', city: '', state: '', pincode: '', country: 'India' },
+                address: { street: '', city: '', state: '', pincode: '', country: 'India', coordinates: { lat: '', lng: '' } },
                 isVerified: false,
                 isActive: true,
                 isOpen: true,
@@ -239,6 +245,66 @@ const ShopsPage = () => {
         setIsFormModalOpen(true);
     };
 
+    const detectShopLocation = () => {
+        if (!navigator.geolocation) {
+            setFormError('Location is not supported by this browser.');
+            return;
+        }
+        setDetectingLocation(true);
+        setFormError('');
+        navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+                setFormData(data => ({
+                    ...data,
+                    address: {
+                        ...data.address,
+                        coordinates: { lat: coords.latitude, lng: coords.longitude },
+                    },
+                }));
+                setDetectingLocation(false);
+            },
+            () => {
+                setFormError('Unable to detect location. Allow location permission or enter coordinates manually.');
+                setDetectingLocation(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    };
+
+    const findShopLocationFromAddress = async () => {
+        const query = [formData.address.street, formData.address.city, formData.address.state, formData.address.pincode, formData.address.country]
+            .filter(Boolean).join(', ');
+        if (!query.trim()) {
+            setFormError('Enter the shop address first.');
+            return;
+        }
+        setDetectingLocation(true);
+        setFormError('');
+        try {
+            const response = await fetch(
+                `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&country=in&limit=1`
+            );
+            const data = await response.json();
+            const [lng, lat] = data.features?.[0]?.center || [];
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new Error('Location not found');
+            setFormData(current => ({
+                ...current,
+                address: { ...current.address, coordinates: { lat, lng } },
+            }));
+        } catch {
+            setFormError('Shop address could not be located. Check the address or use current location.');
+        } finally {
+            setDetectingLocation(false);
+        }
+    };
+
+    const updateAddressField = (field, value) => {
+        setFormData(data => ({
+            ...data,
+            address: { ...data.address, [field]: value, coordinates: { lat: '', lng: '' } },
+        }));
+    };
+
     // ─── Submit Create / Edit ─────────────────────────────────────────────────────
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -250,6 +316,13 @@ const ShopsPage = () => {
         }
         if (!formData.shopName.trim()) {
             setFormError('Shop Name is required.');
+            return;
+        }
+        const lat = Number(formData.address.coordinates?.lat);
+        const lng = Number(formData.address.coordinates?.lng);
+        if (formData.address.coordinates?.lat === '' || formData.address.coordinates?.lng === '' ||
+            !Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) {
+            setFormError('Valid shop latitude and longitude are required.');
             return;
         }
 
@@ -872,7 +945,7 @@ const ShopsPage = () => {
                                                 type="text"
                                                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                                                 value={formData.address.street}
-                                                onChange={(e) => setFormData(d => ({ ...d, address: { ...d.address, street: e.target.value } }))}
+                                                onChange={(e) => updateAddressField('street', e.target.value)}
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -881,7 +954,7 @@ const ShopsPage = () => {
                                                 type="text"
                                                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                                                 value={formData.address.city}
-                                                onChange={(e) => setFormData(d => ({ ...d, address: { ...d.address, city: e.target.value } }))}
+                                                onChange={(e) => updateAddressField('city', e.target.value)}
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -890,7 +963,7 @@ const ShopsPage = () => {
                                                 type="text"
                                                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                                                 value={formData.address.state}
-                                                onChange={(e) => setFormData(d => ({ ...d, address: { ...d.address, state: e.target.value } }))}
+                                                onChange={(e) => updateAddressField('state', e.target.value)}
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -899,9 +972,31 @@ const ShopsPage = () => {
                                                 type="text"
                                                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                                                 value={formData.address.pincode}
-                                                onChange={(e) => setFormData(d => ({ ...d, address: { ...d.address, pincode: e.target.value } }))}
+                                                onChange={(e) => updateAddressField('pincode', e.target.value)}
                                             />
                                         </div>
+                                        <div className="md:col-span-2 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
+                                            {formData.address.coordinates.lat !== '' && formData.address.coordinates.lng !== ''
+                                                ? `Location resolved successfully (${Number(formData.address.coordinates.lat).toFixed(5)}, ${Number(formData.address.coordinates.lng).toFixed(5)})`
+                                                : 'Location not resolved yet. Enter the address and click Find Shop Location.'}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={findShopLocationFromAddress}
+                                            disabled={detectingLocation}
+                                            className="flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                                        >
+                                            <Search className="w-4 h-4" /> Find Shop Location
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={detectShopLocation}
+                                            disabled={detectingLocation}
+                                            className="flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
+                                        >
+                                            {detectingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
+                                            {detectingLocation ? 'Detecting shop location...' : 'Use Current Shop Location'}
+                                        </button>
                                     </div>
                                 </div>
 
