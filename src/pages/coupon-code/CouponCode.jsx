@@ -163,6 +163,7 @@ const CouponsPage = () => {
   const [showAddCouponModal, setShowAddCouponModal] = useState(false);
   const [showEditCouponModal, setShowEditCouponModal] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
+  const [activeCouponTab, setActiveCouponTab] = useState("amount_discount");
   const [formData, setFormData] = useState(getInitialFormData());
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
@@ -172,11 +173,11 @@ const CouponsPage = () => {
   const [products, setProducts] = useState([]);
   const couponsPerPage = 10;
 
-  function getInitialFormData() {
+  function getInitialFormData(benefitType = activeCouponTab) {
     return {
       code: "",
       description: "",
-      benefitType: "amount_discount",
+      benefitType,
       discountType: "percentage",
       discountValue: "",
       minOrderAmount: "",
@@ -187,6 +188,8 @@ const CouponsPage = () => {
       isActive: true,
       applicableCategories: [],
       applicableProducts: [],
+      scopeType: "category",
+      scopeValue: "",
       freebieRule: {
         buyQuantity: "",
         buyUnit: "kg",
@@ -214,6 +217,10 @@ const CouponsPage = () => {
   useEffect(() => {
     fetchCoupons();
   }, [fetchCoupons]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCouponTab]);
 
   useEffect(() => {
     const fetchScopeOptions = async () => {
@@ -251,7 +258,7 @@ const CouponsPage = () => {
       showToast("You don't have permission to add coupons", "error");
       return;
     }
-    setFormData(getInitialFormData());
+    setFormData(getInitialFormData(activeCouponTab));
     setShowAddCouponModal(true);
     setError("");
     setSuccess("");
@@ -312,6 +319,8 @@ const CouponsPage = () => {
       showToast("You don't have permission to edit coupons", "error");
       return;
     }
+    const categoryIds = (coupon.applicableCategories || []).map(category => category._id || category);
+    const productIds = (coupon.applicableProducts || []).map(product => product._id || product);
     setSelectedCoupon(coupon);
     setFormData({
       code: coupon.code || "",
@@ -325,8 +334,10 @@ const CouponsPage = () => {
       endDate: coupon.endDate ? coupon.endDate.split('T')[0] : "",
       usageLimit: coupon.usageLimit?.toString() || "",
       isActive: coupon.isActive || false,
-      applicableCategories: (coupon.applicableCategories || []).map(category => category._id || category),
-      applicableProducts: (coupon.applicableProducts || []).map(product => product._id || product),
+      applicableCategories: categoryIds,
+      applicableProducts: productIds,
+      scopeType: productIds.length > 0 ? "product" : "category",
+      scopeValue: productIds[0] || categoryIds[0] || "",
       freebieRule: {
         buyQuantity: coupon.freebieRule?.buyQuantity?.toString() || "",
         buyUnit: coupon.freebieRule?.buyUnit || "kg",
@@ -456,11 +467,23 @@ const CouponsPage = () => {
     });
   };
 
-  const handleMultiSelectChange = (field, e) => {
-    const selectedValues = Array.from(e.target.selectedOptions).map(option => option.value);
+  const handleScopeTypeChange = (e) => {
     setFormData({
       ...formData,
-      [field]: selectedValues
+      scopeType: e.target.value,
+      scopeValue: "",
+      applicableCategories: [],
+      applicableProducts: []
+    });
+  };
+
+  const handleScopeValueChange = (e) => {
+    const value = e.target.value;
+    setFormData({
+      ...formData,
+      scopeValue: value,
+      applicableCategories: formData.scopeType === "category" && value ? [value] : [],
+      applicableProducts: formData.scopeType === "product" && value ? [value] : []
     });
   };
 
@@ -472,7 +495,7 @@ const CouponsPage = () => {
     if (formData.benefitType === "free_quantity") {
       return Number(formData.freebieRule.buyQuantity) > 0 &&
         Number(formData.freebieRule.freeQuantity) > 0 &&
-        (formData.applicableCategories.length > 0 || formData.applicableProducts.length > 0);
+        Boolean(formData.scopeValue);
     }
 
     return Number(formData.discountValue) > 0;
@@ -484,8 +507,8 @@ const CouponsPage = () => {
       minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : 0,
       maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : null,
       usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : null,
-      applicableCategories: formData.applicableCategories,
-      applicableProducts: formData.applicableProducts
+      applicableCategories: formData.scopeType === "category" && formData.scopeValue ? [formData.scopeValue] : [],
+      applicableProducts: formData.scopeType === "product" && formData.scopeValue ? [formData.scopeValue] : []
     };
 
     if (formData.benefitType === "free_quantity") {
@@ -525,7 +548,11 @@ const CouponsPage = () => {
       (statusFilter === "expired" && new Date(coupon.endDate) <= new Date()) ||
       (statusFilter === "inactive" && !coupon.isActive);
 
-    return matchesSearch && matchesStatus;
+    const matchesTab = activeCouponTab === "free_quantity"
+      ? coupon.benefitType === "free_quantity"
+      : coupon.benefitType !== "free_quantity";
+
+    return matchesSearch && matchesStatus && matchesTab;
   });
 
   const indexOfLastCoupon = currentPage * couponsPerPage;
@@ -575,27 +602,16 @@ const CouponsPage = () => {
 
   const renderBenefitFields = () => (
     <>
-      <div>
-        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-          Coupon Benefit *
-        </label>
-        <select
-          name="benefitType"
-          value={formData.benefitType}
-          onChange={handleFormChange}
-          style={{
-            width: '100%',
-            padding: '10px 12px',
-            borderRadius: '6px',
-            border: '1px solid #d1d5db',
-            backgroundColor: '#ffffff',
-            color: '#111827',
-            fontSize: '14px'
-          }}
-        >
-          <option value="amount_discount">Amount Discount</option>
-          <option value="free_quantity">Buy Quantity Get Quantity Free</option>
-        </select>
+      <div style={{
+        padding: '12px',
+        borderRadius: '8px',
+        border: '1px solid #e5e7eb',
+        backgroundColor: '#f9fafb',
+        color: '#374151',
+        fontSize: '14px',
+        fontWeight: '500'
+      }}>
+        {formData.benefitType === "free_quantity" ? "Freebie Coupon" : "Discount Coupon"}
       </div>
 
       {formData.benefitType === "free_quantity" && (
@@ -659,43 +675,40 @@ const CouponsPage = () => {
         </div>
       )}
 
-      <div>
-        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-          Applicable Categories {formData.benefitType === "free_quantity" ? "*" : "(Optional)"}
-        </label>
-        <select
-          multiple
-          value={formData.applicableCategories}
-          onChange={(e) => handleMultiSelectChange("applicableCategories", e)}
-          style={{ width: '100%', minHeight: '92px', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
-        >
-          {categories.map(category => (
-            <option key={category._id} value={category._id}>{category.name}</option>
-          ))}
-        </select>
-      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '16px' }}>
+        <div>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+            Apply On *
+          </label>
+          <select
+            name="scopeType"
+            value={formData.scopeType}
+            onChange={handleScopeTypeChange}
+            style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
+          >
+            <option value="category">Category</option>
+            <option value="product">Product</option>
+          </select>
+        </div>
 
-      <div>
-        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-          Applicable Products {formData.benefitType === "free_quantity" ? "*" : "(Optional)"}
-        </label>
-        <select
-          multiple
-          value={formData.applicableProducts}
-          onChange={(e) => handleMultiSelectChange("applicableProducts", e)}
-          style={{ width: '100%', minHeight: '120px', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
-        >
-          {products.map(product => (
-            <option key={product._id} value={product._id}>
-              {product.name} {product.unitValue ? `(${product.unitValue}${product.unit || ""})` : ""}
-            </option>
-          ))}
-        </select>
-        {formData.benefitType === "free_quantity" && (
-          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>
-            Select at least one category or product for this free quantity coupon.
-          </div>
-        )}
+        <div>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+            {formData.scopeType === "category" ? "Category" : "Product"} {formData.benefitType === "free_quantity" ? "*" : "(Optional)"}
+          </label>
+          <select
+            name="scopeValue"
+            value={formData.scopeValue}
+            onChange={handleScopeValueChange}
+            style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
+          >
+            <option value="">{formData.scopeType === "category" ? "Select category" : "Select product"}</option>
+            {(formData.scopeType === "category" ? categories : products).map(item => (
+              <option key={item._id} value={item._id}>
+                {item.name} {formData.scopeType === "product" && item.unitValue ? `(${item.unitValue}${item.unit || ""})` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </>
   );
@@ -751,7 +764,7 @@ const CouponsPage = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FiTag style={{ width: '24px', height: '24px', color: '#2563eb' }} />
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>All Coupons</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>Coupons</h1>
             <span style={{
               padding: '4px 12px',
               fontSize: '12px',
@@ -761,6 +774,31 @@ const CouponsPage = () => {
             }}>
               {filteredCoupons.length} coupons
             </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px', backgroundColor: '#e5e7eb', padding: '4px', borderRadius: '8px', width: 'fit-content' }}>
+            {[
+              { value: "amount_discount", label: "Discount Coupons" },
+              { value: "free_quantity", label: "Freebie Coupons" }
+            ].map(tab => (
+              <button
+                key={tab.value}
+                onClick={() => setActiveCouponTab(tab.value)}
+                style={{
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '8px 14px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  backgroundColor: activeCouponTab === tab.value ? '#ffffff' : 'transparent',
+                  color: activeCouponTab === tab.value ? '#111827' : '#6b7280',
+                  boxShadow: activeCouponTab === tab.value ? '0 1px 2px rgba(0,0,0,0.08)' : 'none'
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -825,7 +863,7 @@ const CouponsPage = () => {
                     style={buttonStyles.primary}
                   >
                     <FiPlus style={{ width: '16px', height: '16px' }} />
-                    Add Coupon
+                    {activeCouponTab === "free_quantity" ? "Add Freebie Coupon" : "Add Coupon"}
                   </button>
                 )}
               </div>
@@ -1175,7 +1213,7 @@ const CouponsPage = () => {
                 borderBottom: '1px solid #e5e7eb'
               }}>
                 <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
-                  Add New Coupon
+                  {formData.benefitType === "free_quantity" ? "Add Freebie Coupon" : "Add Discount Coupon"}
                 </h2>
                 <button
                   onClick={closeAddCouponModal}
@@ -1546,7 +1584,7 @@ const CouponsPage = () => {
                         Creating...
                       </>
                     ) : (
-                      "Add Coupon"
+                      formData.benefitType === "free_quantity" ? "Add Freebie Coupon" : "Add Coupon"
                     )}
                   </button>
                 </div>
@@ -1584,7 +1622,7 @@ const CouponsPage = () => {
                 borderBottom: '1px solid #e5e7eb'
               }}>
                 <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
-                  Edit Coupon
+                  {formData.benefitType === "free_quantity" ? "Edit Freebie Coupon" : "Edit Discount Coupon"}
                 </h2>
                 <button
                   onClick={closeEditCouponModal}
