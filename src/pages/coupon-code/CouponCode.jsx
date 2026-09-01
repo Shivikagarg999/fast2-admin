@@ -119,6 +119,36 @@ class CouponService {
       method: 'PATCH',
     });
   }
+
+  async getCategories() {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${this.baseURL}/api/category/getall`, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async getProducts() {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${this.baseURL}/api/product/get-products-admin?limit=1000`, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
 }
 
 const couponService = new CouponService();
@@ -138,12 +168,15 @@ const CouponsPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [copiedCode, setCopiedCode] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const couponsPerPage = 10;
 
   function getInitialFormData() {
     return {
       code: "",
       description: "",
+      benefitType: "amount_discount",
       discountType: "percentage",
       discountValue: "",
       minOrderAmount: "",
@@ -151,7 +184,15 @@ const CouponsPage = () => {
       startDate: "",
       endDate: "",
       usageLimit: "",
-      isActive: true
+      isActive: true,
+      applicableCategories: [],
+      applicableProducts: [],
+      freebieRule: {
+        buyQuantity: "",
+        buyUnit: "kg",
+        freeQuantity: "",
+        freeUnit: "kg"
+      }
     };
   }
 
@@ -173,6 +214,25 @@ const CouponsPage = () => {
   useEffect(() => {
     fetchCoupons();
   }, [fetchCoupons]);
+
+  useEffect(() => {
+    const fetchScopeOptions = async () => {
+      try {
+        const [categoryResponse, productResponse] = await Promise.all([
+          couponService.getCategories(),
+          couponService.getProducts()
+        ]);
+
+        setCategories(categoryResponse.categories || categoryResponse.data || categoryResponse || []);
+        setProducts(productResponse.products || productResponse.data || productResponse || []);
+      } catch (err) {
+        console.error("Error loading coupon scope options:", err);
+        showToast("Failed to load coupon category/product options", "error");
+      }
+    };
+
+    fetchScopeOptions();
+  }, []);
 
   const copyToClipboard = async (code) => {
     try {
@@ -211,7 +271,7 @@ const CouponsPage = () => {
     }
 
     // Validation
-    if (!formData.code || !formData.discountValue || !formData.startDate || !formData.endDate) {
+    if (!isCouponFormValid()) {
       setError("Please fill in all required fields");
       return;
     }
@@ -225,13 +285,7 @@ const CouponsPage = () => {
       setFormLoading(true);
       setError("");
 
-      const couponData = {
-        ...formData,
-        discountValue: parseFloat(formData.discountValue),
-        minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : 0,
-        maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : null,
-        usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : null
-      };
+      const couponData = buildCouponPayload();
 
       await couponService.createCoupon(couponData);
 
@@ -262,6 +316,7 @@ const CouponsPage = () => {
     setFormData({
       code: coupon.code || "",
       description: coupon.description || "",
+      benefitType: coupon.benefitType || "amount_discount",
       discountType: coupon.discountType || "percentage",
       discountValue: coupon.discountValue?.toString() || "",
       minOrderAmount: coupon.minOrderAmount?.toString() || "",
@@ -269,7 +324,15 @@ const CouponsPage = () => {
       startDate: coupon.startDate ? coupon.startDate.split('T')[0] : "",
       endDate: coupon.endDate ? coupon.endDate.split('T')[0] : "",
       usageLimit: coupon.usageLimit?.toString() || "",
-      isActive: coupon.isActive || false
+      isActive: coupon.isActive || false,
+      applicableCategories: (coupon.applicableCategories || []).map(category => category._id || category),
+      applicableProducts: (coupon.applicableProducts || []).map(product => product._id || product),
+      freebieRule: {
+        buyQuantity: coupon.freebieRule?.buyQuantity?.toString() || "",
+        buyUnit: coupon.freebieRule?.buyUnit || "kg",
+        freeQuantity: coupon.freebieRule?.freeQuantity?.toString() || "",
+        freeUnit: coupon.freebieRule?.freeUnit || "kg"
+      }
     });
     setShowEditCouponModal(true);
     setError("");
@@ -290,7 +353,7 @@ const CouponsPage = () => {
       return;
     }
 
-    if (!formData.code || !formData.discountValue || !formData.startDate || !formData.endDate) {
+    if (!isCouponFormValid()) {
       setError("Please fill in all required fields");
       return;
     }
@@ -304,13 +367,7 @@ const CouponsPage = () => {
       setFormLoading(true);
       setError("");
 
-      const updateData = {
-        ...formData,
-        discountValue: parseFloat(formData.discountValue),
-        minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : 0,
-        maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : null,
-        usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : null
-      };
+      const updateData = buildCouponPayload();
 
       await couponService.updateCoupon(selectedCoupon._id, updateData);
 
@@ -372,15 +429,91 @@ const CouponsPage = () => {
   };
 
   const handleFormChange = (e) => {
+    if (e.target.name === "benefitType") {
+      setFormData({
+        ...formData,
+        benefitType: e.target.value,
+        discountType: e.target.value === "free_quantity" ? "fixed" : formData.discountType,
+        discountValue: e.target.value === "free_quantity" ? "" : formData.discountValue,
+        maxDiscountAmount: e.target.value === "free_quantity" ? "" : formData.maxDiscountAmount
+      });
+      return;
+    }
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
+  const handleFreebieRuleChange = (e) => {
+    setFormData({
+      ...formData,
+      freebieRule: {
+        ...formData.freebieRule,
+        [e.target.name]: e.target.value
+      }
+    });
+  };
+
+  const handleMultiSelectChange = (field, e) => {
+    const selectedValues = Array.from(e.target.selectedOptions).map(option => option.value);
+    setFormData({
+      ...formData,
+      [field]: selectedValues
+    });
+  };
+
+  const isCouponFormValid = () => {
+    if (!formData.code || !formData.startDate || !formData.endDate) {
+      return false;
+    }
+
+    if (formData.benefitType === "free_quantity") {
+      return Number(formData.freebieRule.buyQuantity) > 0 &&
+        Number(formData.freebieRule.freeQuantity) > 0 &&
+        (formData.applicableCategories.length > 0 || formData.applicableProducts.length > 0);
+    }
+
+    return Number(formData.discountValue) > 0;
+  };
+
+  const buildCouponPayload = () => {
+    const payload = {
+      ...formData,
+      minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : 0,
+      maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : null,
+      usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : null,
+      applicableCategories: formData.applicableCategories,
+      applicableProducts: formData.applicableProducts
+    };
+
+    if (formData.benefitType === "free_quantity") {
+      return {
+        ...payload,
+        discountType: "fixed",
+        discountValue: 0,
+        maxDiscountAmount: null,
+        freebieRule: {
+          buyQuantity: parseFloat(formData.freebieRule.buyQuantity),
+          buyUnit: formData.freebieRule.buyUnit,
+          freeQuantity: parseFloat(formData.freebieRule.freeQuantity),
+          freeUnit: formData.freebieRule.freeUnit
+        }
+      };
+    }
+
+    return {
+      ...payload,
+      benefitType: "amount_discount",
+      discountValue: parseFloat(formData.discountValue)
+    };
+  };
+
   // Filter and pagination logic
   const statusOptions = ["active", "expired", "inactive"];
   const discountTypes = ["percentage", "fixed"];
+  const quantityUnits = ["g", "kg", "ml", "l", "piece"];
 
   const filteredCoupons = coupons.filter((coupon) => {
     const matchesSearch =
@@ -428,12 +561,144 @@ const CouponsPage = () => {
   };
 
   const getDiscountDisplay = (coupon) => {
+    if (coupon.benefitType === 'free_quantity') {
+      const rule = coupon.freebieRule || {};
+      return `Buy ${rule.buyQuantity || ""}${rule.buyUnit || ""} Get ${rule.freeQuantity || ""}${rule.freeUnit || ""} Free`;
+    }
+
     if (coupon.discountType === 'percentage') {
       return `${coupon.discountValue}% OFF`;
     } else {
       return `₹${coupon.discountValue} OFF`;
     }
   };
+
+  const renderBenefitFields = () => (
+    <>
+      <div>
+        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+          Coupon Benefit *
+        </label>
+        <select
+          name="benefitType"
+          value={formData.benefitType}
+          onChange={handleFormChange}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: '6px',
+            border: '1px solid #d1d5db',
+            backgroundColor: '#ffffff',
+            color: '#111827',
+            fontSize: '14px'
+          }}
+        >
+          <option value="amount_discount">Amount Discount</option>
+          <option value="free_quantity">Buy Quantity Get Quantity Free</option>
+        </select>
+      </div>
+
+      {formData.benefitType === "free_quantity" && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+              Buy Quantity *
+            </label>
+            <input
+              type="number"
+              name="buyQuantity"
+              value={formData.freebieRule.buyQuantity}
+              onChange={handleFreebieRuleChange}
+              placeholder="2"
+              min="0"
+              step="0.01"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+              Buy Unit *
+            </label>
+            <select
+              name="buyUnit"
+              value={formData.freebieRule.buyUnit}
+              onChange={handleFreebieRuleChange}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
+            >
+              {quantityUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+              Free Quantity *
+            </label>
+            <input
+              type="number"
+              name="freeQuantity"
+              value={formData.freebieRule.freeQuantity}
+              onChange={handleFreebieRuleChange}
+              placeholder="1"
+              min="0"
+              step="0.01"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+              Free Unit *
+            </label>
+            <select
+              name="freeUnit"
+              value={formData.freebieRule.freeUnit}
+              onChange={handleFreebieRuleChange}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
+            >
+              {quantityUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+            </select>
+          </div>
+        </div>
+      )}
+
+      <div>
+        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+          Applicable Categories {formData.benefitType === "free_quantity" ? "*" : "(Optional)"}
+        </label>
+        <select
+          multiple
+          value={formData.applicableCategories}
+          onChange={(e) => handleMultiSelectChange("applicableCategories", e)}
+          style={{ width: '100%', minHeight: '92px', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
+        >
+          {categories.map(category => (
+            <option key={category._id} value={category._id}>{category.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+          Applicable Products {formData.benefitType === "free_quantity" ? "*" : "(Optional)"}
+        </label>
+        <select
+          multiple
+          value={formData.applicableProducts}
+          onChange={(e) => handleMultiSelectChange("applicableProducts", e)}
+          style={{ width: '100%', minHeight: '120px', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
+        >
+          {products.map(product => (
+            <option key={product._id} value={product._id}>
+              {product.name} {product.unitValue ? `(${product.unitValue}${product.unit || ""})` : ""}
+            </option>
+          ))}
+        </select>
+        {formData.benefitType === "free_quantity" && (
+          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>
+            Select at least one category or product for this free quantity coupon.
+          </div>
+        )}
+      </div>
+    </>
+  );
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-IN');
@@ -996,6 +1261,9 @@ const CouponsPage = () => {
                     />
                   </div>
 
+                  {renderBenefitFields()}
+
+                  {formData.benefitType !== "free_quantity" && (
                   <div style={{ display: 'flex', gap: '16px' }}>
                     <div style={{ flex: 1 }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
@@ -1070,8 +1338,9 @@ const CouponsPage = () => {
                       </div>
                     </div>
                   </div>
+                  )}
 
-                  {formData.discountType === 'percentage' && (
+                  {formData.benefitType !== "free_quantity" && formData.discountType === 'percentage' && (
                     <div>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
                         Maximum Discount Amount (Optional)
@@ -1263,12 +1532,12 @@ const CouponsPage = () => {
                   </button>
                   <button
                     onClick={handleAddCoupon}
-                    disabled={formLoading || !formData.code || !formData.discountValue || !formData.startDate || !formData.endDate}
+                    disabled={formLoading || !isCouponFormValid()}
                     style={{
                       ...buttonStyles.primary,
                       flex: 1,
-                      opacity: (formLoading || !formData.code || !formData.discountValue || !formData.startDate || !formData.endDate) ? 0.5 : 1,
-                      cursor: (formLoading || !formData.code || !formData.discountValue || !formData.startDate || !formData.endDate) ? 'not-allowed' : 'pointer'
+                      opacity: (formLoading || !isCouponFormValid()) ? 0.5 : 1,
+                      cursor: (formLoading || !isCouponFormValid()) ? 'not-allowed' : 'pointer'
                     }}
                   >
                     {formLoading ? (
@@ -1401,6 +1670,9 @@ const CouponsPage = () => {
                     />
                   </div>
 
+                  {renderBenefitFields()}
+
+                  {formData.benefitType !== "free_quantity" && (
                   <div style={{ display: 'flex', gap: '16px' }}>
                     <div style={{ flex: 1 }}>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
@@ -1475,8 +1747,9 @@ const CouponsPage = () => {
                       </div>
                     </div>
                   </div>
+                  )}
 
-                  {formData.discountType === 'percentage' && (
+                  {formData.benefitType !== "free_quantity" && formData.discountType === 'percentage' && (
                     <div>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
                         Maximum Discount Amount (Optional)
@@ -1668,12 +1941,12 @@ const CouponsPage = () => {
                   </button>
                   <button
                     onClick={handleEditCoupon}
-                    disabled={formLoading || !formData.code || !formData.discountValue || !formData.startDate || !formData.endDate}
+                    disabled={formLoading || !isCouponFormValid()}
                     style={{
                       ...buttonStyles.primary,
                       flex: 1,
-                      opacity: (formLoading || !formData.code || !formData.discountValue || !formData.startDate || !formData.endDate) ? 0.5 : 1,
-                      cursor: (formLoading || !formData.code || !formData.discountValue || !formData.startDate || !formData.endDate) ? 'not-allowed' : 'pointer'
+                      opacity: (formLoading || !isCouponFormValid()) ? 0.5 : 1,
+                      cursor: (formLoading || !isCouponFormValid()) ? 'not-allowed' : 'pointer'
                     }}
                   >
                     {formLoading ? (
