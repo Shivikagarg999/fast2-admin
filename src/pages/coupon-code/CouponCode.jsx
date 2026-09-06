@@ -171,6 +171,7 @@ const CouponsPage = () => {
   const [copiedCode, setCopiedCode] = useState("");
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [scopeSearch, setScopeSearch] = useState("");
   const couponsPerPage = 10;
 
   function getInitialFormData(benefitType = activeCouponTab) {
@@ -189,7 +190,6 @@ const CouponsPage = () => {
       applicableCategories: [],
       applicableProducts: [],
       scopeType: "category",
-      scopeValue: "",
       freebieRule: {
         buyQuantity: "",
         buyUnit: "kg",
@@ -259,6 +259,7 @@ const CouponsPage = () => {
       return;
     }
     setFormData(getInitialFormData(activeCouponTab));
+    setScopeSearch("");
     setShowAddCouponModal(true);
     setError("");
     setSuccess("");
@@ -337,7 +338,6 @@ const CouponsPage = () => {
       applicableCategories: categoryIds,
       applicableProducts: productIds,
       scopeType: productIds.length > 0 ? "product" : "category",
-      scopeValue: productIds[0] || categoryIds[0] || "",
       freebieRule: {
         buyQuantity: coupon.freebieRule?.buyQuantity?.toString() || "",
         buyUnit: coupon.freebieRule?.buyUnit || "kg",
@@ -345,6 +345,7 @@ const CouponsPage = () => {
         freeUnit: coupon.freebieRule?.freeUnit || "kg"
       }
     });
+    setScopeSearch("");
     setShowEditCouponModal(true);
     setError("");
     setSuccess("");
@@ -471,21 +472,36 @@ const CouponsPage = () => {
     setFormData({
       ...formData,
       scopeType: e.target.value,
-      scopeValue: "",
+      applicableCategories: [],
+      applicableProducts: []
+    });
+    setScopeSearch("");
+  };
+
+  const handleScopeToggle = (id) => {
+    const key = formData.scopeType === "category" ? "applicableCategories" : "applicableProducts";
+    const current = formData[key] || [];
+
+    setFormData({
+      ...formData,
+      [key]: current.includes(id)
+        ? current.filter((itemId) => itemId !== id)
+        : [...current, id]
+    });
+  };
+
+  const clearScopeSelection = () => {
+    setFormData({
+      ...formData,
       applicableCategories: [],
       applicableProducts: []
     });
   };
 
-  const handleScopeValueChange = (e) => {
-    const value = e.target.value;
-    setFormData({
-      ...formData,
-      scopeValue: value,
-      applicableCategories: formData.scopeType === "category" && value ? [value] : [],
-      applicableProducts: formData.scopeType === "product" && value ? [value] : []
-    });
-  };
+  const getSelectedScopeCount = () =>
+    formData.scopeType === "category"
+      ? formData.applicableCategories.length
+      : formData.applicableProducts.length;
 
   const isCouponFormValid = () => {
     if (!formData.code || !formData.startDate || !formData.endDate) {
@@ -495,7 +511,7 @@ const CouponsPage = () => {
     if (formData.benefitType === "free_quantity") {
       return Number(formData.freebieRule.buyQuantity) > 0 &&
         Number(formData.freebieRule.freeQuantity) > 0 &&
-        Boolean(formData.scopeValue);
+        getSelectedScopeCount() > 0;
     }
 
     return Number(formData.discountValue) > 0;
@@ -507,8 +523,8 @@ const CouponsPage = () => {
       minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : 0,
       maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : null,
       usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : null,
-      applicableCategories: formData.scopeType === "category" && formData.scopeValue ? [formData.scopeValue] : [],
-      applicableProducts: formData.scopeType === "product" && formData.scopeValue ? [formData.scopeValue] : []
+      applicableCategories: formData.scopeType === "category" ? formData.applicableCategories : [],
+      applicableProducts: formData.scopeType === "product" ? formData.applicableProducts : []
     };
 
     if (formData.benefitType === "free_quantity") {
@@ -598,6 +614,38 @@ const CouponsPage = () => {
     } else {
       return `₹${coupon.discountValue} OFF`;
     }
+  };
+
+  const getScopeDisplay = (coupon) => {
+    const categoryNames = (coupon.applicableCategories || []).map(category => category.name || category._id || category);
+    const productNames = (coupon.applicableProducts || []).map(product => product.name || product._id || product);
+
+    if (productNames.length > 0) {
+      return productNames.length > 2 ? `${productNames.length} products` : productNames.join(", ");
+    }
+
+    if (categoryNames.length > 0) {
+      return categoryNames.length > 2 ? `${categoryNames.length} categories` : categoryNames.join(", ");
+    }
+
+    return "All products";
+  };
+
+  const getScopeTypeLabel = (coupon) => {
+    if ((coupon.applicableProducts || []).length > 0) return "Products only";
+    if ((coupon.applicableCategories || []).length > 0) return "Categories only";
+    return "Global";
+  };
+
+  const getScopeOptions = () => {
+    const options = formData.scopeType === "category" ? categories : products;
+    const query = scopeSearch.trim().toLowerCase();
+    if (!query) return options;
+
+    return options.filter(item => {
+      const categoryName = item.category?.name || "";
+      return `${item.name || ""} ${categoryName}`.toLowerCase().includes(query);
+    });
   };
 
   const renderBenefitFields = () => (
@@ -692,22 +740,95 @@ const CouponsPage = () => {
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-            {formData.scopeType === "category" ? "Category" : "Product"} {formData.benefitType === "free_quantity" ? "*" : "(Optional)"}
-          </label>
-          <select
-            name="scopeValue"
-            value={formData.scopeValue}
-            onChange={handleScopeValueChange}
-            style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px' }}
-          >
-            <option value="">{formData.scopeType === "category" ? "Select category" : "Select product"}</option>
-            {(formData.scopeType === "category" ? categories : products).map(item => (
-              <option key={item._id} value={item._id}>
-                {item.name} {formData.scopeType === "product" && item.unitValue ? `(${item.unitValue}${item.unit || ""})` : ""}
-              </option>
-            ))}
-          </select>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
+            <label style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
+              {formData.scopeType === "category" ? "Categories" : "Products"} {formData.benefitType === "free_quantity" ? "*" : "(Optional)"}
+            </label>
+            <button
+              type="button"
+              onClick={clearScopeSelection}
+              style={{ border: 'none', background: 'transparent', color: '#2563eb', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+            >
+              Clear
+            </button>
+          </div>
+          <div style={{ position: 'relative', marginBottom: '8px' }}>
+            <FiSearch style={{
+              position: 'absolute',
+              left: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: '#9ca3af',
+              width: '14px',
+              height: '14px'
+            }} />
+            <input
+              type="text"
+              value={scopeSearch}
+              onChange={(e) => setScopeSearch(e.target.value)}
+              placeholder={`Search ${formData.scopeType === "category" ? "categories" : "products"}`}
+              style={{
+                width: '100%',
+                padding: '9px 12px 9px 32px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+          <div style={{
+            border: '1px solid #d1d5db',
+            borderRadius: '8px',
+            maxHeight: '220px',
+            overflowY: 'auto',
+            backgroundColor: '#ffffff'
+          }}>
+            {getScopeOptions().map(item => {
+              const selected = formData.scopeType === "category"
+                ? formData.applicableCategories.includes(item._id)
+                : formData.applicableProducts.includes(item._id);
+              const categoryName = item.category?.name || "";
+
+              return (
+                <label
+                  key={item._id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 12px',
+                    borderBottom: '1px solid #f3f4f6',
+                    cursor: 'pointer',
+                    backgroundColor: selected ? '#eff6ff' : '#ffffff'
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => handleScopeToggle(item._id)}
+                    style={{ width: '16px', height: '16px' }}
+                  />
+                  <span style={{ flex: 1, fontSize: '14px', color: '#111827' }}>
+                    {item.name}
+                    {formData.scopeType === "product" && (
+                      <span style={{ color: '#6b7280', fontSize: '12px', marginLeft: '6px' }}>
+                        {categoryName ? `${categoryName} ` : ""}
+                        {item.unitValue ? `${item.unitValue}${item.unit || ""}` : ""}
+                      </span>
+                    )}
+                  </span>
+                </label>
+              );
+            })}
+            {getScopeOptions().length === 0 && (
+              <div style={{ padding: '16px', color: '#6b7280', fontSize: '14px' }}>
+                No matches found.
+              </div>
+            )}
+          </div>
+          <div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
+            {getSelectedScopeCount()} selected. Empty discount scope means all products.
+          </div>
         </div>
       </div>
     </>
@@ -935,6 +1056,17 @@ const CouponsPage = () => {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em'
                   }}>
+                    Scope
+                  </th>
+                  <th style={{
+                    padding: '12px 24px',
+                    textAlign: 'left',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    color: '#6b7280',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                  }}>
                     Valid Until
                   </th>
                   <th style={{
@@ -964,7 +1096,7 @@ const CouponsPage = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                         <LoadingSpinner />
                         <span style={{ color: '#6b7280' }}>Loading coupons...</span>
@@ -973,7 +1105,7 @@ const CouponsPage = () => {
                   </tr>
                 ) : currentCoupons.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
                         <FiTag style={{ width: '48px', height: '48px', color: '#9ca3af' }} />
                         <span style={{ color: '#6b7280' }}>No coupons found.</span>
@@ -1033,6 +1165,14 @@ const CouponsPage = () => {
                         <td style={{ padding: '16px 24px' }}>
                           <div style={{ fontSize: '14px', color: '#111827' }}>
                             {coupon.minOrderAmount ? `₹${coupon.minOrderAmount}` : "No minimum"}
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <div style={{ fontSize: '14px', fontWeight: '500', color: '#111827' }}>
+                            {getScopeTypeLabel(coupon)}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280', maxWidth: '220px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={getScopeDisplay(coupon)}>
+                            {getScopeDisplay(coupon)}
                           </div>
                         </td>
                         <td style={{ padding: '16px 24px' }}>
