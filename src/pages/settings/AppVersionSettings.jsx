@@ -14,6 +14,7 @@ const emptyForm = {
   playStoreUrl: '',
   updateMessage: '',
   productServiceRadiusKm: '5',
+  freeDeliveryThreshold: '199',
 };
 
 const AppVersionSettings = () => {
@@ -49,6 +50,7 @@ const AppVersionSettings = () => {
           playStoreUrl: result.playStoreUrl || '',
           updateMessage: result.updateMessage || '',
           productServiceRadiusKm: String(result.productServiceRadiusKm ?? 5),
+          freeDeliveryThreshold: String(result.freeDeliveryThreshold ?? 199),
         });
       } else {
         showToast('Failed to load app version settings.', 'error');
@@ -75,6 +77,11 @@ const AppVersionSettings = () => {
       showToast('Product service radius must be between 0.1 and 100 km.', 'error');
       return;
     }
+    if (selectedApp === 'customer' &&
+        (form.freeDeliveryThreshold === '' || Number(form.freeDeliveryThreshold) < 0)) {
+      showToast('Free delivery threshold must be 0 or greater.', 'error');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -87,7 +94,10 @@ const AppVersionSettings = () => {
           latestVersionCode: form.latestVersionCode ? Number(form.latestVersionCode) : undefined,
           playStoreUrl: form.playStoreUrl,
           updateMessage: form.updateMessage,
-          ...(selectedApp === 'customer' && { productServiceRadiusKm: Number(form.productServiceRadiusKm) }),
+          ...(selectedApp === 'customer' && {
+            productServiceRadiusKm: Number(form.productServiceRadiusKm),
+            freeDeliveryThreshold: Number(form.freeDeliveryThreshold)
+          }),
         })
       });
       const result = await res.json();
@@ -151,20 +161,37 @@ const AppVersionSettings = () => {
       ) : (
         <div className="space-y-5">
           {selectedApp === 'customer' && (
-            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
-                Nearby Product Radius (km)
-              </label>
-              <input
-                type="number"
-                min="0.1"
-                max="100"
-                step="0.1"
-                value={form.productServiceRadiusKm}
-                onChange={(e) => handleChange('productServiceRadiusKm', e.target.value)}
-                className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <p className="text-xs text-gray-600 mt-1">Customers will only see products from shops inside this distance.</p>
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Nearby Product Radius (km)
+                </label>
+                <input
+                  type="number"
+                  min="0.1"
+                  max="100"
+                  step="0.1"
+                  value={form.productServiceRadiusKm}
+                  onChange={(e) => handleChange('productServiceRadiusKm', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-600 mt-1">Customers will only see products from shops inside this distance.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Free Delivery Above
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.freeDeliveryThreshold}
+                  onChange={(e) => handleChange('freeDeliveryThreshold', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-600 mt-1">Applied per shop. Set 0 to disable default free delivery.</p>
+              </div>
             </div>
           )}
           <div>
