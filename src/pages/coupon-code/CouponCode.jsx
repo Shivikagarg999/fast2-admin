@@ -191,10 +191,10 @@ const CouponsPage = () => {
       applicableProducts: [],
       scopeType: "category",
       freebieRule: {
-        buyQuantity: "",
-        buyUnit: "kg",
-        freeQuantity: "",
-        freeUnit: "kg"
+      buyQuantity: "",
+      buyUnit: "kg",
+      freeQuantity: "",
+      freeUnit: "g"
       }
     };
   }
@@ -342,7 +342,7 @@ const CouponsPage = () => {
         buyQuantity: coupon.freebieRule?.buyQuantity?.toString() || "",
         buyUnit: coupon.freebieRule?.buyUnit || "kg",
         freeQuantity: coupon.freebieRule?.freeQuantity?.toString() || "",
-        freeUnit: coupon.freebieRule?.freeUnit || "kg"
+        freeUnit: coupon.freebieRule?.freeUnit || "g"
       }
     });
     setScopeSearch("");
