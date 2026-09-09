@@ -31,6 +31,14 @@ const OnlinePay = () => {
 
     const ordersPerPage = 10;
 
+    const getFreebieText = (coupon) => {
+        if (coupon?.benefitType !== 'free_quantity') return '';
+        return (coupon.appliedItems || [])
+            .map(item => item.benefitLabel || `${item.displayFreeQuantity || item.freeQuantity}${item.displayFreeUnit || item.freeUnit} free`)
+            .filter(Boolean)
+            .join(', ');
+    };
+
     useEffect(() => {
         fetchOrders();
     }, [currentPage, statusFilter, paymentStatusFilter, dateFilter]);
@@ -699,8 +707,12 @@ const OnlinePay = () => {
                                         )}
                                         {selectedOrder.coupon?.discount > 0 && (
                                             <div className="flex justify-between">
-                                                <span className="text-gray-600 dark:text-gray-400">Discount</span>
-                                                <span className="font-medium text-green-600">-{formatCurrency(selectedOrder.coupon.discount)}</span>
+                                                <span className="text-gray-600 dark:text-gray-400">
+                                                    {selectedOrder.coupon?.code ? `Coupon (${selectedOrder.coupon.code})` : 'Coupon'}
+                                                </span>
+                                                <span className="font-medium text-green-600">
+                                                    {getFreebieText(selectedOrder.coupon) ? `- ${getFreebieText(selectedOrder.coupon)}` : `-${formatCurrency(selectedOrder.coupon.discount)}`}
+                                                </span>
                                             </div>
                                         )}
                                         {selectedOrder.walletDeduction > 0 && (
