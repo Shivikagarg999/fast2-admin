@@ -21,6 +21,12 @@ export const PERMISSIONS = {
   CATEGORIES_EDIT: 'categories.edit',
   CATEGORIES_DELETE: 'categories.delete',
 
+  // Subcategories Management
+  SUBCATEGORIES_VIEW: 'subcategories.view',
+  SUBCATEGORIES_CREATE: 'subcategories.create',
+  SUBCATEGORIES_EDIT: 'subcategories.edit',
+  SUBCATEGORIES_DELETE: 'subcategories.delete',
+
   // Orders Management
   ORDERS_VIEW: 'orders.view',
   ORDERS_UPDATE: 'orders.update',
@@ -130,6 +136,15 @@ export const PERMISSION_GROUPS = {
       PERMISSIONS.CATEGORIES_CREATE,
       PERMISSIONS.CATEGORIES_EDIT,
       PERMISSIONS.CATEGORIES_DELETE,
+    ],
+  },
+  subcategories: {
+    label: 'Subcategories Management',
+    permissions: [
+      PERMISSIONS.SUBCATEGORIES_VIEW,
+      PERMISSIONS.SUBCATEGORIES_CREATE,
+      PERMISSIONS.SUBCATEGORIES_EDIT,
+      PERMISSIONS.SUBCATEGORIES_DELETE,
     ],
   },
   orders: {
@@ -258,6 +273,10 @@ export const getPermissionLabel = (permission) => {
     [PERMISSIONS.CATEGORIES_CREATE]: 'Create Categories',
     [PERMISSIONS.CATEGORIES_EDIT]: 'Edit Categories',
     [PERMISSIONS.CATEGORIES_DELETE]: 'Delete Categories',
+    [PERMISSIONS.SUBCATEGORIES_VIEW]: 'View Subcategories',
+    [PERMISSIONS.SUBCATEGORIES_CREATE]: 'Create Subcategories',
+    [PERMISSIONS.SUBCATEGORIES_EDIT]: 'Edit Subcategories',
+    [PERMISSIONS.SUBCATEGORIES_DELETE]: 'Delete Subcategories',
     [PERMISSIONS.ORDERS_VIEW]: 'View Orders',
     [PERMISSIONS.ORDERS_UPDATE]: 'Update Orders',
     [PERMISSIONS.ORDERS_CANCEL]: 'Cancel Orders',

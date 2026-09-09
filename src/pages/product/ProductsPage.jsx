@@ -28,6 +28,7 @@ const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState({});
   const [allCategories, setAllCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [promotors, setPromotors] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [sellers, setSellers] = useState([]);
@@ -54,6 +55,7 @@ const ProductsPage = () => {
     description: "",
     brand: "",
     category: "",
+    subcategory: "",
     price: "",
     oldPrice: "",
     discountPercentage: "",
@@ -146,6 +148,10 @@ const ProductsPage = () => {
     setSelectedIds(new Set());
   }, [search, categoryFilter, statusFilter, currentPage]);
 
+  useEffect(() => {
+    if (showModal) fetchSubcategories(formData.category);
+  }, [showModal, formData.category]);
+
   const fetchPromotors = async () => {
     try {
       const response = await axios.get(
@@ -206,6 +212,29 @@ const ProductsPage = () => {
     } catch (error) {
       console.error("Error fetching categories:", error);
       setAllCategories([]);
+    }
+  };
+
+  const fetchSubcategories = async (categoryId) => {
+    if (!categoryId) {
+      setSubcategories([]);
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/subcategory/getall?category=${categoryId}`
+      );
+      const data = Array.isArray(response.data) ? response.data : [];
+      setSubcategories(data);
+
+      setFormData((prev) =>
+        prev.subcategory && !data.some((sc) => sc._id === prev.subcategory)
+          ? { ...prev, subcategory: "" }
+          : prev
+      );
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+      setSubcategories([]);
     }
   };
 
@@ -336,6 +365,7 @@ const ProductsPage = () => {
       description: "",
       brand: "",
       category: "",
+      subcategory: "",
       price: "",
       oldPrice: "",
       discountPercentage: "",
@@ -417,6 +447,7 @@ const ProductsPage = () => {
       description: product.description || "",
       brand: product.brand || "",
       category: product.category?._id || product.category || "",
+      subcategory: product.subcategory?._id || product.subcategory || "",
       price: product.price || "",
       oldPrice: product.oldPrice || "",
       discountPercentage: product.discountPercentage || "",
@@ -2561,6 +2592,45 @@ const ProductsPage = () => {
                           {allCategories.map((category) => (
                             <option key={category._id} value={category._id}>
                               {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            display: "block",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            color: "#374151",
+                            marginBottom: "8px",
+                          }}
+                          className="dark:text-gray-300"
+                        >
+                          Subcategory
+                        </label>
+                        <select
+                          name="subcategory"
+                          value={formData.subcategory}
+                          onChange={handleInputChange}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "6px",
+                            backgroundColor: "#ffffff",
+                            color: "#111827",
+                          }}
+                          className="dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          disabled={!formData.category}
+                        >
+                          <option value="">
+                            {formData.category ? "Select Subcategory (optional)" : "Select a category first"}
+                          </option>
+                          {subcategories.map((subcategory) => (
+                            <option key={subcategory._id} value={subcategory._id}>
+                              {subcategory.name}
                             </option>
                           ))}
                         </select>

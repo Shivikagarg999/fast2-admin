@@ -15,10 +15,12 @@ const ProductCreate = () => {
   const [sellers, setSellers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [loadingPromotors, setLoadingPromotors] = useState(true);
   const [loadingSellers, setLoadingSellers] = useState(true);
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
   const [promotorError, setPromotorError] = useState('');
   const [warehouseError, setWarehouseError] = useState('');
   const editorRef = useRef(null);
@@ -28,6 +30,7 @@ const ProductCreate = () => {
     description: '',
     brand: '',
     category: '',
+    subcategory: '',
 
     price: '',
     oldPrice: '',
@@ -68,6 +71,10 @@ const ProductCreate = () => {
     fetchWarehouses();
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    fetchSubcategories(formData.category);
+  }, [formData.category]);
 
   const fetchPromotors = async () => {
     try {
@@ -142,6 +149,30 @@ const ProductCreate = () => {
       setError('Failed to load categories');
     } finally {
       setLoadingCategories(false);
+    }
+  };
+
+  const fetchSubcategories = async (categoryId) => {
+    if (!categoryId) {
+      setSubcategories([]);
+      return;
+    }
+    try {
+      setLoadingSubcategories(true);
+      const response = await fetch(`${API_BASE_URL}/api/subcategory/getall?category=${categoryId}`);
+      if (!response.ok) throw new Error('Failed to fetch subcategories');
+      const data = await response.json();
+      setSubcategories(data);
+      setFormData(prev =>
+        prev.subcategory && !data.some(sc => sc._id === prev.subcategory)
+          ? { ...prev, subcategory: '' }
+          : prev
+      );
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+      setSubcategories([]);
+    } finally {
+      setLoadingSubcategories(false);
     }
   };
 
@@ -543,6 +574,34 @@ const ProductCreate = () => {
                     {categories.map((category) => (
                       <option key={category._id} value={category._id}>
                         {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Subcategory
+                  </label>
+                  <select
+                    name="subcategory"
+                    value={formData.subcategory}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={!formData.category || loadingSubcategories}
+                  >
+                    <option value="">
+                      {!formData.category
+                        ? "Select a category first"
+                        : loadingSubcategories
+                          ? "Loading subcategories..."
+                          : "Select a subcategory (optional)"}
+                    </option>
+                    {subcategories.map((subcategory) => (
+                      <option key={subcategory._id} value={subcategory._id}>
+                        {subcategory.name}
                       </option>
                     ))}
                   </select>

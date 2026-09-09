@@ -8,6 +8,7 @@ import ProductsPage from "./pages/product/ProductsPage";
 import CreateProductPage from "./pages/product/CreateProduct";
 import DashboardLayout from "../src/pages/Dashboard";
 import CategoriesPage from "./pages/CategoryPage";
+import SubcategoriesPage from "./pages/SubcategoryPage";
 import CreatePromotorPage from "./pages/promotor/CreatePromotor";
 import PromotorPage from "./pages/promotor/PromotorPage";
 import EditPromotorPage from "./pages/promotor/EditPromotor";
@@ -85,6 +86,14 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.CATEGORIES_VIEW}>
                 <CategoriesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/subcategories"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.SUBCATEGORIES_VIEW}>
+                <SubcategoriesPage />
               </ProtectedRoute>
             }
           />

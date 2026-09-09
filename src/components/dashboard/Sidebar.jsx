@@ -29,6 +29,7 @@ import {
   FiBarChart2,
   FiSettings,
   FiLayers,
+  FiGrid,
   FiBell,
   FiMail,
   FiLock,
@@ -107,6 +108,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           path: "/admin/categories",
           icon: <FiLayers className="w-4 h-4" />,
           permission: PERMISSIONS.CATEGORIES_VIEW,
+        },
+        {
+          name: "Subcategories",
+          path: "/admin/subcategories",
+          icon: <FiGrid className="w-4 h-4" />,
+          permission: PERMISSIONS.SUBCATEGORIES_VIEW,
         },
       ]
     },
