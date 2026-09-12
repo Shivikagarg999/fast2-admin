@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/proxy/:match*",
-      "destination": "https://api.fast2.in/:match*"
+      "destination": "https://api.gmkart.com/:match*"
     },
     {
       "source": "/(.*)",
