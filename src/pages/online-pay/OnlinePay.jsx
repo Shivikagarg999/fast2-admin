@@ -705,13 +705,13 @@ const OnlinePay = () => {
                                                 <span className="font-medium">{formatCurrency(selectedOrder.deliveryCharges)}</span>
                                             </div>
                                         )}
-                                        {selectedOrder.coupon?.discount > 0 && (
+                                        {(selectedOrder.coupon?.discount > 0 || getFreebieText(selectedOrder.coupon)) && (
                                             <div className="flex justify-between">
                                                 <span className="text-gray-600 dark:text-gray-400">
                                                     {selectedOrder.coupon?.code ? `Coupon (${selectedOrder.coupon.code})` : 'Coupon'}
                                                 </span>
                                                 <span className="font-medium text-green-600">
-                                                    {getFreebieText(selectedOrder.coupon) ? `- ${getFreebieText(selectedOrder.coupon)}` : `-${formatCurrency(selectedOrder.coupon.discount)}`}
+                                                    {getFreebieText(selectedOrder.coupon) ? `🎁 ${getFreebieText(selectedOrder.coupon)}` : `-${formatCurrency(selectedOrder.coupon.discount)}`}
                                                 </span>
                                             </div>
                                         )}
