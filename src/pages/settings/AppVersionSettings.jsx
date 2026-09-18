@@ -15,6 +15,7 @@ const emptyForm = {
   updateMessage: '',
   productServiceRadiusKm: '5',
   freeDeliveryThreshold: '199',
+  deliverySlabs: [{ fromKm: 0, toKm: 5, chargeType: 'flat', rate: 20 }],
 };
 
 const AppVersionSettings = () => {
@@ -51,6 +52,9 @@ const AppVersionSettings = () => {
           updateMessage: result.updateMessage || '',
           productServiceRadiusKm: String(result.productServiceRadiusKm ?? 5),
           freeDeliveryThreshold: String(result.freeDeliveryThreshold ?? 199),
+          deliverySlabs: result.deliverySlabs?.length
+            ? result.deliverySlabs
+            : [{ fromKm: 0, toKm: 5, chargeType: 'flat', rate: 20 }],
         });
       } else {
         showToast('Failed to load app version settings.', 'error');
@@ -67,20 +71,72 @@ const AppVersionSettings = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleSlabChange = (index, field, value) => {
+    setForm((prev) => {
+      const slabs = prev.deliverySlabs.map((slab, i) => {
+        if (i !== index) return slab;
+        return { ...slab, [field]: field === 'chargeType' ? value : Number(value) };
+      });
+      // Keep each row's "From" locked to the previous row's "To" so slabs stay contiguous.
+      for (let i = 1; i < slabs.length; i++) {
+        slabs[i] = { ...slabs[i], fromKm: slabs[i - 1].toKm };
+      }
+      return { ...prev, deliverySlabs: slabs };
+    });
+  };
+
+  const handleAddSlab = () => {
+    setForm((prev) => {
+      const lastToKm = prev.deliverySlabs[prev.deliverySlabs.length - 1]?.toKm ?? 0;
+      return {
+        ...prev,
+        deliverySlabs: [
+          ...prev.deliverySlabs,
+          { fromKm: lastToKm, toKm: lastToKm + 5, chargeType: 'per_km', rate: 5 },
+        ],
+      };
+    });
+  };
+
+  const handleRemoveSlab = (index) => {
+    setForm((prev) => {
+      if (prev.deliverySlabs.length <= 1) return prev;
+      const slabs = prev.deliverySlabs.filter((_, i) => i !== index);
+      for (let i = 1; i < slabs.length; i++) {
+        slabs[i] = { ...slabs[i], fromKm: slabs[i - 1].toKm };
+      }
+      return { ...prev, deliverySlabs: slabs };
+    });
+  };
+
+  const validateSlabs = (slabs) => {
+    if (!slabs.length) return 'Add at least one delivery slab.';
+    if (slabs[0].fromKm !== 0) return 'The first slab must start at 0 km.';
+    for (let i = 0; i < slabs.length; i++) {
+      const slab = slabs[i];
+      if (!(slab.toKm > slab.fromKm)) return `Slab ${i + 1}: "To" must be greater than "From".`;
+      if (!(slab.rate >= 0)) return `Slab ${i + 1}: rate must be 0 or greater.`;
+      if (i > 0 && slab.fromKm !== slabs[i - 1].toKm) return `Slab ${i + 1} must start where slab ${i} ends.`;
+    }
+    return null;
+  };
+
   const handleSave = async () => {
     if (!form.minVersionCode || isNaN(Number(form.minVersionCode))) {
       showToast('Minimum required version code must be a number.', 'error');
       return;
     }
     if (selectedApp === 'customer' &&
-        (!form.productServiceRadiusKm || Number(form.productServiceRadiusKm) < 0.1 || Number(form.productServiceRadiusKm) > 100)) {
-      showToast('Product service radius must be between 0.1 and 100 km.', 'error');
-      return;
-    }
-    if (selectedApp === 'customer' &&
         (form.freeDeliveryThreshold === '' || Number(form.freeDeliveryThreshold) < 0)) {
       showToast('Free delivery threshold must be 0 or greater.', 'error');
       return;
+    }
+    if (selectedApp === 'customer') {
+      const slabError = validateSlabs(form.deliverySlabs);
+      if (slabError) {
+        showToast(slabError, 'error');
+        return;
+      }
     }
 
     setSaving(true);
@@ -95,8 +151,8 @@ const AppVersionSettings = () => {
           playStoreUrl: form.playStoreUrl,
           updateMessage: form.updateMessage,
           ...(selectedApp === 'customer' && {
-            productServiceRadiusKm: Number(form.productServiceRadiusKm),
-            freeDeliveryThreshold: Number(form.freeDeliveryThreshold)
+            freeDeliveryThreshold: Number(form.freeDeliveryThreshold),
+            deliverySlabs: form.deliverySlabs
           }),
         })
       });
@@ -164,18 +220,76 @@ const AppVersionSettings = () => {
             <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-2">
-                  Nearby Product Radius (km)
+                  Delivery Charge Slabs
                 </label>
-                <input
-                  type="number"
-                  min="0.1"
-                  max="100"
-                  step="0.1"
-                  value={form.productServiceRadiusKm}
-                  onChange={(e) => handleChange('productServiceRadiusKm', e.target.value)}
-                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-600 mt-1">Customers will only see products from shops inside this distance.</p>
+                <p className="text-xs text-gray-600 mb-3">
+                  Delivery charge is based on the customer's distance from the shop. Rates are
+                  cumulative across bands (like tax brackets). The last band's "To" also sets
+                  how far customers can be to see this shop's products.
+                </p>
+                <div className="space-y-2">
+                  <div className="grid grid-cols-[1fr_1fr_1.2fr_1fr_auto] gap-2 text-xs font-semibold text-gray-600 px-1">
+                    <span>From (km)</span>
+                    <span>To (km)</span>
+                    <span>Type</span>
+                    <span>Rate (₹)</span>
+                    <span></span>
+                  </div>
+                  {form.deliverySlabs.map((slab, index) => (
+                    <div key={index} className="grid grid-cols-[1fr_1fr_1.2fr_1fr_auto] gap-2 items-center">
+                      <input
+                        type="number"
+                        value={slab.fromKm}
+                        disabled
+                        className="w-full px-3 py-2 border border-gray-200 bg-gray-100 rounded-lg text-gray-500"
+                      />
+                      <input
+                        type="number"
+                        min={slab.fromKm}
+                        step="0.1"
+                        value={slab.toKm}
+                        onChange={(e) => handleSlabChange(index, 'toKm', e.target.value)}
+                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <select
+                        value={slab.chargeType}
+                        onChange={(e) => handleSlabChange(index, 'chargeType', e.target.value)}
+                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="flat">Flat</option>
+                        <option value="per_km">Per km</option>
+                      </select>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        value={slab.rate}
+                        onChange={(e) => handleSlabChange(index, 'rate', e.target.value)}
+                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSlab(index)}
+                        disabled={form.deliverySlabs.length <= 1}
+                        style={{ backgroundColor: form.deliverySlabs.length <= 1 ? '#e5e7eb' : '#dc2626' }}
+                        className="px-3 py-2 rounded-lg text-white text-xs font-medium disabled:cursor-not-allowed disabled:text-gray-400"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddSlab}
+                  style={{ backgroundColor: 'blue' }}
+                  className="mt-3 px-4 py-2 rounded-lg text-white text-xs font-medium"
+                >
+                  + Add Slab
+                </button>
+                <p className="text-xs text-gray-600 mt-3">
+                  Customers within <strong>{form.deliverySlabs[form.deliverySlabs.length - 1]?.toKm ?? 0} km</strong> will see this shop's products.
+                </p>
               </div>
 
               <div>
