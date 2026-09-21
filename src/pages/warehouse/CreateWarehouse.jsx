@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { FiPlus, FiPackage, FiMapPin, FiThermometer, FiHash, FiUser, FiMap } from "react-icons/fi";
-import mapboxgl from 'mapbox-gl';
-
-mapboxgl.accessToken = 'pk.eyJ1IjoiZmFzdDIiLCJhIjoiY21mbW9qbzZlMDQ5dzJpcXhlOW82ODdlcSJ9.HYJxZbPDCZHD8_Q5faa6ig';
+import { loadGoogleMaps, geocodeAddress } from '../../utils/googleMaps';
 
 const CreateWarehouse = () => {
   const [loading, setLoading] = useState(false);
@@ -46,8 +44,12 @@ const CreateWarehouse = () => {
 
     return () => {
       if (map.current) {
-        map.current.remove();
+        window.google?.maps?.event?.clearInstanceListeners(map.current);
         map.current = null;
+      }
+      if (marker.current) {
+        marker.current.setMap(null);
+        marker.current = null;
       }
     };
   }, [showMap]);
@@ -70,64 +72,60 @@ const CreateWarehouse = () => {
     }
   };
 
-  const initializeMap = () => {
-    // Use default coordinates if available, otherwise use Delhi, India
-    const defaultLat = formData.location.coordinates.lat || 28.6139;
-    const defaultLng = formData.location.coordinates.lng || 77.2090;
-
-    // Initialize map
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [defaultLng, defaultLat],
-      zoom: 10
-    });
-
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl());
-
-    // Add geolocate control
-    map.current.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true,
-      showUserLocation: true
-    }));
-
-    // Create a marker if coordinates exist
-    if (formData.location.coordinates.lat && formData.location.coordinates.lng) {
-      marker.current = new mapboxgl.Marker()
-        .setLngLat([formData.location.coordinates.lng, formData.location.coordinates.lat])
-        .addTo(map.current);
+  const placeMarker = (lat, lng) => {
+    if (marker.current) {
+      marker.current.setPosition({ lat, lng });
+    } else {
+      marker.current = new window.google.maps.Marker({
+        position: { lat, lng },
+        map: map.current
+      });
     }
+  };
 
-    // Add click event to set marker
-    map.current.on('click', (e) => {
-      const { lng, lat } = e.lngLat;
+  const initializeMap = async () => {
+    try {
+      const maps = await loadGoogleMaps();
+      const [{ Map }] = await Promise.all([maps.importLibrary('maps'), maps.importLibrary('marker')]);
+      if (!mapContainer.current || map.current) return;
 
-      // Update form data with new coordinates
-      setFormData(prev => ({
-        ...prev,
-        location: {
-          ...prev.location,
-          coordinates: {
-            lat: lat.toFixed(6),
-            lng: lng.toFixed(6)
-          }
-        }
-      }));
+      // Use default coordinates if available, otherwise use Delhi, India
+      const defaultLat = Number(formData.location.coordinates.lat) || 28.6139;
+      const defaultLng = Number(formData.location.coordinates.lng) || 77.2090;
 
-      // Remove existing marker if any
-      if (marker.current) {
-        marker.current.remove();
+      map.current = new Map(mapContainer.current, {
+        center: { lat: defaultLat, lng: defaultLng },
+        zoom: 10,
+        mapTypeControl: false,
+        streetViewControl: false
+      });
+
+      // Create a marker if coordinates exist
+      if (formData.location.coordinates.lat && formData.location.coordinates.lng) {
+        placeMarker(defaultLat, defaultLng);
       }
 
-      // Add new marker
-      marker.current = new mapboxgl.Marker()
-        .setLngLat([lng, lat])
-        .addTo(map.current);
-    });
+      // Click to set the marker and coordinates
+      map.current.addListener('click', (e) => {
+        const lat = e.latLng.lat();
+        const lng = e.latLng.lng();
+
+        setFormData(prev => ({
+          ...prev,
+          location: {
+            ...prev.location,
+            coordinates: {
+              lat: lat.toFixed(6),
+              lng: lng.toFixed(6)
+            }
+          }
+        }));
+
+        placeMarker(lat, lng);
+      });
+    } catch (err) {
+      setError("Could not load Google Maps. Check VITE_GOOGLE_MAPS_API_KEY.");
+    }
   };
 
   const handleInputChange = (e) => {
@@ -183,15 +181,10 @@ const CreateWarehouse = () => {
     try {
       setLoading(true);
 
-      // Use Mapbox Geocoding API
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(fullAddress)}.json?access_token=${mapboxgl.accessToken}`
-      );
+      const found = await geocodeAddress(fullAddress);
 
-      const data = await response.json();
-
-      if (data.features && data.features.length > 0) {
-        const [lng, lat] = data.features[0].center;
+      if (found) {
+        const { lat, lng } = found;
 
         setFormData(prev => ({
           ...prev,
@@ -206,22 +199,9 @@ const CreateWarehouse = () => {
 
         // Update map if it's visible
         if (showMap && map.current) {
-          // Remove existing marker if any
-          if (marker.current) {
-            marker.current.remove();
-          }
-
-          // Add new marker
-          marker.current = new mapboxgl.Marker()
-            .setLngLat([lng, lat])
-            .addTo(map.current);
-
-          // Fly to the location
-          map.current.flyTo({
-            center: [lng, lat],
-            zoom: 14,
-            essential: true
-          });
+          placeMarker(lat, lng);
+          map.current.panTo({ lat, lng });
+          map.current.setZoom(14);
         }
 
         setLoading(false);

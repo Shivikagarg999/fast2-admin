@@ -10,7 +10,7 @@ import usePermissions from '../../hooks/usePermissions';
 import { PERMISSIONS } from '../../config/permissions';
 
 const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiZmFzdDIiLCJhIjoiY21mbW9qbzZlMDQ5dzJpcXhlOW82ODdlcSJ9.HYJxZbPDCZHD8_Q5faa6ig';
+import { geocodeAddress } from '../../utils/googleMaps';
 
 const getToken = () =>
     localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
@@ -281,12 +281,9 @@ const ShopsPage = () => {
         setDetectingLocation(true);
         setFormError('');
         try {
-            const response = await fetch(
-                `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&country=in&limit=1`
-            );
-            const data = await response.json();
-            const [lng, lat] = data.features?.[0]?.center || [];
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new Error('Location not found');
+            const location = await geocodeAddress(query);
+            if (!location) throw new Error('Location not found');
+            const { lat, lng } = location;
             setFormData(current => ({
                 ...current,
                 address: { ...current.address, coordinates: { lat, lng } },
