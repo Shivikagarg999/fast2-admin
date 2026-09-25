@@ -34,6 +34,7 @@ import SellerPayouts from "./pages/payouts/SellerPayouts";
 import OnlinePay from "./pages/online-pay/OnlinePay";
 import DriverPayouts from "./pages/payouts/DriverPayout";
 import PopupManagement from "./pages/popup/PopupManagement";
+import AnalyticsDashboard from "./pages/analytics/AnalyticsDashboard";
 import ContactPage from "./pages/contact/ContactPage";
 import ScratchCardsPage from "./pages/scratch-cards/ScratchCardsPage";
 import ReportsPage from "./pages/reports/Reports";
@@ -345,6 +346,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
                 <DriverPayouts />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Website Analytics */}
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
+                <AnalyticsDashboard />
               </ProtectedRoute>
             }
           />

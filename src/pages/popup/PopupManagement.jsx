@@ -4,7 +4,7 @@ import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight, FiClock, FiImag
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/popups`;
 const LIMIT = 10;
 
-const defaultForm = { startTime: '', endTime: '', isActive: true };
+const defaultForm = { title: '', subtitle: '', ctaText: '', ctaLink: '', startTime: '', endTime: '', isActive: true };
 
 const PopupManagement = () => {
   const [popups, setPopups] = useState([]);
@@ -80,6 +80,11 @@ const PopupManagement = () => {
     if (formData.startTime && formData.endTime && new Date(formData.endTime) <= new Date(formData.startTime))
       errs.push('End time must be after start time');
     if (!editingPopup && !imageFile) errs.push('Image is required');
+    const ctaText = formData.ctaText.trim();
+    const ctaLink = formData.ctaLink.trim();
+    if (!!ctaText !== !!ctaLink) errs.push('Enter both button text and button link, or leave both empty');
+    if (ctaLink && !/^(\/(?!\/)|https?:\/\/)/i.test(ctaLink))
+      errs.push('Button link must start with / (a page on the site) or http(s)://');
     return errs;
   };
 
@@ -90,6 +95,10 @@ const PopupManagement = () => {
     if (errs.length > 0) { setErrors(errs); return; }
 
     const body = new FormData();
+    body.append('title', formData.title.trim());
+    body.append('subtitle', formData.subtitle.trim());
+    body.append('ctaText', formData.ctaText.trim());
+    body.append('ctaLink', formData.ctaLink.trim());
     body.append('startTime', new Date(formData.startTime).toISOString());
     body.append('endTime', new Date(formData.endTime).toISOString());
     body.append('isActive', formData.isActive);
@@ -121,6 +130,10 @@ const PopupManagement = () => {
   const handleEdit = (popup) => {
     setEditingPopup(popup);
     setFormData({
+      title: popup.title || '',
+      subtitle: popup.subtitle || '',
+      ctaText: popup.ctaText || '',
+      ctaLink: popup.ctaLink || '',
       startTime: new Date(popup.startTime).toISOString().slice(0, 16),
       endTime: new Date(popup.endTime).toISOString().slice(0, 16),
       isActive: popup.isActive
@@ -201,7 +214,7 @@ const PopupManagement = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Popup Management</h1>
-          <p className="text-gray-500 mt-1 text-sm">Manage image-based popups shown to users during a scheduled time window</p>
+          <p className="text-gray-500 mt-1 text-sm">Manage popups (image, heading, sub heading and button) shown to users during a scheduled time window</p>
         </div>
         <button
           onClick={() => { closeForm(); setShowForm(true); }}
@@ -273,6 +286,57 @@ const PopupManagement = () => {
                   <p className="text-xs text-gray-500 mt-1">Leave empty to keep the current image</p>
                 )}
               </div>
+
+              {/* Heading & Sub heading */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Heading</label>
+                <input
+                  type="text"
+                  maxLength={80}
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g. Flat Rs. 50 off your first order"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sub heading</label>
+                <textarea
+                  rows={2}
+                  maxLength={200}
+                  value={formData.subtitle}
+                  onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                  placeholder="e.g. Use code WELCOME at checkout"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                />
+              </div>
+
+              {/* CTA */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Button text</label>
+                  <input
+                    type="text"
+                    maxLength={30}
+                    value={formData.ctaText}
+                    onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
+                    placeholder="e.g. Shop now"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Button link</label>
+                  <input
+                    type="text"
+                    maxLength={500}
+                    value={formData.ctaLink}
+                    onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
+                    placeholder="/category/fruits or https://..."
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 -mt-3">Button is optional. Use a site path like /shops, or a full https:// link.</p>
 
               {/* Start & End Time */}
               <div className="grid grid-cols-2 gap-4">
@@ -384,6 +448,7 @@ const PopupManagement = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Content</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Schedule</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -406,6 +471,11 @@ const PopupManagement = () => {
                               <FiImage className="w-5 h-5" />
                             </div>
                           )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                          {popup.title ? <div className="font-semibold text-gray-900 truncate">{popup.title}</div> : <span className="text-gray-400">—</span>}
+                          {popup.subtitle && <div className="text-xs text-gray-500 truncate">{popup.subtitle}</div>}
+                          {popup.ctaText && <div className="text-xs text-blue-600 truncate">{popup.ctaText} → {popup.ctaLink}</div>}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
                           <div className="flex items-start gap-1">

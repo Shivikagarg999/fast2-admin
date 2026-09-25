@@ -75,6 +75,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           permission: PERMISSIONS.DASHBOARD_VIEW,
         },
         {
+          name: "Website Analytics",
+          path: "/admin/analytics",
+          icon: <FiBarChart2 className="w-4 h-4" />,
+          permission: PERMISSIONS.DASHBOARD_VIEW,
+        },
+        {
           name: "Reports",
           path: "/admin/reports",
           icon: <FiBarChart2 className="w-4 h-4" />
