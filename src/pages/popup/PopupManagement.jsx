@@ -237,9 +237,9 @@ const PopupManagement = () => {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-lg shadow-xl">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-bold text-gray-900">
+          <div className="bg-white rounded-xl w-full max-w-xl max-h-[90vh] overflow-hidden shadow-xl">
+            <div className="flex justify-between items-center px-5 py-4 border-b">
+              <h2 className="text-lg font-bold text-gray-900">
                 {editingPopup ? 'Edit Popup' : 'Create Popup'}
               </h2>
               <button onClick={closeForm} className="text-gray-400 hover:text-gray-600">
@@ -247,9 +247,9 @@ const PopupManagement = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="p-5 space-y-3 max-h-[calc(90vh-65px)] overflow-y-auto">
               {errors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
                   <ul className="list-disc list-inside space-y-1">
                     {errors.map((e, i) => <li key={i}>{e}</li>)}
                   </ul>
@@ -257,62 +257,65 @@ const PopupManagement = () => {
               )}
 
               {/* Image Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FiImage className="inline w-4 h-4 mr-1" />
-                  Popup Image {!editingPopup && <span className="text-red-500">*</span>}
-                </label>
-                <div
-                  onClick={() => imageInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400 transition-colors"
-                >
-                  {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" className="mx-auto max-h-40 object-contain rounded" />
-                  ) : (
-                    <div className="py-4 text-gray-400">
-                      <FiImage className="w-8 h-8 mx-auto mb-2" />
-                      <p className="text-sm">Click to upload image</p>
-                    </div>
+              <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-4 items-start">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FiImage className="inline w-4 h-4 mr-1" />
+                    Popup Image {!editingPopup && <span className="text-red-500">*</span>}
+                  </label>
+                  <div
+                    onClick={() => imageInputRef.current?.click()}
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center cursor-pointer hover:border-gray-400 transition-colors"
+                  >
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Preview" className="mx-auto h-24 w-full object-contain rounded" />
+                    ) : (
+                      <div className="py-3 text-gray-400">
+                        <FiImage className="w-6 h-6 mx-auto mb-1" />
+                        <p className="text-xs">Upload image</p>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                  {editingPopup && (
+                    <p className="text-xs text-gray-500 mt-1">Leave empty to keep current</p>
                   )}
                 </div>
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-                {editingPopup && (
-                  <p className="text-xs text-gray-500 mt-1">Leave empty to keep the current image</p>
-                )}
-              </div>
 
-              {/* Heading & Sub heading */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Heading</label>
-                <input
-                  type="text"
-                  maxLength={80}
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g. Flat Rs. 50 off your first order"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Sub heading</label>
-                <textarea
-                  rows={2}
-                  maxLength={200}
-                  value={formData.subtitle}
-                  onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                  placeholder="e.g. Use code WELCOME at checkout"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
-                />
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Heading</label>
+                    <input
+                      type="text"
+                      maxLength={80}
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g. Flat Rs. 50 off your first order"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub heading</label>
+                    <textarea
+                      rows={1}
+                      maxLength={200}
+                      value={formData.subtitle}
+                      onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                      placeholder="e.g. Use code WELCOME at checkout"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* CTA */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Button text</label>
                   <input
@@ -336,10 +339,10 @@ const PopupManagement = () => {
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-500 -mt-3">Button is optional. Use a site path like /shops, or a full https:// link.</p>
+              <p className="text-xs text-gray-500 -mt-1">Optional. Use a site path like /shops, or a full https:// link.</p>
 
               {/* Start & End Time */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     <FiClock className="inline w-4 h-4 mr-1" />
@@ -368,18 +371,19 @@ const PopupManagement = () => {
                 </div>
               </div>
 
-              {/* Active Toggle */}
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300"
-                />
-                <span className="text-sm font-medium text-gray-700">Active</span>
-              </label>
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-300"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Active</span>
+                </label>
+              </div>
 
-              <div className="flex justify-end gap-3 pt-2 border-t">
+              <div className="flex justify-end gap-3 pt-3 border-t">
                 <button
                   type="button"
                   onClick={closeForm}
