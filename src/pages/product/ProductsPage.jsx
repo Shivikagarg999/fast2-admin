@@ -4000,57 +4000,138 @@ const ProductsPage = () => {
                     </p>
 
                     {(existingImages.length > 0 || newImages.length > 0) && (
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-4">
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
+                          gap: "12px",
+                          marginBottom: "16px",
+                        }}
+                      >
                         {existingImages
                           .filter((img) => !imagesToRemove.includes(img._id))
                           .map((img) => (
-                            <div key={img._id} className="relative group">
+                            <div key={img._id} style={{ position: "relative" }}>
                               <div
-                                className={`aspect-square rounded-lg overflow-hidden border-2 ${
-                                  primaryImageId === img._id ? "border-brand-500" : "border-gray-200 dark:border-gray-600"
-                                }`}
+                                style={{
+                                  aspectRatio: "1 / 1",
+                                  borderRadius: "8px",
+                                  overflow: "hidden",
+                                  border: primaryImageId === img._id ? "2px solid #16a34a" : "2px solid #d1d5db",
+                                }}
                               >
-                                <img src={img.url} alt={img.altText || "Product"} className="w-full h-full object-cover" />
+                                <img
+                                  src={img.url}
+                                  alt={img.altText || "Product"}
+                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
                               </div>
                               <button
                                 type="button"
                                 onClick={() => removeExistingImage(img)}
-                                className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md"
                                 title="Remove image"
+                                style={{
+                                  position: "absolute",
+                                  top: "-8px",
+                                  right: "-8px",
+                                  backgroundColor: "#ef4444",
+                                  color: "#ffffff",
+                                  borderRadius: "9999px",
+                                  padding: "4px",
+                                  boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                                  display: "flex",
+                                  border: "none",
+                                  cursor: "pointer",
+                                }}
                               >
                                 <FiX size={14} />
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setPrimaryImageId(img._id)}
-                                className={`absolute bottom-1 left-1 rounded-full p-1 shadow-md ${
-                                  primaryImageId === img._id ? "bg-brand-500 text-white" : "bg-white/90 text-gray-500 hover:text-gray-700"
-                                }`}
                                 title="Set as primary image"
+                                style={{
+                                  position: "absolute",
+                                  bottom: "4px",
+                                  left: "4px",
+                                  backgroundColor: primaryImageId === img._id ? "#16a34a" : "#ffffff",
+                                  color: primaryImageId === img._id ? "#ffffff" : "#6b7280",
+                                  borderRadius: "9999px",
+                                  padding: "4px",
+                                  boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                                  display: "flex",
+                                  border: "none",
+                                  cursor: "pointer",
+                                }}
                               >
                                 <FiStar size={12} fill={primaryImageId === img._id ? "currentColor" : "none"} />
                               </button>
                               {primaryImageId === img._id && (
-                                <span className="absolute top-1 left-1 bg-brand-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    top: "4px",
+                                    left: "4px",
+                                    backgroundColor: "#16a34a",
+                                    color: "#ffffff",
+                                    fontSize: "10px",
+                                    padding: "2px 6px",
+                                    borderRadius: "4px",
+                                  }}
+                                >
                                   Primary
                                 </span>
                               )}
                             </div>
                           ))}
                         {newImages.map((image, index) => (
-                          <div key={`new-${index}`} className="relative group">
-                            <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-600">
-                              <img src={image.preview} alt={`New ${index + 1}`} className="w-full h-full object-cover" />
+                          <div key={`new-${index}`} style={{ position: "relative" }}>
+                            <div
+                              style={{
+                                aspectRatio: "1 / 1",
+                                borderRadius: "8px",
+                                overflow: "hidden",
+                                border: "2px dashed #9ca3af",
+                              }}
+                            >
+                              <img
+                                src={image.preview}
+                                alt={`New ${index + 1}`}
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              />
                             </div>
                             <button
                               type="button"
                               onClick={() => removeNewImage(index)}
-                              className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md"
                               title="Remove image"
+                              style={{
+                                position: "absolute",
+                                top: "-8px",
+                                right: "-8px",
+                                backgroundColor: "#ef4444",
+                                color: "#ffffff",
+                                borderRadius: "9999px",
+                                padding: "4px",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                                display: "flex",
+                                border: "none",
+                                cursor: "pointer",
+                              }}
                             >
                               <FiX size={14} />
                             </button>
-                            <span className="absolute top-1 left-1 bg-gray-700 text-white text-[10px] px-1.5 py-0.5 rounded">
+                            <span
+                              style={{
+                                position: "absolute",
+                                top: "4px",
+                                left: "4px",
+                                backgroundColor: "#374151",
+                                color: "#ffffff",
+                                fontSize: "10px",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                              }}
+                            >
                               New
                             </span>
                           </div>
