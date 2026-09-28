@@ -526,11 +526,10 @@ const BannersPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Title *
+                    Title <span className="text-xs text-gray-500">(Optional)</span>
                   </label>
                   <input
                     type="text"
-                    required
                     value={formData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -539,11 +538,10 @@ const BannersPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Subtitle *
+                    Subtitle <span className="text-xs text-gray-500">(Optional)</span>
                   </label>
                   <input
                     type="text"
-                    required
                     value={formData.subtitle}
                     onChange={(e) => handleInputChange('subtitle', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -553,10 +551,9 @@ const BannersPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Description *
+                  Description <span className="text-xs text-gray-500">(Optional)</span>
                 </label>
                 <textarea
-                  required
                   rows={3}
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
