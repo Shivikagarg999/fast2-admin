@@ -4015,7 +4015,7 @@ const ProductsPage = () => {
                               <button
                                 type="button"
                                 onClick={() => removeExistingImage(img)}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md"
                                 title="Remove image"
                               >
                                 <FiX size={14} />
@@ -4023,9 +4023,9 @@ const ProductsPage = () => {
                               <button
                                 type="button"
                                 onClick={() => setPrimaryImageId(img._id)}
-                                className={`absolute bottom-1 left-1 rounded-full p-1 ${
-                                  primaryImageId === img._id ? "bg-brand-500 text-white" : "bg-white/90 text-gray-500 opacity-0 group-hover:opacity-100"
-                                } transition-opacity`}
+                                className={`absolute bottom-1 left-1 rounded-full p-1 shadow-md ${
+                                  primaryImageId === img._id ? "bg-brand-500 text-white" : "bg-white/90 text-gray-500 hover:text-gray-700"
+                                }`}
                                 title="Set as primary image"
                               >
                                 <FiStar size={12} fill={primaryImageId === img._id ? "currentColor" : "none"} />
@@ -4045,7 +4045,7 @@ const ProductsPage = () => {
                             <button
                               type="button"
                               onClick={() => removeNewImage(index)}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md"
                               title="Remove image"
                             >
                               <FiX size={14} />
