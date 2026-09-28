@@ -17,6 +17,7 @@ import {
   FiDownload,
   FiUpload,
   FiGift,
+  FiStar,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
@@ -110,6 +111,11 @@ const ProductsPage = () => {
   const [newPincode, setNewPincode] = useState("");
   const [newServiceablePincode, setNewServiceablePincode] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  // Existing images on the product being edited, plus per-image edit state
+  const [existingImages, setExistingImages] = useState([]);
+  const [imagesToRemove, setImagesToRemove] = useState([]);
+  const [primaryImageId, setPrimaryImageId] = useState(null);
+  const [newImages, setNewImages] = useState([]); // [{ file, preview }]
   const [videoFile, setVideoFile] = useState(null);
   const [csvFile, setCsvFile] = useState(null);
   const [uploadingCSV, setUploadingCSV] = useState(false);
@@ -411,6 +417,10 @@ const ProductsPage = () => {
     });
     setImagePreview("");
     setImageFile(null);
+    setExistingImages([]);
+    setImagesToRemove([]);
+    setPrimaryImageId(null);
+    setNewImages([]);
     setVideoFile(null);
     setNewPincode("");
     setNewServiceablePincode("");
@@ -493,9 +503,11 @@ const ProductsPage = () => {
     };
 
     setFormData(productData);
-    setImagePreview(
-      (product.images && product.images[0] && product.images[0].url) || ""
-    );
+    const images = product.images || [];
+    setExistingImages(images);
+    setImagesToRemove([]);
+    setPrimaryImageId((images.find((img) => img.isPrimary) || images[0])?._id || null);
+    setNewImages([]);
     setEditingProduct(product);
     setShowModal(true);
   };
@@ -539,6 +551,36 @@ const ProductsPage = () => {
       reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
     }
+  };
+
+  // Editing an existing product: slots left = 5 minus (kept existing images) minus (new images already picked)
+  const editImageSlotsLeft = () =>
+    5 - (existingImages.length - imagesToRemove.length) - newImages.length;
+
+  const handleNewImagesChange = (e) => {
+    const files = Array.from(e.target.files || []).slice(0, editImageSlotsLeft());
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewImages((prev) => [...prev, { file, preview: reader.result }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+
+  const removeExistingImage = (img) => {
+    setImagesToRemove((prev) => [...prev, img._id]);
+    if (primaryImageId === img._id) {
+      const nextPrimary = existingImages.find(
+        (i) => i._id !== img._id && !imagesToRemove.includes(i._id)
+      );
+      setPrimaryImageId(nextPrimary?._id || null);
+    }
+  };
+
+  const removeNewImage = (index) => {
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleVideoChange = (e) => {
@@ -704,6 +746,13 @@ const ProductsPage = () => {
       // Append files if selected
       if (imageFile) {
         submitData.append("images", imageFile);
+      }
+      imagesToRemove.forEach((id) => submitData.append("imagesToRemove", id));
+      newImages.forEach(({ file }) => submitData.append("images", file));
+      if (primaryImageId) {
+        const keptExisting = existingImages.filter((img) => !imagesToRemove.includes(img._id));
+        const primaryIndex = keptExisting.findIndex((img) => img._id === primaryImageId);
+        if (primaryIndex >= 0) submitData.append("primaryImageIndex", primaryIndex);
       }
       if (videoFile) {
         submitData.append("video", videoFile);
@@ -3946,6 +3995,69 @@ const ProductsPage = () => {
                     >
                       Product Images (Max 5)
                     </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                      Recommended: 800×800px, square, white background. Click the star to set the primary image.
+                    </p>
+
+                    {(existingImages.length > 0 || newImages.length > 0) && (
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-4">
+                        {existingImages
+                          .filter((img) => !imagesToRemove.includes(img._id))
+                          .map((img) => (
+                            <div key={img._id} className="relative group">
+                              <div
+                                className={`aspect-square rounded-lg overflow-hidden border-2 ${
+                                  primaryImageId === img._id ? "border-brand-500" : "border-gray-200 dark:border-gray-600"
+                                }`}
+                              >
+                                <img src={img.url} alt={img.altText || "Product"} className="w-full h-full object-cover" />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeExistingImage(img)}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Remove image"
+                              >
+                                <FiX size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setPrimaryImageId(img._id)}
+                                className={`absolute bottom-1 left-1 rounded-full p-1 ${
+                                  primaryImageId === img._id ? "bg-brand-500 text-white" : "bg-white/90 text-gray-500 opacity-0 group-hover:opacity-100"
+                                } transition-opacity`}
+                                title="Set as primary image"
+                              >
+                                <FiStar size={12} fill={primaryImageId === img._id ? "currentColor" : "none"} />
+                              </button>
+                              {primaryImageId === img._id && (
+                                <span className="absolute top-1 left-1 bg-brand-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+                                  Primary
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        {newImages.map((image, index) => (
+                          <div key={`new-${index}`} className="relative group">
+                            <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-600">
+                              <img src={image.preview} alt={`New ${index + 1}`} className="w-full h-full object-cover" />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeNewImage(index)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Remove image"
+                            >
+                              <FiX size={14} />
+                            </button>
+                            <span className="absolute top-1 left-1 bg-gray-700 text-white text-[10px] px-1.5 py-0.5 rounded">
+                              New
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     <div>
                       <label
                         style={{
@@ -3957,12 +4069,14 @@ const ProductsPage = () => {
                         }}
                         className="dark:text-gray-300"
                       >
-                        Upload Image
+                        Add Image{editImageSlotsLeft() !== 1 ? "s" : ""} ({editImageSlotsLeft()} slot{editImageSlotsLeft() !== 1 ? "s" : ""} left)
                       </label>
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        multiple
+                        disabled={editImageSlotsLeft() <= 0}
+                        onChange={handleNewImagesChange}
                         style={{
                           width: "100%",
                           padding: "8px 12px",
@@ -3973,21 +4087,6 @@ const ProductsPage = () => {
                         }}
                         className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       />
-                      {imagePreview && (
-                        <div style={{ marginTop: "12px" }}>
-                          <img
-                            src={imagePreview}
-                            alt="Preview"
-                            style={{
-                              width: "200px",
-                              height: "200px",
-                              objectFit: "cover",
-                              borderRadius: "8px",
-                              border: "1px solid #d1d5db",
-                            }}
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
 

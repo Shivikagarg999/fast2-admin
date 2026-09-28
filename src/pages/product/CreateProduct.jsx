@@ -1330,6 +1330,9 @@ const ProductCreate = () => {
                     : `Upload up to 5 product images. You can add ${5 - formData.images.length} more. First image will be the primary image.`
                   }
                 </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Recommended: 800×800px, square, white background, product filling ~80% of the frame.
+                </p>
 
                 {/* Image Preview */}
                 {formData.images.length > 0 && (
