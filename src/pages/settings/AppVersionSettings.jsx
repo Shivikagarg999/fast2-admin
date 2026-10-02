@@ -16,7 +16,11 @@ const emptyForm = {
   productServiceRadiusKm: '5',
   freeDeliveryThreshold: '199',
   deliverySlabs: [{ fromKm: 0, toKm: 5, chargeType: 'flat', rate: 20 }],
+  headerGradientStart: '',
+  headerGradientEnd: '',
 };
+
+const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
 const AppVersionSettings = () => {
   const [selectedApp, setSelectedApp] = useState('customer');
@@ -55,6 +59,8 @@ const AppVersionSettings = () => {
           deliverySlabs: result.deliverySlabs?.length
             ? result.deliverySlabs
             : [{ fromKm: 0, toKm: 5, chargeType: 'flat', rate: 20 }],
+          headerGradientStart: result.headerGradientStart || '',
+          headerGradientEnd: result.headerGradientEnd || '',
         });
       } else {
         showToast('Failed to load app version settings.', 'error');
@@ -137,6 +143,18 @@ const AppVersionSettings = () => {
         showToast(slabError, 'error');
         return;
       }
+      if (form.headerGradientStart && !HEX_COLOR_PATTERN.test(form.headerGradientStart)) {
+        showToast('Header gradient start must be a valid hex color.', 'error');
+        return;
+      }
+      if (form.headerGradientEnd && !HEX_COLOR_PATTERN.test(form.headerGradientEnd)) {
+        showToast('Header gradient end must be a valid hex color.', 'error');
+        return;
+      }
+      if (!!form.headerGradientStart !== !!form.headerGradientEnd) {
+        showToast('Set both header gradient colors, or clear both.', 'error');
+        return;
+      }
     }
 
     setSaving(true);
@@ -152,7 +170,9 @@ const AppVersionSettings = () => {
           updateMessage: form.updateMessage,
           ...(selectedApp === 'customer' && {
             freeDeliveryThreshold: Number(form.freeDeliveryThreshold),
-            deliverySlabs: form.deliverySlabs
+            deliverySlabs: form.deliverySlabs,
+            headerGradientStart: form.headerGradientStart,
+            headerGradientEnd: form.headerGradientEnd
           }),
         })
       });
@@ -305,6 +325,49 @@ const AppVersionSettings = () => {
                   className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-600 mt-1">Applied per shop. Set 0 to disable default free delivery.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  App Header Gradient
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={form.headerGradientStart || '#F0FAFF'}
+                    onChange={(e) => handleChange('headerGradientStart', e.target.value)}
+                    className="h-10 w-14 rounded border border-gray-300 cursor-pointer"
+                  />
+                  <span className="text-xs text-gray-500">Start</span>
+                  <input
+                    type="color"
+                    value={form.headerGradientEnd || '#D6F0FB'}
+                    onChange={(e) => handleChange('headerGradientEnd', e.target.value)}
+                    className="h-10 w-14 rounded border border-gray-300 cursor-pointer"
+                  />
+                  <span className="text-xs text-gray-500">End</span>
+                  <div
+                    className="h-10 flex-1 rounded-lg border border-gray-300"
+                    style={{
+                      background: `linear-gradient(135deg, ${form.headerGradientStart || '#F0FAFF'}, ${form.headerGradientEnd || '#D6F0FB'})`
+                    }}
+                  />
+                  {(form.headerGradientStart || form.headerGradientEnd) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleChange('headerGradientStart', '');
+                        handleChange('headerGradientEnd', '');
+                      }}
+                      className="text-xs font-medium text-gray-500 hover:text-gray-700 underline whitespace-nowrap"
+                    >
+                      Reset to default
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-600 mt-1">
+                  Colors the customer app's home header background (like Blinkit's seasonal header colors). Leave unset to use the app's built-in default.
+                </p>
               </div>
             </div>
           )}
