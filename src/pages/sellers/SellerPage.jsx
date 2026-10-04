@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Button from "../../components/common/Button";
 import axios from 'axios';
 import {
   Users, RefreshCw, Plus, Filter, Search, X, Save, Loader2,
@@ -1768,13 +1769,10 @@ const SellerPage = () => {
 
                 {/* Add Seller Button */}
                 {(hasPermission(PERMISSIONS.SELLERS_CREATE) || isSuperAdmin()) && (
-                  <button
-                    onClick={() => setShowCreateModal(true)}
-                    style={buttonStyles.primary}
-                  >
+                  <Button variant="primary" size="md" onClick={() => setShowCreateModal(true)}>
                     <Plus style={{ width: '16px', height: '16px' }} />
                     Add Seller
-                  </button>
+                  </Button>
                 )}
 
                 {/* Refresh Button */}
@@ -2088,23 +2086,7 @@ const SellerPage = () => {
                           )}
 
                           {(hasPermission(PERMISSIONS.SELLERS_EDIT) || isSuperAdmin()) && (
-                            <button
-                              style={{
-                                color: '#2563eb',
-                                padding: '8px',
-                                borderRadius: '6px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                backgroundColor: 'transparent',
-                                transition: 'background-color 0.2s'
-                              }}
-                              title="Edit Seller"
-                              onClick={() => handleEditSeller(seller)}
-                              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
-                              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                            >
-                              <Edit style={{ width: '16px', height: '16px' }} />
-                            </button>
+                            <Button variant="secondary" size="sm" icon={Edit} onClick={() => handleEditSeller(seller)} title="Edit Seller">Edit</Button>
                           )}
 
                           {(hasPermission(PERMISSIONS.SELLERS_TOGGLE_STATUS) || isSuperAdmin()) && (
@@ -2128,23 +2110,7 @@ const SellerPage = () => {
                           )}
 
                           {(hasPermission(PERMISSIONS.SELLERS_DELETE) || isSuperAdmin()) && (
-                            <button
-                              style={{
-                                color: '#dc2626',
-                                padding: '8px',
-                                borderRadius: '6px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                backgroundColor: 'transparent',
-                                transition: 'background-color 0.2s'
-                              }}
-                              title="Delete Seller"
-                              onClick={() => handleDeleteSeller(seller._id, seller.name)}
-                              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
-                              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                            >
-                              <Trash2 style={{ width: '16px', height: '16px' }} />
-                            </button>
+                            <Button variant="danger" size="sm" icon={Trash2} onClick={() => handleDeleteSeller(seller._id, seller.name)} title="Delete Seller">Delete</Button>
                           )}
                         </div>
                       </td>

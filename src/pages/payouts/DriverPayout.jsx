@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Button from "../../components/common/Button";
 import { FiDollarSign, FiUsers, FiRefreshCw, FiEye, FiX, FiCheck, FiPackage, FiToggleLeft, FiToggleRight, FiTruck, FiFilter } from 'react-icons/fi';
 
 const DriverPayouts = () => {
@@ -1004,14 +1005,7 @@ const DriverPayouts = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleViewDetails(payout)}
-                              className="p-2 rounded transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                              style={{ color: '#3b82f6' }}
-                              title="View Details"
-                            >
-                              <FiEye className="w-4 h-4" />
-                            </button>
+                            <Button variant="primary" size="sm" icon={FiEye} onClick={() => handleViewDetails(payout)} title="View Details">View</Button>
                             {(payout.pendingAmount || 0) > 0 && (
                               <button
                                 onClick={() => handleMarkAsPaid(payout)}
@@ -1065,14 +1059,7 @@ const DriverPayouts = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleViewDetails(payout)}
-                              className="p-2 rounded transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                              style={{ color: '#3b82f6' }}
-                              title="View Details"
-                            >
-                              <FiEye className="w-4 h-4" />
-                            </button>
+                            <Button variant="primary" size="sm" icon={FiEye} onClick={() => handleViewDetails(payout)} title="View Details">View</Button>
                             {payout.status === 'earned' && (
                               <button
                                 onClick={() => handleMarkAsPaid(payout)}

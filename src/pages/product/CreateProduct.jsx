@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Button from "../../components/common/Button";
 import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiHash, FiUser, FiMapPin, FiThermometer, FiPlus, FiTrash2, FiX, FiImage, FiVideo, FiShoppingBag } from 'react-icons/fi';
 import { Editor } from '@tinymce/tinymce-react';
@@ -712,15 +713,9 @@ const ProductCreate = () => {
                       </option>
                     ))}
                   </select>
-                  <button
-                    type="button"
-                    onClick={addVariant}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 
-                      flex items-center text-sm"
-                    style={{ backgroundColor: 'black' }}
-                  >
+                  <Button variant="primary" size="md" type="button" onClick={addVariant}>
                     <FiPlus className="mr-1" /> Add Variant
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -744,13 +739,7 @@ const ProductCreate = () => {
                             focus:outline-none focus:ring-2 focus:ring-blue-500"
                           required
                         />
-                        <button
-                          type="button"
-                          onClick={() => removeVariant(variantIndex)}
-                          className="ml-2 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded"
-                        >
-                          <FiTrash2 />
-                        </button>
+                        <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => removeVariant(variantIndex)}>Delete</Button>
                       </div>
 
                       <div className="space-y-2">
@@ -825,14 +814,9 @@ const ProductCreate = () => {
                           </div>
                         ))}
 
-                        <button
-                          type="button"
-                          onClick={() => addVariantOption(variantIndex)}
-                          className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 
-                            rounded hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center"
-                        >
+                        <Button variant="primary" size="md" type="button" onClick={() => addVariantOption(variantIndex)}>
                           <FiPlus className="mr-1" /> Add Option
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -1239,15 +1223,9 @@ const ProductCreate = () => {
                         <p className="text-red-500 text-sm mt-1">{pincodeError}</p>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={addPincode}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
-                        flex items-center whitespace-nowrap"
-                      style={{ backgroundColor: 'black' }}
-                    >
+                    <Button variant="primary" size="md" type="button" onClick={addPincode}>
                       <FiPlus className="mr-1" /> Add Pincode
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Pincode Tags Display */}

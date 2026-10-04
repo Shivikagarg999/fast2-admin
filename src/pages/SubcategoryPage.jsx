@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Edit, Trash2, Plus, Layers, X } from "lucide-react";
+import { Edit, Trash2, Plus, Layers, X, Eye } from "lucide-react";
+import Modal from "../components/common/Modal";
+import Button from "../components/common/Button";
+import DetailsGrid from "../components/common/DetailsGrid";
 import usePermissions from "../hooks/usePermissions";
 import { PERMISSIONS } from "../config/permissions";
 
@@ -13,6 +16,7 @@ const SubcategoriesPage = () => {
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showModal, setShowModal] = useState(false);
+    const [viewSubcategory, setViewSubcategory] = useState(null);
     const [editingSubcategory, setEditingSubcategory] = useState(null);
     const [modalLoading, setModalLoading] = useState(false);
     const [imagePreview, setImagePreview] = useState("");
@@ -335,10 +339,10 @@ const SubcategoriesPage = () => {
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button onClick={openAddModal} style={buttonStyles.primary}>
+                        <Button variant="primary" size="md" onClick={openAddModal}>
                             <Plus className="w-4 h-4" />
                             Add Subcategory
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -515,20 +519,15 @@ const SubcategoriesPage = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <button
-                                                        onClick={() => openEditModal(subcategory)}
-                                                        className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
-                                                        title="Edit Subcategory"
-                                                    >
-                                                        <Edit className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(subcategory._id, subcategory.name)}
-                                                        className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
-                                                        title="Delete Subcategory"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    <Button variant="primary" size="sm" icon={Eye} onClick={() => setViewSubcategory(subcategory)}>
+                                                        View
+                                                    </Button>
+                                                    <Button variant="secondary" size="sm" icon={Edit} onClick={() => openEditModal(subcategory)}>
+                                                        Edit
+                                                    </Button>
+                                                    <Button variant="danger" size="sm" icon={Trash2} onClick={() => handleDelete(subcategory._id, subcategory.name)}>
+                                                        Delete
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -602,6 +601,49 @@ const SubcategoriesPage = () => {
                 )}
 
                 {/* Modal */}
+                {viewSubcategory && (
+                    <Modal title={viewSubcategory.name || "Subcategory"} onClose={() => setViewSubcategory(null)} maxWidth="560px">
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                            <img
+                                src={viewSubcategory.image}
+                                alt={viewSubcategory.name}
+                                style={{ width: '112px', height: '112px', borderRadius: '10px', objectFit: 'cover', border: '1px solid #e5e7eb' }}
+                                onError={(e) => { e.target.src = "https://via.placeholder.com/112?text=No+Image"; }}
+                            />
+                            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                {[
+                                    { label: "Category", value: viewSubcategory.category?.name },
+                                    { label: "Created", value: formatDate(viewSubcategory.createdAt) },
+                                ].map((row) => (
+                                    <div key={row.label}>
+                                        <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{row.label}</div>
+                                        <div style={{ fontSize: '14px', color: '#111827', marginTop: '2px' }}>{row.value || "N/A"}</div>
+                                    </div>
+                                ))}
+                                <div>
+                                    <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</div>
+                                    <span style={{
+                                        display: 'inline-block', marginTop: '4px', padding: '2px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: '600',
+                                        backgroundColor: viewSubcategory.isActive ? '#dcfce7' : '#fee2e2',
+                                        color: viewSubcategory.isActive ? '#166534' : '#991b1b'
+                                    }}>
+                                        {viewSubcategory.isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {viewSubcategory.description && (
+                            <div style={{ marginTop: '16px', fontSize: '14px', color: '#4b5563', lineHeight: 1.5 }}>{viewSubcategory.description}</div>
+                        )}
+                        <DetailsGrid data={viewSubcategory} />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
+                            <Button variant="secondary" icon={Edit} onClick={() => { const sc = viewSubcategory; setViewSubcategory(null); openEditModal(sc); }}>
+                                Edit
+                            </Button>
+                        </div>
+                    </Modal>
+                )}
+
                 {showModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import Button from "../../components/common/Button";
 import {
   FiMail,
   FiSearch,
@@ -520,21 +521,9 @@ export default function ContactPage() {
                   </td>
                   <td style={{ padding: "10px 14px" }}>
                     <div style={{ display: "flex", gap: "6px" }}>
-                      <button
-                        onClick={e => { e.stopPropagation(); openDetail(c); }}
-                        style={{ padding: "4px", borderRadius: "4px", border: "none", background: "none", color: "#2563eb", cursor: "pointer" }}
-                        title="View"
-                      >
-                        <FiEye style={{ width: "15px", height: "15px" }} />
-                      </button>
+                      <Button variant="primary" size="sm" icon={FiEye} onClick={e => { e.stopPropagation(); openDetail(c); }} title="View">View</Button>
                       {hasPermission(PERMISSIONS.CONTACTS_DELETE) && (
-                        <button
-                          onClick={e => handleDelete(c._id, e)}
-                          style={{ padding: "4px", borderRadius: "4px", border: "none", background: "none", color: "#ef4444", cursor: "pointer" }}
-                          title="Delete"
-                        >
-                          <FiTrash2 style={{ width: "15px", height: "15px" }} />
-                        </button>
+                        <Button variant="danger" size="sm" icon={FiTrash2} onClick={e => handleDelete(c._id, e)} title="Delete">Delete</Button>
                       )}
                     </div>
                   </td>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Button from "../../components/common/Button";
 import { useNavigate } from 'react-router-dom';
 import {
   FiPlus,
@@ -162,14 +163,10 @@ const RoleManagement = () => {
                 <FiRefreshCw className="w-4 h-4" />
                 Refresh
               </button>
-              <button
-                onClick={() => navigate('/admin/create-role')}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                style={{ backgroundColor: 'black' }}
-              >
+              <Button variant="primary" size="md" onClick={() => navigate('/admin/create-role')}>
                 <FiPlus className="w-4 h-4" />
                 Add Role
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -248,24 +245,12 @@ const RoleManagement = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => navigate(`/admin/edit-role/${role._id}`)}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded transition-colors"
-                          title="Edit Role"
-                        >
-                          <FiEdit2 className="w-4 h-4" />
-                        </button>
+                        <Button variant="secondary" size="sm" icon={FiEdit2} onClick={() => navigate(`/admin/edit-role/${role._id}`)} title="Edit Role">Edit</Button>
                         {!role.isSystem && (
-                          <button
-                            onClick={() => {
+                          <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => {
                               setRoleToDelete(role);
                               setShowDeleteModal(true);
-                            }}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-1 rounded transition-colors"
-                            title="Delete Role"
-                          >
-                            <FiTrash2 className="w-4 h-4" />
-                          </button>
+                            }} title="Delete Role">Delete</Button>
                         )}
                       </div>
                     </td>

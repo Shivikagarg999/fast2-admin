@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import Button from "../../components/common/Button";
 import {
     Building2, RefreshCw, Search, X,
     MapPin, CheckCircle, XCircle, Trash2,
@@ -497,14 +498,10 @@ const ShopsPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                     {hasPermission(PERMISSIONS.SHOPS_EDIT) && (
-                        <button
-                            onClick={() => handleOpenForm()}
-                            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors shadow-sm"
-                            style={{ backgroundColor: 'black' }}
-                        >
+                        <Button variant="primary" size="md" onClick={() => handleOpenForm()}>
                             <Plus className="w-4 h-4" />
                             Create Shop
-                        </button>
+                        </Button>
                     )}
                     <button
                         onClick={() => { setRefreshing(true); fetchShops(pagination.currentPage); }}
@@ -721,14 +718,7 @@ const ShopsPage = () => {
                                                 {hasPermission(PERMISSIONS.SHOPS_EDIT) && (
                                                     <>
                                                         {/* Edit */}
-                                                        <button
-                                                            onClick={() => handleOpenForm(shop)}
-                                                            className="p-1.5 text-white rounded-lg hover:opacity-90 transition-colors"
-                                                            style={{ backgroundColor: 'black' }}
-                                                            title="Edit Shop"
-                                                        >
-                                                            <Edit2 className="w-4 h-4" />
-                                                        </button>
+                                                        <Button variant="secondary" size="sm" icon={Edit2} onClick={() => handleOpenForm(shop)} title="Edit Shop">Edit</Button>
 
                                                         {/* Verify Toggle */}
                                                         <button

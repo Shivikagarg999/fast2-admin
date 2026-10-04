@@ -20,6 +20,7 @@ import {
 import Modal from "../components/common/Modal";
 import Button from "../components/common/Button";
 import Tabs from "../components/common/Tabs";
+import DetailsGrid from "../components/common/DetailsGrid";
 import usePermissions from "../hooks/usePermissions";
 import { PERMISSIONS } from "../config/permissions";
 
@@ -587,29 +588,10 @@ const UsersPage = () => {
 
             {/* Add User Button */}
             {hasPermission(PERMISSIONS.USERS_CREATE) && (
-              <button
-                onClick={openAddUserModal}
-                style={{
-                  backgroundColor: "#2563eb",
-                  color: "#ffffff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "10px 16px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  transition: "all 0.2s"
-                }}
-                className="hover:bg-blue-700"
-                onMouseEnter={(e) => e.target.style.backgroundColor = "#1d4ed8"}
-                onMouseLeave={(e) => e.target.style.backgroundColor = "#2563eb"}
-              >
+              <Button variant="primary" size="md" onClick={openAddUserModal}>
                 <FiUserPlus style={{ width: "16px", height: "16px" }} />
                 Add User
-              </button>
+              </Button>
             )}
             <button
               onClick={downloadCSV}
@@ -923,6 +905,7 @@ const UsersPage = () => {
                       </div>
                     ))}
                   </div>
+                  <DetailsGrid data={userDetails.user} title="All user fields" />
                 </div>
               )}
 

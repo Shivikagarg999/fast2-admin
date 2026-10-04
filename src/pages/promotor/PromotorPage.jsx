@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import Button from "../../components/common/Button";
 import axios from "axios";
 import { FiEdit, FiTrash2, FiPlus, FiUser, FiX, FiDollarSign } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -114,13 +115,10 @@ const PromotorsPage = () => {
             </span>
           </div>
           {hasPermission(PERMISSIONS.PROMOTORS_CREATE) && (
-            <button
-              onClick={() => navigate('/admin/create-promotor')}
-              className="flex items-center px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            <Button variant="primary" size="md" onClick={() => navigate('/admin/create-promotor')}>
               <FiPlus className="w-4 h-4 mr-2" />
               Add Promotor
-            </button>
+            </Button>
           )}
         </div>
 
@@ -232,20 +230,8 @@ const PromotorsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleEdit(promotor)}
-                            className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
-                            title="Edit Promotor"
-                          >
-                            <FiEdit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => openDeleteModal(promotor)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
-                            title="Delete Promotor"
-                          >
-                            <FiTrash2 className="w-4 h-4" />
-                          </button>
+                          <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => handleEdit(promotor)} title="Edit Promotor">Edit</Button>
+                          <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => openDeleteModal(promotor)} title="Delete Promotor">Delete</Button>
                         </div>
                       </td>
                     </tr>

@@ -1,3 +1,5 @@
+import DetailsGrid from "../../components/common/DetailsGrid";
+import Button from "../../components/common/Button";
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { UNIT_GROUPS, SELLING_UNIT_OPTIONS } from "../../constants/units";
@@ -1360,25 +1362,19 @@ const ProductsPage = () => {
                 </div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   {hasPermission(PERMISSIONS.PRODUCTS_CREATE) && (
-                    <button
-                      onClick={openAddModal}
-                      style={buttonStyles.primary}
-                    >
+                    <Button variant="primary" size="md" onClick={openAddModal}>
                       <FiPlus style={{ width: "16px", height: "16px" }} />
                       Add Product
-                    </button>
+                    </Button>
                   )}
                   <button onClick={downloadCSV} style={buttonStyles.success}>
                     <FiDownload style={{ width: "16px", height: "16px" }} />
                     Download CSV
                   </button>
-                  <button
-                    onClick={() => document.getElementById('csvFileInput').click()}
-                    style={buttonStyles.outline}
-                  >
+                  <Button variant="primary" size="md" onClick={() => document.getElementById('csvFileInput').click()}>
                     <FiUpload style={{ width: "16px", height: "16px" }} />
                     Upload CSV
-                  </button>
+                  </Button>
                   <button onClick={downloadTemplate} style={buttonStyles.outline}>
                     Download Template
                   </button>
@@ -2113,35 +2109,9 @@ const ProductsPage = () => {
                                   gap: "8px",
                                 }}
                               >
-                                <button
-                                  onClick={() => openProductView(product)}
-                                  style={{
-                                    color: "#10b981",
-                                    padding: "4px",
-                                    borderRadius: "4px",
-                                  }}
-                                  className="hover:text-green-700"
-                                  title="View Product"
-                                >
-                                  <FiEye
-                                    style={{ width: "16px", height: "16px" }}
-                                  />
-                                </button>
+                                <Button variant="primary" size="sm" icon={FiEye} onClick={() => openProductView(product)} title="View Product">View</Button>
                                 {hasPermission(PERMISSIONS.PRODUCTS_EDIT) && (
-                                  <button
-                                    onClick={() => openEditModal(product)}
-                                    style={{
-                                      color: "#3b82f6",
-                                      padding: "4px",
-                                      borderRadius: "4px",
-                                    }}
-                                    className="hover:text-blue-700"
-                                    title="Edit Product"
-                                  >
-                                    <FiEdit
-                                      style={{ width: "16px", height: "16px" }}
-                                    />
-                                  </button>
+                                  <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => openEditModal(product)} title="Edit Product">Edit</Button>
                                 )}
                                 {hasPermission(PERMISSIONS.PRODUCTS_EDIT) && product.price > 200 && (
                                   <button
@@ -2158,22 +2128,9 @@ const ProductsPage = () => {
                                   </button>
                                 )}
                                 {hasPermission(PERMISSIONS.PRODUCTS_DELETE) && (
-                                  <button
-                                    onClick={() =>
+                                  <Button variant="danger" size="sm" icon={FiTrash2} onClick={() =>
                                       handleDelete(product._id, product.name)
-                                    }
-                                    style={{
-                                      color: "#ef4444",
-                                      padding: "4px",
-                                      borderRadius: "4px",
-                                    }}
-                                    className="hover:text-red-700"
-                                    title="Delete Product"
-                                  >
-                                    <FiTrash2
-                                      style={{ width: "16px", height: "16px" }}
-                                    />
-                                  </button>
+                                    } title="Delete Product">Delete</Button>
                                 )}
                               </div>
                             </td>
@@ -3849,16 +3806,9 @@ const ProductsPage = () => {
                           }}
                           className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         />
-                        <button
-                          type="button"
-                          onClick={() => addPincode("available")}
-                          style={{
-                            ...buttonStyles.primary,
-                            padding: "8px 16px",
-                          }}
-                        >
+                        <Button variant="primary" size="md" type="button" onClick={() => addPincode("available")}>
                           Add
-                        </button>
+                        </Button>
                       </div>
                       <div
                         style={{
@@ -3938,13 +3888,9 @@ const ProductsPage = () => {
                         }}
                         className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       />
-                      <button
-                        type="button"
-                        onClick={() => addPincode("serviceable")}
-                        style={{ ...buttonStyles.primary, padding: "8px 16px" }}
-                      >
+                      <Button variant="primary" size="md" type="button" onClick={() => addPincode("serviceable")}>
                         Add
-                      </button>
+                      </Button>
                     </div>
                     <div
                       style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}
@@ -4391,21 +4337,10 @@ const ProductsPage = () => {
                       >
                         Product Variants
                       </h3>
-                      <button
-                        type="button"
-                        onClick={addVariant}
-                        style={{
-                          ...buttonStyles.primary,
-                          display: "block",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          color: "#374151",
-                          marginBottom: "8px",
-                        }}
-                      >
+                      <Button variant="primary" size="md" type="button" onClick={addVariant}>
                         <FiPlus style={{ width: "14px", height: "14px" }} /> Add
                         Variant
-                      </button>
+                      </Button>
                     </div>
 
                     {/* Quick Add Common Variants */}
@@ -4483,18 +4418,7 @@ const ProductsPage = () => {
                             }}
                             className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                           />
-                          <button
-                            type="button"
-                            onClick={() => removeVariant(vIndex)}
-                            style={{
-                              ...buttonStyles.danger,
-                              padding: "6px 12px",
-                            }}
-                          >
-                            <FiTrash2
-                              style={{ width: "14px", height: "14px" }}
-                            />
-                          </button>
+                          <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => removeVariant(vIndex)}>Delete</Button>
                         </div>
 
                         {variant.options.map((option, oIndex) => (
@@ -4604,19 +4528,10 @@ const ProductsPage = () => {
                           </div>
                         ))}
 
-                        <button
-                          type="button"
-                          onClick={() => addVariantOption(vIndex)}
-                          style={{
-                            ...buttonStyles.secondary,
-                            padding: "6px 12px",
-                            fontSize: "13px",
-                            marginTop: "8px",
-                          }}
-                        >
+                        <Button variant="primary" size="md" type="button" onClick={() => addVariantOption(vIndex)}>
                           <FiPlus style={{ width: "14px", height: "14px" }} />{" "}
                           Add Option
-                        </button>
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -4941,6 +4856,7 @@ const ProductsPage = () => {
               </div>
 
               <div style={{ padding: "24px" }}>
+                <DetailsGrid data={selectedProduct} title="All product fields" />
                 {/* Main Product Info with Image */}
                 <div
                   style={{

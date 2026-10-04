@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Button from "../../components/common/Button";
 import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight, FiClock, FiImage, FiX, FiCheck, FiAlertCircle, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/popups`;
@@ -216,14 +217,10 @@ const PopupManagement = () => {
           <h1 className="text-2xl font-bold text-gray-900">Popup Management</h1>
           <p className="text-gray-500 mt-1 text-sm">Manage popups (image, heading, sub heading and button) shown to users during a scheduled time window</p>
         </div>
-        <button
-          onClick={() => { closeForm(); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium"
-          style={{ backgroundColor: 'black' }}
-        >
+        <Button variant="primary" size="md" onClick={() => { closeForm(); setShowForm(true); }}>
           <FiPlus className="w-4 h-4" />
           Create Popup
-        </button>
+        </Button>
       </div>
 
       {/* Toast */}
@@ -497,13 +494,7 @@ const PopupManagement = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => handleEdit(popup)}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <FiEdit2 className="w-4 h-4" />
-                            </button>
+                            <Button variant="secondary" size="sm" icon={FiEdit2} onClick={() => handleEdit(popup)} title="Edit">Edit</Button>
                             <button
                               onClick={() => handleToggle(popup._id)}
                               className={popup.isActive ? 'text-green-600 hover:text-green-800' : 'text-gray-400 hover:text-gray-600'}
@@ -511,13 +502,7 @@ const PopupManagement = () => {
                             >
                               {popup.isActive ? <FiToggleRight className="w-5 h-5" /> : <FiToggleLeft className="w-5 h-5" />}
                             </button>
-                            <button
-                              onClick={() => handleDelete(popup._id)}
-                              className="text-red-500 hover:text-red-700"
-                              title="Delete"
-                            >
-                              <FiTrash2 className="w-4 h-4" />
-                            </button>
+                            <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => handleDelete(popup._id)} title="Delete">Delete</Button>
                           </div>
                         </td>
                       </tr>

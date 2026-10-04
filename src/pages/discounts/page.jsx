@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import Button from "../../components/common/Button";
 import axios from "axios";
 import { FiTag, FiPercent, FiPackage, FiX, FiSearch, FiCalendar, FiPlus, FiEdit, FiTrash2, FiClock } from "react-icons/fi";
 import usePermissions from "../../hooks/usePermissions";
@@ -297,13 +298,10 @@ const DiscountPage = () => {
               <FiClock className="w-4 h-4 mr-2" />
               View Active Discounts
             </button>
-            <button
-              onClick={openCreateDiscountModal}
-              className="flex items-center px-4 py-2 bg-black text-black rounded-lg hover:bg-gray-800 transition-colors"
-            >
+            <Button variant="primary" size="md" onClick={openCreateDiscountModal}>
               <FiPlus className="w-4 h-4 mr-2" />
               Create New Discount
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -364,21 +362,15 @@ const DiscountPage = () => {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button
-              onClick={openCreateDiscountModal}
-              className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-center"
-            >
+            <Button variant="primary" size="md" onClick={openCreateDiscountModal}>
               <FiPlus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Category Discount</p>
-            </button>
+            </Button>
 
-            <button
-              onClick={openCreateDiscountModal}
-              className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-center"
-            >
+            <Button variant="primary" size="md" onClick={openCreateDiscountModal}>
               <FiPackage className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Product Discount</p>
-            </button>
+            </Button>
 
             <button
               onClick={openActiveDiscountsModal}
@@ -623,18 +615,12 @@ const DiscountPage = () => {
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    disabled={creatingDiscount}
-                    className="px-4 py-2 text-sm font-medium bg-black text-black
-                      rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed 
-                      transition-colors flex items-center gap-2"
-                  >
+                  <Button variant="primary" size="md" type="submit" disabled={creatingDiscount}>
                     {creatingDiscount && (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     )}
                     Create Discount
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
@@ -777,20 +763,8 @@ const DiscountPage = () => {
                               >
                                 {discount.isActive ? 'Deactivate' : 'Activate'}
                               </button>
-                              <button
-                                onClick={() => handleEditDiscount(discount)}
-                                className="p-1 text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
-                                title="Edit"
-                              >
-                                <FiEdit className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteDiscount(discount._id)}
-                                className="p-1 text-red-600 hover:text-red-800 dark:hover:text-red-400"
-                                title="Delete"
-                              >
-                                <FiTrash2 className="w-4 h-4" />
-                              </button>
+                              <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => handleEditDiscount(discount)} title="Edit">Edit</Button>
+                              <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => handleDeleteDiscount(discount._id)} title="Delete">Delete</Button>
                             </div>
                           </div>
                         </div>

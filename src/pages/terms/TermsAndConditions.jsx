@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import Button from "../../components/common/Button";
 import { FiPlus, FiFileText, FiFilter, FiEye, FiEyeOff } from "react-icons/fi";
 import { Editor } from '@tinymce/tinymce-react';
 import TermCard from "../../components/terms/TermCard";
@@ -585,16 +586,10 @@ const PoliciesManagement = () => {
             </button>
 
             {/* Create Button */}
-            <button
-              onClick={openModal}
-              style={{
-                ...buttonStyles.primary,
-                marginTop: 0
-              }}
-            >
+            <Button variant="primary" size="md" onClick={openModal}>
               <FiPlus size={16} />
               Create New {currentPolicyType}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -709,16 +704,10 @@ const PoliciesManagement = () => {
             }}>
               Create your first {currentPolicyType.toLowerCase()} to get started
             </p>
-            <button
-              onClick={openModal}
-              style={{
-                ...buttonStyles.primary,
-                display: 'inline-flex'
-              }}
-            >
+            <Button variant="primary" size="md" onClick={openModal}>
               <FiPlus size={16} />
               Create First Version
-            </button>
+            </Button>
           </div>
         ) : (
           <div style={{

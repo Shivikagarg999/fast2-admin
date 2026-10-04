@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import Button from "../../components/common/Button";
 import {
   FiGift,
   FiSearch,
@@ -294,10 +295,9 @@ export default function ScratchCardsPage() {
             <FiRefreshCw style={{ width: "14px", height: "14px" }} /> Refresh
           </button>
           {hasPermission(PERMISSIONS.COUPONS_CREATE) && (
-            <button onClick={openCreate}
-              style={{ display: "flex", alignItems: "center", gap: "6px", padding: "7px 14px", border: "none", borderRadius: "7px", fontSize: "13px", fontWeight: "600", backgroundColor: "#f59e0b", color: "#fff", cursor: "pointer" }}>
+            <Button variant="primary" size="md" onClick={openCreate}>
               <FiPlus style={{ width: "14px", height: "14px" }} /> Add Coupon
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -447,17 +447,11 @@ export default function ScratchCardsPage() {
                         )}
                         {/* Edit */}
                         {hasPermission(PERMISSIONS.COUPONS_EDIT) && (
-                          <button onClick={() => openEdit(c)} disabled={!!rowLoading}
-                            style={{ padding: "4px", border: "none", background: "none", color: "#2563eb", cursor: rowLoading ? "not-allowed" : "pointer" }} title="Edit">
-                            <FiEdit style={{ width: "15px", height: "15px" }} />
-                          </button>
+                          <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => openEdit(c)} disabled={!!rowLoading} title="Edit">Edit</Button>
                         )}
                         {/* Delete */}
                         {hasPermission(PERMISSIONS.COUPONS_DELETE) && (
-                          <button onClick={() => handleDelete(c)} disabled={!!rowLoading}
-                            style={{ padding: "4px", border: "none", background: "none", color: "#ef4444", cursor: rowLoading ? "not-allowed" : "pointer", opacity: isDeletingThis ? 0.5 : 1 }} title="Delete">
-                            <FiTrash2 style={{ width: "15px", height: "15px" }} />
-                          </button>
+                          <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => handleDelete(c)} disabled={!!rowLoading} title="Delete">Delete</Button>
                         )}
                       </div>
                     </td>

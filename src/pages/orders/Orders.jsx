@@ -1,3 +1,5 @@
+import DetailsGrid from "../../components/common/DetailsGrid";
+import Button from "../../components/common/Button";
 import { useEffect, useState } from "react";
 import {
   FiPackage,
@@ -579,6 +581,9 @@ const OrdersPage = () => {
                                         Order & Customer
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Address
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         Seller
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -607,7 +612,7 @@ const OrdersPage = () => {
                             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={10} className="text-center py-8">
+                                        <td colSpan={11} className="text-center py-8">
                                             <div className="flex items-center justify-center">
                                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                                 <span className="ml-2 text-gray-500 dark:text-gray-400">Loading orders...</span>
@@ -616,7 +621,7 @@ const OrdersPage = () => {
                                     </tr>
                                 ) : orders.length === 0 ? (
                                     <tr>
-                                        <td colSpan={10} className="text-center py-8">
+                                        <td colSpan={11} className="text-center py-8">
                                             <div className="flex flex-col items-center">
                                                 <FiPackage className="w-12 h-12 text-gray-400 mb-2" />
                                                 <span className="text-gray-500 dark:text-gray-400">No orders found.</span>
@@ -638,7 +643,7 @@ const OrdersPage = () => {
                                     </tr>
                                 ) : (
                                     orders.map((order) => (
-                                        <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-700" style={{ height: '76px' }}>
                                             <td className="px-4 py-4">
                                                 <input
                                                     type="checkbox"
@@ -659,6 +664,14 @@ const OrdersPage = () => {
                                                     <div className="text-xs text-gray-400 dark:text-gray-500">
                                                         {order.user?.phone}
                                                     </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4" style={{ maxWidth: '260px' }}>
+                                                <div className="text-sm text-gray-900 dark:text-white truncate" title={[order.shippingAddress?.addressLine, order.shippingAddress?.city, order.shippingAddress?.state, order.shippingAddress?.pinCode].filter(Boolean).join(', ')}>
+                                                    {order.shippingAddress?.addressLine || 'N/A'}
+                                                </div>
+                                                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                    {[order.shippingAddress?.city, order.shippingAddress?.state, order.shippingAddress?.pinCode].filter(Boolean).join(', ')}
                                                 </div>
                                             </td>
                                             
@@ -766,14 +779,7 @@ const OrdersPage = () => {
                                             {/* Actions */}
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <button
-                                                        onClick={() => openOrderDetails(order)}
-                                                        style={{ color: "#10b981", padding: "4px", borderRadius: "4px" }}
-                                                        className="hover:text-green-700"
-                                                        title="View Order Details"
-                                                    >
-                                                        <FiEye style={{ width: "16px", height: "16px" }} />
-                                                    </button>
+                                                    <Button variant="primary" size="sm" icon={FiEye} onClick={() => openOrderDetails(order)} title="View Order Details">View</Button>
                                                     <button
                                                         onClick={() => handleDownloadInvoice(order._id)}
                                                         style={{ color: "#3b82f6", padding: "4px", borderRadius: "4px" }}
@@ -877,6 +883,7 @@ const OrdersPage = () => {
                             </div>
 
                             <div className="p-6 space-y-6 max-h-[calc(95vh-97px)] overflow-y-auto">
+                            <DetailsGrid data={selectedOrder} title="All order fields" />
                                 <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
                                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
                                         <div>

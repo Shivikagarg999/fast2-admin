@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Button from "../../components/common/Button";
 import {
     FiCreditCard,
     FiEye,
@@ -422,13 +423,7 @@ const OnlinePay = () => {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex justify-center gap-2">
-                                                        <button
-                                                            onClick={() => openOrderDetails(order)}
-                                                            className="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50"
-                                                            title="View Details"
-                                                        >
-                                                            <FiEye className="w-4 h-4" />
-                                                        </button>
+                                                        <Button variant="primary" size="sm" icon={FiEye} onClick={() => openOrderDetails(order)} title="View Details">View</Button>
                                                         <select
                                                             onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
                                                             className="text-xs border border-gray-300 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -494,13 +489,9 @@ const OnlinePay = () => {
                                 </div>
 
                                 <div className="flex gap-2 mt-4">
-                                    <button
-                                        onClick={() => openOrderDetails(order)}
-                                        className="flex-1 bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center justify-center gap-1"
-                                    >
-                                        <FiEye className="w-3 h-3" />
+                                    <Button variant="primary" size="sm" icon={FiEye} onClick={() => openOrderDetails(order)} style={{ flex: 1 }}>
                                         View
-                                    </button>
+                                    </Button>
                                     <select
                                         onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
                                         className="flex-1 text-xs border border-gray-300 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"

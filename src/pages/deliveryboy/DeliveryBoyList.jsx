@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import Button from "../../components/common/Button";
 import axios from "axios";
 import { FiEdit, FiTrash2, FiPlus, FiUser, FiX, FiPhone, FiMail, FiCheckCircle, FiDollarSign, FiEye, FiDownload, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -271,16 +272,10 @@ const DriverList = () => {
               {filteredDrivers.length} drivers
             </span>
           </div>
-          <button
-            onClick={() => navigate('/admin/create-driver')}
-            className="flex items-center px-4 py-2 text-black rounded-lg"
-            style={{ backgroundColor: '#2563eb' }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-          >
+          <Button variant="primary" size="md" onClick={() => navigate('/admin/create-driver')}>
             <FiPlus className="w-4 h-4 mr-2" />
             Add Driver
-          </button>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -437,27 +432,9 @@ const DriverList = () => {
                         </td>
                         <td className="px-3 py-3 whitespace-nowrap text-center">
                           <div className="flex items-center justify-center gap-1">
-                            <button
-                              onClick={() => openDetailsModal(driver)}
-                              className="text-purple-500 hover:text-purple-700 p-1 rounded transition-colors"
-                              title="View Details"
-                            >
-                              <FiEye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleEdit(driver)}
-                              className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
-                              title="Edit Driver"
-                            >
-                              <FiEdit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => openDeleteModal(driver)}
-                              className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
-                              title="Delete Driver"
-                            >
-                              <FiTrash2 className="w-4 h-4" />
-                            </button>
+                            <Button variant="primary" size="sm" icon={FiEye} onClick={() => openDetailsModal(driver)} title="View Details">View</Button>
+                            <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => handleEdit(driver)} title="Edit Driver">Edit</Button>
+                            <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => openDeleteModal(driver)} title="Delete Driver">Delete</Button>
                           </div>
                         </td>
                       </tr>

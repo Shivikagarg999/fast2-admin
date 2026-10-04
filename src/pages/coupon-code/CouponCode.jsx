@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import Button from "../../components/common/Button";
 import {
   FiEdit,
   FiTrash2,
@@ -1210,36 +1211,10 @@ const CouponsPage = () => {
                               {status.text === 'Active' ? <FiToggleRight style={{ width: '16px', height: '16px' }} /> : <FiToggleLeft style={{ width: '16px', height: '16px' }} />}
                             </button>
                             {hasPermission(PERMISSIONS.COUPONS_EDIT) && (
-                              <button
-                                style={{
-                                  color: '#2563eb',
-                                  padding: '8px',
-                                  borderRadius: '6px',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  backgroundColor: 'transparent'
-                                }}
-                                title="Edit Coupon"
-                                onClick={() => openEditCouponModal(coupon)}
-                              >
-                                <FiEdit style={{ width: '16px', height: '16px' }} />
-                              </button>
+                              <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => openEditCouponModal(coupon)} title="Edit Coupon">Edit</Button>
                             )}
                             {hasPermission(PERMISSIONS.COUPONS_DELETE) && (
-                              <button
-                                style={{
-                                  color: '#dc2626',
-                                  padding: '8px',
-                                  borderRadius: '6px',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  backgroundColor: 'transparent'
-                                }}
-                                title="Delete Coupon"
-                                onClick={() => handleDeleteCoupon(coupon._id, coupon.code)}
-                              >
-                                <FiTrash2 style={{ width: '16px', height: '16px' }} />
-                              </button>
+                              <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => handleDeleteCoupon(coupon._id, coupon.code)} title="Delete Coupon">Delete</Button>
                             )}
                           </div>
                         </td>

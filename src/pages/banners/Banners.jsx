@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import Button from "../../components/common/Button";
 import {
   FiPlus,
   FiEdit,
@@ -366,13 +367,7 @@ const BannersPage = () => {
 
         <div className="flex items-center justify-between">
           <div className="flex gap-1">
-            <button
-              onClick={() => setPreviewBanner(banner)}
-              className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-              title="Preview"
-            >
-              <FiEye className="w-4 h-4" />
-            </button>
+            <Button variant="primary" size="sm" icon={FiEye} onClick={() => setPreviewBanner(banner)} title="Preview">View</Button>
             <button
               onClick={() => toggleBannerStatus(banner)}
               className="p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
@@ -383,20 +378,8 @@ const BannersPage = () => {
           </div>
 
           <div className="flex gap-1">
-            <button
-              onClick={() => handleEdit(banner)}
-              className="p-2 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors"
-              title="Edit"
-            >
-              <FiEdit className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setDeleteConfirm(banner)}
-              className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-              title="Delete"
-            >
-              <FiTrash2 className="w-4 h-4" />
-            </button>
+            <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => handleEdit(banner)} title="Edit">Edit</Button>
+            <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => setDeleteConfirm(banner)} title="Delete">Delete</Button>
           </div>
         </div>
       </div>
@@ -440,16 +423,10 @@ const BannersPage = () => {
               Create and manage promotional banners for your store
             </p>
           </div>
-          <button
-            onClick={openModal}
-            className="mt-4 sm:mt-0 flex items-center gap-2 px-4 py-2 text-black rounded-lg transition-colors"
-            style={{ backgroundColor: '#2563eb' }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-          >
+          <Button variant="primary" size="md" onClick={openModal}>
             <FiPlus className="w-4 h-4" />
             Create Banner
-          </button>
+          </Button>
         </div>
 
         {/* Stats */}
@@ -486,16 +463,10 @@ const BannersPage = () => {
             <p className="text-gray-500 dark:text-gray-400 mb-6">
               Create your first promotional banner to get started
             </p>
-            <button
-              onClick={openModal}
-              className="inline-flex items-center gap-2 px-6 py-3 text-white rounded-lg transition-colors"
-              style={{ backgroundColor: '#2563eb' }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-            >
+            <Button variant="primary" size="md" onClick={openModal}>
               <FiPlus className="w-4 h-4" />
               Create Your First Banner
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -754,13 +725,17 @@ const BannersPage = () => {
             </div>
 
             <div className="p-6">
-              <div className={`rounded-lg overflow-hidden ${previewBanner.gradient} h-64 relative`}>
+              <div className={`rounded-lg overflow-hidden ${gradientOptions.find((o) => o.value === previewBanner.gradient)?.preview || "bg-gradient-to-r from-blue-500 to-purple-600"} h-64 relative`}>
                 <img
-                  src={previewBanner.image}
+                  src={previewBanner.image || previewBanner.fallbackImage}
                   alt={previewBanner.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.src = previewBanner.fallbackImage;
+                    if (previewBanner.fallbackImage && e.target.src !== previewBanner.fallbackImage) {
+                      e.target.src = previewBanner.fallbackImage;
+                    } else {
+                      e.target.style.display = "none";
+                    }
                   }}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">

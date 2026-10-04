@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Edit, Trash2, Plus, Tag, X, Upload, Download } from "lucide-react";
+import { Edit, Trash2, Plus, Tag, X, Upload, Download, Eye } from "lucide-react";
+import Modal from "../components/common/Modal";
+import Button from "../components/common/Button";
+import DetailsGrid from "../components/common/DetailsGrid";
 import usePermissions from "../hooks/usePermissions";
 import { PERMISSIONS } from "../config/permissions";
 
@@ -12,6 +15,7 @@ const CategoriesPage = () => {
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showModal, setShowModal] = useState(false);
+    const [viewCategory, setViewCategory] = useState(null);
     const [editingCategory, setEditingCategory] = useState(null);
     const [modalLoading, setModalLoading] = useState(false);
     const [imagePreview, setImagePreview] = useState("");
@@ -451,10 +455,10 @@ const CategoriesPage = () => {
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button onClick={openAddModal} style={buttonStyles.primary}>
+                        <Button variant="primary" size="md" onClick={openAddModal}>
                             <Plus className="w-4 h-4" />
                             Add Category
-                        </button>
+                        </Button>
                         <button
                             onClick={downloadCategoriesCSV}
                             style={buttonStyles.success}
@@ -463,13 +467,10 @@ const CategoriesPage = () => {
                             <Download className="w-4 h-4" />
                             Download CSV
                         </button>
-                        <button
-                            onClick={() => document.getElementById('categoryCsvFileInput').click()}
-                            style={buttonStyles.outline}
-                        >
+                        <Button variant="primary" size="md" onClick={() => document.getElementById('categoryCsvFileInput').click()}>
                             <Upload className="w-4 h-4" />
                             Upload CSV
-                        </button>
+                        </Button>
                         <button onClick={downloadCategoryTemplate} style={buttonStyles.outline}>
                             <Download className="w-4 h-4" />
                             Download Template
@@ -726,20 +727,15 @@ const CategoriesPage = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <button
-                                                        onClick={() => openEditModal(category)}
-                                                        className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
-                                                        title="Edit Category"
-                                                    >
-                                                        <Edit className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(category._id, category.name)}
-                                                        className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
-                                                        title="Delete Category"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    <Button variant="primary" size="sm" icon={Eye} onClick={() => setViewCategory(category)}>
+                                                        View
+                                                    </Button>
+                                                    <Button variant="secondary" size="sm" icon={Edit} onClick={() => openEditModal(category)}>
+                                                        Edit
+                                                    </Button>
+                                                    <Button variant="danger" size="sm" icon={Trash2} onClick={() => handleDelete(category._id, category.name)}>
+                                                        Delete
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -813,7 +809,52 @@ const CategoriesPage = () => {
                 )}
 
                 {/* Modal */}
-                {showModal && (
+                {viewCategory && (
+                <Modal title={viewCategory.name || "Category"} onClose={() => setViewCategory(null)} maxWidth="560px">
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                        <img
+                            src={viewCategory.image}
+                            alt={viewCategory.name}
+                            style={{ width: '112px', height: '112px', borderRadius: '10px', objectFit: 'cover', border: '1px solid #e5e7eb' }}
+                            onError={(e) => { e.target.src = "https://via.placeholder.com/112?text=No+Image"; }}
+                        />
+                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                            {[
+                                { label: "HSN code", value: viewCategory.hsnCode },
+                                { label: "GST", value: viewCategory.gstPercent ? `${viewCategory.gstPercent}%` : null },
+                                { label: "Default UOM", value: viewCategory.defaultUOM },
+                                { label: "Created", value: formatDate(viewCategory.createdAt) },
+                            ].map((row) => (
+                                <div key={row.label}>
+                                    <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{row.label}</div>
+                                    <div style={{ fontSize: '14px', color: '#111827', marginTop: '2px' }}>{row.value || "N/A"}</div>
+                                </div>
+                            ))}
+                            <div>
+                                <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</div>
+                                <span style={{
+                                    display: 'inline-block', marginTop: '4px', padding: '2px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: '600',
+                                    backgroundColor: viewCategory.isActive ? '#dcfce7' : '#fee2e2',
+                                    color: viewCategory.isActive ? '#166534' : '#991b1b'
+                                }}>
+                                    {viewCategory.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {viewCategory.description && (
+                        <div style={{ marginTop: '16px', fontSize: '14px', color: '#4b5563', lineHeight: 1.5 }}>{viewCategory.description}</div>
+                    )}
+                    <DetailsGrid data={viewCategory} />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
+                        <Button variant="secondary" onClick={() => { const c = viewCategory; setViewCategory(null); openEditModal(c); }} icon={Edit}>
+                            Edit
+                        </Button>
+                    </div>
+                </Modal>
+            )}
+
+            {showModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
