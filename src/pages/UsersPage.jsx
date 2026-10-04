@@ -14,8 +14,12 @@ import {
   FiLock,
   FiEye,
   FiEyeOff,
-  FiDownload
+  FiDownload,
+  FiMapPin
 } from "react-icons/fi";
+import Modal from "../components/common/Modal";
+import Button from "../components/common/Button";
+import Tabs from "../components/common/Tabs";
 import usePermissions from "../hooks/usePermissions";
 import { PERMISSIONS } from "../config/permissions";
 
@@ -30,6 +34,10 @@ const UsersPage = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [viewUser, setViewUser] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsTab, setDetailsTab] = useState("overview");
   const [walletAmount, setWalletAmount] = useState("");
   const [walletNote, setWalletNote] = useState("");
   const [walletLoading, setWalletLoading] = useState(false);
@@ -280,6 +288,32 @@ const UsersPage = () => {
     } finally {
       setWalletLoading(false);
     }
+  };
+
+  const openViewUser = async (user) => {
+    setViewUser(user);
+    setUserDetails(null);
+    setDetailsTab("overview");
+    setDetailsLoading(true);
+    try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(
+        `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/users/${user._id}/details`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const result = await res.json();
+      if (result.success) setUserDetails(result);
+      else setError(result.message || "Failed to load user details");
+    } catch {
+      setError("Failed to load user details");
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const closeViewUser = () => {
+    setViewUser(null);
+    setUserDetails(null);
   };
 
   const openWalletModal = (user) => {
@@ -743,52 +777,22 @@ const UsersPage = () => {
                       </div>
                     </td>
                     <td style={{ padding: '16px 24px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <button
-                          style={{
-                            color: '#16a34a',
-                            padding: '8px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            backgroundColor: 'transparent'
-                          }}
-                          title="Add Money to Wallet"
-                          onClick={() => openWalletModal(user)}
-                        >
-                          <FiDollarSign style={{ width: '16px', height: '16px' }} />
-                        </button>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <Button variant="primary" size="sm" icon={FiEye} onClick={() => openViewUser(user)}>
+                          View
+                        </Button>
+                        <Button variant="secondary" size="sm" icon={FiDollarSign} onClick={() => openWalletModal(user)}>
+                          Wallet
+                        </Button>
                         {hasPermission(PERMISSIONS.USERS_EDIT) && (
-                          <button
-                            style={{
-                              color: '#2563eb',
-                              padding: '8px',
-                              borderRadius: '6px',
-                              border: 'none',
-                              cursor: 'pointer',
-                              backgroundColor: 'transparent'
-                            }}
-                            title="Edit User"
-                            onClick={() => openEditUserModal(user)}
-                          >
-                            <FiEdit style={{ width: '16px', height: '16px' }} />
-                          </button>
+                          <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => openEditUserModal(user)}>
+                            Edit
+                          </Button>
                         )}
                         {hasPermission(PERMISSIONS.USERS_DELETE) && (
-                          <button
-                            style={{
-                              color: '#dc2626',
-                              padding: '8px',
-                              borderRadius: '6px',
-                              border: 'none',
-                              cursor: 'pointer',
-                              backgroundColor: 'transparent'
-                            }}
-                            title="Delete User"
-                            onClick={() => handleDeleteUser(user._id, user.name)}
-                          >
-                            <FiTrash2 style={{ width: '16px', height: '16px' }} />
-                          </button>
+                          <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => handleDeleteUser(user._id, user.name)}>
+                            Delete
+                          </Button>
                         )}
                       </div>
                     </td>
@@ -873,11 +877,107 @@ const UsersPage = () => {
       )}
 
       {/* Wallet Modal */}
+      {viewUser && (
+        <Modal title={viewUser.name || viewUser.email || "Customer"} onClose={closeViewUser} maxWidth="820px">
+          {detailsLoading || !userDetails ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Loading customer details...</div>
+          ) : (
+            <>
+              <Tabs
+                active={detailsTab}
+                onChange={setDetailsTab}
+                tabs={[
+                  { key: "overview", label: "Overview" },
+                  { key: "addresses", label: `Addresses (${userDetails.addresses.length})` },
+                  { key: "orders", label: `Orders (${userDetails.orders.length})` },
+                ]}
+              />
+
+              {detailsTab === "overview" && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+                    {[
+                      { label: "Orders", value: userDetails.stats.orderCount },
+                      { label: "Delivered", value: userDetails.stats.deliveredCount },
+                      { label: "Total spent", value: `₹${userDetails.stats.totalSpent}` },
+                      { label: "Wallet", value: `₹${userDetails.stats.wallet}` },
+                    ].map((stat) => (
+                      <div key={stat.label} style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '14px' }}>
+                        <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</div>
+                        <div style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginTop: '4px' }}>{stat.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '4px 16px' }}>
+                    {[
+                      { icon: FiUser, label: "Name", value: userDetails.user.name },
+                      { icon: FiMail, label: "Email", value: userDetails.user.email },
+                      { icon: FiPhone, label: "Phone", value: userDetails.user.phone },
+                      { icon: FiUser, label: "Role", value: userDetails.user.role },
+                      { icon: FiUser, label: "Joined", value: userDetails.user.createdAt ? new Date(userDetails.user.createdAt).toLocaleDateString() : null },
+                    ].map((row) => (
+                      <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
+                        <row.icon style={{ width: '16px', height: '16px', color: '#6b7280' }} />
+                        <span style={{ width: '90px', fontSize: '13px', color: '#6b7280' }}>{row.label}</span>
+                        <span style={{ fontSize: '14px', color: '#111827' }}>{row.value || "N/A"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {detailsTab === "addresses" && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {userDetails.addresses.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '30px', color: '#6b7280' }}>No saved addresses</div>
+                  ) : userDetails.addresses.map((addr) => (
+                    <div key={addr._id} style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        <FiMapPin style={{ width: '14px', height: '14px', color: '#6b7280' }} />
+                        <span style={{ fontSize: '13px', fontWeight: '600', color: '#111827', textTransform: 'capitalize' }}>{addr.label}</span>
+                      </div>
+                      <div style={{ fontSize: '14px', color: '#111827' }}>{addr.fullName} · {addr.phoneNumber}</div>
+                      <div style={{ fontSize: '13px', color: '#4b5563', marginTop: '4px' }}>
+                        {[addr.addressLine1, addr.addressLine2, addr.city, addr.state, addr.pincode].filter(Boolean).join(", ")}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {detailsTab === "orders" && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {userDetails.orders.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '30px', color: '#6b7280' }}>No orders yet</div>
+                  ) : userDetails.orders.map((order) => (
+                    <div key={order._id} style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '14px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>#{order.orderId}</span>
+                        <span style={{ fontSize: '12px', color: '#6b7280' }}>{new Date(order.createdAt).toLocaleString()}</span>
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#4b5563', marginTop: '6px' }}>
+                        {(order.items || []).map((item) => `${item.product?.name || "Item"} × ${item.quantity}`).join(", ")}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', fontSize: '13px' }}>
+                        <span style={{ color: '#6b7280' }}>{order.paymentMethod?.toUpperCase()} · {order.status}</span>
+                        <span style={{ fontWeight: '600', color: '#111827' }}>₹{order.finalAmount}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </Modal>
+      )}
+
       {showWalletModal && (
         <div style={{
           position: 'fixed',
           inset: '0',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(15, 23, 42, 0.45)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1018,7 +1118,9 @@ const UsersPage = () => {
         <div style={{
           position: 'fixed',
           inset: '0',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(15, 23, 42, 0.45)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1300,7 +1402,9 @@ const UsersPage = () => {
         <div style={{
           position: 'fixed',
           inset: '0',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(15, 23, 42, 0.45)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
