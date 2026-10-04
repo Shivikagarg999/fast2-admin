@@ -182,6 +182,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           permission: PERMISSIONS.POPUPS_VIEW,
         },
         {
+          name: "Notifications",
+          path: "/admin/notifications",
+          icon: <FiBell className="w-4 h-4" />,
+          permission: PERMISSIONS.POPUPS_VIEW,
+        },
+        {
           name: "Scratch Cards",
           path: "/admin/scratch-cards",
           icon: <FiGift className="w-4 h-4" />,
