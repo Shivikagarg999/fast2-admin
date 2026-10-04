@@ -141,14 +141,24 @@ const NotificationsPage = () => {
               <button
                 type="button"
                 onClick={() => handleChange('audience', 'all')}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium ${form.audience === 'all' ? 'bg-black text-white border-black' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
+                style={{
+                  backgroundColor: form.audience === 'all' ? 'black' : 'white',
+                  color: form.audience === 'all' ? 'white' : '#374151',
+                  border: form.audience === 'all' ? '1px solid black' : '1px solid #d1d5db'
+                }}
               >
                 <FiUsers className="w-4 h-4" /> All customers
               </button>
               <button
                 type="button"
                 onClick={() => handleChange('audience', 'user')}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium ${form.audience === 'user' ? 'bg-black text-white border-black' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
+                style={{
+                  backgroundColor: form.audience === 'user' ? 'black' : 'white',
+                  color: form.audience === 'user' ? 'white' : '#374151',
+                  border: form.audience === 'user' ? '1px solid black' : '1px solid #d1d5db'
+                }}
               >
                 <FiUser className="w-4 h-4" /> One customer
               </button>
@@ -181,8 +191,8 @@ const NotificationsPage = () => {
           <button
             type="submit"
             disabled={sending}
-            className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-medium disabled:opacity-50"
-            style={{ backgroundColor: 'black' }}
+            className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium"
+            style={{ backgroundColor: 'black', color: 'white', opacity: sending ? 0.5 : 1 }}
           >
             <FiSend className="w-4 h-4" /> {sending ? 'Sending...' : 'Send notification'}
           </button>
@@ -217,9 +227,9 @@ const NotificationsPage = () => {
               ))}
               {totalPages > 1 && (
                 <div className="flex justify-between items-center pt-2 text-sm">
-                  <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 border rounded disabled:opacity-40">Prev</button>
+                  <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded" style={{ border: '1px solid #d1d5db', opacity: page === 1 ? 0.4 : 1 }}>Prev</button>
                   <span className="text-gray-500">Page {page} of {totalPages}</span>
-                  <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 border rounded disabled:opacity-40">Next</button>
+                  <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded" style={{ border: '1px solid #d1d5db', opacity: page === totalPages ? 0.4 : 1 }}>Next</button>
                 </div>
               )}
             </div>
