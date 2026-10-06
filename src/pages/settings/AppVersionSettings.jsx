@@ -18,6 +18,7 @@ const emptyForm = {
   deliverySlabs: [{ fromKm: 0, toKm: 5, chargeType: 'flat', rate: 20 }],
   headerGradientStart: '',
   headerGradientEnd: '',
+  homeAnimationUrl: '',
 };
 
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
@@ -59,6 +60,7 @@ const AppVersionSettings = () => {
           deliverySlabs: result.deliverySlabs?.length
             ? result.deliverySlabs
             : [{ fromKm: 0, toKm: 5, chargeType: 'flat', rate: 20 }],
+          homeAnimationUrl: result.homeAnimationUrl || '',
           headerGradientStart: result.headerGradientStart || '',
           headerGradientEnd: result.headerGradientEnd || '',
         });
@@ -125,6 +127,45 @@ const AppVersionSettings = () => {
       if (i > 0 && slab.fromKm !== slabs[i - 1].toKm) return `Slab ${i + 1} must start where slab ${i} ends.`;
     }
     return null;
+  };
+
+  const handleAnimationUpload = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const body = new FormData();
+    body.append('animation', file);
+    try {
+      const res = await fetch(`${BASE_URL}/home-animation`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body,
+      });
+      const result = await res.json();
+      if (result.success) {
+        handleChange('homeAnimationUrl', result.url);
+        showToast('Home animation uploaded');
+      } else {
+        showToast(result.message || 'Upload failed', 'error');
+      }
+    } catch {
+      showToast('Upload failed', 'error');
+    }
+  };
+
+  const removeAnimation = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/home-animation`, { method: 'DELETE', headers: getHeaders() });
+      const result = await res.json();
+      if (result.success) {
+        handleChange('homeAnimationUrl', '');
+        showToast('Home animation removed');
+      } else {
+        showToast('Failed to remove animation', 'error');
+      }
+    } catch {
+      showToast('Failed to remove animation', 'error');
+    }
   };
 
   const handleSave = async () => {
@@ -367,6 +408,33 @@ const AppVersionSettings = () => {
                 </div>
                 <p className="text-xs text-gray-600 mt-1">
                   Colors the customer app's home header background (like Blinkit's seasonal header colors). Leave unset to use the app's built-in default.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  App Home Animation (GIF)
+                </label>
+                {form.homeAnimationUrl && (
+                  <div className="flex items-center gap-3 mb-2">
+                    <img src={form.homeAnimationUrl} alt="Home animation" className="h-20 rounded border border-gray-300" />
+                    <button
+                      type="button"
+                      onClick={removeAnimation}
+                      className="text-xs font-medium text-red-600 hover:text-red-800 underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/gif,image/webp,image/png,image/jpeg"
+                  onChange={handleAnimationUpload}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+                <p className="text-xs text-gray-600 mt-1">
+                  Shown only in the customer app home page, below the search bar. Upload an animated GIF. Recommended width 1200 px.
                 </p>
               </div>
             </div>

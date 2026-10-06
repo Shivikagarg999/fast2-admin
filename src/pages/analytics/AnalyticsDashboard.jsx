@@ -271,6 +271,36 @@ const AnalyticsDashboard = () => {
               </div>
             </Card>
 
+            <Card title="Visitors by location">
+              {!data.locations || data.locations.length === 0 ? (
+                <p className="text-sm text-gray-400 py-4 text-center">No location data yet — visitors' saved delivery locations appear here</p>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs text-gray-500 uppercase">
+                      <th className="pb-2 font-medium">Area</th>
+                      <th className="pb-2 font-medium">Pincode</th>
+                      <th className="pb-2 font-medium text-right">Visitors</th>
+                      <th className="pb-2 font-medium text-right">Share</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {data.locations.map((row) => {
+                      const total = data.locations.reduce((sum, r) => sum + r.visitors, 0);
+                      return (
+                        <tr key={`${row.pincode}-${row.area}`}>
+                          <td className="py-2 pr-2 text-gray-800">{row.area || '—'}</td>
+                          <td className="py-2 pr-2 text-gray-600">{row.pincode}</td>
+                          <td className="py-2 text-right font-semibold">{fmt(row.visitors)}</td>
+                          <td className="py-2 text-right text-gray-500">{pct(row.visitors, total)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </Card>
+
             <Card title="Devices (unique visitors)">
               {data.devices.length === 0 ? <EmptyRow /> : (
                 <div className="space-y-3">
