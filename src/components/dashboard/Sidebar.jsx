@@ -22,8 +22,6 @@ import {
   FiFileText,
   FiShield,
   FiDollarSign,
-  FiClock,
-  FiChevronRight,
   FiTrendingUp,
   FiBriefcase,
   FiBarChart2,
@@ -41,22 +39,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
   const pathname = location.pathname;
   const { isSuperAdmin, hasPermission } = usePermissions();
 
-  const [expandOrders, setExpandOrders] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("");
-
-  useEffect(() => {
-    if (pathname.includes("/admin/orders")) {
-      setExpandOrders(true);
-    }
-
-    // Set active category based on current path
-    for (const category of allMenuCategories) {
-      if (category.items.some(item => pathname.startsWith(item.path))) {
-        setActiveCategory(category.name);
-        break;
-      }
-    }
-  }, [pathname]);
+  const [expandedCategories, setExpandedCategories] = useState(new Set());
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -317,6 +300,28 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
       .filter(category => category.items.length > 0);
   }, [hasPermission, isSuperAdmin]);
 
+  // Only the category containing the current page starts expanded —
+  // everything else stays collapsed so the sidebar shows section
+  // headers instead of every item at once.
+  useEffect(() => {
+    for (const category of menuCategories) {
+      if (category.items.some(item => pathname.startsWith(item.path))) {
+        setExpandedCategories(prev => new Set(prev).add(category.name));
+        break;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  const toggleCategory = (name) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
+
   const handleLinkClick = () => {
     if (window.innerWidth < 1024 && onClose) {
       onClose();
@@ -330,16 +335,16 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           scrollbar-width: thin;
           scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
           border-radius: 2px;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: rgba(100, 116, 139, 0.2);
           border-radius: 2px;
@@ -365,12 +370,21 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
         .hover-glow:hover {
           box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.15);
         }
-        
+
         .text-2xs {
           font-size: 0.65rem;
           line-height: 1rem;
         }
       `}</style>
+
+      {/* Mobile backdrop — dims the page and lets you tap outside to close */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Sidebar */}
       <aside
@@ -380,7 +394,8 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           shadow-md shadow-gray-200/80
           border-r border-gray-200
           transition-all duration-300 ease-in-out
-          ${isCollapsed ? 'w-16' : 'w-64'}
+          w-[85vw] max-w-64
+          ${isCollapsed ? 'lg:w-16' : 'lg:w-64'}
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0
         `}
@@ -420,152 +435,84 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto custom-scrollbar py-4 px-3 space-y-1">
-            {menuCategories.map((category) => (
-              <div key={category.name} className="space-y-1.5 mb-4">
-                {/* Category Header */}
-                {!isCollapsed && (
-                  <div className="px-3 py-1.5 flex items-center">
-                    <div className="mr-1.5 text-indigo-400">{category.icon}</div>
-                    <h3 className="text-2xs font-bold text-indigo-400 uppercase tracking-widest truncate">
-                      {category.name}
-                    </h3>
-                    {activeCategory === category.name && (
-                      <div className="ml-auto w-1 h-3 bg-blue-500 rounded-full"></div>
-                    )}
-                  </div>
-                )}
+            {menuCategories.map((category) => {
+              const isCategoryActive = category.items.some(item => pathname.startsWith(item.path));
+              const isExpanded = expandedCategories.has(category.name);
+              const showItems = isCollapsed || isExpanded;
 
-                {/* Category Items */}
-                <div className="space-y-0.5">
-                  {category.items.map((item) => {
-                    if (item.isParent) {
-                      const isOrdersActive = pathname.includes("/admin/orders");
-
-                      return (
-                        <div key={item.name} className="space-y-1">
-                          {isCollapsed ? (
-                            <Link
-                              to={item.subItems?.[0]?.path || '/admin/orders'}
-                              onClick={handleLinkClick}
-                              title={item.name}
-                              className={`
-                                flex items-center justify-center px-2 py-2.5 rounded-lg
-                                text-sm font-medium transition-all duration-200
-                                border border-transparent
-                                ${isOrdersActive
-                                  ? "bg-blue-600 text-white border-blue-600 active-item-glow"
-                                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
-                                }
-                                focus:outline-none focus:ring-1 focus:ring-blue-500/30
-                                active:scale-[0.98]
-                              `}
-                            >
-                              <span className={`flex-shrink-0 ${isOrdersActive ? "text-white" : "text-blue-400"}`}>
-                                {item.icon}
-                              </span>
-                            </Link>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() => setExpandOrders(!expandOrders)}
-                                className={`
-                                  w-full flex items-center justify-between px-3 py-2.5 rounded-lg
-                                  text-sm font-medium transition-all duration-200
-                                  border border-transparent
-                                  ${isOrdersActive
-                                    ? "bg-blue-600 text-white border-blue-600 active-item-glow"
-                                    : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
-                                  }
-                                  focus:outline-none focus:ring-1 focus:ring-blue-500/30
-                                  active:scale-[0.98]
-                                `}
-                              >
-                                <div className="flex items-center">
-                                  <span className={`mr-2.5 flex-shrink-0 ${isOrdersActive ? "text-white" : "text-blue-400"}`}>
-                                    {item.icon}
-                                  </span>
-                                  <span className="truncate text-sm">{item.name}</span>
-                                </div>
-                                <span className={`flex-shrink-0 transition-all duration-200 ${expandOrders ? 'rotate-180' : 'rotate-0'
-                                  } ${isOrdersActive ? "text-white" : "text-gray-400"}`}>
-                                  <FiChevronDown className="w-3.5 h-3.5" />
-                                </span>
-                              </button>
-
-                              <div className={`
-                                overflow-hidden transition-all duration-300 ease-in-out
-                                ${expandOrders ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}
-                              `}>
-                                <div className="ml-3 pl-3 border-l-2 border-blue-200 space-y-0.5 py-0.5">
-                                  {item.subItems?.map((sub) => {
-                                    const isSubActive = pathname === sub.path;
-                                    return (
-                                      <Link
-                                        key={sub.name}
-                                        to={sub.path}
-                                        onClick={handleLinkClick}
-                                        className={`
-                                          block px-3 py-2 text-sm rounded-lg transition-all duration-200
-                                          border border-transparent
-                                          ${isSubActive
-                                            ? "bg-blue-600 text-white border-blue-600 font-medium active-item-glow"
-                                            : "text-gray-500 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-100"
-                                          }
-                                          focus:outline-none focus:ring-1 focus:ring-blue-500/30
-                                          active:scale-[0.98]
-                                        `}
-                                      >
-                                        <div className="flex items-center">
-                                          <FiChevronRight className={`w-2.5 h-2.5 mr-2 ${isSubActive ? "text-white" : "text-blue-300"}`} />
-                                          <span className="truncate text-sm">{sub.name}</span>
-                                        </div>
-                                      </Link>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      );
-                    }
-
-                    const isActive = pathname.startsWith(item.path);
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.path}
-                        onClick={handleLinkClick}
-                        title={isCollapsed ? item.name : undefined}
-                        className={`
-                          flex items-center ${isCollapsed ? 'justify-center px-2' : 'px-3'} py-2.5 rounded-lg text-sm font-medium
-                          transition-all duration-200
-                          border border-transparent
-                          ${isActive
-                            ? "bg-blue-600 text-white border-blue-600 active-item-glow"
-                            : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
-                          }
-                          focus:outline-none focus:ring-1 focus:ring-blue-500/30
-                          active:scale-[0.98]
-                          group
-                        `}
+              return (
+                <div key={category.name} className="space-y-1.5 mb-2">
+                  {/* Category Header — click to expand/collapse its items */}
+                  {!isCollapsed && (
+                    <button
+                      type="button"
+                      onClick={() => toggleCategory(category.name)}
+                      className="w-full px-3 py-1.5 flex items-center group focus:outline-none"
+                    >
+                      <div className="mr-1.5 text-indigo-400">{category.icon}</div>
+                      <h3 className="text-2xs font-bold text-indigo-400 uppercase tracking-widest truncate">
+                        {category.name}
+                      </h3>
+                      {isCategoryActive && (
+                        <div className="ml-2 w-1 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+                      )}
+                      <span
+                        className={`ml-auto flex-shrink-0 text-gray-400 transition-transform duration-200 ${
+                          isExpanded ? 'rotate-180' : 'rotate-0'
+                        }`}
                       >
-                        <span className={`
-                          ${isCollapsed ? '' : 'mr-2.5'} flex-shrink-0 transition-colors duration-200
-                          ${isActive ? "text-white" : "text-blue-400 group-hover:text-blue-500"}
-                        `}>
-                          {item.icon}
-                        </span>
-                        {!isCollapsed && <span className="truncate text-sm">{item.name}</span>}
-                        {!isCollapsed && isActive && (
-                          <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse flex-shrink-0"></div>
-                        )}
-                      </Link>
-                    );
-                  })}
+                        <FiChevronDown className="w-3.5 h-3.5" />
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Category Items */}
+                  <div
+                    className={`
+                      overflow-hidden transition-all duration-300 ease-in-out
+                      ${showItems ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}
+                    `}
+                  >
+                    <div className="space-y-0.5">
+                      {category.items.map((item) => {
+                        const isActive = pathname.startsWith(item.path);
+                        return (
+                          <Link
+                            key={item.name}
+                            to={item.path}
+                            onClick={handleLinkClick}
+                            title={isCollapsed ? item.name : undefined}
+                            className={`
+                              flex items-center ${isCollapsed ? 'justify-center px-2' : 'px-3'} py-2.5 rounded-lg text-sm font-medium
+                              transition-all duration-200
+                              border border-transparent
+                              ${isActive
+                                ? "bg-blue-600 text-white border-blue-600 active-item-glow"
+                                : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
+                              }
+                              focus:outline-none focus:ring-1 focus:ring-blue-500/30
+                              active:scale-[0.98]
+                              group
+                            `}
+                          >
+                            <span className={`
+                              ${isCollapsed ? '' : 'mr-2.5'} flex-shrink-0 transition-colors duration-200
+                              ${isActive ? "text-white" : "text-blue-400 group-hover:text-blue-500"}
+                            `}>
+                              {item.icon}
+                            </span>
+                            {!isCollapsed && <span className="truncate text-sm">{item.name}</span>}
+                            {!isCollapsed && isActive && (
+                              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse flex-shrink-0"></div>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </nav>
 
           {/* Bottom section */}
