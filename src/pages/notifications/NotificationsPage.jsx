@@ -13,14 +13,22 @@ const DAYS = [
   { value: 0, label: 'Sunday', short: 'Sun' },
 ];
 
-// Fixed time-of-day presets — keeps the schedule grid simple and unambiguous
-// for the admin instead of a free-form time picker per day.
-const SLOTS = [
-  { key: 'morning', label: 'Morning', time: '09:00', display: '9:00 AM' },
-  { key: 'afternoon', label: 'Afternoon', time: '14:00', display: '2:00 PM' },
-  { key: 'evening', label: 'Evening', time: '18:00', display: '6:00 PM' },
+// Three named slots per day, so the grid stays simple — but the actual clock
+// time each one fires at is set by the admin (below), not hardcoded.
+const SLOT_LABELS = [
+  { key: 'morning', label: 'Morning' },
+  { key: 'afternoon', label: 'Afternoon' },
+  { key: 'evening', label: 'Evening' },
 ];
-const SLOT_BY_TIME = Object.fromEntries(SLOTS.map((s) => [s.time, s]));
+const defaultSlotTimes = () => ({ morning: '09:00', afternoon: '14:00', evening: '18:00' });
+
+const fmtTime12h = (time) => {
+  const [h, m] = (time || '').split(':').map(Number);
+  if (!Number.isFinite(h)) return time;
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, '0')} ${period}`;
+};
 
 const emptySlotsByDay = () => ({ 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] });
 
@@ -35,6 +43,7 @@ const emptyForm = {
   userId: '',
   scheduleType: 'once', // 'once' | 'weekly'
   sendAt: '',
+  slotTimes: defaultSlotTimes(), // { morning: 'HH:mm', afternoon: 'HH:mm', evening: 'HH:mm' } — admin-editable
   slotsByDay: emptySlotsByDay(), // { [dayOfWeek]: ['morning', 'evening', ...] }
   startDate: todayDateInput(),
   hasEndDate: false,
@@ -160,8 +169,8 @@ const NotificationsPage = () => {
     const slots = [];
     DAYS.forEach((d) => {
       (form.slotsByDay[d.value] || []).forEach((slotKey) => {
-        const slot = SLOTS.find((s) => s.key === slotKey);
-        if (slot) slots.push({ dayOfWeek: d.value, time: slot.time });
+        const time = form.slotTimes[slotKey];
+        if (time) slots.push({ dayOfWeek: d.value, time });
       });
     });
     return slots;
@@ -279,8 +288,7 @@ const NotificationsPage = () => {
     }
     const byDay = {};
     (s.weeklySlots || []).forEach((slot) => {
-      const label = SLOT_BY_TIME[slot.time]?.display || slot.time;
-      (byDay[slot.dayOfWeek] = byDay[slot.dayOfWeek] || []).push(label);
+      (byDay[slot.dayOfWeek] = byDay[slot.dayOfWeek] || []).push(fmtTime12h(slot.time));
     });
     const order = [1, 2, 3, 4, 5, 6, 0];
     const parts = order
@@ -446,14 +454,30 @@ const NotificationsPage = () => {
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Pick day + time of day</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Set your Morning / Afternoon / Evening times</label>
+                    <p className="text-xs text-gray-500 mb-2">These apply to every day you pick below — change them to whatever time actually suits each slot.</p>
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      {SLOT_LABELS.map((slot) => (
+                        <div key={slot.key}>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">{slot.label}</label>
+                          <input
+                            type="time"
+                            value={form.slotTimes[slot.key]}
+                            onChange={(e) => setForm((prev) => ({ ...prev, slotTimes: { ...prev.slotTimes, [slot.key]: e.target.value } }))}
+                            className={inputClass}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Pick days</label>
                     <p className="text-xs text-gray-500 mb-2">Tap a cell to turn that day's slot on. Tap a column heading to toggle it for every day.</p>
                     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="bg-gray-100">
                             <th className="text-left px-3 py-2 font-medium text-gray-500">Day</th>
-                            {SLOTS.map((slot) => (
+                            {SLOT_LABELS.map((slot) => (
                               <th key={slot.key} className="px-2 py-2">
                                 <button
                                   type="button"
@@ -461,7 +485,7 @@ const NotificationsPage = () => {
                                   className="text-center leading-tight hover:text-black"
                                 >
                                   <span className="block font-semibold text-gray-700">{slot.label}</span>
-                                  <span className="block font-normal text-gray-400">{slot.display}</span>
+                                  <span className="block font-normal text-gray-400">{fmtTime12h(form.slotTimes[slot.key])}</span>
                                 </button>
                               </th>
                             ))}
@@ -471,7 +495,7 @@ const NotificationsPage = () => {
                           {DAYS.map((d) => (
                             <tr key={d.value} className="border-t border-gray-100">
                               <td className="px-3 py-2 font-medium text-gray-700">{d.short}</td>
-                              {SLOTS.map((slot) => {
+                              {SLOT_LABELS.map((slot) => {
                                 const isOn = form.slotsByDay[d.value]?.includes(slot.key);
                                 return (
                                   <td key={slot.key} className="px-2 py-2 text-center">
