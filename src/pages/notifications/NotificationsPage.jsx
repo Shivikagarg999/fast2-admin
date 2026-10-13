@@ -4,14 +4,25 @@ import { FiSend, FiBell, FiUsers, FiUser, FiAlertCircle, FiCheck, FiClock, FiCal
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/notifications`;
 
 const DAYS = [
-  { value: 1, label: 'Mon' },
-  { value: 2, label: 'Tue' },
-  { value: 3, label: 'Wed' },
-  { value: 4, label: 'Thu' },
-  { value: 5, label: 'Fri' },
-  { value: 6, label: 'Sat' },
-  { value: 0, label: 'Sun' },
+  { value: 1, label: 'Monday', short: 'Mon' },
+  { value: 2, label: 'Tuesday', short: 'Tue' },
+  { value: 3, label: 'Wednesday', short: 'Wed' },
+  { value: 4, label: 'Thursday', short: 'Thu' },
+  { value: 5, label: 'Friday', short: 'Fri' },
+  { value: 6, label: 'Saturday', short: 'Sat' },
+  { value: 0, label: 'Sunday', short: 'Sun' },
 ];
+
+// Fixed time-of-day presets — keeps the schedule grid simple and unambiguous
+// for the admin instead of a free-form time picker per day.
+const SLOTS = [
+  { key: 'morning', label: 'Morning', time: '09:00', display: '9:00 AM' },
+  { key: 'afternoon', label: 'Afternoon', time: '14:00', display: '2:00 PM' },
+  { key: 'evening', label: 'Evening', time: '18:00', display: '6:00 PM' },
+];
+const SLOT_BY_TIME = Object.fromEntries(SLOTS.map((s) => [s.time, s]));
+
+const emptySlotsByDay = () => ({ 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] });
 
 const todayDateInput = () => new Date().toISOString().slice(0, 10);
 
@@ -24,8 +35,7 @@ const emptyForm = {
   userId: '',
   scheduleType: 'once', // 'once' | 'weekly'
   sendAt: '',
-  daysOfWeek: [],
-  time: '09:00',
+  slotsByDay: emptySlotsByDay(), // { [dayOfWeek]: ['morning', 'evening', ...] }
   startDate: todayDateInput(),
   hasEndDate: false,
   endDate: '',
@@ -95,14 +105,33 @@ const NotificationsPage = () => {
 
   const handleChange = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
-  const toggleDay = (day) => {
-    setForm((prev) => ({
-      ...prev,
-      daysOfWeek: prev.daysOfWeek.includes(day)
-        ? prev.daysOfWeek.filter((d) => d !== day)
-        : [...prev.daysOfWeek, day],
-    }));
+  const toggleSlot = (day, slotKey) => {
+    setForm((prev) => {
+      const current = prev.slotsByDay[day] || [];
+      const next = current.includes(slotKey)
+        ? current.filter((k) => k !== slotKey)
+        : [...current, slotKey];
+      return { ...prev, slotsByDay: { ...prev.slotsByDay, [day]: next } };
+    });
   };
+
+  // Clicking a slot's column header toggles it for every day at once — the
+  // fast way to set up "every day at 6 PM" instead of clicking 7 times.
+  const toggleSlotForAllDays = (slotKey) => {
+    setForm((prev) => {
+      const allHaveIt = DAYS.every((d) => prev.slotsByDay[d.value]?.includes(slotKey));
+      const next = { ...prev.slotsByDay };
+      DAYS.forEach((d) => {
+        const current = next[d.value] || [];
+        next[d.value] = allHaveIt
+          ? current.filter((k) => k !== slotKey)
+          : current.includes(slotKey) ? current : [...current, slotKey];
+      });
+      return { ...prev, slotsByDay: next };
+    });
+  };
+
+  const totalSlotsSelected = Object.values(form.slotsByDay).reduce((sum, arr) => sum + arr.length, 0);
 
   const validate = () => {
     const errs = [];
@@ -118,14 +147,24 @@ const NotificationsPage = () => {
         if (!form.sendAt) errs.push('Pick a date and time to send');
         else if (new Date(form.sendAt) <= new Date()) errs.push('Scheduled time must be in the future');
       } else {
-        if (!form.daysOfWeek.length) errs.push('Select at least one day of the week');
-        if (!form.time) errs.push('Pick a time of day');
+        if (!totalSlotsSelected) errs.push('Pick at least one day and time slot in the grid below');
         if (form.hasEndDate && form.endDate && form.startDate && form.endDate < form.startDate) {
           errs.push('End date must be after the start date');
         }
       }
     }
     return errs;
+  };
+
+  const buildWeeklySlots = () => {
+    const slots = [];
+    DAYS.forEach((d) => {
+      (form.slotsByDay[d.value] || []).forEach((slotKey) => {
+        const slot = SLOTS.find((s) => s.key === slotKey);
+        if (slot) slots.push({ dayOfWeek: d.value, time: slot.time });
+      });
+    });
+    return slots;
   };
 
   const handleSend = async (e) => {
@@ -163,8 +202,7 @@ const NotificationsPage = () => {
             ...(form.scheduleType === 'once'
               ? { sendAt: new Date(form.sendAt).toISOString() }
               : {
-                  daysOfWeek: form.daysOfWeek,
-                  time: form.time,
+                  weeklySlots: buildWeeklySlots(),
                   startDate: form.startDate ? new Date(form.startDate).toISOString() : undefined,
                   endDate: form.hasEndDate && form.endDate ? new Date(form.endDate).toISOString() : null,
                 }),
@@ -233,21 +271,25 @@ const NotificationsPage = () => {
   };
 
   const fmt = (d) => new Date(d).toLocaleString();
-  const fmtTime12h = (time) => {
-    const [h, m] = (time || '').split(':').map(Number);
-    if (!Number.isFinite(h)) return time;
-    const period = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 === 0 ? 12 : h % 12;
-    return `${h12}:${String(m).padStart(2, '0')} ${period}`;
-  };
-  const dayLabel = (d) => DAYS.find((x) => x.value === d)?.label || d;
+  const dayShort = (d) => DAYS.find((x) => x.value === d)?.short || d;
+
   const scheduleSummary = (s) => {
     if (s.scheduleType === 'once') {
       return `Once · ${fmt(s.sendAt)}`;
     }
-    const days = [...(s.daysOfWeek || [])].sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
-    return `Every ${days.map(dayLabel).join(', ')} at ${fmtTime12h(s.time)} IST${s.endDate ? ` · until ${new Date(s.endDate).toLocaleDateString()}` : ''}`;
+    const byDay = {};
+    (s.weeklySlots || []).forEach((slot) => {
+      const label = SLOT_BY_TIME[slot.time]?.display || slot.time;
+      (byDay[slot.dayOfWeek] = byDay[slot.dayOfWeek] || []).push(label);
+    });
+    const order = [1, 2, 3, 4, 5, 6, 0];
+    const parts = order
+      .filter((d) => byDay[d]?.length)
+      .map((d) => `${dayShort(d)} ${byDay[d].join(', ')}`);
+    const count = s.weeklySlots?.length || 0;
+    return `${parts.join(' · ')} — ${count} time${count === 1 ? '' : 's'}/week${s.endDate ? ` · until ${new Date(s.endDate).toLocaleDateString()}` : ''}`;
   };
+
   const statusBadge = (status) => {
     const styles = {
       active: 'bg-green-50 text-green-700',
@@ -391,7 +433,7 @@ const NotificationsPage = () => {
                       border: form.scheduleType === 'weekly' ? '1px solid black' : '1px solid #d1d5db'
                     }}
                   >
-                    Recurring (weekly)
+                    Recurring (day-wise)
                   </button>
                 </div>
               </div>
@@ -404,34 +446,60 @@ const NotificationsPage = () => {
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Repeat on</label>
-                    <div className="flex flex-wrap gap-2">
-                      {DAYS.map((d) => (
-                        <button
-                          key={d.value}
-                          type="button"
-                          onClick={() => toggleDay(d.value)}
-                          className="w-12 py-2 rounded-lg text-xs font-semibold"
-                          style={{
-                            backgroundColor: form.daysOfWeek.includes(d.value) ? 'black' : 'white',
-                            color: form.daysOfWeek.includes(d.value) ? 'white' : '#374151',
-                            border: form.daysOfWeek.includes(d.value) ? '1px solid black' : '1px solid #d1d5db'
-                          }}
-                        >
-                          {d.label}
-                        </button>
-                      ))}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Pick day + time of day</label>
+                    <p className="text-xs text-gray-500 mb-2">Tap a cell to turn that day's slot on. Tap a column heading to toggle it for every day.</p>
+                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="text-left px-3 py-2 font-medium text-gray-500">Day</th>
+                            {SLOTS.map((slot) => (
+                              <th key={slot.key} className="px-2 py-2">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleSlotForAllDays(slot.key)}
+                                  className="text-center leading-tight hover:text-black"
+                                >
+                                  <span className="block font-semibold text-gray-700">{slot.label}</span>
+                                  <span className="block font-normal text-gray-400">{slot.display}</span>
+                                </button>
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {DAYS.map((d) => (
+                            <tr key={d.value} className="border-t border-gray-100">
+                              <td className="px-3 py-2 font-medium text-gray-700">{d.short}</td>
+                              {SLOTS.map((slot) => {
+                                const isOn = form.slotsByDay[d.value]?.includes(slot.key);
+                                return (
+                                  <td key={slot.key} className="px-2 py-2 text-center">
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleSlot(d.value, slot.key)}
+                                      aria-label={`${d.label} ${slot.label}`}
+                                      className="w-7 h-7 rounded-full inline-flex items-center justify-center"
+                                      style={{
+                                        backgroundColor: isOn ? 'black' : 'white',
+                                        border: isOn ? '1px solid black' : '1px solid #d1d5db',
+                                      }}
+                                    >
+                                      {isOn && <FiCheck className="w-3.5 h-3.5 text-white" />}
+                                    </button>
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    {form.daysOfWeek.length > 0 && (
+                    {totalSlotsSelected > 0 && (
                       <p className="text-xs text-gray-500 mt-1.5">
-                        Sends {form.daysOfWeek.length} time{form.daysOfWeek.length > 1 ? 's' : ''} a week.
+                        Sends {totalSlotsSelected} time{totalSlotsSelected > 1 ? 's' : ''} a week.
                       </p>
                     )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Time (IST)</label>
-                    <input type="time" value={form.time} onChange={(e) => handleChange('time', e.target.value)} className={inputClass} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -451,6 +519,9 @@ const NotificationsPage = () => {
                         disabled={!form.hasEndDate}
                         className={`${inputClass} ${!form.hasEndDate ? 'opacity-50' : ''}`}
                       />
+                      {!form.hasEndDate && (
+                        <p className="text-xs text-gray-400 mt-1">Repeats indefinitely until paused or cancelled.</p>
+                      )}
                     </div>
                   </div>
                 </>
@@ -511,8 +582,10 @@ const NotificationsPage = () => {
                     <p className="text-sm text-gray-600 mt-1">{s.body}</p>
                     <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500 items-center">
                       <span className="px-2 py-1 bg-gray-100 rounded-full">{s.targetLabel || (s.audience === 'all' ? 'All customers' : 'Customer')}</span>
-                      <span className="flex items-center gap-1"><FiClock className="w-3 h-3" /> {scheduleSummary(s)}</span>
                     </div>
+                    <p className="flex items-start gap-1 text-xs text-gray-500 mt-2">
+                      <FiClock className="w-3 h-3 mt-0.5 flex-shrink-0" /> {scheduleSummary(s)}
+                    </p>
                     {s.status === 'active' && s.nextRunAt && (
                       <p className="text-xs text-gray-400 mt-1">Next send: {fmt(s.nextRunAt)}</p>
                     )}
