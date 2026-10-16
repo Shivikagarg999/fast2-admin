@@ -19,6 +19,7 @@ import DriverList from "./pages/deliveryboy/DeliveryBoyList";
 import EditDriver from "./pages/deliveryboy/EditDriver";
 import OrderList from "./pages/orders/Orders";
 import Banners from "./pages/banners/Banners";
+import HomeSectionsPage from "./pages/homeSections/HomeSectionsPage";
 import Coupon from "./pages/coupon-code/CouponCode";
 import Discounts from "./pages/discounts/page";
 import SellerPage from "./pages/sellers/SellerPage";
@@ -216,6 +217,14 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.BANNERS_VIEW}>
                 <Banners />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/home-sections"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.BANNERS_VIEW}>
+                <HomeSectionsPage />
               </ProtectedRoute>
             }
           />

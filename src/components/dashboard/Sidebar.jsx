@@ -159,6 +159,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           permission: PERMISSIONS.BANNERS_VIEW,
         },
         {
+          name: "Home Sections",
+          path: "/admin/home-sections",
+          icon: <FiGrid className="w-4 h-4" />,
+          permission: PERMISSIONS.BANNERS_VIEW,
+        },
+        {
           name: "Popups",
           path: "/admin/popups",
           icon: <FiBell className="w-4 h-4" />,
