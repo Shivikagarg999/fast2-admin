@@ -14,7 +14,7 @@ const emptyForm = {
   subtitle: '',
   type: 'product_carousel',
   theme: { bannerImage: '', backgroundColor: '', textColor: '' },
-  productSource: { mode: 'manual', manualProducts: [], tag: '', maxPrice: '', minDiscountPercent: '', limit: 20 },
+  productSource: { mode: 'manual', manualProducts: [], tag: '', maxPrice: '', minDiscountPercent: '', limit: 20, scheduledProducts: [] },
   tiles: [emptyTile()],
   viewAllLink: { type: 'none', value: '' },
   isActive: true,
@@ -106,6 +106,10 @@ const HomeSectionsPage = () => {
         maxPrice: section.productSource?.maxPrice ?? '',
         minDiscountPercent: section.productSource?.minDiscountPercent ?? '',
         limit: section.productSource?.limit || 20,
+        scheduledProducts: (section.productSource?.scheduledProducts || []).map((s) => ({
+          productId: typeof s.product === 'string' ? s.product : s.product?._id,
+          tomorrowPrice: s.tomorrowPrice,
+        })),
       },
       tiles: section.tiles?.length ? section.tiles.map((t) => ({ ...t, link: t.link || { type: 'none', value: '' } })) : [emptyTile()],
       viewAllLink: section.viewAllLink || { type: 'none', value: '' },
@@ -126,6 +130,29 @@ const HomeSectionsPage = () => {
       const next = list.includes(productId) ? list.filter((id) => id !== productId) : [...list, productId];
       return { ...prev, productSource: { ...prev.productSource, manualProducts: next } };
     });
+  };
+
+  const toggleScheduledProduct = (product) => {
+    setForm((prev) => {
+      const list = prev.productSource.scheduledProducts;
+      const exists = list.some((s) => s.productId === product._id);
+      const next = exists
+        ? list.filter((s) => s.productId !== product._id)
+        : [...list, { productId: product._id, tomorrowPrice: product.price }];
+      return { ...prev, productSource: { ...prev.productSource, scheduledProducts: next } };
+    });
+  };
+
+  const updateScheduledPrice = (productId, value) => {
+    setForm((prev) => ({
+      ...prev,
+      productSource: {
+        ...prev.productSource,
+        scheduledProducts: prev.productSource.scheduledProducts.map((s) =>
+          s.productId === productId ? { ...s, tomorrowPrice: value } : s
+        ),
+      },
+    }));
   };
 
   const updateTile = (index, field, value) => {
@@ -173,6 +200,12 @@ const HomeSectionsPage = () => {
       if (s.mode === 'tag' && !s.tag.trim()) errs.push('Enter a tag');
       if (s.mode === 'maxPrice' && !s.maxPrice) errs.push('Enter a max price');
       if (s.mode === 'minDiscount' && !s.minDiscountPercent) errs.push('Enter a minimum discount %');
+      if (s.mode === 'scheduled') {
+        if (!s.scheduledProducts.length) errs.push('Pick at least one product for Get Tomorrow');
+        if (s.scheduledProducts.some((p) => !p.tomorrowPrice || Number(p.tomorrowPrice) <= 0)) {
+          errs.push('Enter a valid tomorrow price for every picked product');
+        }
+      }
     } else {
       if (!form.tiles.length || form.tiles.some((t) => !t.label.trim() || !t.image)) {
         errs.push('Every tile needs a label and an image');
@@ -204,6 +237,9 @@ const HomeSectionsPage = () => {
               maxPrice: form.productSource.mode === 'maxPrice' ? Number(form.productSource.maxPrice) : null,
               minDiscountPercent: form.productSource.mode === 'minDiscount' ? Number(form.productSource.minDiscountPercent) : null,
               limit: Number(form.productSource.limit) || 20,
+              scheduledProducts: form.productSource.mode === 'scheduled'
+                ? form.productSource.scheduledProducts.map((s) => ({ product: s.productId, tomorrowPrice: Number(s.tomorrowPrice) }))
+                : [],
             },
             tiles: [],
           }
@@ -394,7 +430,14 @@ const HomeSectionsPage = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   {section.type === 'product_carousel'
-                    ? `${section.productSource?.mode === 'manual' ? `${section.productSource?.manualProducts?.length || 0} picked products` : section.productSource?.mode === 'tag' ? `Tag: ${section.productSource?.tag}` : section.productSource?.mode === 'maxPrice' ? `Under ₹${section.productSource?.maxPrice}` : `${section.productSource?.minDiscountPercent}%+ discount`}`
+                    ? (() => {
+                        const mode = section.productSource?.mode;
+                        if (mode === 'manual') return `${section.productSource?.manualProducts?.length || 0} picked products`;
+                        if (mode === 'tag') return `Tag: ${section.productSource?.tag}`;
+                        if (mode === 'maxPrice') return `Under ₹${section.productSource?.maxPrice}`;
+                        if (mode === 'scheduled') return `🕑 Get Tomorrow — ${section.productSource?.scheduledProducts?.length || 0} products`;
+                        return `${section.productSource?.minDiscountPercent}%+ discount`;
+                      })()
                     : `${section.tiles?.length || 0} tiles`}
                 </p>
               </div>
@@ -469,11 +512,12 @@ const HomeSectionsPage = () => {
               <div className="border border-gray-200 rounded-lg p-4 space-y-4 bg-gray-50">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">How should products be picked?</label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {toggleBtn(form.productSource.mode === 'manual', () => updateNested('productSource', 'mode', 'manual'), 'Pick manually', null)}
                     {toggleBtn(form.productSource.mode === 'tag', () => updateNested('productSource', 'mode', 'tag'), 'By tag', null)}
                     {toggleBtn(form.productSource.mode === 'maxPrice', () => updateNested('productSource', 'mode', 'maxPrice'), 'Under a price', null)}
                     {toggleBtn(form.productSource.mode === 'minDiscount', () => updateNested('productSource', 'mode', 'minDiscount'), 'Min discount %', null)}
+                    {toggleBtn(form.productSource.mode === 'scheduled', () => updateNested('productSource', 'mode', 'scheduled'), 'Get Tomorrow', null)}
                   </div>
                 </div>
 
@@ -506,7 +550,40 @@ const HomeSectionsPage = () => {
                 {form.productSource.mode === 'minDiscount' && (
                   <input type="number" className={inputClass} placeholder="e.g. 20" value={form.productSource.minDiscountPercent} onChange={(e) => updateNested('productSource', 'minDiscountPercent', e.target.value)} />
                 )}
-                {form.productSource.mode !== 'manual' && (
+                {form.productSource.mode === 'scheduled' && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">Pick products and type the discounted price they'll charge when the customer accepts next-day delivery instead of instant.</p>
+                    <input
+                      className={inputClass}
+                      placeholder="Search products..."
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                    />
+                    <div className="mt-2 max-h-72 overflow-y-auto border border-gray-200 rounded-lg bg-white divide-y divide-gray-100">
+                      {filteredProducts.slice(0, 100).map((p) => {
+                        const entry = form.productSource.scheduledProducts.find((s) => s.productId === p._id);
+                        return (
+                          <div key={p._id} className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                            <input type="checkbox" checked={!!entry} onChange={() => toggleScheduledProduct(p)} />
+                            <span className="flex-1 truncate">{p.name}</span>
+                            <span className="text-xs text-gray-400 line-through">₹{p.price}</span>
+                            {entry && (
+                              <input
+                                type="number"
+                                className="w-24 border border-gray-300 rounded-md px-2 py-1 text-xs"
+                                placeholder="Tomorrow ₹"
+                                value={entry.tomorrowPrice}
+                                onChange={(e) => updateScheduledPrice(p._id, e.target.value)}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">{form.productSource.scheduledProducts.length} selected</p>
+                  </div>
+                )}
+                {form.productSource.mode !== 'manual' && form.productSource.mode !== 'scheduled' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Max products to show</label>
                     <input type="number" className={inputClass} value={form.productSource.limit} onChange={(e) => updateNested('productSource', 'limit', e.target.value)} />
