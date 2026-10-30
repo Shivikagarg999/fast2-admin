@@ -31,6 +31,7 @@ import {
   FiBell,
   FiMail,
   FiLock,
+  FiMessageCircle,
 } from "react-icons/fi";
 
 const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
@@ -175,6 +176,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           path: "/admin/notifications",
           icon: <FiBell className="w-4 h-4" />,
           permission: PERMISSIONS.POPUPS_VIEW,
+        },
+        {
+          name: "WhatsApp Inbox",
+          path: "/admin/whatsapp",
+          icon: <FiMessageCircle className="w-4 h-4" />,
+          permission: PERMISSIONS.ORDERS_VIEW,
         },
         {
           name: "Scratch Cards",

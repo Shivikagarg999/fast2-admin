@@ -20,6 +20,7 @@ import EditDriver from "./pages/deliveryboy/EditDriver";
 import OrderList from "./pages/orders/Orders";
 import Banners from "./pages/banners/Banners";
 import HomeSectionsPage from "./pages/homeSections/HomeSectionsPage";
+import WhatsappInboxPage from "./pages/whatsapp/WhatsappInboxPage";
 import Coupon from "./pages/coupon-code/CouponCode";
 import Discounts from "./pages/discounts/page";
 import SellerPage from "./pages/sellers/SellerPage";
@@ -225,6 +226,14 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.BANNERS_VIEW}>
                 <HomeSectionsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/whatsapp"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.ORDERS_VIEW}>
+                <WhatsappInboxPage />
               </ProtectedRoute>
             }
           />
