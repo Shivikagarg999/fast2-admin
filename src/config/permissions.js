@@ -103,6 +103,9 @@ export const PERMISSIONS = {
   ROLES_CREATE: 'roles.create',
   ROLES_EDIT: 'roles.edit',
   ROLES_DELETE: 'roles.delete',
+
+  // WhatsApp Inbox
+  WHATSAPP_VIEW: 'whatsapp.view',
 };
 
 // Permission groups for easier management
@@ -250,6 +253,10 @@ export const PERMISSION_GROUPS = {
       PERMISSIONS.ROLES_DELETE,
     ],
   },
+  whatsapp: {
+    label: 'WhatsApp Inbox',
+    permissions: [PERMISSIONS.WHATSAPP_VIEW],
+  },
 };
 
 // Get all permissions as array
@@ -325,6 +332,7 @@ export const getPermissionLabel = (permission) => {
     [PERMISSIONS.ROLES_CREATE]: 'Create Roles',
     [PERMISSIONS.ROLES_EDIT]: 'Edit Roles',
     [PERMISSIONS.ROLES_DELETE]: 'Delete Roles',
+    [PERMISSIONS.WHATSAPP_VIEW]: 'View WhatsApp Inbox',
   };
   return labels[permission] || permission;
 };

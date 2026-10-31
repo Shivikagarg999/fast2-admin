@@ -232,7 +232,7 @@ function App() {
           <Route
             path="/admin/whatsapp"
             element={
-              <ProtectedRoute requiredPermission={PERMISSIONS.ORDERS_VIEW}>
+              <ProtectedRoute requiredPermission={PERMISSIONS.WHATSAPP_VIEW}>
                 <WhatsappInboxPage />
               </ProtectedRoute>
             }

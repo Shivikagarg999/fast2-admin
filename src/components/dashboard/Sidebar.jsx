@@ -181,7 +181,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           name: "WhatsApp Inbox",
           path: "/admin/whatsapp",
           icon: <FiMessageCircle className="w-4 h-4" />,
-          permission: PERMISSIONS.ORDERS_VIEW,
+          permission: PERMISSIONS.WHATSAPP_VIEW,
         },
         {
           name: "Scratch Cards",
