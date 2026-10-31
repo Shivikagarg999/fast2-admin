@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { FiSend, FiPlay, FiPause, FiMessageCircle, FiFileText, FiPlus, FiX, FiCheck, FiClock, FiAlertCircle } from "react-icons/fi";
+import { FiSend, FiPlay, FiPause, FiMessageCircle, FiFileText, FiPlus, FiX, FiCheck, FiClock, FiAlertCircle, FiUsers } from "react-icons/fi";
 import Modal from "../../components/common/Modal";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api`;
@@ -37,6 +37,16 @@ const WhatsappInboxPage = () => {
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [pickedTemplate, setPickedTemplate] = useState(null);
   const [templateParams, setTemplateParams] = useState([]);
+
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkSelected, setBulkSelected] = useState([]);
+  const [bulkMode, setBulkMode] = useState('template');
+  const [bulkBody, setBulkBody] = useState('');
+  const [bulkTemplate, setBulkTemplate] = useState(null);
+  const [bulkTemplateParams, setBulkTemplateParams] = useState([]);
+  const [bulkSending, setBulkSending] = useState(false);
+  const [bulkResult, setBulkResult] = useState(null);
+  const [bulkError, setBulkError] = useState('');
 
   const getHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem('adminToken') || localStorage.getItem('token') || ''}`,
@@ -206,6 +216,73 @@ const WhatsappInboxPage = () => {
     }
   };
 
+  const openBulkModal = () => {
+    setShowBulkModal(true);
+    setBulkSelected([]);
+    setBulkMode('template');
+    setBulkBody('');
+    setBulkTemplate(null);
+    setBulkTemplateParams([]);
+    setBulkResult(null);
+    setBulkError('');
+    if (!templates.length) fetchTemplates();
+  };
+
+  const toggleBulkRecipient = (phone) => {
+    setBulkSelected((prev) => (prev.includes(phone) ? prev.filter((p) => p !== phone) : [...prev, phone]));
+  };
+
+  const toggleBulkSelectAll = () => {
+    setBulkSelected((prev) => (prev.length === conversations.length ? [] : conversations.map((c) => c.phone)));
+  };
+
+  const selectBulkTemplate = (tpl) => {
+    const bodyComponent = tpl.components?.find((c) => c.type === 'BODY');
+    const count = (bodyComponent?.text?.match(/\{\{\d+\}\}/g) || []).length;
+    setBulkTemplate(tpl);
+    setBulkTemplateParams(Array(count).fill(''));
+  };
+
+  const handleBulkSend = async () => {
+    if (!bulkSelected.length) {
+      setBulkError('Pick at least one recipient');
+      return;
+    }
+    if (bulkMode === 'text' && !bulkBody.trim()) {
+      setBulkError('Message body is required');
+      return;
+    }
+    if (bulkMode === 'template' && !bulkTemplate) {
+      setBulkError('Pick a template');
+      return;
+    }
+    setBulkSending(true);
+    setBulkError('');
+    setBulkResult(null);
+    try {
+      const payload = bulkMode === 'template'
+        ? { phones: bulkSelected, mode: 'template', templateName: bulkTemplate.name, templateLanguage: bulkTemplate.language, bodyParams: bulkTemplateParams }
+        : { phones: bulkSelected, mode: 'text', body: bulkBody.trim() };
+
+      const res = await fetch(`${BASE_URL}/admin/whatsapp/bulk-send`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setBulkResult(result.data || []);
+        fetchConversations();
+      } else {
+        setBulkError(result.message || 'Failed to send bulk messages');
+      }
+    } catch {
+      setBulkError('Failed to send bulk messages');
+    } finally {
+      setBulkSending(false);
+    }
+  };
+
   const toggleBotPause = async () => {
     if (!selectedConversation) return;
     const nextPaused = !selectedConversation.isBotPaused;
@@ -235,13 +312,22 @@ const WhatsappInboxPage = () => {
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <FiMessageCircle className="w-5 h-5" /> WhatsApp Inbox
           </h2>
-          <button
-            onClick={openTemplatesModal}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium"
-            style={{ border: '1px solid #d1d5db', color: '#374151' }}
-          >
-            <FiFileText className="w-3.5 h-3.5" /> Templates
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openBulkModal}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium"
+              style={{ backgroundColor: 'black', color: 'white' }}
+            >
+              <FiUsers className="w-3.5 h-3.5" /> Bulk Message
+            </button>
+            <button
+              onClick={openTemplatesModal}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium"
+              style={{ border: '1px solid #d1d5db', color: '#374151' }}
+            >
+              <FiFileText className="w-3.5 h-3.5" /> Templates
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto">
           {loadingList ? (
@@ -545,6 +631,174 @@ const WhatsappInboxPage = () => {
                   </button>
                 </div>
               </div>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {showBulkModal && (
+        <Modal title="Bulk WhatsApp Message" onClose={() => setShowBulkModal(false)} maxWidth="640px">
+          <div className="space-y-4">
+            {bulkError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+                {bulkError}
+              </div>
+            )}
+
+            {bulkResult ? (
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-2">
+                  Sent to {bulkResult.filter((r) => r.success).length}/{bulkResult.length} recipients
+                </p>
+                <div className="max-h-56 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
+                  {bulkResult.map((r) => (
+                    <div key={r.phone} className="flex items-center justify-between px-3 py-2 text-sm">
+                      <span>{r.phone}</span>
+                      {r.success ? (
+                        <span className="text-green-600 flex items-center gap-1 text-xs"><FiCheck className="w-3.5 h-3.5" /> Sent</span>
+                      ) : (
+                        <span className="text-red-600 flex items-center gap-1 text-xs"><FiAlertCircle className="w-3.5 h-3.5" /> {r.error || 'Failed'}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setShowBulkModal(false)}
+                  className="mt-4 px-4 py-1.5 rounded-md text-sm font-medium"
+                  style={{ backgroundColor: 'black', color: 'white' }}
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-medium text-gray-700">
+                      Recipients ({bulkSelected.length} selected)
+                    </label>
+                    <button onClick={toggleBulkSelectAll} className="text-xs font-medium text-gray-600 underline">
+                      {bulkSelected.length === conversations.length ? 'Deselect all' : 'Select all'}
+                    </button>
+                  </div>
+                  <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
+                    {conversations.length === 0 ? (
+                      <p className="text-sm text-gray-400 px-3 py-4 text-center">No conversations yet</p>
+                    ) : (
+                      conversations.map((c) => (
+                        <label key={c.phone} className="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
+                          <input type="checkbox" checked={bulkSelected.includes(c.phone)} onChange={() => toggleBulkRecipient(c.phone)} />
+                          <span className="truncate">{c.customerName || c.phone}</span>
+                          <span className="ml-auto text-xs text-gray-400">{c.phone}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">Message type</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setBulkMode('template')}
+                      className="flex-1 px-3 py-2 rounded-lg text-sm font-medium"
+                      style={{
+                        backgroundColor: bulkMode === 'template' ? 'black' : 'white',
+                        color: bulkMode === 'template' ? 'white' : '#374151',
+                        border: bulkMode === 'template' ? '1px solid black' : '1px solid #d1d5db',
+                      }}
+                    >
+                      Template (safe for anyone)
+                    </button>
+                    <button
+                      onClick={() => setBulkMode('text')}
+                      className="flex-1 px-3 py-2 rounded-lg text-sm font-medium"
+                      style={{
+                        backgroundColor: bulkMode === 'text' ? 'black' : 'white',
+                        color: bulkMode === 'text' ? 'white' : '#374151',
+                        border: bulkMode === 'text' ? '1px solid black' : '1px solid #d1d5db',
+                      }}
+                    >
+                      Free text (recent chats only)
+                    </button>
+                  </div>
+                  {bulkMode === 'text' && (
+                    <p className="text-xs text-amber-600 mt-1.5">
+                      WhatsApp only delivers free text to customers who messaged in the last 24 hours — anyone outside that window won't receive it. Use a template to reach everyone reliably.
+                    </p>
+                  )}
+                </div>
+
+                {bulkMode === 'text' ? (
+                  <textarea
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    rows={4}
+                    placeholder="Type your message..."
+                    value={bulkBody}
+                    onChange={(e) => setBulkBody(e.target.value)}
+                  />
+                ) : !bulkTemplate ? (
+                  loadingTemplates ? (
+                    <p className="text-sm text-gray-400">Loading templates...</p>
+                  ) : templates.filter((t) => t.status === 'APPROVED').length === 0 ? (
+                    <p className="text-sm text-gray-500">No approved templates yet. Create one from the Templates button and wait for Meta's approval.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {templates.filter((t) => t.status === 'APPROVED').map((t) => (
+                        <button
+                          key={t.id}
+                          onClick={() => selectBulkTemplate(t)}
+                          className="w-full text-left border border-gray-200 rounded-lg p-3 hover:bg-gray-50"
+                        >
+                          <p className="font-medium text-sm text-gray-900">{t.name}</p>
+                          <p className="text-xs text-gray-500 mt-1">{t.components?.find((c) => c.type === 'BODY')?.text}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  <div className="space-y-3 border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-900">{bulkTemplate.name}</p>
+                      <button onClick={() => setBulkTemplate(null)} className="text-xs text-gray-500">Change</button>
+                    </div>
+                    <p className="text-sm text-gray-600 bg-white rounded-lg p-3">
+                      {bulkTemplate.components?.find((c) => c.type === 'BODY')?.text}
+                    </p>
+                    {bulkTemplateParams.length > 0 && (
+                      <p className="text-xs text-gray-500">Same values will be used for every recipient.</p>
+                    )}
+                    {bulkTemplateParams.map((val, i) => (
+                      <div key={i}>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{`{{${i + 1}}}`}</label>
+                        <input
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          value={val}
+                          onChange={(e) => setBulkTemplateParams((prev) => prev.map((v, idx) => (idx === i ? e.target.value : v)))}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                  <button
+                    onClick={() => setShowBulkModal(false)}
+                    className="px-3 py-1.5 rounded-md text-sm"
+                    style={{ border: '1px solid #d1d5db', color: '#374151' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleBulkSend}
+                    disabled={bulkSending}
+                    className="px-4 py-1.5 rounded-md text-sm font-medium"
+                    style={{ backgroundColor: 'black', color: 'white', opacity: bulkSending ? 0.5 : 1 }}
+                  >
+                    {bulkSending ? `Sending...` : `Send to ${bulkSelected.length}`}
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </Modal>
