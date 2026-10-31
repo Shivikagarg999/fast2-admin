@@ -67,7 +67,8 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
         {
           name: "Reports",
           path: "/admin/reports",
-          icon: <FiBarChart2 className="w-4 h-4" />
+          icon: <FiBarChart2 className="w-4 h-4" />,
+          permission: PERMISSIONS.REPORTS_VIEW,
         },
       ]
     },
@@ -234,7 +235,8 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
         {
           name: "Driver Payouts",
           path: "/admin/payouts/driver",
-          icon: <FiDollarSign className="w-4 h-4" />
+          icon: <FiDollarSign className="w-4 h-4" />,
+          permission: PERMISSIONS.DRIVERS_VIEW,
         },
       ]
     },

@@ -353,17 +353,18 @@ function App() {
               </ProtectedRoute>
             }
           />
-            <Route
+          <Route
             path="/admin/reports"
             element={
-             
+              <ProtectedRoute requiredPermission={PERMISSIONS.REPORTS_VIEW}>
                 <ReportsPage />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/payouts/driver"
             element={
-              <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
+              <ProtectedRoute requiredPermission={PERMISSIONS.DRIVERS_VIEW}>
                 <DriverPayouts />
               </ProtectedRoute>
             }

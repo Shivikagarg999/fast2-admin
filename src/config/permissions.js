@@ -106,6 +106,9 @@ export const PERMISSIONS = {
 
   // WhatsApp Inbox
   WHATSAPP_VIEW: 'whatsapp.view',
+
+  // Reports
+  REPORTS_VIEW: 'reports.view',
 };
 
 // Permission groups for easier management
@@ -257,6 +260,10 @@ export const PERMISSION_GROUPS = {
     label: 'WhatsApp Inbox',
     permissions: [PERMISSIONS.WHATSAPP_VIEW],
   },
+  reports: {
+    label: 'Reports',
+    permissions: [PERMISSIONS.REPORTS_VIEW],
+  },
 };
 
 // Get all permissions as array
@@ -333,6 +340,7 @@ export const getPermissionLabel = (permission) => {
     [PERMISSIONS.ROLES_EDIT]: 'Edit Roles',
     [PERMISSIONS.ROLES_DELETE]: 'Delete Roles',
     [PERMISSIONS.WHATSAPP_VIEW]: 'View WhatsApp Inbox',
+    [PERMISSIONS.REPORTS_VIEW]: 'View Reports',
   };
   return labels[permission] || permission;
 };
