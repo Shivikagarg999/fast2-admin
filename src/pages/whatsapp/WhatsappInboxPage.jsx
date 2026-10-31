@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { FiSend, FiPlay, FiPause, FiMessageCircle, FiFileText, FiPlus, FiX, FiCheck, FiClock, FiAlertCircle, FiUsers } from "react-icons/fi";
+import { FiSend, FiPlay, FiPause, FiMessageCircle, FiFileText, FiPlus, FiCheck, FiClock, FiAlertCircle, FiUsers } from "react-icons/fi";
 import Modal from "../../components/common/Modal";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api`;
@@ -304,26 +304,47 @@ const WhatsappInboxPage = () => {
     return d.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   };
 
+  const initials = (name, phone) => {
+    const source = (name || phone || '?').trim();
+    return source.charAt(0).toUpperCase();
+  };
+
+  const avatarColors = ['#0C831F', '#2563eb', '#9333ea', '#c2410c', '#0891b2', '#be185d'];
+  const avatarColor = (key) => {
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) hash = key.charCodeAt(i) + ((hash << 5) - hash);
+    return avatarColors[Math.abs(hash) % avatarColors.length];
+  };
+
   return (
-    <div className="h-[calc(100vh-80px)] flex bg-white rounded-xl shadow overflow-hidden">
+    <div className="h-[calc(100vh-80px)] flex bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Conversation list */}
-      <div className="w-80 border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <FiMessageCircle className="w-5 h-5" /> WhatsApp Inbox
-          </h2>
-          <div className="flex items-center gap-2">
+      <div className="w-[340px] border-r border-gray-100 flex flex-col bg-white">
+        <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: '#25D366' }}
+            >
+              <FiMessageCircle className="w-4.5 h-4.5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900 leading-tight">WhatsApp Inbox</h2>
+              <p className="text-xs text-gray-400">{conversations.length} conversation{conversations.length === 1 ? '' : 's'}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 mt-3.5">
             <button
               onClick={openBulkModal}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium"
-              style={{ backgroundColor: 'black', color: 'white' }}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#111827', color: 'white' }}
             >
               <FiUsers className="w-3.5 h-3.5" /> Bulk Message
             </button>
             <button
               onClick={openTemplatesModal}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium"
-              style={{ border: '1px solid #d1d5db', color: '#374151' }}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors hover:bg-gray-50"
+              style={{ border: '1px solid #e5e7eb', color: '#374151' }}
             >
               <FiFileText className="w-3.5 h-3.5" /> Templates
             </button>
@@ -331,59 +352,97 @@ const WhatsappInboxPage = () => {
         </div>
         <div className="flex-1 overflow-y-auto">
           {loadingList ? (
-            <p className="text-sm text-gray-400 text-center py-8">Loading...</p>
+            <p className="text-sm text-gray-400 text-center py-12">Loading...</p>
           ) : conversations.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">No conversations yet</p>
+            <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+              <FiMessageCircle className="w-9 h-9 text-gray-200 mb-3" />
+              <p className="text-sm font-medium text-gray-500">No conversations yet</p>
+              <p className="text-xs text-gray-400 mt-1">Messages customers send will show up here automatically.</p>
+            </div>
           ) : (
-            conversations.map((c) => (
-              <button
-                key={c.phone}
-                onClick={() => openConversation(c.phone)}
-                className="w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                style={{ backgroundColor: selectedPhone === c.phone ? '#f3f4f6' : 'transparent' }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm text-gray-900 truncate">
-                    {c.customerName || c.phone}
-                  </span>
-                  {c.unreadByAdmin > 0 && (
-                    <span className="bg-green-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                      {c.unreadByAdmin}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-400">{c.phone}</p>
-                <p className="text-xs text-gray-500 truncate mt-1">{c.lastMessagePreview || '—'}</p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-[10px] text-gray-400">{formatTime(c.lastMessageAt)}</span>
-                  {c.isBotPaused && (
-                    <span className="text-[10px] font-medium text-orange-600">Manual</span>
-                  )}
-                </div>
-              </button>
-            ))
+            conversations.map((c) => {
+              const isSelected = selectedPhone === c.phone;
+              return (
+                <button
+                  key={c.phone}
+                  onClick={() => openConversation(c.phone)}
+                  className="w-full text-left px-4 py-3.5 flex items-start gap-3 transition-colors"
+                  style={{
+                    backgroundColor: isSelected ? '#F0FDF4' : 'transparent',
+                    borderLeft: isSelected ? '3px solid #0C831F' : '3px solid transparent',
+                    borderBottom: '1px solid #f3f4f6',
+                  }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white font-semibold text-sm"
+                    style={{ backgroundColor: avatarColor(c.phone) }}
+                  >
+                    {initials(c.customerName, c.phone)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-sm text-gray-900 truncate">
+                        {c.customerName || c.phone}
+                      </span>
+                      <span className="text-[10px] text-gray-400 flex-shrink-0">{formatTime(c.lastMessageAt)}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">{c.lastMessagePreview || '—'}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      {c.unreadByAdmin > 0 && (
+                        <span
+                          className="text-white text-[10px] font-bold rounded-full px-1.5 min-w-[16px] h-4 flex items-center justify-center"
+                          style={{ backgroundColor: '#25D366' }}
+                        >
+                          {c.unreadByAdmin}
+                        </span>
+                      )}
+                      {c.isBotPaused && (
+                        <span
+                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                          style={{ color: '#c2410c', backgroundColor: '#fff7ed' }}
+                        >
+                          Manual
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
           )}
         </div>
       </div>
 
       {/* Thread */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-[#F7F8FA]">
         {!selectedPhone ? (
-          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
-            Select a conversation to view messages
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+              <FiMessageCircle className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-sm font-medium text-gray-500">Select a conversation</p>
+            <p className="text-xs text-gray-400 mt-1">Pick someone from the list to see their messages</p>
           </div>
         ) : (
           <>
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">{selectedConversation?.customerName || selectedPhone}</p>
-                <p className="text-xs text-gray-400">{selectedPhone}</p>
+            <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between bg-white">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white font-semibold text-sm"
+                  style={{ backgroundColor: avatarColor(selectedPhone) }}
+                >
+                  {initials(selectedConversation?.customerName, selectedPhone)}
+                </div>
+                <div>
+                  <p className="font-semibold text-sm text-gray-900">{selectedConversation?.customerName || selectedPhone}</p>
+                  <p className="text-xs text-gray-400">{selectedPhone}</p>
+                </div>
               </div>
               <button
                 onClick={toggleBotPause}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
                 style={{
-                  border: '1px solid #d1d5db',
+                  backgroundColor: selectedConversation?.isBotPaused ? '#f0fdf4' : '#fff7ed',
                   color: selectedConversation?.isBotPaused ? '#15803d' : '#c2410c',
                 }}
               >
@@ -395,22 +454,23 @@ const WhatsappInboxPage = () => {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2.5">
               {loadingMessages ? (
                 <p className="text-sm text-gray-400 text-center">Loading...</p>
               ) : (
                 messages.map((m) => (
                   <div key={m._id} className={`flex ${m.direction === 'out' ? 'justify-end' : 'justify-start'}`}>
                     <div
-                      className="max-w-[70%] rounded-lg px-3 py-2 text-sm"
+                      className="max-w-[65%] rounded-2xl px-3.5 py-2.5 text-sm shadow-sm"
                       style={{
-                        backgroundColor: m.direction === 'out' ? (m.sentBy === 'admin' ? '#111827' : '#dcfce7') : 'white',
+                        backgroundColor: m.direction === 'out' ? (m.sentBy === 'admin' ? '#111827' : '#DCF8C6') : 'white',
                         color: m.direction === 'out' && m.sentBy === 'admin' ? 'white' : '#111827',
-                        border: m.direction === 'in' ? '1px solid #e5e7eb' : 'none',
+                        borderBottomRightRadius: m.direction === 'out' ? 4 : 16,
+                        borderBottomLeftRadius: m.direction === 'in' ? 4 : 16,
                       }}
                     >
-                      <p className="whitespace-pre-wrap">{m.body}</p>
-                      <div className="flex items-center gap-2 mt-1">
+                      <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
+                      <div className="flex items-center gap-1.5 mt-1 justify-end">
                         <span className="text-[10px] opacity-60">{formatTime(m.createdAt)}</span>
                         {m.direction === 'out' && (
                           <span className="text-[10px] opacity-60 capitalize">· {m.sentBy}</span>
@@ -423,17 +483,17 @@ const WhatsappInboxPage = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-3 border-t border-gray-200 flex items-center gap-2">
+            <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-2 bg-white">
               <button
                 onClick={openTemplatePicker}
                 title="Send a template (needed outside the 24-hour reply window)"
-                className="p-2.5 rounded-lg flex-shrink-0"
-                style={{ border: '1px solid #d1d5db', color: '#374151' }}
+                className="p-2.5 rounded-full flex-shrink-0 hover:bg-gray-50"
+                style={{ border: '1px solid #e5e7eb', color: '#374151' }}
               >
                 <FiFileText className="w-4 h-4" />
               </button>
               <input
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                className="flex-1 border border-gray-200 bg-gray-50 rounded-full px-4 py-2.5 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-400 focus:bg-white outline-none transition-colors"
                 placeholder="Type a message..."
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
@@ -443,8 +503,8 @@ const WhatsappInboxPage = () => {
               <button
                 onClick={handleSend}
                 disabled={sending || !draft.trim()}
-                className="p-2.5 rounded-lg"
-                style={{ backgroundColor: 'black', color: 'white', opacity: sending || !draft.trim() ? 0.5 : 1 }}
+                className="p-2.5 rounded-full flex-shrink-0 transition-opacity"
+                style={{ backgroundColor: '#0C831F', color: 'white', opacity: sending || !draft.trim() ? 0.4 : 1 }}
               >
                 <FiSend className="w-4 h-4" />
               </button>
