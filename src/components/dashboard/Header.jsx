@@ -165,7 +165,8 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    localStorage.removeItem("adminData");
+    window.location.href = "/";
   };
 
   const markAsRead = (id) => {
