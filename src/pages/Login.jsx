@@ -42,8 +42,15 @@ export default function LoginPage() {
           isSuperAdmin: data.isSuperAdmin || false,
         }));
 
-        // Redirect to dashboard
-        window.location.href = "/dashboard";
+        const permissions = data.permissions || [];
+        const canSeeDashboard = data.isSuperAdmin || permissions.includes('*') || permissions.includes('dashboard.view');
+        const canSeeWhatsapp = permissions.includes('*') || permissions.includes('whatsapp.view');
+
+        if (!canSeeDashboard && canSeeWhatsapp) {
+          window.location.href = "/admin/whatsapp";
+        } else {
+          window.location.href = "/dashboard";
+        }
       } else {
         setError(data.message || "Login failed");
       }
