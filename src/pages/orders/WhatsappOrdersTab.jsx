@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { FiMessageCircle } from "react-icons/fi";
+import { FiMessageCircle, FiEye, FiX, FiUser, FiMapPin, FiShoppingBag, FiCreditCard } from "react-icons/fi";
+import Button from "../../components/common/Button";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api`;
 
@@ -27,6 +28,18 @@ const formatCurrency = (amount) =>
 const formatDate = (dateString) =>
   new Date(dateString).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
+const PAYMENT_METHOD_LABEL = { paid: "Online", cod_confirmed: "Cash on Delivery" };
+
+const DetailSection = ({ title, icon, children }) => (
+  <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+    <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      {icon}
+      {title}
+    </h3>
+    {children}
+  </section>
+);
+
 const WhatsappOrdersTab = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +47,7 @@ const WhatsappOrdersTab = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const getHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem('adminToken') || localStorage.getItem('token') || ''}`,
@@ -101,12 +115,13 @@ const WhatsappOrdersTab = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Linked Order</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {loading ? (
               <tr>
-                <td colSpan={7} className="text-center py-8">
+                <td colSpan={8} className="text-center py-8">
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                     <span className="ml-2 text-gray-500 dark:text-gray-400">Loading WhatsApp orders...</span>
@@ -115,7 +130,7 @@ const WhatsappOrdersTab = () => {
               </tr>
             ) : orders.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-8">
+                <td colSpan={8} className="text-center py-8">
                   <div className="flex flex-col items-center">
                     <FiMessageCircle className="w-12 h-12 text-gray-400 mb-2" />
                     <span className="text-gray-500 dark:text-gray-400">No WhatsApp orders found.</span>
@@ -169,6 +184,9 @@ const WhatsappOrdersTab = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">{order.order?.orderId || "—"}</div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <Button variant="primary" size="sm" icon={FiEye} onClick={() => setSelectedOrder(order)} title="View Order Details">View</Button>
+                    </td>
                   </tr>
                 );
               })
@@ -197,6 +215,104 @@ const WhatsappOrdersTab = () => {
             >
               Next
             </button>
+          </div>
+        </div>
+      )}
+
+      {selectedOrder && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.55)" }}
+        >
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl my-8 max-h-[95vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">WhatsApp Order</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {selectedOrder.shippingAddress?.name || selectedOrder.user?.name || "WhatsApp Customer"} • {formatDate(selectedOrder.createdAt)}
+                </p>
+              </div>
+              <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6 max-h-[calc(95vh-97px)] overflow-y-auto">
+              <div className="flex items-center gap-2 flex-wrap">
+                {(() => { const badge = getStatusBadge(selectedOrder.status); return (
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>{badge.label}</span>
+                ); })()}
+                {selectedOrder.order?.orderId && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                    Linked to order #{selectedOrder.order.orderId}
+                  </span>
+                )}
+              </div>
+
+              <DetailSection title="Customer" icon={<FiUser className="w-5 h-5" />}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div><span className="text-gray-500 dark:text-gray-400">Name: </span>{selectedOrder.shippingAddress?.name || selectedOrder.user?.name || "—"}</div>
+                  <div><span className="text-gray-500 dark:text-gray-400">WhatsApp number: </span>{selectedOrder.whatsappPhone}</div>
+                  {selectedOrder.user?.email && (
+                    <div><span className="text-gray-500 dark:text-gray-400">Email: </span>{selectedOrder.user.email}</div>
+                  )}
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Delivery Address" icon={<FiMapPin className="w-5 h-5" />}>
+                {selectedOrder.shippingAddress?.addressLine ? (
+                  <div className="text-sm text-gray-900 dark:text-white space-y-1">
+                    <p>{selectedOrder.shippingAddress.addressLine}</p>
+                    <p>{[selectedOrder.shippingAddress.city, selectedOrder.shippingAddress.state].filter(Boolean).join(", ")}</p>
+                    <p>{selectedOrder.shippingAddress.pinCode}</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Not collected yet — customer is still in the address step.</p>
+                )}
+              </DetailSection>
+
+              <DetailSection title="Items" icon={<FiShoppingBag className="w-5 h-5" />}>
+                <div className="space-y-3">
+                  {selectedOrder.items?.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={item.product?.images?.[0]?.url || "https://via.placeholder.com/48?text=No+Image"}
+                          alt={item.product?.name}
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{item.product?.name || "Item"}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity} × ₹{item.price}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">₹{item.price * item.quantity}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">Subtotal</span>
+                  <span className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(selectedOrder.subtotal)}</span>
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Payment" icon={<FiCreditCard className="w-5 h-5" />}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Method: </span>
+                    {PAYMENT_METHOD_LABEL[selectedOrder.status] || "Not chosen yet"}
+                  </div>
+                  {selectedOrder.paymentLinkUrl && (
+                    <div className="sm:col-span-2 break-all">
+                      <span className="text-gray-500 dark:text-gray-400">Payment link: </span>
+                      <a href={selectedOrder.paymentLinkUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                        {selectedOrder.paymentLinkUrl}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </DetailSection>
+            </div>
           </div>
         </div>
       )}

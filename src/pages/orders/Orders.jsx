@@ -1,4 +1,3 @@
-import DetailsGrid from "../../components/common/DetailsGrid";
 import Button from "../../components/common/Button";
 import { useEffect, useState } from "react";
 import {
@@ -916,7 +915,6 @@ const OrdersPage = () => {
                             </div>
 
                             <div className="p-6 space-y-6 max-h-[calc(95vh-97px)] overflow-y-auto">
-                            <DetailsGrid data={selectedOrder} title="All order fields" />
                                 <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
                                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
                                         <div>
