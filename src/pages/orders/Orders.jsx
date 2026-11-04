@@ -9,10 +9,12 @@ import {
   FiDownload,
   FiFileText,
   FiPrinter,
-  FiTruck
+  FiTruck,
+  FiMessageCircle
 } from "react-icons/fi";
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
+import WhatsappOrdersTab from "./WhatsappOrdersTab";
 
 const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
 
@@ -57,6 +59,7 @@ const OrdersPage = () => {
     const [totalOrders, setTotalOrders] = useState(0);
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [bulkDeleting, setBulkDeleting] = useState(false);
+    const [activeTab, setActiveTab] = useState("orders");
 
     const ordersPerPage = 10;
 
@@ -494,6 +497,36 @@ const OrdersPage = () => {
                     </button>
                 </div>
 
+                {/* Tabs */}
+                <div className="mb-6 flex gap-2 border-b border-gray-200 dark:border-gray-700">
+                    <button
+                        onClick={() => setActiveTab("orders")}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                            activeTab === "orders"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                        }`}
+                    >
+                        <FiPackage className="w-4 h-4" />
+                        Orders
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("whatsapp")}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                            activeTab === "whatsapp"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                        }`}
+                    >
+                        <FiMessageCircle className="w-4 h-4" />
+                        WhatsApp Orders
+                    </button>
+                </div>
+
+                {activeTab === "whatsapp" && <WhatsappOrdersTab />}
+
+                {activeTab === "orders" && (
+                <>
                 {/* Search and Filters */}
                 <div className="mb-6 space-y-4 md:space-y-0 md:flex md:items-center md:justify-between">
                     <form onSubmit={handleSearch} className="flex gap-4">
@@ -1217,6 +1250,8 @@ const OrdersPage = () => {
                             </div>
                         </div>
                     </div>
+                )}
+                </>
                 )}
             </div>
         </div>
