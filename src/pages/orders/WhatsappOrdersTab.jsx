@@ -4,23 +4,18 @@ import Button from "../../components/common/Button";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api`;
 
-const ADDRESS_STEP_STATUSES = ["awaiting_name", "awaiting_address_line", "awaiting_city", "awaiting_state", "awaiting_pincode"];
-
 const STATUS_BADGES = {
+  awaiting_address: { label: "Collecting address", color: "bg-orange-100 text-orange-800" },
   awaiting_payment_method: { label: "Awaiting payment choice", color: "bg-yellow-100 text-yellow-800" },
   pending: { label: "Payment link sent", color: "bg-blue-100 text-blue-800" },
   paid: { label: "Paid (Online)", color: "bg-green-100 text-green-800" },
   cod_confirmed: { label: "Confirmed (COD)", color: "bg-green-100 text-green-800" },
+  undeliverable: { label: "Not deliverable", color: "bg-red-100 text-red-800" },
   expired: { label: "Expired", color: "bg-gray-100 text-gray-800" },
   cancelled: { label: "Cancelled", color: "bg-red-100 text-red-800" }
 };
 
-const getStatusBadge = (status) => {
-  if (ADDRESS_STEP_STATUSES.includes(status)) {
-    return { label: "Collecting address", color: "bg-orange-100 text-orange-800" };
-  }
-  return STATUS_BADGES[status] || { label: status, color: "bg-gray-100 text-gray-800" };
-};
+const getStatusBadge = (status) => STATUS_BADGES[status] || { label: status, color: "bg-gray-100 text-gray-800" };
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount || 0);
@@ -80,10 +75,12 @@ const WhatsappOrdersTab = () => {
 
   const statusOptions = [
     { value: "all", label: "All Status" },
+    { value: "awaiting_address", label: "Collecting address" },
     { value: "awaiting_payment_method", label: "Awaiting payment choice" },
     { value: "pending", label: "Payment link sent" },
     { value: "paid", label: "Paid (Online)" },
     { value: "cod_confirmed", label: "Confirmed (COD)" },
+    { value: "undeliverable", label: "Not deliverable" },
     { value: "cancelled", label: "Cancelled" },
     { value: "expired", label: "Expired" }
   ];
