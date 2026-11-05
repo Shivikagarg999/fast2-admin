@@ -168,7 +168,7 @@ const WhatsappOrdersTab = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">{formatCurrency(order.subtotal)}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{formatCurrency(order.finalAmount || order.subtotal)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>
@@ -287,9 +287,35 @@ const WhatsappOrdersTab = () => {
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">Subtotal</span>
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(selectedOrder.subtotal)}</span>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-1.5">
+                  <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(selectedOrder.subtotal)}</span>
+                  </div>
+                  {selectedOrder.deliveryCharges > 0 && (
+                    <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
+                      <span>Delivery</span>
+                      <span>{formatCurrency(selectedOrder.deliveryCharges)}</span>
+                    </div>
+                  )}
+                  {selectedOrder.handlingCharge > 0 && (
+                    <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
+                      <span>Handling</span>
+                      <span>{formatCurrency(selectedOrder.handlingCharge)}</span>
+                    </div>
+                  )}
+                  {selectedOrder.totalGst > 0 && (
+                    <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
+                      <span>GST</span>
+                      <span>{formatCurrency(selectedOrder.totalGst)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-1.5 border-t border-gray-200 dark:border-gray-700">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">Total</span>
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">
+                      {formatCurrency(selectedOrder.finalAmount || selectedOrder.subtotal)}
+                    </span>
+                  </div>
                 </div>
               </DetailSection>
 
