@@ -4,7 +4,7 @@ import Modal from "../../components/common/Modal";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api`;
 
-const emptyTemplateForm = { name: '', category: 'UTILITY', language: 'en_US', bodyText: '' };
+const emptyTemplateForm = { name: '', category: 'UTILITY', language: 'en_US', bodyText: '', buttons: [] };
 
 const statusBadge = (status) => {
   const map = {
@@ -150,10 +150,38 @@ const WhatsappInboxPage = () => {
     fetchTemplates();
   };
 
+  const addTemplateButton = () => {
+    setTemplateForm((p) => ({
+      ...p,
+      buttons: p.buttons.length >= 3 ? p.buttons : [...p.buttons, { type: 'QUICK_REPLY', text: '', url: '' }],
+    }));
+  };
+
+  const updateTemplateButton = (index, field, value) => {
+    setTemplateForm((p) => ({
+      ...p,
+      buttons: p.buttons.map((b, i) => (i === index ? { ...b, [field]: value } : b)),
+    }));
+  };
+
+  const removeTemplateButton = (index) => {
+    setTemplateForm((p) => ({ ...p, buttons: p.buttons.filter((_, i) => i !== index) }));
+  };
+
   const handleCreateTemplate = async () => {
     if (!templateForm.name.trim() || !templateForm.bodyText.trim()) {
       setTemplateError('Name and message body are required');
       return;
+    }
+    for (const b of templateForm.buttons) {
+      if (!b.text.trim()) {
+        setTemplateError('Every button needs text');
+        return;
+      }
+      if (b.type === 'URL' && !/^https?:\/\//.test(b.url)) {
+        setTemplateError('URL buttons need a valid http(s) link');
+        return;
+      }
     }
     setSavingTemplate(true);
     setTemplateError('');
@@ -577,6 +605,54 @@ const WhatsappInboxPage = () => {
                     value={templateForm.bodyText}
                     onChange={(e) => setTemplateForm((p) => ({ ...p, bodyText: e.target.value }))}
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Buttons (optional, up to 3) — a Quick Reply button named "View Catalog" automatically shows products when tapped
+                  </label>
+                  <div className="space-y-2">
+                    {templateForm.buttons.map((button, index) => (
+                      <div key={index} className="flex gap-2 items-start">
+                        <select
+                          className="border border-gray-300 rounded-md px-2 py-2 text-sm"
+                          value={button.type}
+                          onChange={(e) => updateTemplateButton(index, 'type', e.target.value)}
+                        >
+                          <option value="QUICK_REPLY">Quick Reply</option>
+                          <option value="URL">Website Link</option>
+                        </select>
+                        <input
+                          className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          placeholder="Button text"
+                          value={button.text}
+                          onChange={(e) => updateTemplateButton(index, 'text', e.target.value)}
+                        />
+                        {button.type === 'URL' && (
+                          <input
+                            className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            placeholder="https://..."
+                            value={button.url}
+                            onChange={(e) => updateTemplateButton(index, 'url', e.target.value)}
+                          />
+                        )}
+                        <button
+                          onClick={() => removeTemplateButton(index)}
+                          className="px-2 py-2 text-sm text-red-600"
+                          title="Remove button"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  {templateForm.buttons.length < 3 && (
+                    <button
+                      onClick={addTemplateButton}
+                      className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-700"
+                    >
+                      <FiPlus className="w-3 h-3" /> Add button
+                    </button>
+                  )}
                 </div>
                 <div className="flex justify-end gap-2">
                   <button
