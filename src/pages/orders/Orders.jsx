@@ -42,6 +42,28 @@ const buttonStyles = {
     },
 };
 
+// Applied coupon as admins should see it everywhere: a money discount
+// ("-₹50") or, for free_quantity coupons, the freebie it added ("250g free").
+const getCouponBenefit = (coupon) => {
+    if (!coupon?.code) return null;
+    if (coupon.benefitType === 'free_quantity' && coupon.appliedItems?.length) {
+        return coupon.appliedItems
+            .map((i) => `${i.benefitLabel || `${i.displayFreeQuantity || i.freeQuantity}${i.displayFreeUnit || i.freeUnit} free`}${i.name ? ` (${i.name})` : ''}`)
+            .join(', ');
+    }
+    return coupon.discount > 0 ? `-₹${coupon.discount}` : null;
+};
+
+const CouponTag = ({ coupon }) => {
+    if (!coupon?.code) return null;
+    const benefit = getCouponBenefit(coupon);
+    return (
+        <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-200">
+            🏷 {coupon.code}{benefit ? ` · ${benefit}` : ''}
+        </span>
+    );
+};
+
 const OrdersPage = () => {
     const { hasPermission } = usePermissions();
     const [orders, setOrders] = useState([]);
@@ -764,6 +786,7 @@ const OrdersPage = () => {
                                                 <div className="text-sm font-medium text-gray-900 dark:text-white">
                                                     {formatCurrency(order.total)}
                                                 </div>
+                                                <CouponTag coupon={order.coupon} />
                                             </td>
                                             
                                             {/* Status */}
@@ -956,6 +979,9 @@ const OrdersPage = () => {
                                             <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod?.toUpperCase()}</p>
                                             <p><strong>Payment Status:</strong> {getPaymentStatusBadge(selectedOrder.paymentStatus)}</p>
                                             <p><strong>Total Amount:</strong> {formatCurrency(selectedOrder.total)}</p>
+                                            {selectedOrder.coupon?.code && (
+                                                <p><strong>Coupon:</strong> <CouponTag coupon={selectedOrder.coupon} /></p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -1219,6 +1245,36 @@ const OrdersPage = () => {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Bill breakdown — same lines the customer saw at checkout */}
+                                <div className="border-t pt-4 space-y-1.5 text-sm text-gray-600 dark:text-gray-300">
+                                    <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(selectedOrder.subtotal)}</span></div>
+                                    <div className="flex justify-between">
+                                        <span>Delivery</span>
+                                        <span>{selectedOrder.deliveryCharges > 0 ? formatCurrency(selectedOrder.deliveryCharges) : 'FREE'}</span>
+                                    </div>
+                                    {selectedOrder.handlingCharge > 0 && (
+                                        <div className="flex justify-between"><span>Handling</span><span>{formatCurrency(selectedOrder.handlingCharge)}</span></div>
+                                    )}
+                                    {selectedOrder.totalGst > 0 && (
+                                        <div className="flex justify-between"><span>GST</span><span>{formatCurrency(selectedOrder.totalGst)}</span></div>
+                                    )}
+                                    {getCouponBenefit(selectedOrder.coupon) && (
+                                        <div className="flex justify-between text-green-700 dark:text-green-400">
+                                            <span>Coupon ({selectedOrder.coupon.code})</span>
+                                            <span>{getCouponBenefit(selectedOrder.coupon)}</span>
+                                        </div>
+                                    )}
+                                    {selectedOrder.scratchCouponDiscount > 0 && (
+                                        <div className="flex justify-between text-green-700 dark:text-green-400">
+                                            <span>Scratch Coupon{selectedOrder.scratchCouponDetails?.code ? ` (${selectedOrder.scratchCouponDetails.code})` : ''}</span>
+                                            <span>-{formatCurrency(selectedOrder.scratchCouponDiscount)}</span>
+                                        </div>
+                                    )}
+                                    {selectedOrder.walletDeduction > 0 && (
+                                        <div className="flex justify-between"><span>Wallet Used</span><span>-{formatCurrency(selectedOrder.walletDeduction)}</span></div>
+                                    )}
+                                </div>
 
                                 {/* Order Total Actions */}
                                 <div className="border-t pt-4">

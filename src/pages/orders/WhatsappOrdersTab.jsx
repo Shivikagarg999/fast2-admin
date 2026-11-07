@@ -7,6 +7,7 @@ const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null)
 const STATUS_BADGES = {
   awaiting_address: { label: "Collecting address", color: "bg-orange-100 text-orange-800" },
   awaiting_payment_method: { label: "Awaiting payment choice", color: "bg-yellow-100 text-yellow-800" },
+  awaiting_coupon: { label: "Entering coupon", color: "bg-pink-100 text-pink-800" },
   pending: { label: "Payment link sent", color: "bg-blue-100 text-blue-800" },
   paid: { label: "Paid (Online)", color: "bg-green-100 text-green-800" },
   cod_confirmed: { label: "Confirmed (COD)", color: "bg-green-100 text-green-800" },
@@ -22,6 +23,25 @@ const formatCurrency = (amount) =>
 
 const formatDate = (dateString) =>
   new Date(dateString).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+
+// Applied coupon: money off, or for free_quantity coupons the freebie added.
+const getCouponBenefit = (order) => {
+  if (!order?.couponCode) return null;
+  if (order.couponBenefitType === "free_quantity" && order.couponAppliedItems?.length) {
+    return order.couponAppliedItems.map((i) => `${i.benefitLabel}${i.name ? ` (${i.name})` : ""}`).join(", ");
+  }
+  return order.couponDiscount > 0 ? `-₹${order.couponDiscount}` : null;
+};
+
+const CouponTag = ({ order }) => {
+  if (!order?.couponCode) return null;
+  const benefit = getCouponBenefit(order);
+  return (
+    <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-200">
+      🏷 {order.couponCode}{benefit ? ` · ${benefit}` : ""}
+    </span>
+  );
+};
 
 const PAYMENT_METHOD_LABEL = { paid: "Online", cod_confirmed: "Cash on Delivery" };
 
@@ -169,6 +189,7 @@ const WhatsappOrdersTab = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">{formatCurrency(order.finalAmount || order.subtotal)}</div>
+                      <CouponTag order={order} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>
@@ -292,10 +313,10 @@ const WhatsappOrdersTab = () => {
                     <span>Subtotal</span>
                     <span>{formatCurrency(selectedOrder.subtotal)}</span>
                   </div>
-                  {selectedOrder.deliveryCharges > 0 && (
+                  {selectedOrder.shippingAddress?.addressLine && (
                     <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
                       <span>Delivery</span>
-                      <span>{formatCurrency(selectedOrder.deliveryCharges)}</span>
+                      <span>{selectedOrder.deliveryCharges > 0 ? formatCurrency(selectedOrder.deliveryCharges) : "FREE"}</span>
                     </div>
                   )}
                   {selectedOrder.handlingCharge > 0 && (
@@ -308,6 +329,12 @@ const WhatsappOrdersTab = () => {
                     <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
                       <span>GST</span>
                       <span>{formatCurrency(selectedOrder.totalGst)}</span>
+                    </div>
+                  )}
+                  {getCouponBenefit(selectedOrder) && (
+                    <div className="flex justify-between items-center text-sm text-green-700 dark:text-green-400">
+                      <span>Coupon ({selectedOrder.couponCode})</span>
+                      <span>{getCouponBenefit(selectedOrder)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center pt-1.5 border-t border-gray-200 dark:border-gray-700">
