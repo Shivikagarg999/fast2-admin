@@ -21,6 +21,7 @@ import OrderList from "./pages/orders/Orders";
 import Banners from "./pages/banners/Banners";
 import HomeSectionsPage from "./pages/homeSections/HomeSectionsPage";
 import WhatsappInboxPage from "./pages/whatsapp/WhatsappInboxPage";
+import MarketingPage from "./pages/marketing/MarketingPage";
 import Coupon from "./pages/coupon-code/CouponCode";
 import Discounts from "./pages/discounts/page";
 import SellerPage from "./pages/sellers/SellerPage";
@@ -234,6 +235,14 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.WHATSAPP_VIEW}>
                 <WhatsappInboxPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/marketing"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.MARKETING_VIEW}>
+                <MarketingPage />
               </ProtectedRoute>
             }
           />

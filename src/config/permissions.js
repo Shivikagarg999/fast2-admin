@@ -109,6 +109,9 @@ export const PERMISSIONS = {
 
   // Reports
   REPORTS_VIEW: 'reports.view',
+
+  // Marketing / social post generator
+  MARKETING_VIEW: 'marketing.view',
 };
 
 // Permission groups for easier management
@@ -209,6 +212,7 @@ export const PERMISSION_GROUPS = {
   marketing: {
     label: 'Marketing',
     permissions: [
+      PERMISSIONS.MARKETING_VIEW,
       PERMISSIONS.BANNERS_VIEW,
       PERMISSIONS.BANNERS_CREATE,
       PERMISSIONS.BANNERS_EDIT,
@@ -341,6 +345,7 @@ export const getPermissionLabel = (permission) => {
     [PERMISSIONS.ROLES_DELETE]: 'Delete Roles',
     [PERMISSIONS.WHATSAPP_VIEW]: 'View WhatsApp Inbox',
     [PERMISSIONS.REPORTS_VIEW]: 'View Reports',
+    [PERMISSIONS.MARKETING_VIEW]: 'View Marketing / Social Posts',
   };
   return labels[permission] || permission;
 };

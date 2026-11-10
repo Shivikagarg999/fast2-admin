@@ -185,6 +185,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           permission: PERMISSIONS.WHATSAPP_VIEW,
         },
         {
+          name: "Marketing",
+          path: "/admin/marketing",
+          icon: <FiImage className="w-4 h-4" />,
+          permission: PERMISSIONS.MARKETING_VIEW,
+        },
+        {
           name: "Scratch Cards",
           path: "/admin/scratch-cards",
           icon: <FiGift className="w-4 h-4" />,
