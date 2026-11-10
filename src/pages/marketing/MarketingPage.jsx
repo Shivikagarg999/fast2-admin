@@ -86,7 +86,7 @@ const MarketingPage = () => {
       setLoadingLsProducts(true);
       setProductId('');
       try {
-        const res = await fetch(`${BASE_URL}/product/category/${lsCategoryId}`);
+        const res = await fetch(`${BASE_URL}/admin/marketing/category-products/${lsCategoryId}`, { headers: getHeaders() });
         const data = await res.json();
         setLsProducts(data.products || []);
       } catch (err) {
@@ -356,8 +356,8 @@ const MarketingPage = () => {
                       download
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium"
-                      style={{ backgroundColor: 'black' }}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: 'black', color: '#ffffff' }}
                     >
                       <FiDownload className="w-4 h-4" /> Download
                     </a>
@@ -485,8 +485,8 @@ const MarketingPage = () => {
                       download
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium"
-                      style={{ backgroundColor: 'black' }}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: 'black', color: '#ffffff' }}
                     >
                       <FiDownload className="w-4 h-4" /> Download
                     </a>
