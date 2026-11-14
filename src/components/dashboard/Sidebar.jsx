@@ -143,22 +143,52 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
       icon: <FiTrendingUp className="w-3.5 h-3.5" />,
       items: [
         {
-          name: "Discounts",
-          path: "/admin/discounts",
-          icon: <FiGift className="w-4 h-4" />,
-          permission: PERMISSIONS.DISCOUNTS_VIEW,
+          name: "Marketing Hub",
+          path: "/admin/marketing",
+          icon: <FiTrendingUp className="w-4 h-4" />,
+          permission: PERMISSIONS.MARKETING_VIEW,
+        },
+        {
+          name: "Social Posts & AI",
+          path: "/admin/marketing?tab=posts",
+          icon: <FiImage className="w-4 h-4" />,
+          permission: PERMISSIONS.MARKETING_VIEW,
+        },
+        {
+          name: "Auto-Post Scheduler",
+          path: "/admin/marketing?tab=autopost",
+          icon: <FiClock className="w-4 h-4" />,
+          permission: PERMISSIONS.MARKETING_VIEW,
+        },
+        {
+          name: "WhatsApp Inbox",
+          path: "/admin/marketing?tab=whatsapp",
+          icon: <FiMessageCircle className="w-4 h-4" />,
+          permission: PERMISSIONS.WHATSAPP_VIEW,
+        },
+        {
+          name: "Notifications",
+          path: "/admin/marketing?tab=notifications",
+          icon: <FiBell className="w-4 h-4" />,
+          permission: PERMISSIONS.POPUPS_VIEW,
         },
         {
           name: "Coupon Codes",
-          path: "/admin/coupons",
+          path: "/admin/marketing?tab=coupons",
           icon: <FiTag className="w-4 h-4" />,
           permission: PERMISSIONS.COUPONS_VIEW,
         },
         {
           name: "Banners",
-          path: "/admin/banners",
+          path: "/admin/marketing?tab=banners",
           icon: <FiImage className="w-4 h-4" />,
           permission: PERMISSIONS.BANNERS_VIEW,
+        },
+        {
+          name: "Discounts",
+          path: "/admin/discounts",
+          icon: <FiGift className="w-4 h-4" />,
+          permission: PERMISSIONS.DISCOUNTS_VIEW,
         },
         {
           name: "Home Sections",
@@ -171,24 +201,6 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           path: "/admin/popups",
           icon: <FiBell className="w-4 h-4" />,
           permission: PERMISSIONS.POPUPS_VIEW,
-        },
-        {
-          name: "Notifications",
-          path: "/admin/notifications",
-          icon: <FiBell className="w-4 h-4" />,
-          permission: PERMISSIONS.POPUPS_VIEW,
-        },
-        {
-          name: "WhatsApp Inbox",
-          path: "/admin/whatsapp",
-          icon: <FiMessageCircle className="w-4 h-4" />,
-          permission: PERMISSIONS.WHATSAPP_VIEW,
-        },
-        {
-          name: "Marketing",
-          path: "/admin/marketing",
-          icon: <FiImage className="w-4 h-4" />,
-          permission: PERMISSIONS.MARKETING_VIEW,
         },
         {
           name: "Scratch Cards",
@@ -496,7 +508,10 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
                   >
                     <div className="space-y-0.5">
                       {category.items.map((item) => {
-                        const isActive = pathname.startsWith(item.path);
+                        const [itemBase, itemQuery] = item.path.split('?');
+                        const isActive = itemQuery
+                          ? (pathname === itemBase && location.search.includes(itemQuery))
+                          : (pathname === item.path || (item.path !== '/dashboard' && pathname.startsWith(item.path) && !location.search));
                         return (
                           <Link
                             key={item.name}
