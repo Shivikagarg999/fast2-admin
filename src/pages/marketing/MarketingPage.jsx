@@ -272,6 +272,7 @@ const MarketingPage = () => {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify({
+          productId: selectedProductIds[0],
           productIds: selectedProductIds,
           platform: lsPlatform,
           useGemini,
