@@ -162,6 +162,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           permission: PERMISSIONS.MARKETING_VIEW,
         },
         {
+          name: "Scheduled Posts Queue",
+          path: "/admin/marketing?tab=scheduled",
+          icon: <FiCalendar className="w-4 h-4" />,
+          permission: PERMISSIONS.MARKETING_VIEW,
+        },
+        {
           name: "WhatsApp Inbox",
           path: "/admin/marketing?tab=whatsapp",
           icon: <FiMessageCircle className="w-4 h-4" />,
