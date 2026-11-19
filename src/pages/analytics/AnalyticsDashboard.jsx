@@ -3,7 +3,8 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from "recharts";
 import {
-  FiUsers, FiActivity, FiEye, FiMousePointer, FiShoppingCart, FiLogIn, FiUserCheck, FiPackage, FiAlertCircle
+  FiUsers, FiActivity, FiEye, FiMousePointer, FiShoppingCart, FiLogIn, FiUserCheck, FiPackage, FiAlertCircle,
+  FiDownload, FiSmartphone, FiClock
 } from "react-icons/fi";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/analytics`;
@@ -15,8 +16,20 @@ const RANGES = [
   { label: '90 days', days: 90 },
 ];
 
+const PLATFORMS = [
+  { label: 'All', value: 'all' },
+  { label: 'Website', value: 'web' },
+  { label: 'App', value: 'app' },
+];
+
 const fmt = (n) => (n || 0).toLocaleString('en-IN');
 const pct = (part, whole) => (whole > 0 ? `${((part / whole) * 100).toFixed(1)}%` : '0%');
+const fmtDuration = (seconds) => {
+  const s = seconds || 0;
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return m > 0 ? `${m}m ${rem}s` : `${rem}s`;
+};
 
 const StatCard = ({ icon, label, value, hint }) => (
   <div className="bg-white rounded-xl shadow p-4">
@@ -24,7 +37,7 @@ const StatCard = ({ icon, label, value, hint }) => (
       {icon}
       {label}
     </div>
-    <div className="text-2xl font-bold text-gray-900 mt-2">{fmt(value)}</div>
+    <div className="text-2xl font-bold text-gray-900 mt-2">{typeof value === 'string' ? value : fmt(value)}</div>
     {hint && <div className="text-xs text-gray-400 mt-1">{hint}</div>}
   </div>
 );
@@ -40,6 +53,7 @@ const EmptyRow = () => <p className="text-sm text-gray-400 py-4 text-center">No 
 
 const AnalyticsDashboard = () => {
   const [days, setDays] = useState(7);
+  const [platform, setPlatform] = useState('all');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -50,7 +64,7 @@ const AnalyticsDashboard = () => {
       setLoading(true);
       setError('');
       try {
-        const res = await fetch(`${BASE_URL}/summary?days=${days}`, {
+        const res = await fetch(`${BASE_URL}/summary?days=${days}&platform=${platform}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         const result = await res.json();
@@ -65,7 +79,7 @@ const AnalyticsDashboard = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [days]);
+  }, [days, platform]);
 
   const totals = data?.totals;
   const funnel = data?.funnel || [];
@@ -75,23 +89,38 @@ const AnalyticsDashboard = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Website Analytics</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
           <p className="text-gray-500 mt-1 text-sm">
-            Anonymous visitor activity on gmkart.com. Counts start from when tracking went live.
+            Anonymous visitor activity on gmkart.com and the app. Counts start from when tracking went live.
           </p>
         </div>
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-          {RANGES.map((range) => (
-            <button
-              key={range.days}
-              onClick={() => setDays(range.days)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                days === range.days ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {range.label}
-            </button>
-          ))}
+        <div className="flex gap-3 flex-wrap">
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+            {PLATFORMS.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setPlatform(p.value)}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  platform === p.value ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+            {RANGES.map((range) => (
+              <button
+                key={range.days}
+                onClick={() => setDays(range.days)}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  days === range.days ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {range.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -118,6 +147,9 @@ const AnalyticsDashboard = () => {
             <StatCard icon={<FiLogIn />} label="Opened login page" value={totals.loginPageVisitors} hint="Unique visitors" />
             <StatCard icon={<FiUserCheck />} label="Logged in" value={totals.loginSuccess} hint="Unique visitors" />
             <StatCard icon={<FiPackage />} label="Orders placed" value={totals.ordersPlaced} />
+            <StatCard icon={<FiDownload />} label="App installs" value={totals.appInstalls} />
+            <StatCard icon={<FiSmartphone />} label="App opens" value={totals.appOpens} />
+            <StatCard icon={<FiClock />} label="Avg time per session" value={fmtDuration(totals.avgSessionDurationSec)} hint={`${fmt(totals.avgSessionDurationSec)} sec`} />
           </div>
 
           {/* Funnel */}
@@ -298,6 +330,28 @@ const AnalyticsDashboard = () => {
                     })}
                   </tbody>
                 </table>
+              )}
+            </Card>
+
+            <Card title="Website vs App (unique visitors)">
+              {!data.platforms || data.platforms.length === 0 ? <EmptyRow /> : (
+                <div className="space-y-3">
+                  {data.platforms.map((row) => {
+                    const total = data.platforms.reduce((sum, p) => sum + p.visitors, 0);
+                    const maxVal = Math.max(...data.platforms.map((p) => p.visitors), 1);
+                    return (
+                      <div key={row.platform}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="capitalize text-gray-700">{row.platform === 'app' ? 'App' : 'Website'}</span>
+                          <span className="text-gray-500">{fmt(row.visitors)} · {pct(row.visitors, total)}</span>
+                        </div>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-gray-800 rounded-full" style={{ width: `${(row.visitors / maxVal) * 100}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </Card>
 
