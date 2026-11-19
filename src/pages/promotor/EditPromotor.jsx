@@ -157,43 +157,43 @@ const EditPromotorPage = () => {
 
   if (fetching) {
     return (
-      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="bg-gold-50 min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-8">
+    <div className="bg-gold-50 min-h-screen py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <Card className="sm:!p-8">
           {/* Header with back button */}
-          <div className="flex items-center mb-6">
+          <div className="flex items-center mb-6 gap-3">
             <button
               onClick={() => navigate('/admin/promotors')}
-              className="flex items-center text-blue-600 hover:text-blue-700 mr-4"
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
             >
-              <FiArrowLeft className="w-5 h-5" />
+              <FiArrowLeft className="w-4 h-4" />
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-              <FiUser className="mr-2" /> Edit Promotor
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <FiUser className="text-gold-600" /> Edit Promotor
             </h1>
           </div>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h2>
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Full Name *
                   </label>
                   <input
@@ -202,14 +202,14 @@ const EditPromotorPage = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address *
                   </label>
                   <div className="relative">
@@ -219,8 +219,8 @@ const EditPromotorPage = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -228,7 +228,7 @@ const EditPromotorPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Phone Number *
                   </label>
                   <div className="relative">
@@ -238,8 +238,8 @@ const EditPromotorPage = () => {
                       value={formData.phone}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -252,9 +252,9 @@ const EditPromotorPage = () => {
                     name="active"
                     checked={formData.active}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-blue-600 rounded"
+                    className="h-4 w-4 text-gold-600 rounded focus:ring-gold-400"
                   />
-                  <label className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                  <label className="ml-2 block text-sm text-gray-700">
                     Active Promotor
                   </label>
                 </div>
@@ -262,14 +262,14 @@ const EditPromotorPage = () => {
             </div>
 
             {/* Address Information Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <FiMapPin className="mr-2" /> Address Information
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Street Address
                   </label>
                   <input
@@ -278,13 +278,13 @@ const EditPromotorPage = () => {
                     value={formData.address.street}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     City *
                   </label>
                   <input
@@ -293,14 +293,14 @@ const EditPromotorPage = () => {
                     value={formData.address.city}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     State
                   </label>
                   <input
@@ -309,13 +309,13 @@ const EditPromotorPage = () => {
                     value={formData.address.state}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Pincode
                   </label>
                   <input
@@ -324,13 +324,13 @@ const EditPromotorPage = () => {
                     value={formData.address.pincode}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Latitude
                   </label>
                   <input
@@ -340,13 +340,13 @@ const EditPromotorPage = () => {
                     onChange={handleInputChange}
                     step="any"
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Longitude
                   </label>
                   <input
@@ -356,22 +356,22 @@ const EditPromotorPage = () => {
                     onChange={handleInputChange}
                     step="any"
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Commission Information Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <FiDollarSign className="mr-2" /> Commission Information
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Commission Type *
                   </label>
                   <select
@@ -379,8 +379,8 @@ const EditPromotorPage = () => {
                     value={formData.commissionType}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   >
                     <option value="percentage">Percentage</option>
@@ -389,7 +389,7 @@ const EditPromotorPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Commission Rate *
                   </label>
                   <div className="relative">
@@ -402,8 +402,8 @@ const EditPromotorPage = () => {
                       max={formData.commissionType === "percentage" ? "100" : ""}
                       step="0.01"
                       className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     {formData.commissionType === "percentage" ? (
@@ -417,12 +417,12 @@ const EditPromotorPage = () => {
             </div>
 
             {/* Additional Details Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Additional Details</h2>
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Additional Details</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Aadhar Number
                   </label>
                   <input
@@ -431,13 +431,13 @@ const EditPromotorPage = () => {
                     value={formData.aadharNumber}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     PAN Number
                   </label>
                   <input
@@ -446,22 +446,22 @@ const EditPromotorPage = () => {
                     value={formData.panNumber}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Bank Details Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <FiCreditCard className="mr-2" /> Bank Details
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Bank Name
                   </label>
                   <input
@@ -470,13 +470,13 @@ const EditPromotorPage = () => {
                     value={formData.bankDetails.bankName}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Account Number
                   </label>
                   <input
@@ -485,13 +485,13 @@ const EditPromotorPage = () => {
                     value={formData.bankDetails.accountNumber}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     IFSC Code
                   </label>
                   <input
@@ -500,13 +500,13 @@ const EditPromotorPage = () => {
                     value={formData.bankDetails.ifscCode}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Branch
                   </label>
                   <input
@@ -515,69 +515,55 @@ const EditPromotorPage = () => {
                     value={formData.bankDetails.branch}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-end gap-4">
-              <button
-                type="button"
-                onClick={() => navigate('/admin/promotors')}
-                className="px-6 py-3 border border-gray-200 rounded-xl 
-                  bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300
-                  hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-              >
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => navigate('/admin/promotors')} className="!px-6 !py-3">
                 Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
-                  disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-black"
-              >
+              </Button>
+              <Button type="submit" variant="primary" disabled={loading} className="!px-6 !py-3">
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
                     Updating...
                   </>
                 ) : (
                   <>
-                    <FiCheckCircle className="mr-2" /> Update Promotor
+                    <FiCheckCircle /> Update Promotor
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
+        </Card>
       </div>
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex flex-col items-center text-center">
-              <div className="bg-green-100 p-3 rounded-full mb-4">
-                <FiCheckCircle className="text-green-600 text-3xl" />
+              <div className="bg-gold-100 p-3 rounded-full mb-4">
+                <FiCheckCircle className="text-gold-700 text-3xl" />
               </div>
 
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
                 Promotor Updated Successfully!
               </h2>
 
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
+              <p className="text-gray-600 mb-4">
                 The promotor details have been updated.
               </p>
 
-              <button
-                onClick={closeSuccessModal}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
+              <Button variant="primary" onClick={closeSuccessModal} className="!px-6 !py-2.5">
                 Back to Promotors
-              </button>
+              </Button>
             </div>
           </div>
         </div>

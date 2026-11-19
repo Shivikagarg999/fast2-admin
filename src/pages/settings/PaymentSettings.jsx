@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { FiCreditCard, FiCheck, FiAlertCircle } from "react-icons/fi";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/ui/PageHeader";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/payment-settings`;
 
@@ -91,19 +94,19 @@ const PaymentSettings = () => {
   }
 
   return (
-    <div className="p-6 max-w-2xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <FiCreditCard className="w-6 h-6" />
-          Payment Settings
-        </h1>
-        <p className="text-gray-500 mt-1 text-sm">
-          Choose which online payment gateway is active at checkout. Cash on Delivery is always available to customers.
-        </p>
-      </div>
+    <div className="p-6 max-w-2xl bg-gold-50 min-h-screen">
+      <PageHeader
+        title={
+          <span className="flex items-center gap-2">
+            <FiCreditCard className="w-6 h-6" />
+            Payment Settings
+          </span>
+        }
+        subtitle="Choose which online payment gateway is active at checkout. Cash on Delivery is always available to customers."
+      />
 
       {toast && (
-        <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-green-50 text-green-800 border border-green-200'}`}>
+        <div className={`mb-4 p-3 rounded-xl flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}`}>
           {toast.type === 'error' ? <FiAlertCircle className="w-4 h-4" /> : <FiCheck className="w-4 h-4" />}
           {toast.message}
         </div>
@@ -114,9 +117,9 @@ const PaymentSettings = () => {
           <div
             key={option.value}
             onClick={() => setSelected(option.value)}
-            className={`cursor-pointer border-2 rounded-xl p-5 transition-all ${selected === option.value
-              ? 'border-black bg-gray-50'
-              : 'border-gray-200 hover:border-gray-300'
+            className={`cursor-pointer border-2 rounded-2xl p-5 transition-all bg-white shadow-sm shadow-black/5 ${selected === option.value
+              ? 'border-gold-400 bg-gold-50'
+              : 'border-gray-100 hover:border-gray-200'
               }`}
           >
             <div className="flex items-center">
@@ -125,9 +128,7 @@ const PaymentSettings = () => {
               </div>
               <span className="font-semibold text-gray-900">{option.title}</span>
               {activeGateway === option.value && (
-                <span className="ml-2 text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
-                  Active
-                </span>
+                <Badge variant="success" className="ml-2">Active</Badge>
               )}
             </div>
             <p className="text-sm text-gray-600 mt-2 ml-8">{option.description}</p>
@@ -135,14 +136,14 @@ const PaymentSettings = () => {
         ))}
       </div>
 
-      <button
+      <Button
         onClick={handleSave}
         disabled={saving || !selected || selected === activeGateway}
-        className="mt-6 px-5 py-2.5 rounded-lg text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{ backgroundColor: 'black' }}
+        variant="primary"
+        className="mt-6"
       >
         {saving ? 'Saving...' : 'Save Changes'}
-      </button>
+      </Button>
     </div>
   );
 };

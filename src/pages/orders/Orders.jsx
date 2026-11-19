@@ -1147,7 +1147,7 @@ const OrdersPage = () => {
                                 {selectedOrder.shippingAddress && (
                                     <div>
                                         <h3 className="text-lg font-medium mb-4">Shipping Address</h3>
-                                        <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                        <div className="bg-gray-50 p-4 rounded-2xl">
                                             <p>{selectedOrder.shippingAddress.addressLine}</p>
                                             <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
                                             <p>{selectedOrder.shippingAddress.country} - {selectedOrder.shippingAddress.pinCode}</p>
@@ -1161,7 +1161,7 @@ const OrdersPage = () => {
                                     <h3 className="text-lg font-medium mb-4">Order Items</h3>
                                     <div className="space-y-4">
                                         {selectedOrder.items?.map((item, index) => (
-                                            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
                                                 <div className="flex items-center space-x-4">
                                                     <img
                                                         src={item.product?.images?.[0]?.url || "https://via.placeholder.com/60?text=No+Image"}
@@ -1189,8 +1189,8 @@ const OrdersPage = () => {
                                 {selectedOrder.prescriptionImage?.url && (
                                     <div>
                                         <h3 className="text-lg font-medium mb-4">Prescription</h3>
-                                        <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                                            <img 
+                                        <div className="bg-gray-50 p-4 rounded-2xl">
+                                            <img
                                                 src={selectedOrder.prescriptionImage.url} 
                                                 alt="Prescription" 
                                                 className="max-h-96 mx-auto rounded-lg cursor-pointer"

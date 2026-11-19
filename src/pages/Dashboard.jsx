@@ -519,9 +519,9 @@ const DashboardLayout = () => {
   );
 
   const statusColors = {
-    accepted: 'bg-blue-100 text-blue-800',
-    'picked-up': 'bg-orange-100 text-orange-800',
-    delivered: 'bg-green-100 text-green-800',
+    accepted: 'bg-gold-100 text-gold-800',
+    'picked-up': 'bg-gold-400 text-black',
+    delivered: 'bg-black text-white',
   };
 
   const LiveOrdersCard = () => {
@@ -530,21 +530,21 @@ const DashboardLayout = () => {
       <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 mb-6">
         <div className="flex items-center justify-between p-6 pb-0">
           <div className="flex items-center gap-2">
-            <FiTruck className="w-5 h-5 text-blue-500" />
+            <FiTruck className="w-5 h-5 text-gray-700" />
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Live Orders</h2>
           </div>
-          <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 text-sm">
+          <div className="flex rounded-full overflow-hidden border border-gray-200 dark:border-gray-700 text-sm">
             <button
               onClick={() => setLiveTab('ongoing')}
-              className="px-4 py-1.5 font-medium transition-colors"
-              style={liveTab === 'ongoing' ? { backgroundColor: '#3b82f6', color: 'white' } : { color: '#4B5563' }}
+              className="px-4 py-1.5 font-semibold transition-colors"
+              style={liveTab === 'ongoing' ? { backgroundColor: '#f3bf2e', color: 'black' } : { color: '#4B5563' }}
             >
               Ongoing ({liveOrders.ongoing.length})
             </button>
             <button
               onClick={() => setLiveTab('completed')}
-              className="px-4 py-1.5 font-medium transition-colors"
-              style={liveTab === 'completed' ? { backgroundColor: '#22c55e', color: 'white' } : { color: '#4B5563' }}
+              className="px-4 py-1.5 font-semibold transition-colors"
+              style={liveTab === 'completed' ? { backgroundColor: '#111827', color: 'white' } : { color: '#4B5563' }}
             >
               Completed Today ({liveOrders.completedToday.length})
             </button>
@@ -571,7 +571,7 @@ const DashboardLayout = () => {
               <tbody>
                 {activeList.map(order => (
                   <tr key={order._id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="py-3 pr-4 font-medium text-blue-600 dark:text-blue-400">{order.orderId}</td>
+                    <td className="py-3 pr-4 font-medium text-gold-700 dark:text-gold-400">{order.orderId}</td>
                     <td className="py-3 pr-4 text-gray-700 dark:text-gray-300">
                       <div>{order.user?.name || '—'}</div>
                       <div className="text-xs text-gray-400">{order.user?.phone || ''}</div>

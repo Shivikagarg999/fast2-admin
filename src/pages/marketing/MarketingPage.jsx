@@ -1068,7 +1068,7 @@ const MarketingPage = () => {
                               </td>
                               <td className="py-2 px-2">
                                 <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${
-                                  log.triggerType === 'manual' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                                  log.triggerType === 'manual' ? 'bg-gold-100 text-gold-800' : 'bg-gray-100 text-gray-600'
                                 }`}>
                                   {log.triggerType || 'cron'}
                                 </span>
@@ -1126,7 +1126,7 @@ const MarketingPage = () => {
                         type="checkbox"
                         checked={autoPublish}
                         onChange={(e) => setAutoPublish(e.target.checked)}
-                        className="w-4 h-4 text-green-600 rounded"
+                        className="w-4 h-4 text-gold-600 rounded"
                       />
                       <span className="text-sm font-semibold text-gray-900 dark:text-white">
                         Auto-Publish to Social Media upon Generation
@@ -1216,7 +1216,7 @@ const MarketingPage = () => {
                         type="checkbox"
                         checked={useAiBackground}
                         onChange={(e) => setUseAiBackground(e.target.checked)}
-                        className="w-4 h-4 text-green-600 rounded"
+                        className="w-4 h-4 text-gold-600 rounded"
                       />
                       <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                         Use Free AI-Generated Background (FLUX - ₹0 cost)
@@ -1286,7 +1286,7 @@ const MarketingPage = () => {
                           <button
                             onClick={() => handleManualPublish(result.url, customCaption || `Fresh deals on ${result.categoryName}! 🛒 Order on GMKart for 10-15 min fast delivery. #GMKart #Grocery`)}
                             disabled={publishing}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gold-500 text-black hover:bg-gold-600 disabled:opacity-50 transition-colors shadow-sm"
                           >
                             {publishing ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSend className="w-4 h-4" />}
                             Publish to {publishPlatforms.join(' & ')}
@@ -1346,7 +1346,7 @@ const MarketingPage = () => {
                         type="checkbox"
                         checked={autoPublish}
                         onChange={(e) => setAutoPublish(e.target.checked)}
-                        className="w-4 h-4 text-green-600 rounded"
+                        className="w-4 h-4 text-gold-600 rounded"
                       />
                       <span className="text-sm font-semibold text-gray-900 dark:text-white">
                         Auto-Publish to Social Media upon Generation
@@ -1437,7 +1437,7 @@ const MarketingPage = () => {
                       <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
                         Select Products for Scene (Select 1 to 4 products)
                       </label>
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gold-100 text-gold-800">
                         {selectedProductIds.length} / 4 Selected
                       </span>
                     </div>
@@ -1461,12 +1461,12 @@ const MarketingPage = () => {
                               onClick={() => toggleProductSelect(p._id)}
                               className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
                                 isSelected
-                                  ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200'
+                                  ? 'border-gold-500 bg-gold-50 text-gold-900'
                                   : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
                               }`}
                             >
                               {isSelected ? (
-                                <FiCheckSquare className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                                <FiCheckSquare className="w-4 h-4 text-gold-600 flex-shrink-0" />
                               ) : (
                                 <FiSquare className="w-4 h-4 text-gray-400 flex-shrink-0" />
                               )}
@@ -1563,7 +1563,7 @@ const MarketingPage = () => {
                         <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
                           {lsResult.productNames?.join(', ') || lsResult.productName} — {lsResult.platform}
                         </h3>
-                        <p className="text-xs text-emerald-600 font-medium mb-4">
+                        <p className="text-xs text-gold-700 font-medium mb-4">
                           {lsResult.usedGemini ? 'Generated via Gemini (Paid)' : 'Photorealistic FLUX scene generated at ₹0 cost.'}
                         </p>
 
@@ -1586,7 +1586,7 @@ const MarketingPage = () => {
                               customCaption || `${lsResult.productNames?.join(' & ') || lsResult.productName} — Order now on GMKart! ⚡ Fresh groceries delivered in minutes. #GMKart #QuickCommerce`
                             )}
                             disabled={publishing}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gold-500 text-black hover:bg-gold-600 disabled:opacity-50 transition-colors shadow-sm"
                           >
                             {publishing ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSend className="w-4 h-4" />}
                             Publish to {publishPlatforms.join(' & ')}
@@ -1768,7 +1768,7 @@ const MarketingPage = () => {
                                 {post.title}
                               </h4>
 
-                              <div className="flex items-center gap-1.5 text-xs text-purple-700 dark:text-purple-400 font-medium">
+                              <div className="flex items-center gap-1.5 text-xs text-gold-700 font-medium">
                                 <FiClock className="w-3.5 h-3.5" />
                                 <span>{formattedTime}</span>
                               </div>
@@ -1821,7 +1821,7 @@ const MarketingPage = () => {
                                 <button
                                   onClick={() => handlePublishScheduledNow(post._id)}
                                   disabled={actionPostId === post._id}
-                                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-semibold disabled:opacity-50 transition-colors shadow-sm"
+                                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-gold-500 hover:bg-gold-600 text-black text-xs font-semibold disabled:opacity-50 transition-colors shadow-sm"
                                 >
                                   {actionPostId === post._id ? <FiLoader className="w-3.5 h-3.5 animate-spin" /> : <FiSend className="w-3.5 h-3.5" />}
                                   Publish Now
@@ -1898,7 +1898,7 @@ const MarketingPage = () => {
                     {scheduleForm.title || 'Social Post'}
                   </p>
                   <p className="text-[11px] text-gray-500 capitalize">Type: {scheduleForm.postType}</p>
-                  <p className="text-[11px] text-emerald-600 font-medium">Ready to schedule</p>
+                  <p className="text-[11px] text-gold-700 font-medium">Ready to schedule</p>
                 </div>
               </div>
 
@@ -1911,35 +1911,35 @@ const MarketingPage = () => {
                   <button
                     type="button"
                     onClick={() => setQuickScheduleTime(1)}
-                    className="px-2.5 py-1 text-xs rounded-md bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 font-medium"
+                    className="px-2.5 py-1 text-xs rounded-full bg-gold-50 text-gold-800 border border-gold-200 hover:bg-gold-100 font-medium"
                   >
                     +1 Hour
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickScheduleTime(3)}
-                    className="px-2.5 py-1 text-xs rounded-md bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 font-medium"
+                    className="px-2.5 py-1 text-xs rounded-full bg-gold-50 text-gold-800 border border-gold-200 hover:bg-gold-100 font-medium"
                   >
                     +3 Hours
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickScheduleTime(0, 19)}
-                    className="px-2.5 py-1 text-xs rounded-md bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 font-medium"
+                    className="px-2.5 py-1 text-xs rounded-full bg-gold-50 text-gold-800 border border-gold-200 hover:bg-gold-100 font-medium"
                   >
                     Today 7:00 PM
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickScheduleTime(1, 10)}
-                    className="px-2.5 py-1 text-xs rounded-md bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 font-medium"
+                    className="px-2.5 py-1 text-xs rounded-full bg-gold-50 text-gold-800 border border-gold-200 hover:bg-gold-100 font-medium"
                   >
                     Tomorrow 10:00 AM
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickScheduleTime(1, 19)}
-                    className="px-2.5 py-1 text-xs rounded-md bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 font-medium"
+                    className="px-2.5 py-1 text-xs rounded-full bg-gold-50 text-gold-800 border border-gold-200 hover:bg-gold-100 font-medium"
                   >
                     Tomorrow 7:00 PM
                   </button>
@@ -1956,7 +1956,7 @@ const MarketingPage = () => {
                   value={scheduleForm.scheduledAt}
                   min={getLocalDatetimeString(new Date())}
                   onChange={(e) => setScheduleForm((prev) => ({ ...prev, scheduledAt: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gold-500"
                   required
                 />
               </div>

@@ -597,14 +597,9 @@ const AppVersionSettings = () => {
             />
           </div>
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="px-5 py-2.5 rounded-lg text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: 'black' }}
-          >
+          <Button onClick={handleSave} disabled={saving} variant="primary">
             {saving ? 'Saving...' : 'Save Changes'}
-          </button>
+          </Button>
         </div>
       )}
     </div>

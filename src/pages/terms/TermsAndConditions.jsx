@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Button from "../../components/common/Button";
-import { FiPlus, FiFileText, FiFilter, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiPlus, FiFileText, FiEye, FiEyeOff } from "react-icons/fi";
 import { Editor } from '@tinymce/tinymce-react';
 import TermCard from "../../components/terms/TermCard";
 import DeleteConfirmModal from "../../components/terms/DeleteConfirmModal";
@@ -8,6 +8,9 @@ import SetActiveConfirmModal from "../../components/terms/SetActiveConfirmModal"
 import PreviewModal from "../../components/terms/PreviewModal";
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
+import Card from "../../components/ui/Card";
+import StatCard from "../../components/ui/StatCard";
+import PageHeader from "../../components/ui/PageHeader";
 
 const PoliciesManagement = () => {
   const { hasPermission } = usePermissions();
@@ -428,68 +431,20 @@ const PoliciesManagement = () => {
 
   if (loading) {
     return (
-      <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '24px' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          {/* Loading skeleton */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '24px'
-          }}>
-            <div style={{
-              height: '32px',
-              backgroundColor: '#e5e7eb',
-              borderRadius: '8px',
-              width: '256px',
-              animation: 'pulse 2s infinite'
-            }}></div>
-            <div style={{
-              height: '40px',
-              backgroundColor: '#e5e7eb',
-              borderRadius: '8px',
-              width: '128px',
-              animation: 'pulse 2s infinite'
-            }}></div>
+      <div className="bg-gold-50 min-h-screen p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div className="h-8 bg-gray-200 rounded-lg w-64 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded-lg w-32 animate-pulse"></div>
           </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '24px'
-          }}>
+          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
             {[1, 2, 3].map(i => (
-              <div key={i} style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '8px',
-                padding: '24px',
-                animation: 'pulse 2s infinite'
-              }}>
-                <div style={{
-                  height: '16px',
-                  backgroundColor: '#e5e7eb',
-                  borderRadius: '4px',
-                  marginBottom: '8px'
-                }}></div>
-                <div style={{
-                  height: '16px',
-                  backgroundColor: '#e5e7eb',
-                  borderRadius: '4px',
-                  width: '75%',
-                  marginBottom: '16px'
-                }}></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{
-                    height: '32px',
-                    backgroundColor: '#e5e7eb',
-                    borderRadius: '6px',
-                    width: '80px'
-                  }}></div>
-                  <div style={{
-                    height: '32px',
-                    backgroundColor: '#e5e7eb',
-                    borderRadius: '6px',
-                    width: '80px'
-                  }}></div>
+              <div key={i} className="bg-white rounded-2xl p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div className="flex justify-between">
+                  <div className="h-8 bg-gray-200 rounded-md w-20"></div>
+                  <div className="h-8 bg-gray-200 rounded-md w-20"></div>
                 </div>
               </div>
             ))}
@@ -504,217 +459,81 @@ const PoliciesManagement = () => {
   const currentPolicyType = policyTypes.find(p => p.value === selectedPolicyType)?.label || selectedPolicyType;
 
   return (
-    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '24px' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-          marginBottom: '24px'
-        }}>
-          <div>
-            <h1 style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              color: '#111827',
-              marginBottom: '4px'
-            }}>
-              Legal Policies Management
-            </h1>
-            <p style={{
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>
-              Create and manage all legal policies for your platform
-            </p>
-          </div>
+    <div className="bg-gold-50 min-h-screen p-6">
+      <div className="max-w-6xl mx-auto">
+        <PageHeader
+          title="Legal Policies Management"
+          subtitle="Create and manage all legal policies for your platform"
+        />
 
-          {/* Policy Type Filter */}
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            flexWrap: 'wrap',
-            alignItems: 'center'
-          }}>
-            {policyTypes.map((type) => (
-              <button
-                key={type.value}
-                onClick={() => setSelectedPolicyType(type.value)}
-                style={{
-                  backgroundColor: selectedPolicyType === type.value ? '#3b82f6' : '#ffffff',
-                  color: selectedPolicyType === type.value ? '#ffffff' : '#374151',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <span>{type.icon}</span>
-                {type.label}
-              </button>
-            ))}
-
-            <div style={{ flex: 1 }}></div>
-
-            {/* Filter Toggle */}
+        {/* Policy Type Filter */}
+        <div className="flex gap-3 flex-wrap items-center mb-6">
+          {policyTypes.map((type) => (
             <button
-              onClick={() => setShowActiveOnly(!showActiveOnly)}
-              style={{
-                backgroundColor: showActiveOnly ? '#3b82f6' : '#ffffff',
-                color: showActiveOnly ? '#ffffff' : '#374151',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                padding: '8px 16px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.2s ease'
-              }}
+              key={type.value}
+              onClick={() => setSelectedPolicyType(type.value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${
+                selectedPolicyType === type.value
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+              }`}
             >
-              {showActiveOnly ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-              {showActiveOnly ? 'Show All' : 'Active Only'}
+              <span>{type.icon}</span>
+              {type.label}
             </button>
+          ))}
 
-            {/* Create Button */}
-            <Button variant="primary" size="md" onClick={openModal}>
-              <FiPlus size={16} />
-              Create New {currentPolicyType}
-            </Button>
-          </div>
+          <div className="flex-1"></div>
+
+          {/* Filter Toggle */}
+          <button
+            onClick={() => setShowActiveOnly(!showActiveOnly)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${
+              showActiveOnly
+                ? 'bg-gold-400 text-black border-gold-400'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            {showActiveOnly ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+            {showActiveOnly ? 'Show All' : 'Active Only'}
+          </button>
+
+          {/* Create Button */}
+          <Button variant="primary" size="md" onClick={openModal}>
+            <FiPlus size={16} />
+            Create New {currentPolicyType}
+          </Button>
         </div>
 
         {/* Stats */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px',
-          marginBottom: '24px'
-        }}>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            padding: '16px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              color: '#111827'
-            }}>
-              {totalVersions}
-            </div>
-            <div style={{
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>Total {currentPolicyType} Versions</div>
-          </div>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            padding: '16px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              color: '#16a34a'
-            }}>
-              {activePolicies.length > 0 ? activePolicies[0].version : 'None'}
-            </div>
-            <div style={{
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>Active Version</div>
-          </div>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            padding: '16px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              color: '#2563eb'
-            }}>
-              {policies.filter(p => !p.isActive).length}
-            </div>
-            <div style={{
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>Inactive Versions</div>
-          </div>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            padding: '16px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              color: '#9333ea'
-            }}>
-              {currentPolicyType}
-            </div>
-            <div style={{
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>Current Policy Type</div>
-          </div>
+        <div className="grid gap-4 mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+          <StatCard label={`Total ${currentPolicyType} Versions`} value={totalVersions} />
+          <StatCard
+            label="Active Version"
+            value={activePolicies.length > 0 ? activePolicies[0].version : 'None'}
+            highlight
+          />
+          <StatCard label="Inactive Versions" value={policies.filter(p => !p.isActive).length} />
+          <StatCard label="Current Policy Type" value={currentPolicyType} />
         </div>
 
         {/* Policies Grid */}
         {policies.length === 0 ? (
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            border: '1px solid #e5e7eb',
-            padding: '48px',
-            textAlign: 'center'
-          }}>
-            <FiFileText style={{
-              width: '64px',
-              height: '64px',
-              color: '#9ca3af',
-              margin: '0 auto 16px'
-            }} />
-            <h3 style={{
-              fontSize: '18px',
-              fontWeight: '600',
-              color: '#111827',
-              marginBottom: '8px'
-            }}>
+          <Card className="text-center py-12">
+            <FiFileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
               No {currentPolicyType.toLowerCase()} versions yet
             </h3>
-            <p style={{
-              fontSize: '14px',
-              color: '#6b7280',
-              marginBottom: '24px'
-            }}>
+            <p className="text-sm text-gray-500 mb-6">
               Create your first {currentPolicyType.toLowerCase()} to get started
             </p>
             <Button variant="primary" size="md" onClick={openModal}>
               <FiPlus size={16} />
               Create First Version
             </Button>
-          </div>
+          </Card>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '24px'
-          }}>
+          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
             {policies.map((policy) => (
               <TermCard
                 key={policy._id}
@@ -732,169 +551,71 @@ const PoliciesManagement = () => {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 50,
-          padding: '20px'
-        }}>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            width: '100%',
-            maxWidth: '800px',
-            maxHeight: '90vh',
-            overflowY: 'auto'
-          }}>
-            <div style={{
-              padding: '24px',
-              borderBottom: '1px solid #e5e7eb'
-            }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '20px'
-              }}>
-                <h2 style={{
-                  fontSize: '20px',
-                  fontWeight: 'bold',
-                  color: '#111827'
-                }}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-5">
+          <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-5">
+                <h2 className="text-xl font-bold text-gray-900">
                   {editingPolicy ? 'Edit' : 'Create New'} {getPolicyTypeLabel(selectedPolicyType)}
                 </h2>
-                <button
-                  onClick={closeModal}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '24px',
-                    cursor: 'pointer',
-                    color: '#6b7280'
-                  }}
-                >
+                <button onClick={closeModal} className="text-2xl text-gray-400 hover:text-gray-600 leading-none">
                   &times;
                 </button>
               </div>
 
               <form onSubmit={handleSubmit}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: '20px'
-                }}>
+                <div className="grid grid-cols-2 gap-5">
                   {/* Left Column */}
                   <div>
-                    <div style={{ marginBottom: '20px' }}>
-                      <label style={{
-                        display: 'block',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: '#374151',
-                        marginBottom: '8px'
-                      }}>
-                        Policy Title *
-                      </label>
+                    <div className="mb-5">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Policy Title *</label>
                       <input
                         type="text"
                         name="title"
                         value={formData.title}
                         onChange={handleInputChange}
-                        style={{
-                          width: '100%',
-                          padding: '8px 12px',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '6px',
-                          fontSize: '14px'
-                        }}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-100 transition-colors"
                         placeholder="e.g., Terms & Conditions v2.0"
                         required
                       />
                     </div>
 
-                    <div style={{ marginBottom: '20px' }}>
-                      <label style={{
-                        display: 'block',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: '#374151',
-                        marginBottom: '8px'
-                      }}>
-                        Version Number *
-                      </label>
+                    <div className="mb-5">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Version Number *</label>
                       <input
                         type="text"
                         name="version"
                         value={formData.version}
                         onChange={handleInputChange}
-                        style={{
-                          width: '100%',
-                          padding: '8px 12px',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '6px',
-                          fontSize: '14px'
-                        }}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-100 transition-colors"
                         placeholder="e.g., 2.0.0 or v2"
                         required
                       />
                     </div>
 
-                    <div style={{ marginBottom: '20px' }}>
-                      <label style={{
-                        display: 'block',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: '#374151',
-                        marginBottom: '8px'
-                      }}>
-                        Effective Date *
-                      </label>
+                    <div className="mb-5">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Effective Date *</label>
                       <input
                         type="date"
                         name="effectiveDate"
                         value={formData.effectiveDate}
                         onChange={handleInputChange}
-                        style={{
-                          width: '100%',
-                          padding: '8px 12px',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '6px',
-                          fontSize: '14px'
-                        }}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-100 transition-colors"
                         required
                       />
                     </div>
 
-                    <div style={{ marginBottom: '20px' }}>
-                      <label style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        fontSize: '14px',
-                        color: '#374151',
-                        cursor: 'pointer'
-                      }}>
+                    <div className="mb-5">
+                      <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                         <input
                           type="checkbox"
                           name="isActive"
                           checked={formData.isActive}
                           onChange={handleInputChange}
-                          style={{
-                            width: '16px',
-                            height: '16px'
-                          }}
+                          className="w-4 h-4 accent-gold-500"
                         />
                         Set as active version
-                        <span style={{ fontSize: '12px', color: '#6b7280' }}>
-                          (Will deactivate current active policy)
-                        </span>
+                        <span className="text-xs text-gray-500">(Will deactivate current active policy)</span>
                       </label>
                     </div>
 
@@ -904,23 +625,11 @@ const PoliciesManagement = () => {
 
                   {/* Right Column - TinyMCE Editor */}
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: '#374151',
-                      marginBottom: '8px'
-                    }}>
-                      Policy Content *
-                    </label>
-                    <div style={{
-                      border: '1px solid #d1d5db',
-                      borderRadius: '6px',
-                      overflow: 'hidden'
-                    }}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Policy Content *</label>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
                       <Editor
                         apiKey="xw0haeefepmen4923ro5m463eb97qhseuprfkpbuan5t10u5"
-                        onInit={(evt, editor) => editorRef.current = editor}
+                        onInit={(_evt, editor) => editorRef.current = editor}
                         value={formData.content}
                         onEditorChange={handleContentChange}
                         init={{
@@ -945,31 +654,13 @@ const PoliciesManagement = () => {
                 </div>
 
                 {/* Form Actions */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '12px',
-                  marginTop: '24px',
-                  paddingTop: '24px',
-                  borderTop: '1px solid #e5e7eb'
-                }}>
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    style={{
-                      ...buttonStyles.secondary
-                    }}
-                  >
+                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-100">
+                  <Button type="button" variant="secondary" size="md" onClick={closeModal}>
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      ...buttonStyles.primary
-                    }}
-                  >
+                  </Button>
+                  <Button type="submit" variant="primary" size="md">
                     {editingPolicy ? 'Update Policy' : 'Create Policy'}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
@@ -995,11 +686,6 @@ const PoliciesManagement = () => {
 
       <style>
         {`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-          }
-          
           button:hover {
             opacity: 0.9;
           }

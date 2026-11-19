@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
-import Button from "../../components/common/Button";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import StatCard from "../../components/ui/StatCard";
+import PageHeader from "../../components/ui/PageHeader";
 import { FiDollarSign, FiUsers, FiRefreshCw, FiDownload, FiEye, FiX, FiCheck, FiEdit, FiPackage, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 
 const PromotorPayouts = () => {

@@ -842,35 +842,35 @@ const CouponsPage = () => {
   // Button Styles
   const buttonStyles = {
     primary: {
-      backgroundColor: '#000000',
-      color: '#ffffff',
+      backgroundColor: '#f3bf2e',
+      color: '#111827',
       border: 'none',
-      borderRadius: '8px',
+      borderRadius: '9999px',
       padding: '10px 20px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
       fontSize: '14px',
-      fontWeight: '500'
+      fontWeight: '600'
     },
     secondary: {
       backgroundColor: '#ffffff',
       color: '#374151',
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
+      border: '1px solid #e5e7eb',
+      borderRadius: '9999px',
       padding: '10px 20px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
       fontSize: '14px',
-      fontWeight: '500'
+      fontWeight: '600'
     }
   };
 
   return (
-    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', width: '100%', padding: '24px' }}>
+    <div className="bg-gold-50 min-h-screen w-full p-6">
       {/* Add CSS animation for spinner */}
       <style>
         {`
@@ -883,22 +883,16 @@ const CouponsPage = () => {
 
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FiTag style={{ width: '24px', height: '24px', color: '#2563eb' }} />
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>Coupons</h1>
-            <span style={{
-              padding: '4px 12px',
-              fontSize: '12px',
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
-              borderRadius: '9999px'
-            }}>
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-center gap-2">
+            <FiTag className="w-6 h-6 text-gold-600" />
+            <h1 className="text-2xl font-bold text-gray-900">Coupons</h1>
+            <span className="px-3 py-1 text-xs font-semibold bg-white border border-gray-100 text-gray-600 rounded-full">
               {filteredCoupons.length} coupons
             </span>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', backgroundColor: '#e5e7eb', padding: '4px', borderRadius: '8px', width: 'fit-content' }}>
+          <div className="flex gap-1 bg-white p-1 rounded-full w-fit border border-gray-100 shadow-sm shadow-black/5">
             {[
               { value: "amount_discount", label: "Discount Coupons" },
               { value: "free_quantity", label: "Freebie Coupons" }
@@ -906,49 +900,25 @@ const CouponsPage = () => {
               <button
                 key={tab.value}
                 onClick={() => setActiveCouponTab(tab.value)}
-                style={{
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '8px 14px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  backgroundColor: activeCouponTab === tab.value ? '#ffffff' : 'transparent',
-                  color: activeCouponTab === tab.value ? '#111827' : '#6b7280',
-                  boxShadow: activeCouponTab === tab.value ? '0 1px 2px rgba(0,0,0,0.08)' : 'none'
-                }}
+                className={`border-none rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  activeCouponTab === tab.value ? 'bg-gold-400 text-black' : 'bg-transparent text-gray-500 hover:text-gray-800'
+                }`}
               >
                 {tab.label}
               </button>
             ))}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '16px', flexDirection: 'column', width: '100%' }}>
-              <div style={{ display: 'flex', gap: '16px', flexDirection: 'row' }}>
+          <div className="flex justify-between items-center">
+            <div className="flex gap-4 flex-col w-full">
+              <div className="flex gap-4 flex-row">
                 {/* Search Input */}
-                <div style={{ flex: 1, position: 'relative' }}>
-                  <FiSearch style={{
-                    position: 'absolute',
-                    left: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: '#9ca3af',
-                    width: '16px',
-                    height: '16px'
-                  }} />
+                <div className="flex-1 relative">
+                  <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
                     type="text"
                     placeholder="Search by code, description..."
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px 10px 40px',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
-                      backgroundColor: '#ffffff',
-                      color: '#111827',
-                      fontSize: '14px'
-                    }}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -957,15 +927,7 @@ const CouponsPage = () => {
                 {/* Status Filter */}
                 <div style={{ width: '200px' }}>
                   <select
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
-                      backgroundColor: '#ffffff',
-                      color: '#111827',
-                      fontSize: '14px'
-                    }}
+                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold-400"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                   >
@@ -982,9 +944,9 @@ const CouponsPage = () => {
                 {hasPermission(PERMISSIONS.COUPONS_CREATE) && (
                   <button
                     onClick={openAddCouponModal}
-                    style={buttonStyles.primary}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gold-400 text-black rounded-full text-sm font-semibold hover:bg-gold-500 transition-colors whitespace-nowrap"
                   >
-                    <FiPlus style={{ width: '16px', height: '16px' }} />
+                    <FiPlus className="w-4 h-4" />
                     {activeCouponTab === "free_quantity" ? "Add Freebie Coupon" : "Add Coupon"}
                   </button>
                 )}
@@ -994,15 +956,10 @@ const CouponsPage = () => {
         </div>
 
         {/* Coupons Table */}
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden'
-        }}>
+        <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-hidden">
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead style={{ backgroundColor: '#f9fafb' }}>
+              <thead style={{ backgroundColor: '#fffcf2' }}>
                 <tr>
                   <th style={{
                     padding: '12px 24px',
