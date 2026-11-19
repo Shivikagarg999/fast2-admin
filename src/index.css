@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @import 'mapbox-gl/dist/mapbox-gl.css';
 
+@theme {
+  --color-gold-50: #fffcf2;
+  --color-gold-100: #fef6dc;
+  --color-gold-200: #fcebb0;
+  --color-gold-300: #fadc7e;
+  --color-gold-400: #f7cd4c;
+  --color-gold-500: #f3bf2e;
+  --color-gold-600: #d9a61a;
+  --color-gold-700: #b3860f;
+  --color-gold-800: #8c680c;
+  --color-gold-900: #6b4f09;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

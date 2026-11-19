@@ -401,15 +401,15 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
         }
 
         .sidebar-gradient {
-          background: #ffffff;
+          background: #f3bf2e;
         }
 
         .active-item-glow {
-          box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.35), 0 2px 6px -1px rgba(59, 130, 246, 0.2);
+          box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.18), 0 2px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .hover-glow:hover {
-          box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.15);
+          box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.08);
         }
 
         .text-2xs {
@@ -432,8 +432,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
         className={`
           fixed top-0 left-0 h-full z-50
           sidebar-gradient
-          shadow-md shadow-gray-200/80
-          border-r border-gray-200
+          shadow-lg shadow-black/10
           transition-all duration-300 ease-in-out
           w-[85vw] max-w-64
           ${isCollapsed ? 'lg:w-16' : 'lg:w-64'}
@@ -443,7 +442,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
       >
         <div className="flex flex-col h-full">
           {/* Header with Logo */}
-          <div className="p-4 border-b border-gray-200 bg-white">
+          <div className="p-4">
             {!isCollapsed ? (
               <>
                 <Link
@@ -451,25 +450,26 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
                   className="flex items-center justify-center"
                   onClick={handleLinkClick}
                 >
-                  <div className="relative">
+                  <div className="bg-white rounded-2xl shadow-sm px-4 py-2.5 w-full flex items-center justify-center">
                     <img
                       src={Logo}
-                      alt="Enterprise Admin Panel"
+                      alt="GMKart Admin"
                       height={28}
-                      width={120}
-                      className="object-contain transition-all duration-300 hover:scale-105 brightness-110"
+                      width={110}
+                      className="object-contain transition-all duration-300 hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded blur-xl group-hover:blur-2xl transition-all duration-300"></div>
                   </div>
                 </Link>
                 <div className="mt-3 hidden lg:flex items-center justify-center space-x-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <span className="text-2xs font-medium text-emerald-600">System Active</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></div>
+                  <span className="text-2xs font-semibold text-black/70">System Active</span>
                 </div>
               </>
             ) : (
               <Link to="/dashboard" className="flex items-center justify-center py-1" onClick={handleLinkClick}>
-                <FiHome className="w-5 h-5 text-blue-500" />
+                <div className="bg-white rounded-xl p-2 shadow-sm">
+                  <FiHome className="w-5 h-5 text-black" />
+                </div>
               </Link>
             )}
           </div>
@@ -490,15 +490,15 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
                       onClick={() => toggleCategory(category.name)}
                       className="w-full px-3 py-1.5 flex items-center group focus:outline-none"
                     >
-                      <div className="mr-1.5 text-indigo-400">{category.icon}</div>
-                      <h3 className="text-2xs font-bold text-indigo-400 uppercase tracking-widest truncate">
+                      <div className="mr-1.5 text-black/50">{category.icon}</div>
+                      <h3 className="text-2xs font-bold text-black/50 uppercase tracking-widest truncate">
                         {category.name}
                       </h3>
                       {isCategoryActive && (
-                        <div className="ml-2 w-1 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+                        <div className="ml-2 w-1 h-3 bg-black rounded-full flex-shrink-0"></div>
                       )}
                       <span
-                        className={`ml-auto flex-shrink-0 text-gray-400 transition-transform duration-200 ${
+                        className={`ml-auto flex-shrink-0 text-black/40 transition-transform duration-200 ${
                           isExpanded ? 'rotate-180' : 'rotate-0'
                         }`}
                       >
@@ -531,23 +531,23 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
                               transition-all duration-200
                               border border-transparent
                               ${isActive
-                                ? "bg-blue-600 text-white border-blue-600 active-item-glow"
-                                : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover-glow hover:border-blue-100"
+                                ? "bg-white text-black border-white active-item-glow"
+                                : "text-black/75 hover:bg-white/40 hover:text-black hover-glow hover:border-white/50"
                               }
-                              focus:outline-none focus:ring-1 focus:ring-blue-500/30
+                              focus:outline-none focus:ring-1 focus:ring-black/20
                               active:scale-[0.98]
                               group
                             `}
                           >
                             <span className={`
                               ${isCollapsed ? '' : 'mr-2.5'} flex-shrink-0 transition-colors duration-200
-                              ${isActive ? "text-white" : "text-blue-400 group-hover:text-blue-500"}
+                              ${isActive ? "text-black" : "text-black/60 group-hover:text-black"}
                             `}>
                               {item.icon}
                             </span>
                             {!isCollapsed && <span className="truncate text-sm">{item.name}</span>}
                             {!isCollapsed && isActive && (
-                              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse flex-shrink-0"></div>
+                              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse flex-shrink-0"></div>
                             )}
                           </Link>
                         );
@@ -560,39 +560,27 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           </nav>
 
           {/* Bottom section */}
-          <div className="p-4 border-t border-gray-200 bg-white">
+          <div className="p-4 border-t border-black/10">
             <button
               onClick={() => {
                 handleLogout();
                 handleLinkClick();
               }}
               title={isCollapsed ? 'Logout' : undefined}
-              className={`w-full flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-center px-3'} py-2.5 rounded-lg text-sm font-medium
-                bg-red-50
-                text-red-600 hover:text-red-700 hover:bg-red-100
-                border border-red-200 hover:border-red-300
+              className={`w-full flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-center px-3'} py-2.5 rounded-full text-sm font-semibold
+                bg-black text-white hover:bg-gray-900
                 transition-all duration-200
-                focus:outline-none focus:ring-1 focus:ring-red-500/30
+                focus:outline-none focus:ring-1 focus:ring-black/30
                 active:scale-[0.98]
                 group`}
             >
               <FiLogOut className={`${isCollapsed ? '' : 'mr-2.5'} flex-shrink-0 transition-transform duration-200 group-hover:-translate-x-0.5`} />
-              {!isCollapsed && <span>Logout</span>}
+              {!isCollapsed && <span>Log out</span>}
             </button>
 
             {!isCollapsed && (
-              <div className="mt-4 pt-3 border-t border-gray-200">
-                <div className="text-center space-y-1">
-                  <p className="text-2xs font-medium text-gray-400">v2.1.0</p>
-                  <p className="text-2xs text-gray-400">
-                    © {new Date().getFullYear()}
-                  </p>
-                  <div className="flex items-center justify-center space-x-1 mt-1.5">
-                    <div className="w-1 h-1 rounded-full bg-emerald-500/50"></div>
-                    <div className="w-1 h-1 rounded-full bg-blue-500/50"></div>
-                    <div className="w-1 h-1 rounded-full bg-purple-500/50"></div>
-                  </div>
-                </div>
+              <div className="mt-3 text-center">
+                <p className="text-2xs font-medium text-black/40">v2.1.0 · © {new Date().getFullYear()}</p>
               </div>
             )}
           </div>

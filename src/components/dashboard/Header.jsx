@@ -230,7 +230,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
   };
 
   return (
-    <header className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm relative z-40">
+    <header className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700 shadow-sm relative z-40">
       <div className="flex justify-between items-center px-4 md:px-6 py-3">
         {/* Left section */}
         <div className="flex items-center gap-4">
@@ -294,7 +294,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
+                  className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50"
                 >
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                     <div className="flex items-center justify-between">
@@ -307,7 +307,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
                       {unreadCount > 0 && (
                         <button
                           onClick={markAllAsRead}
-                          className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+                          className="text-xs text-gold-700 dark:text-gold-400 hover:text-gold-900 dark:hover:text-gold-300 font-semibold"
                         >
                           Mark all read
                         </button>
@@ -323,14 +323,14 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{error}</p>
                         <button
                           onClick={fetchFreshOrders}
-                          className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                          className="mt-2 text-xs text-gold-700 dark:text-gold-400 hover:text-gold-900 dark:hover:text-gold-300"
                         >
                           Try Again
                         </button>
                       </div>
                     ) : loading ? (
                       <div className="px-4 py-8 text-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gold-500 mx-auto"></div>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Loading orders...</p>
                       </div>
                     ) : freshOrders.length > 0 ? (
@@ -383,7 +383,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
                     <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                       <button
                         onClick={fetchFreshOrders}
-                        className="w-full text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center justify-center gap-2"
+                        className="w-full text-xs text-gold-700 dark:text-gold-400 hover:text-gold-900 dark:hover:text-gold-300 font-semibold flex items-center justify-center gap-2"
                       >
                         <FiRefreshCw className="w-3 h-3" />
                         Refresh Orders
@@ -399,7 +399,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Admin Info - Hidden on very small screens */}
             <div className="hidden sm:flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium text-sm shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-white font-medium text-sm shadow-sm">
                 {getInitials(adminData.name)}
               </div>
               <div className="hidden md:block">
@@ -421,7 +421,7 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
                 aria-label="Account menu"
               >
                 {/* Show avatar on mobile when admin info is hidden */}
-                <div className="sm:hidden w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium text-sm shadow-sm">
+                <div className="sm:hidden w-8 h-8 rounded-full bg-black flex items-center justify-center text-white font-medium text-sm shadow-sm">
                   {getInitials(adminData.name)}
                 </div>
                 <motion.div
@@ -440,12 +440,12 @@ export default function Header({ toggleSidebar, darkMode, toggleTheme, isSidebar
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
+                    className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50"
                   >
                     <div className="px-1 py-1">
-                      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium">
+                          <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-white font-medium">
                             {getInitials(adminData.name)}
                           </div>
                           <div className="flex-1 min-w-0">

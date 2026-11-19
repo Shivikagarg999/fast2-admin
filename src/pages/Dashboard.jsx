@@ -264,30 +264,32 @@ const DashboardLayout = () => {
     return new Intl.NumberFormat('en-IN').format(num || 0);
   };
 
-  const StatCard = ({ title, value, icon: Icon, trend, trendValue, color, subtitle, onClick, percentageChange }) => (
+  const StatCard = ({ title, value, icon: Icon, color, subtitle, onClick, percentageChange, highlight }) => (
     <div
-      className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
+      className={`rounded-2xl p-6 shadow-sm shadow-black/5 border transition-all hover:shadow-md ${
+        highlight ? 'bg-gold-400 border-gold-400' : 'bg-white border-gray-100'
+      }`}
       style={onClick ? { cursor: 'pointer' } : {}}
       onClick={onClick}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+          <p className={`text-sm font-medium ${highlight ? 'text-black/70' : 'text-gray-600'}`}>{title}</p>
+          <p className={`text-2xl font-bold mt-1 ${highlight ? 'text-black' : 'text-gray-900'}`}>
             {title.includes('Revenue') || title.includes('Order Value') || title.includes('Commission') ? formatCurrency(value) : formatNumber(value)}
           </p>
           {subtitle && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
+            <p className={`text-xs mt-1 ${highlight ? 'text-black/60' : 'text-gray-500'}`}>{subtitle}</p>
           )}
           {percentageChange !== undefined && (
-            <div className={`flex items-center mt-2 text-sm ${percentageChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`flex items-center mt-2 text-sm ${percentageChange >= 0 ? (highlight ? 'text-black/80' : 'text-emerald-600') : 'text-red-600'}`}>
               {percentageChange >= 0 ? <FiTrendingUp className="mr-1" /> : <FiTrendingDown className="mr-1" />}
               {Math.abs(percentageChange)}%
             </div>
           )}
         </div>
-        <div className="p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
-          <Icon className="w-6 h-6" style={{ color }} />
+        <div className={`p-3 rounded-full ${highlight ? 'bg-black/10' : ''}`} style={highlight ? {} : { backgroundColor: `${color}20` }}>
+          <Icon className="w-6 h-6" style={{ color: highlight ? '#000' : color }} />
         </div>
       </div>
     </div>
@@ -301,16 +303,16 @@ const DashboardLayout = () => {
     }));
 
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sales Trend (Last 7 Days)</h2>
           <div className="flex items-center gap-2">
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#3b82f6' }}></div>
+              <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#d9a61a' }}></div>
               <span className="text-xs text-gray-600 dark:text-gray-400">Revenue</span>
             </div>
             <div className="flex items-center ml-3">
-              <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#10b981' }}></div>
+              <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#111827' }}></div>
               <span className="text-xs text-gray-600 dark:text-gray-400">Orders</span>
             </div>
           </div>
@@ -332,17 +334,17 @@ const DashboardLayout = () => {
               <Line
                 type="monotone"
                 dataKey="revenue"
-                stroke="#3b82f6"
+                stroke="#d9a61a"
                 strokeWidth={2}
-                dot={{ fill: '#3b82f6', strokeWidth: 2 }}
+                dot={{ fill: '#d9a61a', strokeWidth: 2 }}
                 activeDot={{ r: 8 }}
               />
               <Line
                 type="monotone"
                 dataKey="orders"
-                stroke="#10b981"
+                stroke="#111827"
                 strokeWidth={2}
-                dot={{ fill: '#10b981', strokeWidth: 2 }}
+                dot={{ fill: '#111827', strokeWidth: 2 }}
                 activeDot={{ r: 8 }}
               />
             </LineChart>
@@ -354,13 +356,13 @@ const DashboardLayout = () => {
 
   const RevenueBreakdownChart = () => {
     const data = [
-      { name: 'Platform', value: stats.breakdown.platformEarnings.total, color: '#3b82f6' },
-      { name: 'Seller Payout', value: stats.breakdown.sellerPayout.netAmount, color: '#10b981' },
-      { name: 'Promotor Comm', value: stats.breakdown.promotorCommission, color: '#8b5cf6' }
+      { name: 'Platform', value: stats.breakdown.platformEarnings.total, color: '#f3bf2e' },
+      { name: 'Seller Payout', value: stats.breakdown.sellerPayout.netAmount, color: '#b3860f' },
+      { name: 'Promotor Comm', value: stats.breakdown.promotorCommission, color: '#111827' }
     ];
 
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Revenue Distribution</h2>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -396,7 +398,7 @@ const DashboardLayout = () => {
     }));
 
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Sellers</h2>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -412,8 +414,8 @@ const DashboardLayout = () => {
                 }}
               />
               <Legend />
-              <Bar dataKey="revenue" name="Revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="orders" name="Orders" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" name="Revenue" fill="#f3bf2e" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="orders" name="Orders" fill="#111827" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -423,13 +425,13 @@ const DashboardLayout = () => {
 
   const PaymentMethodsChart = () => {
     const data = [
-      { name: 'Wallet', value: stats.breakdown.paymentMethods.wallet, color: '#8b5cf6' },
-      { name: 'COD', value: stats.breakdown.paymentMethods.cod, color: '#f59e0b' },
-      { name: 'Online', value: stats.breakdown.paymentMethods.online, color: '#06b6d4' }
+      { name: 'Wallet', value: stats.breakdown.paymentMethods.wallet, color: '#f7cd4c' },
+      { name: 'COD', value: stats.breakdown.paymentMethods.cod, color: '#d9a61a' },
+      { name: 'Online', value: stats.breakdown.paymentMethods.online, color: '#111827' }
     ];
 
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Methods</h2>
         <div className="flex items-center justify-center h-48">
           <ResponsiveContainer width="100%" height="100%">
@@ -457,7 +459,7 @@ const DashboardLayout = () => {
   };
 
   const PayoutBreakdownCard = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payout Breakdown</h2>
       <div className="space-y-4">
         <div>
@@ -469,7 +471,7 @@ const DashboardLayout = () => {
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
-              className="bg-blue-600 h-2 rounded-full"
+              className="bg-gold-500 h-2 rounded-full"
               style={{ width: `${(stats.breakdown.platformEarnings.total / Math.max(1, stats.totalRevenue)) * 100}%` }}
             ></div>
           </div>
@@ -488,7 +490,7 @@ const DashboardLayout = () => {
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
-              className="bg-green-600 h-2 rounded-full"
+              className="bg-gold-700 h-2 rounded-full"
               style={{ width: `${(stats.breakdown.sellerPayout.netAmount / Math.max(1, stats.totalRevenue)) * 100}%` }}
             ></div>
           </div>
@@ -507,7 +509,7 @@ const DashboardLayout = () => {
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
-              className="bg-purple-600 h-2 rounded-full"
+              className="bg-gray-900 h-2 rounded-full"
               style={{ width: `${(stats.breakdown.promotorCommission / Math.max(1, stats.totalRevenue)) * 100}%` }}
             ></div>
           </div>
@@ -525,7 +527,7 @@ const DashboardLayout = () => {
   const LiveOrdersCard = () => {
     const activeList = liveTab === 'ongoing' ? liveOrders.ongoing : liveOrders.completedToday;
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 mb-6">
         <div className="flex items-center justify-between p-6 pb-0">
           <div className="flex items-center gap-2">
             <FiTruck className="w-5 h-5 text-blue-500" />
@@ -599,14 +601,14 @@ const DashboardLayout = () => {
   };
 
   const TopPromotorsCard = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Promotors</h2>
       <div className="space-y-4">
         {stats.topPromotors.slice(0, 5).map((promotor, index) => (
           <div key={promotor.promotorId} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="flex items-center">
-              <div className="w-8 h-8 flex items-center justify-center rounded-full mr-3" style={{ backgroundColor: '#8b5cf620' }}>
-                <span className="font-bold text-sm" style={{ color: '#8b5cf6' }}>{index + 1}</span>
+              <div className="w-8 h-8 flex items-center justify-center rounded-full mr-3 bg-gold-100">
+                <span className="font-bold text-sm text-gold-800">{index + 1}</span>
               </div>
               <div>
                 <h4 className="font-medium text-gray-900 dark:text-white">{promotor.promotorName}</h4>
@@ -614,7 +616,7 @@ const DashboardLayout = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="font-bold text-gray-900 dark:text-white" style={{ color: '#8b5cf6' }}>
+              <div className="font-bold text-gold-700 dark:text-white">
                 {formatCurrency(promotor.totalCommission)}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -628,7 +630,7 @@ const DashboardLayout = () => {
   );
 
   return (
-    <div className="min-h-screen w-[100vw] bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen w-[100vw] bg-gold-50 dark:bg-gray-900">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -657,7 +659,7 @@ const DashboardLayout = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2 bg-white rounded-full p-1 border border-gray-100">
                     <FiFilter className="w-4 h-4 text-gray-500 dark:text-gray-400 ml-2" />
                     {periodOptions.map(option => (
                       <button
@@ -665,12 +667,12 @@ const DashboardLayout = () => {
                         onClick={() => setSelectedPeriod(option.value)}
                         style={{
                           padding: '0.375rem 0.75rem',
-                          borderRadius: '0.375rem',
+                          borderRadius: '9999px',
                           fontSize: '0.875rem',
-                          fontWeight: '500',
+                          fontWeight: '600',
                           transition: 'all 0.2s',
                           ...(selectedPeriod === option.value
-                            ? { backgroundColor: '#3b82f6', color: 'white' }
+                            ? { backgroundColor: '#111827', color: 'white' }
                             : {
                               color: darkMode ? '#9CA3AF' : '#4B5563',
                               backgroundColor: 'transparent'
@@ -688,10 +690,11 @@ const DashboardLayout = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.5rem',
-                      padding: '0.5rem 1rem',
-                      backgroundColor: '#3b82f6',
-                      color: 'white',
-                      borderRadius: '0.5rem',
+                      padding: '0.5rem 1.25rem',
+                      backgroundColor: '#f3bf2e',
+                      color: '#000000',
+                      fontWeight: '600',
+                      borderRadius: '9999px',
                       border: 'none',
                       cursor: refreshing ? 'not-allowed' : 'pointer',
                       opacity: refreshing ? 0.7 : 1,
@@ -710,7 +713,7 @@ const DashboardLayout = () => {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm animate-pulse">
+                      <div key={i} className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 animate-pulse">
                         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
                         <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
                       </div>
@@ -726,21 +729,22 @@ const DashboardLayout = () => {
                       value={stats.totalRevenue}
                       icon={FiDollarSign}
                       percentageChange={100.0}
-                      color="#3b82f6"
+                      color="#000000"
+                      highlight
                     />
                     <StatCard
                       title="Total Orders"
                       value={stats.totalOrders}
                       icon={FiShoppingCart}
                       percentageChange={88.9}
-                      color="#10b981"
+                      color="#111827"
                     />
                     <StatCard
                       title="Avg Order Value"
                       value={stats.averageOrderValue}
                       icon={FiTrendingUp}
                       percentageChange={0}
-                      color="#8b5cf6"
+                      color="#d9a61a"
                     />
                     <StatCard
                       title="Orders Today"
@@ -757,21 +761,21 @@ const DashboardLayout = () => {
                       title="Total Products"
                       value={stats.totals.products}
                       icon={FiPackage}
-                      color="#3b82f6"
+                      color="#d9a61a"
                       subtitle="Active products"
                     />
                     <StatCard
                       title="Active Sellers"
                       value={stats.totals.sellers}
                       icon={FiUsers}
-                      color="#10b981"
+                      color="#111827"
                       subtitle="Approved sellers"
                     />
                     <StatCard
                       title="Active Promotors"
                       value={stats.totals.promotors}
                       icon={FiStar}
-                      color="#8b5cf6"
+                      color="#d9a61a"
                       subtitle="Active promotors"
                     />
                   </div>
@@ -799,73 +803,73 @@ const DashboardLayout = () => {
 
                   {/* Detailed Breakdown */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
                       <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Payment Methods</h3>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                           <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#8b5cf6' }}></div>
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#f7cd4c' }}></div>
                             <span className="text-sm">Wallet</span>
                           </div>
-                          <span className="font-medium" style={{ color: '#8b5cf6' }}>
+                          <span className="font-medium" style={{ color: '#b3860f' }}>
                             {formatCurrency(stats.breakdown.paymentMethods.wallet)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                           <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#f59e0b' }}></div>
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#d9a61a' }}></div>
                             <span className="text-sm">Cash on Delivery</span>
                           </div>
-                          <span className="font-medium" style={{ color: '#f59e0b' }}>
+                          <span className="font-medium" style={{ color: '#b3860f' }}>
                             {formatCurrency(stats.breakdown.paymentMethods.cod)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                           <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#06b6d4' }}></div>
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#111827' }}></div>
                             <span className="text-sm">Online</span>
                           </div>
-                          <span className="font-medium" style={{ color: '#06b6d4' }}>
+                          <span className="font-medium" style={{ color: '#111827' }}>
                             {formatCurrency(stats.breakdown.paymentMethods.online)}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
                       <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Platform Earnings</h3>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                           <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#3b82f6' }}></div>
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#f3bf2e' }}></div>
                             <span className="text-sm">Service Fee (10%)</span>
                           </div>
-                          <span className="font-medium" style={{ color: '#3b82f6' }}>
+                          <span className="font-medium" style={{ color: '#b3860f' }}>
                             {formatCurrency(stats.breakdown.platformEarnings.serviceFee)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                           <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#10b981' }}></div>
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#d9a61a' }}></div>
                             <span className="text-sm">GST Collection (18%)</span>
                           </div>
-                          <span className="font-medium" style={{ color: '#10b981' }}>
+                          <span className="font-medium" style={{ color: '#b3860f' }}>
                             {formatCurrency(stats.breakdown.platformEarnings.gstCollection)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                           <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#8b5cf6' }}></div>
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#111827' }}></div>
                             <span className="text-sm font-medium">Total Platform Earnings</span>
                           </div>
-                          <span className="font-bold" style={{ color: '#8b5cf6' }}>
+                          <span className="font-bold" style={{ color: '#111827' }}>
                             {formatCurrency(stats.breakdown.platformEarnings.total)}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-100">
                       <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Seller Payout</h3>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
@@ -888,7 +892,7 @@ const DashboardLayout = () => {
                         </div>
                         <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded border-t">
                           <span className="text-sm font-medium">Net Amount</span>
-                          <span className="font-bold text-purple-600 dark:text-purple-400">
+                          <span className="font-bold text-gold-700 dark:text-gold-400">
                             {formatCurrency(stats.breakdown.sellerPayout.netAmount)}
                           </span>
                         </div>
