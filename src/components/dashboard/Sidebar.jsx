@@ -33,6 +33,7 @@ import {
   FiLock,
   FiMessageCircle,
   FiClock,
+  FiCalendar,
 } from "react-icons/fi";
 
 const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
