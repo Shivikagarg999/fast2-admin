@@ -4,7 +4,7 @@ import {
 } from "recharts";
 import {
   FiUsers, FiActivity, FiEye, FiMousePointer, FiShoppingCart, FiLogIn, FiUserCheck, FiPackage, FiAlertCircle,
-  FiDownload, FiSmartphone, FiClock
+  FiDownload, FiSmartphone, FiClock, FiZap
 } from "react-icons/fi";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/analytics`;
@@ -57,6 +57,9 @@ const AnalyticsDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [fbData, setFbData] = useState(null);
+  const [fbLoading, setFbLoading] = useState(true);
+  const [fbError, setFbError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -80,6 +83,29 @@ const AnalyticsDashboard = () => {
     load();
     return () => { cancelled = true; };
   }, [days, platform]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadFirebase = async () => {
+      setFbLoading(true);
+      setFbError('');
+      try {
+        const res = await fetch(`${BASE_URL}/firebase-summary?days=${days}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        const result = await res.json();
+        if (cancelled) return;
+        if (result.success) setFbData(result);
+        else setFbError(result.message || 'Failed to load Firebase Analytics');
+      } catch {
+        if (!cancelled) setFbError('Failed to load Firebase Analytics. Please try again.');
+      } finally {
+        if (!cancelled) setFbLoading(false);
+      }
+    };
+    loadFirebase();
+    return () => { cancelled = true; };
+  }, [days]);
 
   const totals = data?.totals;
   const funnel = data?.funnel || [];
@@ -378,6 +404,72 @@ const AnalyticsDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Real Firebase Analytics (GA4) — separate data source, pulled live from Google */}
+      <div className="mt-8">
+        <div className="flex items-center gap-2 mb-1">
+          <FiZap className="text-gray-700" />
+          <h2 className="text-lg font-bold text-gray-900">Firebase Analytics (live from Google)</h2>
+        </div>
+        <p className="text-gray-500 text-sm mb-4">
+          Real GA4 event data from the website and app's Firebase project — a separate pipeline from the visitor tracking above.
+        </p>
+
+        {fbError && (
+          <div className="mb-4 p-3 rounded-lg flex items-center gap-2 text-sm bg-red-50 text-red-800 border border-red-200">
+            <FiAlertCircle className="w-4 h-4" />
+            {fbError}
+          </div>
+        )}
+
+        {fbLoading && !fbData ? (
+          <div className="h-24 bg-gray-100 rounded-xl animate-pulse" />
+        ) : fbData && fbData.configured === false ? (
+          <div className="bg-white rounded-xl shadow p-5 text-sm text-gray-600">
+            <p className="font-medium text-gray-900 mb-1">Not connected yet</p>
+            <p>{fbData.message}</p>
+          </div>
+        ) : fbData && fbData.configured ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {(fbData.totals || []).map((row) => (
+                <StatCard
+                  key={row.platform}
+                  icon={<FiSmartphone />}
+                  label={`${row.platform} active users`}
+                  value={row.activeUsers}
+                  hint={`${fmt(row.eventCount)} events`}
+                />
+              ))}
+            </div>
+
+            <Card title="Events by name and platform">
+              {!fbData.events || fbData.events.length === 0 ? <EmptyRow /> : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs text-gray-500 uppercase">
+                      <th className="pb-2 font-medium">Event</th>
+                      <th className="pb-2 font-medium">Platform</th>
+                      <th className="pb-2 font-medium text-right">Count</th>
+                      <th className="pb-2 font-medium text-right">Users</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {fbData.events.map((row, i) => (
+                      <tr key={`${row.event}-${row.platform}-${i}`}>
+                        <td className="py-2 pr-2 text-gray-800">{row.event}</td>
+                        <td className="py-2 pr-2 text-gray-500 capitalize">{row.platform}</td>
+                        <td className="py-2 text-right font-semibold">{fmt(row.count)}</td>
+                        <td className="py-2 text-right text-gray-500">{fmt(row.users)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </Card>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };

@@ -19,7 +19,7 @@ const Modal = ({ title, onClose, children, maxWidth = "720px" }) => (
       onClick={(e) => e.stopPropagation()}
       style={{
         backgroundColor: "#ffffff",
-        borderRadius: "12px",
+        borderRadius: "20px",
         boxShadow: "0 20px 50px rgba(0, 0, 0, 0.25)",
         width: "100%",
         maxWidth,
@@ -33,16 +33,16 @@ const Modal = ({ title, onClose, children, maxWidth = "720px" }) => (
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "16px 20px",
-        borderBottom: "1px solid #e5e7eb",
+        padding: "18px 24px",
+        borderBottom: "1px solid #f3f4f6",
       }}>
-        <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#111827", margin: 0 }}>{title}</h2>
+        <h2 style={{ fontSize: "18px", fontWeight: "700", color: "#111827", margin: 0 }}>{title}</h2>
         <button
           onClick={onClose}
           aria-label="Close"
-          style={{ background: "none", border: "none", cursor: "pointer", color: "#6b7280", padding: "4px" }}
+          style={{ background: "#f9fafb", border: "none", borderRadius: "9999px", cursor: "pointer", color: "#6b7280", padding: "6px" }}
         >
-          <FiX style={{ width: "20px", height: "20px" }} />
+          <FiX style={{ width: "18px", height: "18px" }} />
         </button>
       </div>
       <div style={{ padding: "20px", overflowY: "auto" }}>{children}</div>

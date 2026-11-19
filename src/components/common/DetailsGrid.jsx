@@ -32,7 +32,7 @@ const DetailsGrid = ({ data, exclude = [], title = "All details" }) => {
       <div style={{ fontSize: "12px", fontWeight: "600", color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
         {title}
       </div>
-      <div style={{ border: "1px solid #e5e7eb", borderRadius: "10px", overflow: "hidden" }}>
+      <div style={{ border: "1px solid #f3f4f6", borderRadius: "16px", overflow: "hidden" }}>
         {rows.map(([key, value], index) => {
           const isId = key === "_id" || key.endsWith("Id") || key.endsWith(".id") || key === "id";
           return (

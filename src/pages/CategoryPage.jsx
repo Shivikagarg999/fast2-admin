@@ -3,6 +3,8 @@ import { Edit, Trash2, Plus, Tag, X, Upload, Download, Eye } from "lucide-react"
 import Modal from "../components/common/Modal";
 import Button from "../components/common/Button";
 import DetailsGrid from "../components/common/DetailsGrid";
+import Badge from "../components/ui/Badge";
+import PageHeader from "../components/ui/PageHeader";
 import usePermissions from "../hooks/usePermissions";
 import { PERMISSIONS } from "../config/permissions";
 
@@ -431,8 +433,8 @@ const CategoriesPage = () => {
         },
         outline: {
             backgroundColor: "transparent",
-            color: "#3b82f6",
-            border: "1px solid #3b82f6",
+            color: "#b3860f",
+            border: "1px solid #f3bf2e",
             borderRadius: "8px",
             padding: "8px 16px",
             cursor: "pointer",
@@ -443,52 +445,48 @@ const CategoriesPage = () => {
     };
 
     return (
-        <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
+        <div className="bg-gold-50 w-full min-h-screen">
             <div className="max-w-7xl mx-auto p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                    <div className="flex items-center mb-4 sm:mb-0">
-                        <Tag className="w-6 h-6 text-blue-600 mr-2" />
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Categories</h1>
-                        <span className="ml-3 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
-                            {filteredCategories.length} items
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="primary" size="md" onClick={openAddModal}>
-                            <Plus className="w-4 h-4" />
-                            Add Category
-                        </Button>
-                        <button
-                            onClick={downloadCategoriesCSV}
-                            style={buttonStyles.success}
-                            title="Export all categories - edit this file and re-upload to bulk-edit them"
-                        >
-                            <Download className="w-4 h-4" />
-                            Download CSV
-                        </button>
-                        <Button variant="primary" size="md" onClick={() => document.getElementById('categoryCsvFileInput').click()}>
-                            <Upload className="w-4 h-4" />
-                            Upload CSV
-                        </Button>
-                        <button onClick={downloadCategoryTemplate} style={buttonStyles.outline}>
-                            <Download className="w-4 h-4" />
-                            Download Template
-                        </button>
-                        <input
-                            id="categoryCsvFileInput"
-                            type="file"
-                            accept=".csv"
-                            className="hidden"
-                            onChange={(e) => { setCsvFile(e.target.files[0]); setUploadResult(null); }}
-                        />
-                    </div>
-                </div>
+                <PageHeader
+                    title="Categories"
+                    subtitle={`${filteredCategories.length} items`}
+                    actions={
+                        <>
+                            <Button variant="primary" size="md" onClick={openAddModal}>
+                                <Plus className="w-4 h-4" />
+                                Add Category
+                            </Button>
+                            <button
+                                onClick={downloadCategoriesCSV}
+                                style={buttonStyles.success}
+                                title="Export all categories - edit this file and re-upload to bulk-edit them"
+                            >
+                                <Download className="w-4 h-4" />
+                                Download CSV
+                            </button>
+                            <Button variant="primary" size="md" onClick={() => document.getElementById('categoryCsvFileInput').click()}>
+                                <Upload className="w-4 h-4" />
+                                Upload CSV
+                            </Button>
+                            <button onClick={downloadCategoryTemplate} style={buttonStyles.outline}>
+                                <Download className="w-4 h-4" />
+                                Download Template
+                            </button>
+                            <input
+                                id="categoryCsvFileInput"
+                                type="file"
+                                accept=".csv"
+                                className="hidden"
+                                onChange={(e) => { setCsvFile(e.target.files[0]); setUploadResult(null); }}
+                            />
+                        </>
+                    }
+                />
 
                 {/* CSV upload: selected file */}
                 {csvFile && (
-                    <div className="mb-6 flex items-center justify-between px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg">
-                        <div className="flex items-center gap-2 text-sm text-blue-900 dark:text-blue-200">
+                    <div className="mb-6 flex items-center justify-between px-4 py-3 bg-gold-50 dark:bg-blue-900/20 border border-gold-300 dark:border-blue-700 rounded-2xl">
+                        <div className="flex items-center gap-2 text-sm text-gold-900 dark:text-blue-200">
                             <Upload className="w-4 h-4" />
                             Selected: {csvFile.name}
                         </div>
@@ -561,7 +559,7 @@ const CategoriesPage = () => {
                             placeholder="Search categories by name..."
                             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
                 bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-500"
+                focus:outline-none focus:ring-2 focus:ring-gold-400"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -611,7 +609,7 @@ const CategoriesPage = () => {
                 )}
 
                 {/* Table */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead className="bg-gray-50 dark:bg-gray-900">
@@ -621,7 +619,7 @@ const CategoriesPage = () => {
                                             type="checkbox"
                                             checked={currentCategories.length > 0 && currentCategories.every(c => selectedIds.has(c._id))}
                                             onChange={toggleSelectAllVisible}
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 text-gold-600 bg-gray-100 border-gray-300 rounded focus:ring-gold-400 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -649,7 +647,7 @@ const CategoriesPage = () => {
                                     <tr>
                                         <td colSpan={7} className="text-center py-8">
                                             <div className="flex items-center justify-center">
-                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gold-500"></div>
                                                 <span className="ml-2 text-gray-500 dark:text-gray-400">Loading categories...</span>
                                             </div>
                                         </td>
@@ -663,7 +661,7 @@ const CategoriesPage = () => {
                                                 {search && (
                                                     <button
                                                         onClick={() => setSearch("")}
-                                                        className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                                                        className="mt-2 text-gold-700 hover:text-gold-800 text-sm"
                                                     >
                                                         Clear search
                                                     </button>
@@ -679,7 +677,7 @@ const CategoriesPage = () => {
                                                     type="checkbox"
                                                     checked={selectedIds.has(category._id)}
                                                     onChange={() => toggleSelected(category._id)}
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                                    className="w-4 h-4 text-gold-600 bg-gray-100 border-gray-300 rounded focus:ring-gold-400 dark:bg-gray-700 dark:border-gray-600"
                                                 />
                                             </td>
                                             <td className="px-6 py-4">
@@ -713,12 +711,9 @@ const CategoriesPage = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.isActive
-                                                    ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
-                                                    : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
-                                                    }`}>
+                                                <Badge variant={category.isActive ? 'success' : 'outline'}>
                                                     {category.isActive ? 'Active' : 'Inactive'}
-                                                </span>
+                                                </Badge>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm text-gray-900 dark:text-white">
@@ -856,8 +851,8 @@ const CategoriesPage = () => {
 
             {showModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div className="flex items-center justify-between p-6 border-b border-gray-100">
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                                     {editingCategory ? 'Edit Category' : 'Add New Category'}
                                 </h2>
@@ -883,7 +878,7 @@ const CategoriesPage = () => {
                                             onChange={handleInputChange}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400"
                                             required
                                             placeholder="Enter category name"
                                         />
@@ -901,7 +896,7 @@ const CategoriesPage = () => {
                                             onChange={handleInputChange}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400"
                                             required
                                             placeholder="Enter HSN code"
                                         />
@@ -919,7 +914,7 @@ const CategoriesPage = () => {
                                             onChange={handleInputChange}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400"
                                             required
                                             placeholder="Enter GST percentage"
                                             min="0"
@@ -939,7 +934,7 @@ const CategoriesPage = () => {
                                             onChange={handleInputChange}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400"
                                             required
                                         >
                                             <option value="inclusive">Inclusive</option>
@@ -959,7 +954,7 @@ const CategoriesPage = () => {
                                             onChange={handleInputChange}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400"
                                             required
                                             placeholder="e.g., piece, pack, kg"
                                         />
@@ -977,7 +972,7 @@ const CategoriesPage = () => {
                                             onChange={handleInputChange}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400"
                                             required
                                             placeholder="Enter sort order"
                                             min="0"
@@ -991,8 +986,8 @@ const CategoriesPage = () => {
                                             name="isActive"
                                             checked={formData.isActive}
                                             onChange={handleInputChange}
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 
-                        dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 text-gold-600 bg-gray-100 border-gray-300 rounded focus:ring-gold-400 
+                        dark:focus:ring-gold-500 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                                             Active Category
@@ -1011,7 +1006,7 @@ const CategoriesPage = () => {
                                                 onChange={handleImageChange}
                                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                          focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          focus:outline-none focus:ring-2 focus:ring-gold-400"
                                             />
                                             <p className="text-xs text-gray-500 dark:text-gray-400">
                                                 Recommended: 500×500px, square, transparent or white background.
@@ -1030,29 +1025,16 @@ const CategoriesPage = () => {
                                 </div>
 
                                 {/* Form Actions */}
-                                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                                    <button
-                                        type="button"
-                                        onClick={closeModal}
-                                        style={buttonStyles.secondary}
-                                    >
+                                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-100">
+                                    <Button type="button" variant="secondary" onClick={closeModal}>
                                         Cancel
-                                    </button>
-
-                                    <button
-                                        type="submit"
-                                        disabled={modalLoading}
-                                        style={{
-                                            ...buttonStyles.primary,
-                                            opacity: modalLoading ? 0.5 : 1,
-                                            cursor: modalLoading ? "not-allowed" : "pointer",
-                                        }}
-                                    >
+                                    </Button>
+                                    <Button type="submit" variant="primary" disabled={modalLoading}>
                                         {modalLoading && (
-                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-900 border-t-transparent"></div>
                                         )}
                                         {editingCategory ? 'Update Category' : 'Create Category'}
-                                    </button>
+                                    </Button>
                                 </div>
                             </form>
                         </div>

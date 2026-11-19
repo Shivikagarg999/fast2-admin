@@ -1,5 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
-import Button from "../../components/common/Button";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/ui/PageHeader";
 import axios from "axios";
 import { FiEdit, FiTrash2, FiPlus, FiPackage, FiX, FiMapPin, FiThermometer } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -87,16 +90,16 @@ const WarehouseList = () => {
   };
 
   const getStorageTypeBadge = (type) => {
-    const badgeClasses = {
-      'ambient': 'bg-green-100 text-green-800',
-      'cold-storage': 'bg-blue-100 text-blue-800',
-      'frozen': 'bg-cyan-100 text-cyan-800'
+    const badgeVariant = {
+      'ambient': 'success',
+      'cold-storage': 'pale',
+      'frozen': 'outline'
     };
 
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${badgeClasses[type] || badgeClasses.ambient}`}>
-        {type?.replace('-', ' ').toUpperCase() || 'AMBIENT'}
-      </span>
+      <Badge variant={badgeVariant[type] || 'success'}>
+        {type?.replace('-', ' ') || 'ambient'}
+      </Badge>
     );
   };
 
@@ -121,82 +124,85 @@ const WarehouseList = () => {
   const currentWarehouses = filteredWarehouses.slice(indexOfFirstWarehouse, indexOfLastWarehouse);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
+    <div className="bg-gold-50 w-full min-h-screen">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <FiPackage className="w-6 h-6 text-blue-600 mr-2" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Warehouses</h1>
-            <span className="ml-3 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
-              {filteredWarehouses.length} warehouses
+        <PageHeader
+          title={
+            <span className="flex items-center gap-2">
+              <FiPackage className="w-6 h-6 text-gold-600" />
+              Warehouses
+              <span className="text-xs font-semibold px-2.5 py-1 bg-gold-100 text-gold-800 rounded-full">
+                {filteredWarehouses.length}
+              </span>
             </span>
-          </div>
-          <Button variant="primary" size="md" onClick={() => navigate('/admin/create-warehouse')}>
-            <FiPlus className="w-4 h-4 mr-2" />
-            Add Warehouse
-          </Button>
-        </div>
+          }
+          subtitle="Storage locations, capacity, and the promotors who run them"
+          actions={
+            <Button variant="primary" onClick={() => navigate('/admin/create-warehouse')}>
+              <FiPlus className="w-4 h-4" /> Add Warehouse
+            </Button>
+          }
+        />
 
         {/* Search */}
         <div className="mb-6">
           <input
             type="text"
             placeholder="Search warehouses by name, code, city, or promotor..."
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
-              bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-              focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2.5 rounded-full border border-gray-200
+              bg-white text-gray-900
+              focus:outline-none focus:ring-2 focus:ring-gold-400"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <Card padded={false} className="overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-900">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gold-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Warehouse
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Promotor
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Location
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Storage Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Capacity
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-8">
+                    <td colSpan={6} className="text-center py-10">
                       <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                        <span className="ml-2 text-gray-500 dark:text-gray-400">Loading warehouses...</span>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gold-500"></div>
+                        <span className="ml-2 text-gray-500">Loading warehouses...</span>
                       </div>
                     </td>
                   </tr>
                 ) : currentWarehouses.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-8">
+                    <td colSpan={6} className="text-center py-10">
                       <div className="flex flex-col items-center">
-                        <FiPackage className="w-12 h-12 text-gray-400 mb-2" />
-                        <span className="text-gray-500 dark:text-gray-400">No warehouses found.</span>
+                        <FiPackage className="w-12 h-12 text-gray-300 mb-2" />
+                        <span className="text-gray-500">No warehouses found.</span>
                         {search && (
                           <button
                             onClick={() => setSearch("")}
-                            className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                            className="mt-2 text-gold-700 hover:text-gold-900 text-sm font-semibold"
                           >
                             Clear search
                           </button>
@@ -206,31 +212,31 @@ const WarehouseList = () => {
                   </tr>
                 ) : (
                   currentWarehouses.map((warehouse) => (
-                    <tr key={warehouse._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <tr key={warehouse._id} className="hover:bg-gold-50/60 transition-colors">
                       <td className="px-6 py-4">
                         <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-sm font-semibold text-gray-900">
                             {warehouse.name || "-"}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-500">
                             Code: {warehouse.code || "N/A"}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 dark:text-white">
+                        <div className="text-sm text-gray-900">
                           {warehouse.promotor?.name || "N/A"}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-gray-500">
                           {warehouse.promotor?.email || ""}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center text-sm text-gray-900 dark:text-white">
+                        <div className="flex items-center text-sm text-gray-900">
                           <FiMapPin className="w-3 h-3 mr-1 text-gray-400" />
                           {warehouse.location?.city || "N/A"}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-gray-500">
                           {warehouse.location?.state}
                         </div>
                       </td>
@@ -241,25 +247,29 @@ const WarehouseList = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 dark:text-white">
+                        <div className="text-sm text-gray-900">
                           {warehouse.currentStock || 0} / {warehouse.capacity || 0}
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                        <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1.5">
                           <div
-                            className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                            className="bg-gold-500 h-1.5 rounded-full transition-all duration-300"
                             style={{
                               width: `${Math.min(getCapacityUtilization(warehouse.currentStock, warehouse.capacity), 100)}%`
                             }}
                           ></div>
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <div className="text-xs text-gray-500 mt-1">
                           {getCapacityUtilization(warehouse.currentStock, warehouse.capacity)}% utilized
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <Button variant="secondary" size="sm" icon={FiEdit} onClick={() => handleEdit(warehouse)} title="Edit Warehouse">Edit</Button>
-                          <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => openDeleteModal(warehouse)} title="Delete Warehouse">Delete</Button>
+                          <Button variant="outline" className="!px-3 !py-1.5 text-xs" onClick={() => handleEdit(warehouse)} title="Edit Warehouse">
+                            <FiEdit className="w-3.5 h-3.5" /> Edit
+                          </Button>
+                          <Button variant="danger" className="!px-3 !py-1.5 text-xs" onClick={() => openDeleteModal(warehouse)} title="Delete Warehouse">
+                            <FiTrash2 className="w-3.5 h-3.5" /> Delete
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -268,21 +278,21 @@ const WarehouseList = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-between">
-            <div className="text-sm text-gray-700 dark:text-gray-300">
+          <div className="mt-6 flex items-center justify-between flex-wrap gap-3">
+            <div className="text-sm text-gray-500">
               Showing {indexOfFirstWarehouse + 1} to {Math.min(indexOfLastWarehouse, filteredWarehouses.length)} of {filteredWarehouses.length} warehouses
             </div>
             <div className="flex gap-1">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 
-                  bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
-                  hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed
+                className="px-3 py-2 text-sm rounded-full border border-gray-200
+                  bg-white text-gray-700
+                  hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed
                   transition-colors"
               >
                 Previous
@@ -303,9 +313,9 @@ const WarehouseList = () => {
                 return (
                   <button
                     key={pageNum}
-                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
-                      ? "bg-blue-500 text-white border-blue-500"
-                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className={`w-9 h-9 text-sm rounded-full border transition-colors ${currentPage === pageNum
+                      ? "bg-black text-white border-black font-semibold"
+                      : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
                       }`}
                     onClick={() => setCurrentPage(pageNum)}
                   >
@@ -317,9 +327,9 @@ const WarehouseList = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 
-                  bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
-                  hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed
+                className="px-3 py-2 text-sm rounded-full border border-gray-200
+                  bg-white text-gray-700
+                  hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed
                   transition-colors"
               >
                 Next
@@ -330,46 +340,35 @@ const WarehouseList = () => {
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900">
                   Delete Warehouse
                 </h2>
                 <button
                   onClick={closeDeleteModal}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="text-gray-400 hover:text-gray-600"
                 >
                   <FiX className="w-6 h-6" />
                 </button>
               </div>
 
               <div className="p-6">
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-600 mb-5">
                   Are you sure you want to delete warehouse <strong>{deletingWarehouse?.name}</strong>? This action cannot be undone.
                 </p>
 
                 <div className="flex justify-end gap-3">
-                  <button
-                    onClick={closeDeleteModal}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 
-                      bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
-                      rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                  >
+                  <Button variant="outline" onClick={closeDeleteModal}>
                     Cancel
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    disabled={deleteLoading}
-                    className="px-4 py-2 text-sm font-medium bg-red-600 text-black
-                      rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed 
-                      transition-colors flex items-center gap-2"
-                  >
+                  </Button>
+                  <Button variant="danger" onClick={handleDelete} disabled={deleteLoading} className="bg-red-600 !text-white hover:bg-red-700 border-red-600">
                     {deleteLoading && (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     )}
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

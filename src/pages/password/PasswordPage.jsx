@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FiKey, FiSearch, FiX, FiEye, FiEyeOff, FiUser, FiPhone, FiMail, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/ui/PageHeader";
 
 const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || "https://admin.gmkart.com/proxy";
 
@@ -158,35 +162,21 @@ export default function PasswordPage() {
   };
 
   return (
-    <div style={{ padding: "24px", minHeight: "100vh", backgroundColor: "#f8fafc" }}>
-      {/* Header */}
-      <div style={{ marginBottom: "24px" }}>
-        <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#111827", margin: 0 }}>
-          Password Management
-        </h1>
-        <p style={{ color: "#6b7280", marginTop: "4px", fontSize: "14px" }}>
-          View and reset passwords for drivers, sellers, and promotors.
-        </p>
-      </div>
+    <div className="p-6 min-h-screen bg-gold-50">
+      <PageHeader
+        title="Password Management"
+        subtitle="View and reset passwords for drivers, sellers, and promotors."
+      />
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: "4px", marginBottom: "20px", borderBottom: "2px solid #e5e7eb" }}>
+      <div className="flex gap-1 mb-5 bg-white rounded-full p-1 border border-gray-100 w-fit">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            style={{
-              padding: "10px 20px",
-              fontSize: "14px",
-              fontWeight: "600",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              color: activeTab === tab.key ? "#111827" : "#6b7280",
-              borderBottom: activeTab === tab.key ? "2px solid #111827" : "2px solid transparent",
-              marginBottom: "-2px",
-              transition: "all 0.15s",
-            }}
+            className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
+              activeTab === tab.key ? "bg-black text-white" : "text-gray-500 hover:text-gray-800"
+            }`}
           >
             {tab.label}
           </button>
@@ -194,58 +184,33 @@ export default function PasswordPage() {
       </div>
 
       {/* Search */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-        <div style={{ position: "relative", flex: 1, maxWidth: "360px" }}>
-          <FiSearch
-            style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }}
-          />
+      <div className="flex items-center gap-3 mb-4">
+        <div className="relative flex-1 max-w-sm">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
             placeholder={`Search ${activeTab}…`}
-            style={{
-              width: "100%",
-              paddingLeft: "36px",
-              paddingRight: "12px",
-              paddingTop: "9px",
-              paddingBottom: "9px",
-              border: "1px solid #d1d5db",
-              borderRadius: "8px",
-              fontSize: "14px",
-              outline: "none",
-              background: "#fff",
-              boxSizing: "border-box",
-            }}
+            className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-full text-sm outline-none bg-white focus:border-gold-400 focus:ring-2 focus:ring-gold-100 transition-colors"
           />
         </div>
-        <span style={{ fontSize: "13px", color: "#9ca3af" }}>
+        <span className="text-xs text-gray-400">
           {filtered.length} record{filtered.length !== 1 ? "s" : ""}
         </span>
       </div>
 
       {/* Table */}
-      <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", overflow: "hidden" }}>
+      <Card padded={false} className="overflow-hidden">
         {loading ? (
-          <div style={{ padding: "48px", textAlign: "center", color: "#9ca3af" }}>Loading…</div>
+          <div className="p-12 text-center text-gray-400">Loading…</div>
         ) : paginated.length === 0 ? (
-          <div style={{ padding: "48px", textAlign: "center", color: "#9ca3af" }}>No records found.</div>
+          <div className="p-12 text-center text-gray-400">No records found.</div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table className="w-full border-collapse">
             <thead>
-              <tr style={{ background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>
+              <tr className="bg-gray-50 border-b border-gray-100">
                 {["Name", "Phone", "Email", "Action"].map((col) => (
-                  <th
-                    key={col}
-                    style={{
-                      padding: "12px 16px",
-                      textAlign: "left",
-                      fontSize: "12px",
-                      fontWeight: "600",
-                      color: "#6b7280",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
+                  <th key={col} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     {col}
                   </th>
                 ))}
@@ -255,101 +220,52 @@ export default function PasswordPage() {
               {paginated.map((item, idx) => (
                 <tr
                   key={getItemId(activeTab, item) || idx}
-                  style={{
-                    borderBottom: idx < paginated.length - 1 ? "1px solid #f3f4f6" : "none",
-                    transition: "background 0.1s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#fafafa")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  className={`${idx < paginated.length - 1 ? "border-b border-gray-50" : ""} hover:bg-gold-50/50 transition-colors`}
                 >
-                  <td style={{ padding: "14px 16px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <div
-                        style={{
-                          width: "34px",
-                          height: "34px",
-                          borderRadius: "50%",
-                          background: "#f3f4f6",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <FiUser size={15} color="#9ca3af" />
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                        <FiUser size={14} className="text-gray-400" />
                       </div>
-                      <span style={{ fontSize: "14px", fontWeight: "500", color: "#111827" }}>
-                        {getItemName(item)}
-                      </span>
+                      <span className="text-sm font-medium text-gray-900">{getItemName(item)}</span>
                     </div>
                   </td>
-                  <td style={{ padding: "14px 16px", fontSize: "14px", color: "#374151" }}>
-                    {getItemPhone(item)}
-                  </td>
-                  <td style={{ padding: "14px 16px", fontSize: "14px", color: "#374151" }}>
-                    {getItemEmail(item)}
-                  </td>
-                  <td style={{ padding: "14px 16px" }}>
-                    <button
-                      onClick={() => openModal(item)}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "7px 14px",
-                        background: "#111827",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "7px",
-                        fontSize: "13px",
-                        fontWeight: "500",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FiKey size={13} />
+                  <td className="px-4 py-3.5 text-sm text-gray-600">{getItemPhone(item)}</td>
+                  <td className="px-4 py-3.5 text-sm text-gray-600">{getItemEmail(item)}</td>
+                  <td className="px-4 py-3.5">
+                    <Button variant="secondary" onClick={() => openModal(item)} className="!px-3 !py-1.5 text-xs gap-1.5">
+                      <FiKey size={12} />
                       Set Password
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-      </div>
+      </Card>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginTop: "16px" }}>
+        <div className="flex justify-center items-center gap-2 mt-4">
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => p - 1)}
-            style={{
-              padding: "6px 12px",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              background: currentPage === 1 ? "#f9fafb" : "#fff",
-              color: currentPage === 1 ? "#d1d5db" : "#374151",
-              cursor: currentPage === 1 ? "not-allowed" : "pointer",
-              fontSize: "13px",
-            }}
+            className={`px-3 py-1.5 border border-gray-200 rounded-full text-xs font-medium transition-colors ${
+              currentPage === 1 ? "bg-gray-50 text-gray-300 cursor-not-allowed" : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
           >
             Previous
           </button>
-          <span style={{ fontSize: "13px", color: "#6b7280" }}>
+          <span className="text-xs text-gray-500">
             Page {currentPage} of {totalPages}
           </span>
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => p + 1)}
-            style={{
-              padding: "6px 12px",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              background: currentPage === totalPages ? "#f9fafb" : "#fff",
-              color: currentPage === totalPages ? "#d1d5db" : "#374151",
-              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-              fontSize: "13px",
-            }}
+            className={`px-3 py-1.5 border border-gray-200 rounded-full text-xs font-medium transition-colors ${
+              currentPage === totalPages ? "bg-gray-50 text-gray-300 cursor-not-allowed" : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
           >
             Next
           </button>
@@ -359,253 +275,106 @@ export default function PasswordPage() {
       {/* Modal */}
       {modal && (
         <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.45)",
-            zIndex: 1000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "16px",
-          }}
+          className="fixed inset-0 bg-black/45 z-[1000] flex items-center justify-center p-4"
           onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
         >
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: "14px",
-              width: "100%",
-              maxWidth: "440px",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
-              overflow: "hidden",
-            }}
-          >
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             {/* Modal header */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "20px 24px",
-                borderBottom: "1px solid #f3f4f6",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "50%",
-                    background: "#111827",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <FiKey size={16} color="#fff" />
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-black flex items-center justify-center">
+                  <FiKey size={16} className="text-white" />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "#111827" }}>
-                    Set Password
-                  </h3>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af" }}>
-                    {TABS.find((t) => t.key === modal.tab)?.label}
-                  </p>
+                  <h3 className="font-bold text-gray-900 text-base">Set Password</h3>
+                  <p className="text-xs text-gray-400">{TABS.find((t) => t.key === modal.tab)?.label}</p>
                 </div>
               </div>
-              <button
-                onClick={closeModal}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: "4px" }}
-              >
+              <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 p-1">
                 <FiX size={20} />
               </button>
             </div>
 
             {/* Modal body */}
-            <div style={{ padding: "24px" }}>
+            <div className="p-6">
               {/* User info */}
-              <div
-                style={{
-                  background: "#f9fafb",
-                  borderRadius: "10px",
-                  padding: "14px 16px",
-                  marginBottom: "20px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "8px",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <FiUser size={14} color="#9ca3af" />
-                  <span style={{ fontSize: "14px", fontWeight: "600", color: "#111827" }}>
-                    {getItemName(modal.item)}
-                  </span>
+              <div className="bg-gray-50 rounded-xl px-4 py-3.5 mb-5 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <FiUser size={14} className="text-gray-400" />
+                  <span className="text-sm font-semibold text-gray-900">{getItemName(modal.item)}</span>
                 </div>
                 {getItemPhone(modal.item) !== "—" && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <FiPhone size={13} color="#9ca3af" />
-                    <span style={{ fontSize: "13px", color: "#374151" }}>{getItemPhone(modal.item)}</span>
+                  <div className="flex items-center gap-2">
+                    <FiPhone size={13} className="text-gray-400" />
+                    <span className="text-sm text-gray-600">{getItemPhone(modal.item)}</span>
                   </div>
                 )}
                 {getItemEmail(modal.item) !== "—" && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <FiMail size={13} color="#9ca3af" />
-                    <span style={{ fontSize: "13px", color: "#374151" }}>{getItemEmail(modal.item)}</span>
+                  <div className="flex items-center gap-2">
+                    <FiMail size={13} className="text-gray-400" />
+                    <span className="text-sm text-gray-600">{getItemEmail(modal.item)}</span>
                   </div>
                 )}
 
                 {/* Password status badge */}
-                <div style={{ marginTop: "4px" }}>
+                <div className="mt-1">
                   {statusLoading ? (
-                    <span style={{ fontSize: "12px", color: "#9ca3af" }}>Checking password status…</span>
+                    <span className="text-xs text-gray-400">Checking password status…</span>
                   ) : passwordStatus?.hasPassword === true ? (
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        padding: "3px 10px",
-                        background: "#dcfce7",
-                        color: "#15803d",
-                        borderRadius: "20px",
-                        fontSize: "12px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      <FiCheckCircle size={11} /> Has password
-                    </span>
+                    <Badge variant="success">
+                      <FiCheckCircle size={11} className="mr-1" /> Has password
+                    </Badge>
                   ) : passwordStatus?.hasPassword === false ? (
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        padding: "3px 10px",
-                        background: "#fef3c7",
-                        color: "#92400e",
-                        borderRadius: "20px",
-                        fontSize: "12px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      <FiAlertCircle size={11} /> No password set
-                    </span>
+                    <Badge variant="pale">
+                      <FiAlertCircle size={11} className="mr-1" /> No password set
+                    </Badge>
                   ) : null}
                 </div>
               </div>
 
               {/* New password input */}
-              <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>
-                New Password
-              </label>
-              <div style={{ position: "relative" }}>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">New Password</label>
+              <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => { setNewPassword(e.target.value); setSaveError(""); setSaveSuccess(false); }}
                   placeholder="Enter new password"
                   onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
-                  style={{
-                    width: "100%",
-                    padding: "10px 44px 10px 12px",
-                    border: saveError ? "1px solid #ef4444" : "1px solid #d1d5db",
-                    borderRadius: "8px",
-                    fontSize: "14px",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
+                  className={`w-full pl-3 pr-11 py-2.5 rounded-lg text-sm outline-none border transition-colors ${
+                    saveError ? "border-red-300 focus:ring-2 focus:ring-red-100" : "border-gray-200 focus:border-gold-400 focus:ring-2 focus:ring-gold-100"
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  style={{
-                    position: "absolute",
-                    right: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "#9ca3af",
-                    padding: 0,
-                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                 </button>
               </div>
 
-              {saveError && (
-                <p style={{ fontSize: "12px", color: "#ef4444", marginTop: "6px", margin: "6px 0 0" }}>
-                  {saveError}
-                </p>
-              )}
+              {saveError && <p className="text-xs text-red-500 mt-1.5">{saveError}</p>}
 
               {saveSuccess && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    marginTop: "10px",
-                    padding: "8px 12px",
-                    background: "#dcfce7",
-                    borderRadius: "8px",
-                    color: "#15803d",
-                    fontSize: "13px",
-                    fontWeight: "500",
-                  }}
-                >
+                <div className="flex items-center gap-1.5 mt-2.5 px-3 py-2 bg-emerald-50 rounded-lg text-emerald-700 text-sm font-medium">
                   <FiCheckCircle size={14} /> Password updated successfully.
                 </div>
               )}
             </div>
 
             {/* Modal footer */}
-            <div
-              style={{
-                display: "flex",
-                gap: "10px",
-                padding: "16px 24px",
-                borderTop: "1px solid #f3f4f6",
-                justifyContent: "flex-end",
-              }}
-            >
-              <button
-                onClick={closeModal}
-                style={{
-                  padding: "9px 18px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "8px",
-                  background: "#fff",
-                  color: "#374151",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  cursor: "pointer",
-                }}
-              >
-                Close
-              </button>
-              <button
+            <div className="flex gap-2.5 px-6 py-4 border-t border-gray-100 justify-end">
+              <Button variant="outline" onClick={closeModal}>Close</Button>
+              <Button
+                variant="secondary"
                 onClick={handleSave}
                 disabled={saving || !newPassword.trim()}
-                style={{
-                  padding: "9px 18px",
-                  border: "none",
-                  borderRadius: "8px",
-                  background: saving || !newPassword.trim() ? "#9ca3af" : "#111827",
-                  color: "#fff",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  cursor: saving || !newPassword.trim() ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}
+                className="gap-1.5"
               >
                 <FiKey size={14} />
                 {saving ? "Saving…" : "Update Password"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import Button from "../../components/common/Button";
+import UIButton from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/ui/PageHeader";
+import StatCard from "../../components/ui/StatCard";
 import {
   FiPlus,
   FiEdit,
@@ -316,7 +320,7 @@ const BannersPage = () => {
   };
 
   const BannerCard = ({ banner }) => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-hidden">
       <div className={`h-32 ${banner.gradient} relative`}>
         <img
           src={banner.image}
@@ -349,9 +353,7 @@ const BannersPage = () => {
           <h3 className="font-semibold text-gray-900 dark:text-white truncate">
             {banner.title}
           </h3>
-          <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-            #{banner.order + 1}
-          </span>
+          <Badge variant="outline">#{banner.order + 1}</Badge>
         </div>
 
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">
@@ -360,9 +362,7 @@ const BannersPage = () => {
 
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
           <span>CTA: {banner.cta}</span>
-          <span className={`px-2 py-1 rounded-full ${banner.isActive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'}`}>
-            {banner.isActive ? 'Active' : 'Inactive'}
-          </span>
+          <Badge variant={banner.isActive ? 'success' : 'outline'}>{banner.isActive ? 'Active' : 'Inactive'}</Badge>
         </div>
 
         <div className="flex items-center justify-between">
@@ -388,7 +388,7 @@ const BannersPage = () => {
 
   if (loading) {
     return (
-      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen p-6">
+      <div className="bg-gold-50 min-h-screen p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64 animate-pulse"></div>
@@ -396,7 +396,7 @@ const BannersPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 animate-pulse">
+              <div key={i} className="bg-white rounded-2xl shadow-sm shadow-black/5 p-6 animate-pulse">
                 <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
                 <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
                 <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
@@ -413,60 +413,39 @@ const BannersPage = () => {
   }
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen p-6">
+    <div className="bg-gold-50 min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Banner Management</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Create and manage promotional banners for your store
-            </p>
-          </div>
-          <Button variant="primary" size="md" onClick={openModal}>
-            <FiPlus className="w-4 h-4" />
-            Create Banner
-          </Button>
-        </div>
+        <PageHeader
+          title="Banner Management"
+          subtitle="Create and manage promotional banners for your store"
+          actions={
+            <UIButton onClick={openModal}>
+              <FiPlus className="w-4 h-4" />
+              Create Banner
+            </UIButton>
+          }
+        />
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{banners.length}</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Total Banners</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {banners.filter(b => b.isActive).length}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Active Banners</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-              {banners.filter(b => !b.isActive).length}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Inactive Banners</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {banners.length > 0 ? Math.max(...banners.map(b => b.order)) + 1 : 0}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Max Order</div>
-          </div>
+          <StatCard label="Total Banners" value={banners.length} highlight />
+          <StatCard label="Active Banners" value={banners.filter(b => b.isActive).length} />
+          <StatCard label="Inactive Banners" value={banners.filter(b => !b.isActive).length} />
+          <StatCard label="Max Order" value={banners.length > 0 ? Math.max(...banners.map(b => b.order)) + 1 : 0} />
         </div>
 
         {/* Banners Grid */}
         {banners.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 p-12 text-center">
             <FiImage className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No banners yet</h3>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
               Create your first promotional banner to get started
             </p>
-            <Button variant="primary" size="md" onClick={openModal}>
+            <UIButton onClick={openModal}>
               <FiPlus className="w-4 h-4" />
               Create Your First Banner
-            </Button>
+            </UIButton>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -480,8 +459,8 @@ const BannersPage = () => {
       {/* Banner Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
               <h2 className="text-xl font-semibold text-black dark:text-white">
                 {editingBanner ? 'Edit Banner' : 'Create New Banner'}
               </h2>
@@ -503,7 +482,7 @@ const BannersPage = () => {
                     type="text"
                     value={formData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -515,7 +494,7 @@ const BannersPage = () => {
                     type="text"
                     value={formData.subtitle}
                     onChange={(e) => handleInputChange('subtitle', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
@@ -528,7 +507,7 @@ const BannersPage = () => {
                   rows={3}
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
 
@@ -543,7 +522,7 @@ const BannersPage = () => {
                       accept="image/*"
                       ref={imageInputRef}
                       onChange={handleImageChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-400"
                       required={!editingBanner}
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400">Recommended size: 1200 × 400 px (3:1). The app shows the banner at this ratio.</p>
@@ -576,7 +555,7 @@ const BannersPage = () => {
                       accept="image/*"
                       ref={fallbackImageInputRef}
                       onChange={handleFallbackImageChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-400"
                     />
                     {fallbackImagePreview && (
                       <div className="relative inline-block">
@@ -608,7 +587,7 @@ const BannersPage = () => {
                     required
                     value={formData.cta}
                     onChange={(e) => handleInputChange('cta', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -627,7 +606,7 @@ const BannersPage = () => {
                       type="text"
                       value={formData.ctaColor}
                       onChange={(e) => handleInputChange('ctaColor', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-400"
                     />
                   </div>
                 </div>
@@ -647,7 +626,7 @@ const BannersPage = () => {
                       type="text"
                       value={formData.accentColor}
                       onChange={(e) => handleInputChange('accentColor', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-400"
                     />
                   </div>
                 </div>
@@ -663,8 +642,8 @@ const BannersPage = () => {
                       key={option.value}
                       type="button"
                       onClick={() => handleInputChange('gradient', option.value)}
-                      className={`p-3 rounded-lg border-2 ${formData.gradient === option.value
-                        ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800'
+                      className={`p-3 rounded-xl border-2 ${formData.gradient === option.value
+                        ? 'border-gold-500 ring-2 ring-gold-200'
                         : 'border-gray-300 dark:border-gray-600'
                         }`}
                     >
@@ -681,30 +660,20 @@ const BannersPage = () => {
                     type="checkbox"
                     checked={formData.isActive}
                     onChange={(e) => handleInputChange('isActive', e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
                   />
                   <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</span>
                 </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-4 py-2 text-sm font-medium text-black dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                >
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <UIButton type="button" variant="outline" onClick={closeModal}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 font-medium text-black rounded-lg transition-colors flex items-center gap-2"
-                  style={{ backgroundColor: '#2563eb' }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-                >
+                </UIButton>
+                <UIButton type="submit">
                   <FiSave className="w-4 h-4" />
                   {editingBanner ? 'Update Banner' : 'Create Banner'}
-                </button>
+                </UIButton>
               </div>
             </form>
           </div>
@@ -714,8 +683,8 @@ const BannersPage = () => {
       {/* Preview Modal */}
       {previewBanner && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl">
-            <div className="flex items-center justify-between p-6 border-b border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Banner Preview</h2>
               <button
                 onClick={() => setPreviewBanner(null)}
@@ -761,7 +730,7 @@ const BannersPage = () => {
       {/* Delete Confirm Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-red-100 dark:bg-red-900 rounded-full">
@@ -778,21 +747,8 @@ const BannersPage = () => {
               </p>
 
               <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setDeleteConfirm(null)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-                  style={{ backgroundColor: '#dc2626' }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
-                >
-                  Delete Banner
-                </button>
+                <UIButton variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</UIButton>
+                <UIButton variant="danger" onClick={handleDelete}>Delete Banner</UIButton>
               </div>
             </div>
           </div>

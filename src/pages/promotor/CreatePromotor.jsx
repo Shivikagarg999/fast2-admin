@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { FiPlus, FiX, FiUser, FiMail, FiPhone, FiMapPin, FiDollarSign, FiLock, FiCreditCard, FiPercent } from "react-icons/fi";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
 
 const CreatePromotorPage = () => {
   const [loading, setLoading] = useState(false);
@@ -128,27 +130,28 @@ const CreatePromotorPage = () => {
   };
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-8">
+    <div className="bg-gold-50 min-h-screen py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-            <FiUser className="mr-2" /> Create New Promotor
+        <Card className="sm:!p-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+            <FiUser className="text-gold-600" /> Create New Promotor
           </h1>
+          <p className="text-sm text-gray-500 mb-6">Add a new promotor and their commission, bank, and KYC details.</p>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h2>
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Full Name *
                   </label>
                   <input
@@ -156,15 +159,15 @@ const CreatePromotorPage = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address *
                   </label>
                   <div className="relative">
@@ -173,9 +176,9 @@ const CreatePromotorPage = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -183,7 +186,7 @@ const CreatePromotorPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Phone Number *
                   </label>
                   <div className="relative">
@@ -192,9 +195,9 @@ const CreatePromotorPage = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -204,14 +207,14 @@ const CreatePromotorPage = () => {
             </div>
 
             {/* Address Information Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <FiMapPin className="mr-2" /> Address Information
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Street Address
                   </label>
                   <input
@@ -219,14 +222,14 @@ const CreatePromotorPage = () => {
                     name="address.street"
                     value={formData.address.street}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     City *
                   </label>
                   <input
@@ -234,15 +237,15 @@ const CreatePromotorPage = () => {
                     name="address.city"
                     value={formData.address.city}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     State
                   </label>
                   <input
@@ -250,14 +253,14 @@ const CreatePromotorPage = () => {
                     name="address.state"
                     value={formData.address.state}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Pincode
                   </label>
                   <input
@@ -265,32 +268,32 @@ const CreatePromotorPage = () => {
                     name="address.pincode"
                     value={formData.address.pincode}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Commission Information Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <FiDollarSign className="mr-2" /> Commission Information
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Commission Type *
                   </label>
                   <select
                     name="commissionType"
                     value={formData.commissionType}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   >
                     <option value="percentage">Percentage</option>
@@ -299,7 +302,7 @@ const CreatePromotorPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Commission Rate *
                   </label>
                   <div className="relative">
@@ -311,9 +314,9 @@ const CreatePromotorPage = () => {
                       min="0"
                       max={formData.commissionType === "percentage" ? "100" : ""}
                       step="0.01"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     {formData.commissionType === "percentage" ? (
@@ -327,14 +330,14 @@ const CreatePromotorPage = () => {
             </div>
 
             {/* Authentication Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <FiLock className="mr-2" /> Authentication
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Password *
                   </label>
                   <div className="relative">
@@ -343,9 +346,9 @@ const CreatePromotorPage = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -353,7 +356,7 @@ const CreatePromotorPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Confirm Password *
                   </label>
                   <div className="relative">
@@ -362,9 +365,9 @@ const CreatePromotorPage = () => {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -374,12 +377,12 @@ const CreatePromotorPage = () => {
             </div>
 
             {/* Additional Details Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Additional Details</h2>
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Additional Details</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Aadhar Number
                   </label>
                   <input
@@ -387,14 +390,14 @@ const CreatePromotorPage = () => {
                     name="aadharNumber"
                     value={formData.aadharNumber}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     PAN Number
                   </label>
                   <input
@@ -402,23 +405,23 @@ const CreatePromotorPage = () => {
                     name="panNumber"
                     value={formData.panNumber}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Bank Details Section */}
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="border-b border-gray-100 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <FiCreditCard className="mr-2" /> Bank Details
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Bank Name
                   </label>
                   <input
@@ -426,14 +429,14 @@ const CreatePromotorPage = () => {
                     name="bankDetails.bankName"
                     value={formData.bankDetails.bankName}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Account Number
                   </label>
                   <input
@@ -441,14 +444,14 @@ const CreatePromotorPage = () => {
                     name="bankDetails.accountNumber"
                     value={formData.bankDetails.accountNumber}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     IFSC Code
                   </label>
                   <input
@@ -456,14 +459,14 @@ const CreatePromotorPage = () => {
                     name="bankDetails.ifscCode"
                     value={formData.bankDetails.ifscCode}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Branch
                   </label>
                   <input
@@ -471,9 +474,9 @@ const CreatePromotorPage = () => {
                     name="bankDetails.branch"
                     value={formData.bankDetails.branch}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
+                      bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
@@ -481,26 +484,21 @@ const CreatePromotorPage = () => {
 
             {/* Submit Button */}
             <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
-                  disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-black"
-              >
+              <Button type="submit" variant="primary" disabled={loading} className="!px-6 !py-3">
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
                     Creating...
                   </>
                 ) : (
                   <>
-                    <FiPlus className="mr-2" /> Create Promotor
+                    <FiPlus /> Create Promotor
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
+        </Card>
       </div>
     </div>
   );

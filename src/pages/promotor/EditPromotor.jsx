@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { FiPlus, FiX, FiUser, FiMail, FiPhone, FiMapPin, FiDollarSign, FiLock, FiCreditCard, FiPercent, FiCheckCircle, FiArrowLeft } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
 
 const EditPromotorPage = () => {
   const [loading, setLoading] = useState(false);
@@ -199,7 +201,7 @@ const EditPromotorPage = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
@@ -216,7 +218,7 @@ const EditPromotorPage = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                         focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
                       required
@@ -235,7 +237,7 @@ const EditPromotorPage = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                         focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
                       required
@@ -275,7 +277,7 @@ const EditPromotorPage = () => {
                     name="address.street"
                     value={formData.address.street}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -290,7 +292,7 @@ const EditPromotorPage = () => {
                     name="address.city"
                     value={formData.address.city}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
@@ -306,7 +308,7 @@ const EditPromotorPage = () => {
                     name="address.state"
                     value={formData.address.state}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -321,7 +323,7 @@ const EditPromotorPage = () => {
                     name="address.pincode"
                     value={formData.address.pincode}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -337,7 +339,7 @@ const EditPromotorPage = () => {
                     value={formData.address.coordinates.lat}
                     onChange={handleInputChange}
                     step="any"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -353,7 +355,7 @@ const EditPromotorPage = () => {
                     value={formData.address.coordinates.lng}
                     onChange={handleInputChange}
                     step="any"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -376,7 +378,7 @@ const EditPromotorPage = () => {
                     name="commissionType"
                     value={formData.commissionType}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
@@ -399,7 +401,7 @@ const EditPromotorPage = () => {
                       min="0"
                       max={formData.commissionType === "percentage" ? "100" : ""}
                       step="0.01"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                         focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
                       required
@@ -428,7 +430,7 @@ const EditPromotorPage = () => {
                     name="aadharNumber"
                     value={formData.aadharNumber}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -443,7 +445,7 @@ const EditPromotorPage = () => {
                     name="panNumber"
                     value={formData.panNumber}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -467,7 +469,7 @@ const EditPromotorPage = () => {
                     name="bankDetails.bankName"
                     value={formData.bankDetails.bankName}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -482,7 +484,7 @@ const EditPromotorPage = () => {
                     name="bankDetails.accountNumber"
                     value={formData.bankDetails.accountNumber}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -497,7 +499,7 @@ const EditPromotorPage = () => {
                     name="bankDetails.ifscCode"
                     value={formData.bankDetails.ifscCode}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -512,7 +514,7 @@ const EditPromotorPage = () => {
                     name="bankDetails.branch"
                     value={formData.bankDetails.branch}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -525,7 +527,7 @@ const EditPromotorPage = () => {
               <button
                 type="button"
                 onClick={() => navigate('/admin/promotors')}
-                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-md 
+                className="px-6 py-3 border border-gray-200 rounded-xl 
                   bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300
                   hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >

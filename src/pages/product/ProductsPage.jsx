@@ -1167,8 +1167,8 @@ const ProductsPage = () => {
     },
     outline: {
       backgroundColor: "transparent",
-      color: "#3b82f6",
-      border: "1px solid #3b82f6",
+      color: "#b3860f",
+      border: "1px solid #f3bf2e",
       borderRadius: "8px",
       padding: "8px 16px",
       cursor: "pointer",
@@ -1258,7 +1258,7 @@ const ProductsPage = () => {
 
   return (
     <div
-      style={{ backgroundColor: "#f3f4f6", minHeight: "100vh", width: "100%" }}
+      style={{ backgroundColor: "#fffcf2", minHeight: "100vh", width: "100%" }}
       className="dark:bg-gray-900"
     >
       <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "24px" }}>
@@ -1268,7 +1268,7 @@ const ProductsPage = () => {
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <FiPackage
-                style={{ width: "24px", height: "24px", color: "#2563eb" }}
+                style={{ width: "24px", height: "24px", color: "#b3860f" }}
               />
               <h1
                 style={{
@@ -1614,8 +1614,9 @@ const ProductsPage = () => {
                 <div
                   style={{
                     backgroundColor: "#ffffff",
-                    borderRadius: "8px",
-                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+                    borderRadius: "16px",
+                    border: "1px solid #f3f4f6",
+                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                     overflow: "hidden",
                   }}
                   className="dark:bg-gray-800"
@@ -1908,7 +1909,7 @@ const ProductsPage = () => {
                                     onBlur={() => handleInlineUpdate(product._id, 'price', inlineEdit.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'price', inlineEdit.value)}
                                     autoFocus
-                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
+                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #f3bf2e", borderRadius: "4px" }}
                                   />
                                 ) : (
                                   formatPrice(product.price)
@@ -1946,7 +1947,7 @@ const ProductsPage = () => {
                                     onBlur={() => handleInlineUpdate(product._id, 'oldPrice', inlineEdit.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'oldPrice', inlineEdit.value)}
                                     autoFocus
-                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
+                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #f3bf2e", borderRadius: "4px" }}
                                   />
                                 ) : (
                                   product.oldPrice ? formatPrice(product.oldPrice) : "-"
@@ -1972,7 +1973,7 @@ const ProductsPage = () => {
                                     onBlur={() => handleInlineUpdate(product._id, 'weight', inlineEdit.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'weight', inlineEdit.value)}
                                     autoFocus
-                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
+                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #f3bf2e", borderRadius: "4px" }}
                                   />
                                 ) : (
                                   formatWeight(product.weight, product.weightUnit || 'g')
@@ -1998,7 +1999,7 @@ const ProductsPage = () => {
                                     onBlur={() => handleInlineUpdate(product._id, 'unit', inlineEdit.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'unit', inlineEdit.value)}
                                     autoFocus
-                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
+                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #f3bf2e", borderRadius: "4px" }}
                                   />
                                 ) : (
                                   product.unit || "piece"
@@ -2029,7 +2030,7 @@ const ProductsPage = () => {
                                     onKeyDown={(e) => e.key === 'Enter' && handleInlineUpdate(product._id, 'quantity', inlineEdit.value)}
                                     onClick={(e) => e.stopPropagation()}
                                     autoFocus
-                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #3b82f6", borderRadius: "4px" }}
+                                    style={{ width: "80px", padding: "2px 4px", border: "1px solid #f3bf2e", borderRadius: "4px" }}
                                   />
                                 ) : (
                                   <>
@@ -4893,7 +4894,7 @@ const ProductsPage = () => {
                             position: "absolute",
                             top: "12px",
                             left: "12px",
-                            backgroundColor: "#2563eb",
+                            backgroundColor: "#b3860f",
                             color: "white",
                             padding: "4px 12px",
                             borderRadius: "6px",
@@ -5242,7 +5243,7 @@ const ProductsPage = () => {
                         style={{
                           width: "20px",
                           height: "20px",
-                          color: "#2563eb",
+                          color: "#b3860f",
                         }}
                       />{" "}
                       Pricing & Tax Information
@@ -5430,7 +5431,7 @@ const ProductsPage = () => {
                         style={{
                           width: "20px",
                           height: "20px",
-                          color: "#2563eb",
+                          color: "#b3860f",
                         }}
                       />{" "}
                       Inventory Management
@@ -5562,7 +5563,7 @@ const ProductsPage = () => {
                         style={{
                           width: "20px",
                           height: "20px",
-                          color: "#2563eb",
+                          color: "#b3860f",
                         }}
                       />{" "}
                       Shipping & Dimensions
@@ -5647,7 +5648,7 @@ const ProductsPage = () => {
                           style={{
                             width: "20px",
                             height: "20px",
-                            color: "#2563eb",
+                            color: "#b3860f",
                           }}
                         />{" "}
                         Promotor Commission
@@ -6172,7 +6173,7 @@ const ProductsPage = () => {
                             style={{
                               fontSize: "15px",
                               fontWeight: "600",
-                              color: "#2563eb",
+                              color: "#b3860f",
                               textDecoration: "underline",
                             }}
                           >
@@ -6248,7 +6249,7 @@ const ProductsPage = () => {
                         style={{
                           width: "20px",
                           height: "20px",
-                          color: "#2563eb",
+                          color: "#b3860f",
                         }}
                       />{" "}
                       Recent Orders
@@ -6261,7 +6262,7 @@ const ProductsPage = () => {
                             borderRadius: "9999px",
                             width: "24px",
                             height: "24px",
-                            borderBottom: "2px solid #2563eb",
+                            borderBottom: "2px solid #b3860f",
                             margin: "0 auto 8px",
                           }}
                         ></div>

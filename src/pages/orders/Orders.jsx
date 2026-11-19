@@ -14,33 +14,10 @@ import {
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
 import WhatsappOrdersTab from "./WhatsappOrdersTab";
+import PageHeader from "../../components/ui/PageHeader";
+import Badge from "../../components/ui/Badge";
 
 const BASE_URL = (import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy';
-
-const buttonStyles = {
-    danger: {
-        backgroundColor: "#dc2626",
-        color: "#ffffff",
-        border: "none",
-        borderRadius: "8px",
-        padding: "8px 16px",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-    },
-    secondary: {
-        backgroundColor: "#ffffff",
-        color: "#374151",
-        border: "1px solid #d1d5db",
-        borderRadius: "8px",
-        padding: "8px 16px",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-    },
-};
 
 // Applied coupon as admins should see it everywhere: a money discount
 // ("-₹50") or, for free_quantity coupons, the freebie it added ("250g free").
@@ -424,33 +401,25 @@ const OrdersPage = () => {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-            accepted: { color: 'bg-blue-100 text-blue-800', label: 'Accepted' },
-            'picked-up': { color: 'bg-purple-100 text-purple-800', label: 'Picked Up' },
-            delivered: { color: 'bg-green-100 text-green-800', label: 'Delivered' },
-            cancelled: { color: 'bg-red-100 text-red-800', label: 'Cancelled' }
+            pending: { variant: 'pale', label: 'Pending' },
+            accepted: { variant: 'gold', label: 'Accepted' },
+            'picked-up': { variant: 'dark', label: 'Picked Up' },
+            delivered: { variant: 'success', label: 'Delivered' },
+            cancelled: { variant: 'danger', label: 'Cancelled' }
         };
         const config = statusConfig[status] || statusConfig.pending;
-        return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        return <Badge variant={config.variant}>{config.label}</Badge>;
     };
 
     const getPaymentStatusBadge = (status) => {
         const statusConfig = {
-            pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-            paid: { color: 'bg-green-100 text-green-800', label: 'Paid' },
-            failed: { color: 'bg-red-100 text-red-800', label: 'Failed' },
-            refunded: { color: 'bg-gray-100 text-gray-800', label: 'Refunded' }
+            pending: { variant: 'pale', label: 'Pending' },
+            paid: { variant: 'success', label: 'Paid' },
+            failed: { variant: 'danger', label: 'Failed' },
+            refunded: { variant: 'outline', label: 'Refunded' }
         };
         const config = statusConfig[status] || statusConfig.pending;
-        return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        return <Badge variant={config.variant}>{config.label}</Badge>;
     };
 
     const statusOptions = [
@@ -471,23 +440,23 @@ const OrdersPage = () => {
 
     const OrderSummaryCard = ({ label, value, tone = "gray" }) => {
         const toneClasses = {
-            gray: "bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-white",
-            green: "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200",
-            blue: "bg-blue-50 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200",
-            amber: "bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
+            gray: "bg-gray-50 text-gray-900",
+            green: "bg-emerald-50 text-emerald-800",
+            blue: "bg-gold-50 text-gold-800",
+            amber: "bg-gold-100 text-gold-900"
         };
 
         return (
-            <div className={`rounded-lg p-4 ${toneClasses[tone] || toneClasses.gray}`}>
-                <span className="text-xs font-medium opacity-80">{label}</span>
-                <p className="text-lg font-semibold mt-1 break-words">{value || value === 0 ? value : 'N/A'}</p>
+            <div className={`rounded-2xl p-4 ${toneClasses[tone] || toneClasses.gray}`}>
+                <span className="text-xs font-semibold opacity-70 uppercase tracking-wide">{label}</span>
+                <p className="text-lg font-bold mt-1 break-words">{value || value === 0 ? value : 'N/A'}</p>
             </div>
         );
     };
 
     const DetailSection = ({ title, icon, children }) => (
-        <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5">
+            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 {icon}
                 {title}
             </h3>
@@ -496,36 +465,31 @@ const OrdersPage = () => {
     );
 
     return (
-        <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
+        <div className="bg-gold-50 dark:bg-gray-900 w-full min-h-screen">
             <div className="max-w-7xl mx-auto p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                    <div className="flex items-center mb-4 sm:mb-0">
-                        <FiPackage className="w-6 h-6 text-blue-600 mr-2" />
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Orders</h1>
-                        <span className="ml-3 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
-                            {totalOrders} orders
-                        </span>
-                    </div>
-                    <button
-                        onClick={downloadCSV}
-                        style={{ backgroundColor: "#000000" }}
-                        className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors hover:opacity-90"
-                        title="Download CSV"
-                    >
-                        <FiDownload className="w-4 h-4" />
-                        Download CSV
-                    </button>
-                </div>
+                <PageHeader
+                    title="Orders"
+                    subtitle={`${totalOrders} orders in total`}
+                    actions={
+                        <button
+                            onClick={downloadCSV}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-black text-white rounded-full text-sm font-semibold transition-colors hover:bg-gray-900"
+                            title="Download CSV"
+                        >
+                            <FiDownload className="w-4 h-4" />
+                            Download CSV
+                        </button>
+                    }
+                />
 
                 {/* Tabs */}
-                <div className="mb-6 flex gap-2 border-b border-gray-200 dark:border-gray-700">
+                <div className="mb-6 flex gap-1 bg-white p-1 rounded-full border border-gray-100 w-fit shadow-sm shadow-black/5">
                     <button
                         onClick={() => setActiveTab("orders")}
-                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
                             activeTab === "orders"
-                                ? "border-blue-600 text-blue-600"
-                                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                                ? "bg-gold-400 text-black"
+                                : "text-gray-500 hover:text-gray-800"
                         }`}
                     >
                         <FiPackage className="w-4 h-4" />
@@ -533,10 +497,10 @@ const OrdersPage = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab("whatsapp")}
-                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
                             activeTab === "whatsapp"
-                                ? "border-blue-600 text-blue-600"
-                                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                                ? "bg-gold-400 text-black"
+                                : "text-gray-500 hover:text-gray-800"
                         }`}
                     >
                         <FiMessageCircle className="w-4 h-4" />
@@ -550,16 +514,16 @@ const OrdersPage = () => {
                 <>
                 {/* Search and Filters */}
                 <div className="mb-6 space-y-4 md:space-y-0 md:flex md:items-center md:justify-between">
-                    <form onSubmit={handleSearch} className="flex gap-4">
+                    <form onSubmit={handleSearch} className="flex gap-3">
                         <div className="flex-1 max-w-md">
                             <div className="relative">
-                                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                 <input
                                     type="text"
                                     placeholder="Search orders by customer name, phone, or order ID..."
-                                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
-                                        bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200
+                                        bg-white text-gray-900
+                                        focus:outline-none focus:ring-2 focus:ring-gold-400"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                 />
@@ -567,8 +531,7 @@ const OrdersPage = () => {
                         </div>
                         <button
                             type="submit"
-                            style={{ backgroundColor: "#000000" }}
-                            className="px-4 py-2 text-white rounded-lg transition-colors hover:opacity-90"
+                            className="px-5 py-2.5 bg-black text-white rounded-full text-sm font-semibold transition-colors hover:bg-gray-900"
                         >
                             Search
                         </button>
@@ -581,9 +544,9 @@ const OrdersPage = () => {
                                 setStatusFilter(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
-                                bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                                focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="px-4 py-2.5 rounded-full border border-gray-200
+                                bg-white text-gray-900 text-sm font-medium
+                                focus:outline-none focus:ring-2 focus:ring-gold-400"
                         >
                             {statusOptions.map(option => (
                                 <option key={option.value} value={option.value}>
@@ -596,21 +559,17 @@ const OrdersPage = () => {
 
                 {/* Bulk actions toolbar */}
                 {selectedIds.size > 0 && (
-                    <div className="mb-4 flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{selectedIds.size} selected</span>
+                    <div className="mb-4 flex items-center justify-between px-5 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm shadow-black/5">
+                        <span className="text-sm text-gray-700 font-medium">{selectedIds.size} selected</span>
                         <div style={{ display: "flex", gap: "8px" }}>
                             <button
                                 onClick={handleBulkDeleteSelected}
                                 disabled={bulkDeleting}
-                                style={{
-                                    ...buttonStyles.danger,
-                                    opacity: bulkDeleting ? 0.6 : 1,
-                                    cursor: bulkDeleting ? "not-allowed" : "pointer",
-                                }}
+                                className="px-4 py-2 rounded-full text-sm font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                             >
                                 {bulkDeleting ? "Deleting..." : `Delete Selected (${selectedIds.size})`}
                             </button>
-                            <button onClick={() => setSelectedIds(new Set())} style={buttonStyles.secondary}>
+                            <button onClick={() => setSelectedIds(new Set())} className="px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
                                 Clear
                             </button>
                         </div>
@@ -618,17 +577,17 @@ const OrdersPage = () => {
                 )}
 
                 {/* Orders Table */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-x-auto">
+                <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-x-auto">
                     <div>
-                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead className="bg-gray-50 dark:bg-gray-900">
+                        <table className="min-w-full divide-y divide-gray-100">
+                            <thead className="bg-gold-50">
                                 <tr>
                                     <th className="px-4 py-3 text-left">
                                         <input
                                             type="checkbox"
                                             checked={orders.length > 0 && orders.every(o => selectedIds.has(o._id))}
                                             onChange={toggleSelectAllVisible}
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 text-gold-600 bg-white border-gray-300 rounded focus:ring-gold-400"
                                         />
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -663,13 +622,13 @@ const OrdersPage = () => {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody className="bg-white divide-y divide-gray-100">
                                 {loading ? (
                                     <tr>
                                         <td colSpan={11} className="text-center py-8">
                                             <div className="flex items-center justify-center">
-                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                                                <span className="ml-2 text-gray-500 dark:text-gray-400">Loading orders...</span>
+                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gold-500"></div>
+                                                <span className="ml-2 text-gray-500">Loading orders...</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -677,8 +636,8 @@ const OrdersPage = () => {
                                     <tr>
                                         <td colSpan={11} className="text-center py-8">
                                             <div className="flex flex-col items-center">
-                                                <FiPackage className="w-12 h-12 text-gray-400 mb-2" />
-                                                <span className="text-gray-500 dark:text-gray-400">No orders found.</span>
+                                                <FiPackage className="w-12 h-12 text-gray-300 mb-2" />
+                                                <span className="text-gray-500">No orders found.</span>
                                                 {(search || statusFilter !== 'all') && (
                                                     <button
                                                         onClick={() => {
@@ -686,8 +645,7 @@ const OrdersPage = () => {
                                                             setStatusFilter("all");
                                                             setCurrentPage(1);
                                                         }}
-                                                        style={{ backgroundColor: "#000000" }}
-                                                        className="mt-2 text-white px-3 py-1 rounded text-sm hover:opacity-90"
+                                                        className="mt-3 bg-black text-white px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-gray-900"
                                                     >
                                                         Clear filters
                                                     </button>
@@ -697,13 +655,13 @@ const OrdersPage = () => {
                                     </tr>
                                 ) : (
                                     orders.map((order) => (
-                                        <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-700" style={{ height: '76px' }}>
+                                        <tr key={order._id} className="hover:bg-gold-50/60" style={{ height: '76px' }}>
                                             <td className="px-4 py-4">
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedIds.has(order._id)}
                                                     onChange={() => toggleSelected(order._id)}
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                                    className="w-4 h-4 text-gold-600 bg-white border-gray-300 rounded focus:ring-gold-400"
                                                 />
                                             </td>
                                             {/* Order & Customer */}
@@ -864,15 +822,14 @@ const OrdersPage = () => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="mt-6 flex items-center justify-between">
-                        <div className="text-sm text-gray-700 dark:text-gray-300">
+                        <div className="text-sm text-gray-600">
                             Showing {((currentPage - 1) * ordersPerPage) + 1} to {Math.min(currentPage * ordersPerPage, totalOrders)} of {totalOrders} orders
                         </div>
                         <div className="flex gap-1">
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                style={{ backgroundColor: "#000000" }}
-                                className="px-3 py-2 text-sm text-white rounded-lg transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2 text-sm font-semibold text-white bg-black rounded-full transition-colors hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                                 Previous
                             </button>
@@ -891,11 +848,9 @@ const OrdersPage = () => {
                                     <button
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
-                                        style={{ 
-                                            backgroundColor: currentPage === pageNum ? "#000000" : "#e5e7eb",
-                                            color: currentPage === pageNum ? "#ffffff" : "#374151"
-                                        }}
-                                        className="px-3 py-2 text-sm rounded-lg transition-colors hover:opacity-90"
+                                        className={`px-3.5 py-2 text-sm font-semibold rounded-full transition-colors ${
+                                            currentPage === pageNum ? "bg-gold-400 text-black" : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                                        }`}
                                     >
                                         {pageNum}
                                     </button>
@@ -904,8 +859,7 @@ const OrdersPage = () => {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                style={{ backgroundColor: "#000000" }}
-                                className="px-3 py-2 text-sm text-white rounded-lg transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2 text-sm font-semibold text-white bg-black rounded-full transition-colors hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                                 Next
                             </button>
@@ -919,26 +873,26 @@ const OrdersPage = () => {
                         className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm"
                         style={{ backgroundColor: "rgba(0, 0, 0, 0.55)" }}
                     >
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl my-8 max-h-[95vh] overflow-hidden">
-                            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+                        <div className="bg-gold-50 rounded-3xl shadow-2xl w-full max-w-6xl my-8 max-h-[95vh] overflow-hidden">
+                            <div className="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
                                 <div>
-                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                    <h2 className="text-xl font-bold text-gray-900">
                                         Order Details
                                     </h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    <p className="text-sm text-gray-500 mt-1">
                                         #{selectedOrder.orderId} • {selectedOrder.user?.name || 'Customer'} • {formatDate(selectedOrder.createdAt)}
                                     </p>
                                 </div>
                                 <button
                                     onClick={closeModal}
-                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
                                 >
-                                    <FiX className="w-6 h-6" />
+                                    <FiX className="w-5 h-5" />
                                 </button>
                             </div>
 
                             <div className="p-6 space-y-6 max-h-[calc(95vh-97px)] overflow-y-auto">
-                                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5">
                                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
                                         <div>
                                             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -991,7 +945,7 @@ const OrdersPage = () => {
                                 {selectedOrder.seller && (
                                     <div>
                                         <h3 className="text-lg font-medium mb-4">Seller Information</h3>
-                                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                                        <div className="bg-gold-50 rounded-2xl p-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 <div>
                                                     <p className="text-sm text-gray-600">Business Name</p>
@@ -1031,7 +985,7 @@ const OrdersPage = () => {
                                 {selectedOrder.seller?.promotor && (
                                     <div>
                                         <h3 className="text-lg font-medium mb-4">Promotor Information</h3>
-                                        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                                        <div className="bg-gray-50 rounded-2xl p-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 <div>
                                                     <p className="text-sm text-gray-600">Name</p>
@@ -1069,10 +1023,10 @@ const OrdersPage = () => {
                                         const assignedDriver = getAssignedDriver(selectedOrder);
 
                                         return (
-                                            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-4">
+                                            <div className="bg-emerald-50 rounded-2xl p-4 mb-4">
                                                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                                                     <div>
-                                                        <h4 className="font-medium text-green-800 dark:text-green-300">
+                                                        <h4 className="font-medium text-emerald-800">
                                                             {assignedDriver ? 'Assigned Driver' : 'No Driver Assigned'}
                                                         </h4>
                                                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -1137,7 +1091,7 @@ const OrdersPage = () => {
                                 {selectedOrder.payout && (
                                     <div>
                                         <h3 className="text-lg font-medium mb-4">Payout Summary</h3>
-                                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div className="bg-gray-50 rounded-2xl p-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 <div>
                                                     <p className="text-sm text-gray-600">Seller Payable Amount</p>
@@ -1164,11 +1118,11 @@ const OrdersPage = () => {
                                 {selectedOrder.payout?.promotor && (
                                     <div>
                                         <h3 className="text-lg font-medium mb-4">Promotor Commission</h3>
-                                        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                                        <div className="bg-gray-50 rounded-2xl p-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 <div>
                                                     <p className="text-sm text-gray-600">Commission Amount</p>
-                                                    <p className="font-semibold text-purple-600">{formatCurrency(selectedOrder.payout.promotor.commissionAmount)}</p>
+                                                    <p className="font-semibold text-gold-700">{formatCurrency(selectedOrder.payout.promotor.commissionAmount)}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-sm text-gray-600">Commission Rate</p>

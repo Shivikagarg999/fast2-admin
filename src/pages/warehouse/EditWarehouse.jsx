@@ -169,21 +169,21 @@ const EditWarehouse = () => {
 
   if (fetching) {
     return (
-      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="bg-gold-50 min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-8">
+    <div className="bg-gold-50 min-h-screen py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 p-6">
           {/* Header with back button */}
           <div className="flex items-center mb-6">
             <button
               onClick={() => navigate('/admin/warehouses')}
-              className="flex items-center text-blue-600 hover:text-blue-700 mr-4"
+              className="flex items-center text-gold-700 hover:text-gold-900 font-semibold mr-4"
             >
               <FiArrowLeft className="w-5 h-5" />
             </button>
@@ -213,9 +213,9 @@ const EditWarehouse = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -232,9 +232,9 @@ const EditWarehouse = () => {
                         value={formData.code}
                         onChange={handleInputChange}
                         placeholder="Auto-generate or enter custom code"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                        className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                          focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                          focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       />
                       <FiHash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
@@ -258,9 +258,9 @@ const EditWarehouse = () => {
                       name="promotor"
                       value={formData.promotor}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                       disabled={loadingPromotors}
                     >
@@ -295,9 +295,9 @@ const EditWarehouse = () => {
                     name="location.address"
                     value={formData.location.address}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -310,9 +310,9 @@ const EditWarehouse = () => {
                     name="location.city"
                     value={formData.location.city}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -326,9 +326,9 @@ const EditWarehouse = () => {
                     name="location.state"
                     value={formData.location.state}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -341,9 +341,9 @@ const EditWarehouse = () => {
                     name="location.pincode"
                     value={formData.location.pincode}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -357,9 +357,9 @@ const EditWarehouse = () => {
                     value={formData.location.coordinates.lat}
                     onChange={handleInputChange}
                     step="any"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -373,9 +373,9 @@ const EditWarehouse = () => {
                     value={formData.location.coordinates.lng}
                     onChange={handleInputChange}
                     step="any"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
@@ -394,7 +394,7 @@ const EditWarehouse = () => {
                     <div
                       key={type.value}
                       className={`border rounded-lg p-4 cursor-pointer transition-all ${formData.storageType === type.value
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        ? 'border-gold-500 bg-gold-50'
                         : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                         }`}
                       onClick={() => setFormData(prev => ({ ...prev, storageType: type.value }))}
@@ -431,9 +431,9 @@ const EditWarehouse = () => {
                     value={formData.capacity}
                     onChange={handleInputChange}
                     min="0"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="Enter capacity in units"
                   />
                 </div>
@@ -449,9 +449,9 @@ const EditWarehouse = () => {
                     onChange={handleInputChange}
                     min="0"
                     max={formData.capacity || undefined}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="Current stock level"
                   />
                 </div>
@@ -463,7 +463,7 @@ const EditWarehouse = () => {
               <button
                 type="button"
                 onClick={() => navigate('/admin/warehouses')}
-                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-md 
+                className="px-6 py-3 border border-gray-200 rounded-xl 
                   bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300
                   hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >
@@ -472,7 +472,7 @@ const EditWarehouse = () => {
               <button
                 type="submit"
                 disabled={loading || loadingPromotors}
-                className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
+                className="px-6 py-3 rounded-full bg-gold-500 rounded-md hover:bg-gold-600 
                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-black"
               >
                 {loading ? (
@@ -494,7 +494,7 @@ const EditWarehouse = () => {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex flex-col items-center text-center">
               <div className="bg-green-100 p-3 rounded-full mb-4">
                 <FiCheckCircle className="text-green-600 text-3xl" />
@@ -510,7 +510,7 @@ const EditWarehouse = () => {
 
               <button
                 onClick={closeSuccessModal}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 bg-gold-500 text-black font-semibold rounded-full hover:bg-gold-600 transition-colors"
               >
                 Back to Warehouses
               </button>

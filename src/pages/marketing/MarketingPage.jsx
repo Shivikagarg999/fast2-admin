@@ -27,6 +27,7 @@ import {
   FiX
 } from "react-icons/fi";
 import { FaInstagram, FaFacebook } from "react-icons/fa";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 // Sub-components integrated into the Unified Marketing Hub
 import WhatsappInboxPage from "../whatsapp/WhatsappInboxPage";
@@ -556,15 +557,17 @@ const MarketingPage = () => {
   };
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
+    <div className="bg-gold-50 dark:bg-gray-900 w-full min-h-screen">
       <div className="max-w-6xl mx-auto p-4 sm:p-6">
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
           <div className="flex items-center">
-            <FiTrendingUp className="w-6 h-6 text-green-600 mr-2" />
+            <div className="w-10 h-10 rounded-2xl bg-gold-400 flex items-center justify-center mr-3 flex-shrink-0">
+              <FiTrendingUp className="w-5 h-5 text-black" />
+            </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Marketing Hub</h1>
-              <p className="text-xs text-gray-500">Centralized Marketing Command: Social Auto-Post, WhatsApp, Notifications, Coupons & Banners</p>
+              <p className="text-xs text-gray-500">Create and schedule social posts, send offers, and manage coupons & banners — all in one place</p>
             </div>
           </div>
 
@@ -572,98 +575,98 @@ const MarketingPage = () => {
             <button
               onClick={handleTriggerAutoPostNow}
               disabled={triggeringNow}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-lg text-sm font-semibold shadow-sm disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2.5 bg-gold-500 hover:bg-gold-600 text-black rounded-full text-sm font-semibold shadow-sm disabled:opacity-50"
             >
               {triggeringNow ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiPlay className="w-4 h-4 fill-current" />}
-              {triggeringNow ? 'Auto-Posting Now...' : 'Run Auto-Post Now'}
+              {triggeringNow ? 'Posting now...' : 'Post now'}
             </button>
           )}
         </div>
 
         {/* Master Marketing Subtabs Navigation Bar */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-2 mb-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-2 mb-6">
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => switchMainTab('posts')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                 mainTab === 'posts' || mainTab === 'autopost'
                   ? 'bg-black text-white shadow-sm'
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
               }`}
             >
-              <FiImage className="w-4 h-4 text-emerald-500" /> Social Posts & Auto-Post
+              <FiImage className="w-4 h-4" /> Social Posts & Auto-Post
             </button>
 
             <button
               onClick={() => switchMainTab('whatsapp')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                 mainTab === 'whatsapp'
                   ? 'bg-black text-white shadow-sm'
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
               }`}
             >
-              <FiMessageCircle className="w-4 h-4 text-green-500" /> WhatsApp Inbox
+              <FiMessageCircle className="w-4 h-4" /> WhatsApp Inbox
             </button>
 
             <button
               onClick={() => switchMainTab('notifications')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                 mainTab === 'notifications'
                   ? 'bg-black text-white shadow-sm'
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
               }`}
             >
-              <FiBell className="w-4 h-4 text-blue-500" /> Push Notifications
+              <FiBell className="w-4 h-4" /> Push Notifications
             </button>
 
             <button
               onClick={() => switchMainTab('coupons')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                 mainTab === 'coupons'
                   ? 'bg-black text-white shadow-sm'
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
               }`}
             >
-              <FiTag className="w-4 h-4 text-orange-500" /> Coupon Codes
+              <FiTag className="w-4 h-4" /> Coupon Codes
             </button>
 
             <button
               onClick={() => switchMainTab('banners')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                 mainTab === 'banners'
                   ? 'bg-black text-white shadow-sm'
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
               }`}
             >
-              <FiGrid className="w-4 h-4 text-purple-500" /> App Banners
+              <FiGrid className="w-4 h-4" /> App Banners
             </button>
           </div>
         </div>
 
         {/* ================= VIEW 1: WHATSAPP INBOX ================= */}
         {mainTab === 'whatsapp' && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-2 sm:p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-2 sm:p-4 shadow-sm">
             <WhatsappInboxPage />
           </div>
         )}
 
         {/* ================= VIEW 2: NOTIFICATIONS ================= */}
         {mainTab === 'notifications' && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-2 sm:p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-2 sm:p-4 shadow-sm">
             <NotificationsPage />
           </div>
         )}
 
         {/* ================= VIEW 3: COUPONS ================= */}
         {mainTab === 'coupons' && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-2 sm:p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-2 sm:p-4 shadow-sm">
             <Coupon />
           </div>
         )}
 
         {/* ================= VIEW 4: BANNERS ================= */}
         {mainTab === 'banners' && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-2 sm:p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-2 sm:p-4 shadow-sm">
             <Banners />
           </div>
         )}
@@ -699,57 +702,85 @@ const MarketingPage = () => {
 
             {/* Suggestions: trending categories + upcoming occasions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-3">
-                  <FiTrendingUp className="w-4 h-4 text-green-600" /> Trending categories
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
+                  <FiTrendingUp className="w-4 h-4 text-gold-600" /> Trending categories
                 </h3>
+                <p className="text-[11px] text-gray-400 mb-3">What customers are browsing most this week — tap one to pre-fill a post below.</p>
                 {loadingSuggestions ? (
                   <p className="text-xs text-gray-400">Loading...</p>
                 ) : trending.length === 0 ? (
                   <p className="text-xs text-gray-400">Not enough recent activity yet.</p>
                 ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {trending.map((t) => (
-                      <button
-                        key={t.category._id}
-                        onClick={() => pickSuggestedCategory(t.category._id)}
-                        className="px-3 py-1.5 text-xs rounded-full bg-green-50 text-green-800 border border-green-200 hover:bg-green-100"
-                        title={`${t.clicks} clicks, ${t.unitsSold} sold recently`}
-                      >
-                        {t.category.name}
-                      </button>
-                    ))}
-                  </div>
+                  <>
+                    <div className="h-36 -ml-2">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={trending.map((t) => ({ name: t.category.name, clicks: t.clicks, id: t.category._id }))}
+                          layout="vertical"
+                          margin={{ top: 0, right: 12, bottom: 0, left: 0 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" horizontal={false} />
+                          <XAxis type="number" hide />
+                          <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                          <Tooltip formatter={(value) => [`${value} clicks`, '']} cursor={{ fill: '#fef6dc' }} />
+                          <Bar dataKey="clicks" radius={[0, 6, 6, 0]} cursor="pointer" onClick={(d) => pickSuggestedCategory(d.id)}>
+                            {trending.map((t) => (
+                              <Cell key={t.category._id} fill="#f3bf2e" />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {trending.map((t) => (
+                        <button
+                          key={t.category._id}
+                          onClick={() => pickSuggestedCategory(t.category._id)}
+                          className="px-3 py-1.5 text-xs rounded-full bg-gold-100 text-gold-800 hover:bg-gold-200"
+                          title={`${t.clicks} clicks, ${t.unitsSold} sold recently`}
+                        >
+                          {t.category.name}
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-3">
-                  <FiCalendar className="w-4 h-4 text-orange-600" /> Upcoming occasions
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
+                  <FiCalendar className="w-4 h-4 text-gold-600" /> Upcoming occasions
                 </h3>
+                <p className="text-[11px] text-gray-400 mb-3">Festivals and events coming up — a good reason to post.</p>
                 {loadingSuggestions ? (
                   <p className="text-xs text-gray-400">Loading...</p>
                 ) : occasions.length === 0 ? (
                   <p className="text-xs text-gray-400">Nothing in the next 30 days.</p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {occasions.map((o) => (
-                      <div key={o._id} className="text-xs">
-                        <span className="font-medium text-gray-800 dark:text-gray-200">{o.emoji} {o.name}</span>
-                        <span className="text-gray-400"> — in {o.daysAway} day{o.daysAway !== 1 ? 's' : ''}</span>
-                        {o.suggestedCategories?.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            {o.suggestedCategories.map((c) => (
-                              <button
-                                key={c._id}
-                                onClick={() => pickSuggestedCategory(c._id)}
-                                className="px-2 py-1 text-[11px] rounded-full bg-orange-50 text-orange-800 border border-orange-200 hover:bg-orange-100"
-                              >
-                                {c.name}
-                              </button>
-                            ))}
+                      <div key={o._id} className="flex items-start gap-2.5">
+                        <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gold-100 flex items-center justify-center text-sm">{o.emoji}</span>
+                        <div className="min-w-0">
+                          <div className="text-xs">
+                            <span className="font-semibold text-gray-800 dark:text-gray-200">{o.name}</span>
+                            <span className="text-gray-400"> · in {o.daysAway} day{o.daysAway !== 1 ? 's' : ''}</span>
                           </div>
-                        )}
+                          {o.suggestedCategories?.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              {o.suggestedCategories.map((c) => (
+                                <button
+                                  key={c._id}
+                                  onClick={() => pickSuggestedCategory(c._id)}
+                                  className="px-2 py-1 text-[11px] rounded-full bg-gold-50 text-gold-800 hover:bg-gold-100"
+                                >
+                                  {c.name}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -758,14 +789,14 @@ const MarketingPage = () => {
             </div>
 
             {/* Cost & AI Status Banner */}
-            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800 p-3.5 rounded-xl mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
-                <span className="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px]">₹0 / POST</span>
-                <span>FLUX AI engine is active. Gemini remains strictly disabled unless selected.</span>
+            <div className="bg-gold-50 border border-gold-200 p-3.5 rounded-2xl mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs text-gold-900">
+                <span className="px-2 py-0.5 rounded-full bg-gold-500 text-black font-bold text-[10px]">FREE</span>
+                <span>Posts below use a free image engine by default. The paid AI option (Gemini) only runs if you switch it on yourself — it's off unless you choose it.</span>
               </div>
               {autoConfig.isEnabled && (
-                <span className="flex items-center gap-1.5 text-xs text-green-700 font-semibold bg-green-100 px-2.5 py-1 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse" /> Daily Auto-Post Active ({autoConfig.scheduledTime} IST)
+                <span className="flex items-center gap-1.5 text-xs text-emerald-800 font-semibold bg-emerald-100 px-2.5 py-1 rounded-full flex-shrink-0">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" /> Daily auto-post is ON ({autoConfig.scheduledTime} IST)
                 </span>
               )}
             </div>
@@ -774,63 +805,63 @@ const MarketingPage = () => {
             <div className="flex flex-wrap gap-2 mb-4">
               <button
                 onClick={() => setSocialSubTab('template')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
-                  socialSubTab === 'template' ? 'bg-black text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  socialSubTab === 'template' ? 'bg-black text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
-                <FiImage className="w-4 h-4" /> Category Deals Post (Free)
+                <FiImage className="w-4 h-4" /> Quick Post <span className="text-[10px] opacity-70">(Free)</span>
               </button>
 
               <button
                 onClick={() => setSocialSubTab('lifestyle')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
-                  socialSubTab === 'lifestyle' ? 'bg-black text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  socialSubTab === 'lifestyle' ? 'bg-black text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
-                <FiZap className="w-4 h-4" /> AI Lifestyle Scene (Multi-Product FLUX)
+                <FiZap className="w-4 h-4" /> AI Photo Post
               </button>
 
               <button
                 onClick={() => setSocialSubTab('autopost')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
-                  socialSubTab === 'autopost' ? 'bg-black text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  socialSubTab === 'autopost' ? 'bg-black text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
-                <FiClock className="w-4 h-4" /> 🤖 Daily Auto-Post (IST)
+                <FiClock className="w-4 h-4" /> Auto-Post Schedule
               </button>
 
               <button
                 onClick={() => setSocialSubTab('scheduled')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
-                  socialSubTab === 'scheduled' ? 'bg-black text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  socialSubTab === 'scheduled' ? 'bg-black text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
-                <FiCalendar className="w-4 h-4 text-purple-500" /> 📅 Scheduled Posts Queue
+                <FiCalendar className="w-4 h-4" /> Scheduled Queue
               </button>
             </div>
 
             {/* ================= SUBTAB: AUTO-POST SCHEDULER ================= */}
             {socialSubTab === 'autopost' && (
               <div className="space-y-6">
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-5">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-6 space-y-5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-700 gap-3">
                     <div>
                       <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <FiClock className="w-5 h-5 text-emerald-600" /> Automated Social Media Scheduler
+                        <FiClock className="w-5 h-5 text-gold-600" /> Daily Auto-Post
                       </h2>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        Automatically generates marketing posts at ₹0 cost and publishes directly to Instagram & Facebook Page on a daily schedule.
+                      <p className="text-xs text-gray-500 mt-0.5 max-w-md">
+                        When turned on, a post is created and published to Instagram/Facebook by itself, every day at the time you choose below — no manual work needed.
                       </p>
                     </div>
 
                     <label className="flex items-center gap-3 cursor-pointer select-none">
                       <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                        {autoConfig.isEnabled ? 'Scheduler ENABLED' : 'Scheduler DISABLED'}
+                        {autoConfig.isEnabled ? 'ON' : 'OFF'}
                       </span>
                       <div
                         onClick={() => setAutoConfig({ ...autoConfig, isEnabled: !autoConfig.isEnabled })}
                         className={`w-12 h-6 flex items-center rounded-full p-1 duration-300 cursor-pointer ${
-                          autoConfig.isEnabled ? 'bg-emerald-600 justify-end' : 'bg-gray-300 dark:bg-gray-600 justify-start'
+                          autoConfig.isEnabled ? 'bg-gold-500 justify-end' : 'bg-gray-300 dark:bg-gray-600 justify-start'
                         }`}
                       >
                         <div className="bg-white w-4 h-4 rounded-full shadow-md transform" />
@@ -901,33 +932,33 @@ const MarketingPage = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div
                         onClick={() => setAutoConfig({ ...autoConfig, postType: 'category-deals' })}
-                        className={`p-3 rounded-lg border cursor-pointer ${
+                        className={`p-3 rounded-xl border-2 cursor-pointer transition-colors ${
                           autoConfig.postType === 'category-deals'
-                            ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200'
+                            ? 'border-gold-500 bg-gold-50 text-gold-900'
                             : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50'
                         }`}
                       >
                         <div className="font-semibold text-xs flex items-center gap-1.5">
-                          <FiImage className="w-3.5 h-3.5 text-emerald-600" /> Category Deals (Recommended)
+                          <FiImage className="w-3.5 h-3.5 text-gold-600" /> Category Deals (Recommended)
                         </div>
                         <p className="text-[11px] text-gray-500 mt-1">
-                          Picks top trending category, best-selling deals & creates a high-converting 4-product promo poster.
+                          Picks a trending category and best-selling products — a simple, reliable promo poster.
                         </p>
                       </div>
 
                       <div
                         onClick={() => setAutoConfig({ ...autoConfig, postType: 'lifestyle-scene' })}
-                        className={`p-3 rounded-lg border cursor-pointer ${
+                        className={`p-3 rounded-xl border-2 cursor-pointer transition-colors ${
                           autoConfig.postType === 'lifestyle-scene'
-                            ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200'
+                            ? 'border-gold-500 bg-gold-50 text-gold-900'
                             : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50'
                         }`}
                       >
                         <div className="font-semibold text-xs flex items-center gap-1.5">
-                          <FiZap className="w-3.5 h-3.5 text-orange-600" /> AI Lifestyle Scene
+                          <FiZap className="w-3.5 h-3.5 text-gold-600" /> AI Lifestyle Scene
                         </div>
                         <p className="text-[11px] text-gray-500 mt-1">
-                          Picks a top discount product and generates a photorealistic FLUX kitchen scene with branding.
+                          Picks a top product and generates a photorealistic scene photo with your branding on it.
                         </p>
                       </div>
                     </div>
@@ -953,18 +984,18 @@ const MarketingPage = () => {
                     <button
                       onClick={handleSaveAutoConfig}
                       disabled={savingAutoConfig}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-xs font-semibold bg-black disabled:opacity-50"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full text-black text-xs font-semibold bg-gold-500 hover:bg-gold-600 disabled:opacity-50"
                     >
                       {savingAutoConfig ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiCheck className="w-4 h-4" />}
-                      {savingAutoConfig ? 'Saving...' : 'Save Auto-Post Settings'}
+                      {savingAutoConfig ? 'Saving...' : 'Save settings'}
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 space-y-4">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                      <FiCalendar className="w-4 h-4 text-emerald-600" /> Recent Auto-Post History
+                      <FiCalendar className="w-4 h-4 text-gold-600" /> Recent Auto-Post History
                     </h3>
                     <button
                       onClick={fetchAutoPostConfig}
@@ -974,6 +1005,30 @@ const MarketingPage = () => {
                       <FiRefreshCw className={`w-3.5 h-3.5 ${loadingAutoConfig ? 'animate-spin' : ''}`} /> Refresh
                     </button>
                   </div>
+
+                  {autoLogs.length > 0 && (
+                    <div className="h-28">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={[...autoLogs].reverse().map((log) => ({
+                            date: new Date(log.runAt || log.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+                            success: log.status === 'success' ? 1 : 0,
+                            partial: log.status === 'partial' ? 1 : 0,
+                            failed: log.status === 'failed' ? 1 : 0,
+                          }))}
+                          margin={{ top: 4, right: 4, bottom: 0, left: -24 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                          <XAxis dataKey="date" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                          <YAxis allowDecimals={false} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                          <Tooltip />
+                          <Bar dataKey="success" name="Posted" stackId="a" fill="#111827" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="partial" name="Partial" stackId="a" fill="#f3bf2e" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="failed" name="Failed" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
 
                   {autoLogs.length === 0 ? (
                     <p className="text-xs text-gray-400 text-center py-6">
@@ -1064,7 +1119,7 @@ const MarketingPage = () => {
             {/* ================= SUBTAB: TEMPLATE GENERATOR ================= */}
             {socialSubTab === 'template' && (
               <>
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 mb-4 space-y-3">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-4 mb-4 space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -1119,7 +1174,7 @@ const MarketingPage = () => {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 space-y-4">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5 space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
@@ -1197,7 +1252,7 @@ const MarketingPage = () => {
                 </div>
 
                 {result && (
-                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 mt-6">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5 mt-6">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-5">
                       <img
                         src={result.url}
@@ -1246,9 +1301,9 @@ const MarketingPage = () => {
                               postType: 'template',
                               platforms: publishPlatforms
                             })}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-purple-300 dark:border-purple-600 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 shadow-sm transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-gold-300 bg-gold-50 text-gold-800 hover:bg-gold-100 shadow-sm transition-colors cursor-pointer"
                           >
-                            <FiClock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                            <FiClock className="w-4 h-4 text-gold-600" />
                             <span className="font-semibold">Schedule Post (Date/Time)</span>
                           </button>
                         </div>
@@ -1284,7 +1339,7 @@ const MarketingPage = () => {
             {/* ================= SUBTAB: LIFESTYLE GENERATOR ================= */}
             {socialSubTab === 'lifestyle' && (
               <>
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 mb-4 space-y-3">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-4 mb-4 space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -1339,7 +1394,7 @@ const MarketingPage = () => {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 space-y-4">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5 space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
@@ -1457,22 +1512,22 @@ const MarketingPage = () => {
                   </div>
 
                   {/* Gemini strictly disabled toggle */}
-                  <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={useGemini}
-                        onChange={(e) => setUseGemini(e.target.checked)}
-                        className="w-4 h-4 text-orange-600 rounded"
-                      />
+                  <div className={`rounded-xl p-3 border ${useGemini ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
+                    <label className="flex items-center justify-between gap-2 cursor-pointer">
                       <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                        Use Gemini API (Paid - Consumes Tokens)
+                        Use a higher-quality AI image (Gemini)
                       </span>
+                      <div
+                        onClick={() => setUseGemini(!useGemini)}
+                        className={`w-10 h-5 flex items-center rounded-full p-0.5 duration-300 cursor-pointer flex-shrink-0 ${useGemini ? 'bg-red-500 justify-end' : 'bg-gray-300 justify-start'}`}
+                      >
+                        <div className="bg-white w-4 h-4 rounded-full shadow-md" />
+                      </div>
                     </label>
-                    <p className="text-[11px] text-gray-400 mt-0.5 ml-6">
+                    <p className="text-[11px] text-gray-500 mt-1.5">
                       {useGemini
-                        ? '⚠️ Gemini is enabled for this call and will consume paid API tokens.'
-                        : '🛡️ Gemini is disabled. Generation will use 100% Free FLUX AI with ₹0 cost.'}
+                        ? 'This is turned ON — this generation will cost real money (uses paid Gemini credits). Turn it off to use the free option instead.'
+                        : 'Off by default because it costs money per image. The free option above already gives good results — only turn this on for a special post.'}
                     </p>
                   </div>
 
@@ -1497,7 +1552,7 @@ const MarketingPage = () => {
                 </div>
 
                 {lsResult && (
-                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 mt-6">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5 mt-6">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-5">
                       <img
                         src={lsResult.url}
@@ -1546,9 +1601,9 @@ const MarketingPage = () => {
                               postType: 'lifestyle',
                               platforms: publishPlatforms
                             })}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-purple-300 dark:border-purple-600 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 shadow-sm transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-gold-300 bg-gold-50 text-gold-800 hover:bg-gold-100 shadow-sm transition-colors cursor-pointer"
                           >
-                            <FiClock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                            <FiClock className="w-4 h-4 text-gold-600" />
                             <span className="font-semibold">Schedule Post (Date/Time)</span>
                           </button>
                         </div>
@@ -1584,14 +1639,14 @@ const MarketingPage = () => {
             {/* ================= SUBTAB: SCHEDULED POSTS QUEUE ================= */}
             {socialSubTab === 'scheduled' && (
               <div className="space-y-4">
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <FiCalendar className="w-5 h-5 text-purple-600" /> Scheduled Posts Queue
+                        <FiCalendar className="w-5 h-5 text-gold-600" /> Scheduled Posts Queue
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        Posts in this queue will automatically publish to Facebook and Instagram at their scheduled date and time.
+                        Posts you've scheduled from the Quick Post or AI Photo Post tabs will publish automatically at the date and time you picked.
                       </p>
                     </div>
 
@@ -1621,7 +1676,7 @@ const MarketingPage = () => {
                         onClick={() => setScheduledFilter(f.key)}
                         className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${
                           scheduledFilter === f.key
-                            ? 'bg-purple-600 text-white shadow-sm'
+                            ? 'bg-black text-white shadow-sm'
                             : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
                         }`}
                       >
@@ -1632,24 +1687,24 @@ const MarketingPage = () => {
                 </div>
 
                 {loadingScheduledPosts ? (
-                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
-                    <FiLoader className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-2" />
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-12 text-center">
+                    <FiLoader className="w-8 h-8 animate-spin text-gold-600 mx-auto mb-2" />
                     <p className="text-sm text-gray-500">Loading scheduled posts...</p>
                   </div>
                 ) : scheduledPosts.length === 0 ? (
-                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
-                    <div className="w-14 h-14 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 mx-auto flex items-center justify-center mb-3">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-12 text-center">
+                    <div className="w-14 h-14 rounded-full bg-gold-100 text-gold-700 mx-auto flex items-center justify-center mb-3">
                       <FiCalendar className="w-7 h-7" />
                     </div>
                     <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
                       No posts found in this queue
                     </h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-4">
-                      Go to "Category Deals" or "AI Lifestyle Scene", generate a post, and click "Schedule Post (Date/Time)" to queue it for automated publishing at your chosen date and time!
+                      Go to "Quick Post" or "AI Photo Post", generate an image, and click "Schedule" to queue it for automatic publishing at your chosen date and time.
                     </p>
                     <button
                       onClick={() => setSocialSubTab('lifestyle')}
-                      className="px-4 py-2 rounded-lg bg-black text-white text-xs font-semibold hover:bg-gray-800 transition-colors"
+                      className="px-4 py-2 rounded-full bg-gold-500 hover:bg-gold-600 text-black text-xs font-semibold transition-colors"
                     >
                       Create a Post Now
                     </button>
@@ -1670,7 +1725,7 @@ const MarketingPage = () => {
                       return (
                         <div
                           key={post._id}
-                          className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm flex flex-col justify-between"
+                          className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 overflow-hidden shadow-sm flex flex-col justify-between"
                         >
                           <div>
                             {/* Card Top Image & Badges */}
@@ -1815,7 +1870,7 @@ const MarketingPage = () => {
             <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700 p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gold-100 text-gold-700 flex items-center justify-center">
                     <FiCalendar className="w-4 h-4" />
                   </div>
                   <div>

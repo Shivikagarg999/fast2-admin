@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { FiSmartphone, FiCheck, FiAlertCircle } from "react-icons/fi";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/app-config`;
 
@@ -252,22 +255,26 @@ const AppVersionSettings = () => {
   };
 
   return (
-    <div className="p-6 max-w-2xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <FiSmartphone className="w-6 h-6" />
-          App Version / Force Update
-        </h1>
-        <p className="text-gray-500 mt-1 text-sm">
-          Set the minimum app version users must have installed. Anyone on an older
-          version will see a mandatory "Update Required" screen and won't be able to
-          use the app until they update. Only raise this <strong>after</strong> the new
-          version is live and downloadable on the Play Store — not right after building it.
-        </p>
-      </div>
+    <div className="p-6 max-w-2xl bg-gold-50 min-h-screen">
+      <PageHeader
+        title={
+          <span className="flex items-center gap-2">
+            <FiSmartphone className="w-6 h-6" />
+            App Version / Force Update
+          </span>
+        }
+        subtitle={
+          <>
+            Set the minimum app version users must have installed. Anyone on an older
+            version will see a mandatory "Update Required" screen and won't be able to
+            use the app until they update. Only raise this <strong>after</strong> the new
+            version is live and downloadable on the Play Store — not right after building it.
+          </>
+        }
+      />
 
       {toast && (
-        <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-green-50 text-green-800 border border-green-200'}`}>
+        <div className={`mb-4 p-3 rounded-xl flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}`}>
           {toast.type === 'error' ? <FiAlertCircle className="w-4 h-4" /> : <FiCheck className="w-4 h-4" />}
           {toast.message}
         </div>
@@ -275,16 +282,15 @@ const AppVersionSettings = () => {
 
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">App</label>
-        <div className="flex gap-3">
+        <div className="flex gap-2 bg-white rounded-full p-1 border border-gray-100 w-fit">
           {APPS.map((app) => (
             <button
               key={app.value}
               onClick={() => setSelectedApp(app.value)}
-              style={{ backgroundColor: "blue" }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-all text-white ${
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                 selectedApp === app.value
-                  ? 'border-black'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'bg-black text-white'
+                  : 'text-gray-500 hover:text-gray-800'
               }`}
             >
               {app.label}
@@ -298,7 +304,7 @@ const AppVersionSettings = () => {
       ) : (
         <div className="space-y-5">
           {selectedApp === 'customer' && (
-            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-4">
+            <Card className="!border-gold-300 !bg-gold-50 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-2">
                   Delivery Charge Slabs
@@ -330,12 +336,12 @@ const AppVersionSettings = () => {
                         step="0.1"
                         value={slab.toKm}
                         onChange={(e) => handleSlabChange('deliverySlabs', index, 'toKm', e.target.value)}
-                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                       />
                       <select
                         value={slab.chargeType}
                         onChange={(e) => handleSlabChange('deliverySlabs', index, 'chargeType', e.target.value)}
-                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                       >
                         <option value="flat">Flat</option>
                         <option value="per_km">Per km</option>
@@ -346,28 +352,28 @@ const AppVersionSettings = () => {
                         step="0.5"
                         value={slab.rate}
                         onChange={(e) => handleSlabChange('deliverySlabs', index, 'rate', e.target.value)}
-                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                       />
-                      <button
+                      <Button
                         type="button"
+                        variant="danger"
                         onClick={() => handleRemoveSlab('deliverySlabs', index)}
                         disabled={form.deliverySlabs.length <= 1}
-                        style={{ backgroundColor: form.deliverySlabs.length <= 1 ? '#e5e7eb' : '#dc2626' }}
-                        className="px-3 py-2 rounded-lg text-white text-xs font-medium disabled:cursor-not-allowed disabled:text-gray-400"
+                        className="!px-3 !py-2 !rounded-lg text-xs"
                       >
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => handleAddSlab('deliverySlabs', 5)}
-                  style={{ backgroundColor: 'blue' }}
-                  className="mt-3 px-4 py-2 rounded-lg text-white text-xs font-medium"
+                  className="!rounded-lg mt-3 text-xs"
                 >
                   + Add Slab
-                </button>
+                </Button>
                 <p className="text-xs text-gray-600 mt-3">
                   Customers within <strong>{form.deliverySlabs[form.deliverySlabs.length - 1]?.toKm ?? 0} km</strong> will see this shop's products.
                 </p>
@@ -383,7 +389,7 @@ const AppVersionSettings = () => {
                   step="1"
                   value={form.freeDeliveryThreshold}
                   onChange={(e) => handleChange('freeDeliveryThreshold', e.target.value)}
-                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-600 mt-1">Applied per shop. Set 0 to disable default free delivery.</p>
               </div>
@@ -457,11 +463,11 @@ const AppVersionSettings = () => {
                   Shown only in the customer app home page, below the search bar. Upload an animated GIF. Recommended width 1200 px.
                 </p>
               </div>
-            </div>
+            </Card>
           )}
 
           {selectedApp === 'driver' && (
-            <div className="rounded-xl border border-green-200 bg-green-50 p-4 space-y-4">
+            <Card className="!border-gray-200 !bg-gray-50 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-2">
                   Driver Payout Slabs
@@ -493,12 +499,12 @@ const AppVersionSettings = () => {
                         step="0.1"
                         value={slab.toKm}
                         onChange={(e) => handleSlabChange('driverPayoutSlabs', index, 'toKm', e.target.value)}
-                        className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                       />
                       <select
                         value={slab.chargeType}
                         onChange={(e) => handleSlabChange('driverPayoutSlabs', index, 'chargeType', e.target.value)}
-                        className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                       >
                         <option value="flat">Flat</option>
                         <option value="per_km">Per km</option>
@@ -509,30 +515,30 @@ const AppVersionSettings = () => {
                         step="0.5"
                         value={slab.rate}
                         onChange={(e) => handleSlabChange('driverPayoutSlabs', index, 'rate', e.target.value)}
-                        className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                       />
-                      <button
+                      <Button
                         type="button"
+                        variant="danger"
                         onClick={() => handleRemoveSlab('driverPayoutSlabs', index)}
                         disabled={form.driverPayoutSlabs.length <= 1}
-                        style={{ backgroundColor: form.driverPayoutSlabs.length <= 1 ? '#e5e7eb' : '#dc2626' }}
-                        className="px-3 py-2 rounded-lg text-white text-xs font-medium disabled:cursor-not-allowed disabled:text-gray-400"
+                        className="!px-3 !py-2 !rounded-lg text-xs"
                       >
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => handleAddSlab('driverPayoutSlabs', 10)}
-                  style={{ backgroundColor: 'green' }}
-                  className="mt-3 px-4 py-2 rounded-lg text-white text-xs font-medium"
+                  className="!rounded-lg mt-3 text-xs"
                 >
                   + Add Slab
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           )}
 
           <div>

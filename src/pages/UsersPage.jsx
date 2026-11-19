@@ -440,36 +440,36 @@ const UsersPage = () => {
   // Button Styles
   const buttonStyles = {
     primary: {
-      backgroundColor: '#000000',
-      color: '#ffffff',
+      backgroundColor: '#f3bf2e',
+      color: '#111827',
       border: 'none',
-      borderRadius: '8px',
+      borderRadius: '9999px',
       padding: '10px 20px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
       fontSize: '14px',
-      fontWeight: '500'
+      fontWeight: '600'
     },
     secondary: {
       backgroundColor: '#ffffff',
       color: '#374151',
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
+      border: '1px solid #e5e7eb',
+      borderRadius: '9999px',
       padding: '10px 20px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
       fontSize: '14px',
-      fontWeight: '500'
+      fontWeight: '600'
     },
     danger: {
       backgroundColor: '#dc2626',
       color: '#ffffff',
       border: 'none',
-      borderRadius: '8px',
+      borderRadius: '9999px',
       padding: '8px 16px',
       cursor: 'pointer',
       display: 'flex',
@@ -477,23 +477,23 @@ const UsersPage = () => {
       gap: '8px'
     },
     success: {
-      backgroundColor: '#16a34a',
+      backgroundColor: '#111827',
       color: '#ffffff',
       border: 'none',
-      borderRadius: '8px',
+      borderRadius: '9999px',
       padding: '10px 20px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
       fontSize: '14px',
-      fontWeight: '500'
+      fontWeight: '600'
     },
     outline: {
       backgroundColor: 'transparent',
-      color: '#3b82f6',
-      border: '1px solid #3b82f6',
-      borderRadius: '8px',
+      color: '#b3860f',
+      border: '1px solid #f3bf2e',
+      borderRadius: '9999px',
       padding: '8px 16px',
       cursor: 'pointer',
       display: 'flex',
@@ -504,41 +504,44 @@ const UsersPage = () => {
 
   return (
     <div
-      style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', width: '100%' }}
+      style={{ backgroundColor: '#fffcf2', minHeight: '100vh', width: '100%' }}
       className="dark:bg-gray-900"
     >
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <FiUsers style={{ width: "24px", height: "24px", color: "#2563eb" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#f3bf2e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <FiUsers style={{ width: "20px", height: "20px", color: "#111827" }} />
+              </div>
               <h1 style={{
                 fontSize: "24px",
                 fontWeight: "bold",
                 color: "#111827"
               }} className="dark:text-white">
-                Users Management
+                Users
               </h1>
               <span style={{
                 padding: "4px 12px",
                 fontSize: "12px",
-                backgroundColor: "#e5e7eb",
-                color: "#374151",
+                fontWeight: "600",
+                backgroundColor: "#fef6dc",
+                color: "#8c680c",
                 borderRadius: "9999px"
-              }} className="dark:bg-gray-700 dark:text-gray-300">
-                {filteredUsers.length} users
+              }}>
+                {filteredUsers.length} total
               </span>
             </div>
           </div>
 
           {/* Search and Filters */}
-          <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
+          <div style={{ display: "flex", gap: "12px", marginBottom: "24px", flexWrap: 'wrap' }}>
             {/* Search Input */}
-            <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ flex: 1, minWidth: '220px', position: 'relative' }}>
               <FiSearch style={{
                 position: 'absolute',
-                left: '12px',
+                left: '16px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 color: '#9ca3af',
@@ -550,9 +553,9 @@ const UsersPage = () => {
                 placeholder="Search by name, email, phone..."
                 style={{
                   width: '100%',
-                  padding: '10px 12px 10px 40px',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
+                  padding: '10px 14px 10px 42px',
+                  borderRadius: '9999px',
+                  border: '1px solid #e5e7eb',
                   backgroundColor: '#ffffff',
                   color: '#111827',
                   fontSize: '14px'
@@ -564,13 +567,13 @@ const UsersPage = () => {
 
             {/* Role Filter */}
             {roles.length > 0 && (
-              <div style={{ width: '200px' }}>
+              <div style={{ width: '180px' }}>
                 <select
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #d1d5db',
+                    padding: '10px 14px',
+                    borderRadius: '9999px',
+                    border: '1px solid #e5e7eb',
                     backgroundColor: '#ffffff',
                     color: '#111827',
                     fontSize: '14px'
@@ -596,22 +599,21 @@ const UsersPage = () => {
             <button
               onClick={downloadCSV}
               style={{
-                backgroundColor: "#16a34a",
+                backgroundColor: "#111827",
                 color: "#ffffff",
                 border: "none",
-                borderRadius: "8px",
-                padding: "10px 16px",
+                borderRadius: "9999px",
+                padding: "10px 18px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
                 fontSize: "14px",
-                fontWeight: "500",
+                fontWeight: "600",
                 transition: "all 0.2s"
               }}
-              className="hover:bg-green-600"
-              onMouseEnter={(e) => e.target.style.backgroundColor = "#15803d"}
-              onMouseLeave={(e) => e.target.style.backgroundColor = "#16a34a"}
+              onMouseEnter={(e) => e.target.style.backgroundColor = "#000000"}
+              onMouseLeave={(e) => e.target.style.backgroundColor = "#111827"}
             >
               <FiDownload style={{ width: "16px", height: "16px" }} />
               Download CSV
@@ -623,13 +625,16 @@ const UsersPage = () => {
       {/* Users Table */}
       <div style={{
         backgroundColor: "#ffffff",
-        borderRadius: "8px",
-        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
-        overflow: "hidden"
+        borderRadius: "20px",
+        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.06)",
+        border: "1px solid #f3f4f6",
+        overflow: "hidden",
+        maxWidth: '1280px',
+        margin: '0 auto'
       }} className="dark:bg-gray-800">
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%" }} className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead style={{ backgroundColor: "#f9fafb" }} className="dark:bg-gray-900">
+            <thead style={{ backgroundColor: "#fffcf2" }} className="dark:bg-gray-900">
               <tr>
                 <th style={{
                   padding: "12px 24px",
@@ -709,7 +714,7 @@ const UsersPage = () => {
                         borderRadius: '9999px',
                         width: '24px',
                         height: '24px',
-                        borderBottom: '2px solid #2563eb'
+                        borderBottom: '2px solid #f3bf2e'
                       }}></div>
                       <span style={{ color: '#6b7280' }}>Loading users...</span>
                     </div>
@@ -724,7 +729,7 @@ const UsersPage = () => {
                       {search && (
                         <button
                           onClick={() => setSearch("")}
-                          style={{ color: '#2563eb', fontSize: '14px' }}
+                          style={{ color: '#b3860f', fontSize: '14px', fontWeight: '600' }}
                         >
                           Clear search
                         </button>
@@ -794,7 +799,8 @@ const UsersPage = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '16px',
-          marginTop: '24px'
+          marginTop: '24px',
+          paddingBottom: '24px'
         }}>
           <div style={{ fontSize: '14px', color: '#374151' }}>
             Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
@@ -830,10 +836,11 @@ const UsersPage = () => {
                   style={{
                     padding: '8px 12px',
                     fontSize: '14px',
-                    borderRadius: '8px',
-                    border: '1px solid #d1d5db',
-                    backgroundColor: currentPage === pageNum ? '#000000' : '#ffffff',
-                    color: currentPage === pageNum ? '#ffffff' : '#374151',
+                    fontWeight: '600',
+                    borderRadius: '9999px',
+                    border: '1px solid #e5e7eb',
+                    backgroundColor: currentPage === pageNum ? '#f3bf2e' : '#ffffff',
+                    color: currentPage === pageNum ? '#111827' : '#374151',
                     cursor: 'pointer'
                   }}
                   onClick={() => setCurrentPage(pageNum)}

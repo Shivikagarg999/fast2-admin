@@ -1644,51 +1644,54 @@ const SellerPage = () => {
 
   const buttonStyles = {
     primary: {
-      backgroundColor: '#000000',
-      color: '#ffffff',
+      backgroundColor: '#f3bf2e',
+      color: '#111827',
       border: 'none',
-      borderRadius: '8px',
+      borderRadius: '9999px',
       padding: '10px 20px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
       fontSize: '14px',
-      fontWeight: '500'
+      fontWeight: '600'
     },
     secondary: {
       backgroundColor: '#ffffff',
       color: '#374151',
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
+      border: '1px solid #e5e7eb',
+      borderRadius: '9999px',
       padding: '10px 20px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
       fontSize: '14px',
-      fontWeight: '500'
+      fontWeight: '600'
     }
   };
 
   const hasActiveFilters = filters.search || filters.approvalStatus || filters.isActive;
 
   return (
-    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', width: '100%', padding: '24px' }}>
+    <div style={{ backgroundColor: '#fffcf2', minHeight: '100vh', width: '100%', padding: '24px' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users style={{ width: '24px', height: '24px', color: '#2563eb' }} />
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>All Sellers</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#f3bf2e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Users style={{ width: '20px', height: '20px', color: '#111827' }} />
+            </div>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>Sellers</h1>
             <span style={{
               padding: '4px 12px',
               fontSize: '12px',
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
+              fontWeight: '600',
+              backgroundColor: '#fef6dc',
+              color: '#8c680c',
               borderRadius: '9999px'
             }}>
-              {pagination.totalSellers} sellers
+              {pagination.totalSellers} total
             </span>
           </div>
 
@@ -1711,16 +1714,16 @@ const SellerPage = () => {
                     placeholder="Search by name, email, phone, business..."
                     style={{
                       width: '100%',
-                      padding: '10px 12px 10px 40px',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      padding: '10px 14px 10px 42px',
+                      borderRadius: '9999px',
+                      border: '1px solid #e5e7eb',
                       backgroundColor: '#ffffff',
                       color: '#111827',
                       fontSize: '14px'
                     }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
                   />
                 </div>
 
@@ -1729,9 +1732,9 @@ const SellerPage = () => {
                   <select
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      padding: '10px 14px',
+                      borderRadius: '9999px',
+                      border: '1px solid #e5e7eb',
                       backgroundColor: '#ffffff',
                       color: '#111827',
                       fontSize: '14px'
@@ -1751,9 +1754,9 @@ const SellerPage = () => {
                   <select
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      padding: '10px 14px',
+                      borderRadius: '9999px',
+                      border: '1px solid #e5e7eb',
                       backgroundColor: '#ffffff',
                       color: '#111827',
                       fontSize: '14px'
@@ -1894,13 +1897,14 @@ const SellerPage = () => {
         {/* Sellers Table */}
         <div style={{
           backgroundColor: '#ffffff',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          borderRadius: '20px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.06)',
+          border: '1px solid #f3f4f6',
           overflow: 'hidden'
         }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead style={{ backgroundColor: '#f9fafb' }}>
+              <thead style={{ backgroundColor: '#fffcf2' }}>
                 <tr>
                   <th style={{
                     padding: '12px 24px',
@@ -2167,10 +2171,11 @@ const SellerPage = () => {
                     style={{
                       padding: '8px 12px',
                       fontSize: '14px',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
-                      backgroundColor: pagination.currentPage === pageNum ? '#000000' : '#ffffff',
-                      color: pagination.currentPage === pageNum ? '#ffffff' : '#374151',
+                      fontWeight: '600',
+                      borderRadius: '9999px',
+                      border: '1px solid #e5e7eb',
+                      backgroundColor: pagination.currentPage === pageNum ? '#f3bf2e' : '#ffffff',
+                      color: pagination.currentPage === pageNum ? '#111827' : '#374151',
                       cursor: 'pointer',
                       minWidth: '40px'
                     }}

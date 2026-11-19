@@ -476,11 +476,11 @@ const ProductCreate = () => {
   };
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-8">
+    <div className="bg-gold-50 dark:bg-gray-900 min-h-screen py-8">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm shadow-black/5 border border-gray-100 dark:border-gray-700 p-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-            <FiPackage className="mr-2" /> Create New Product
+            <FiPackage className="mr-2 text-gold-600" /> Create New Product
           </h1>
 
           {error && (
@@ -506,7 +506,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                     placeholder="Enter product name"
                   />
@@ -551,7 +551,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                     placeholder="Enter brand name"
                   />
@@ -567,7 +567,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                     disabled={loadingCategories}
                   >
@@ -590,7 +590,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     disabled={!formData.category || loadingSubcategories}
                   >
                     <option value="">
@@ -628,7 +628,7 @@ const ProductCreate = () => {
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                     placeholder="0.00"
                   />
@@ -647,7 +647,7 @@ const ProductCreate = () => {
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="0.00"
                   />
                 </div>
@@ -662,7 +662,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   >
                     {SELLING_UNIT_OPTIONS.map((opt) => (
@@ -687,7 +687,7 @@ const ProductCreate = () => {
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                     placeholder="1"
                   />
@@ -704,7 +704,7 @@ const ProductCreate = () => {
                     onChange={(e) => e.target.value && applyCommonVariant(e.target.value)}
                     className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   >
                     <option value="">Quick Add Variant</option>
                     {commonVariantTypes.map((variant, index) => (
@@ -736,7 +736,7 @@ const ProductCreate = () => {
                           placeholder="Variant name (e.g., Size, Color)"
                           className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                           required
                         />
                         <Button variant="danger" size="sm" icon={FiTrash2} onClick={() => removeVariant(variantIndex)}>Delete</Button>
@@ -761,7 +761,7 @@ const ProductCreate = () => {
                                 placeholder="e.g., Red, Large"
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm
-                                  focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  focus:outline-none focus:ring-1 focus:ring-gold-400"
                                 required
                               />
                             </div>
@@ -775,7 +775,7 @@ const ProductCreate = () => {
                                 step="0.01"
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm
-                                  focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  focus:outline-none focus:ring-1 focus:ring-gold-400"
                               />
                             </div>
                             <div className="col-span-2">
@@ -787,7 +787,7 @@ const ProductCreate = () => {
                                 min="0"
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm
-                                  focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  focus:outline-none focus:ring-1 focus:ring-gold-400"
                               />
                             </div>
                             <div className="col-span-3">
@@ -798,7 +798,7 @@ const ProductCreate = () => {
                                 placeholder="SKU code"
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm
-                                  focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  focus:outline-none focus:ring-1 focus:ring-gold-400"
                               />
                             </div>
                             <div className="col-span-1">
@@ -849,7 +849,7 @@ const ProductCreate = () => {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                           required
                           disabled={loadingPromotors}
                         >
@@ -879,7 +879,7 @@ const ProductCreate = () => {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                           required
                         >
                           <option value="percentage">Percentage</option>
@@ -900,7 +900,7 @@ const ProductCreate = () => {
                           step="0.01"
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                           required
                           placeholder="0.00"
                         />
@@ -927,7 +927,7 @@ const ProductCreate = () => {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                           required
                           disabled={loadingSellers}
                         >
@@ -946,7 +946,7 @@ const ProductCreate = () => {
                       </div>
 
                       {formData.seller && (
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-200 dark:border-blue-700">
+                        <div className="bg-gold-50 dark:bg-blue-900/20 p-3 rounded-md border border-gold-200 dark:border-blue-700">
                           <h4 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-1">
                             Selected Seller Details
                           </h4>
@@ -991,7 +991,7 @@ const ProductCreate = () => {
                     min="0"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                     placeholder="0"
                   />
@@ -1009,7 +1009,7 @@ const ProductCreate = () => {
                     min="1"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="1"
                   />
                 </div>
@@ -1026,7 +1026,7 @@ const ProductCreate = () => {
                     min="1"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="10"
                   />
                 </div>
@@ -1051,7 +1051,7 @@ const ProductCreate = () => {
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                     placeholder="0.00"
                   />
@@ -1067,7 +1067,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   >
                     {UNIT_GROUPS.map((group) => (
@@ -1102,7 +1102,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     disabled={loadingWarehouses}
                   >
                     <option value="">{loadingWarehouses ? "Loading warehouses..." : "Select a warehouse"}</option>
@@ -1129,7 +1129,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   >
                     <option value="">Select storage type</option>
                     <option value="ambient">Ambient Storage</option>
@@ -1156,7 +1156,7 @@ const ProductCreate = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="e.g., 2-3 days"
                   />
                 </div>
@@ -1174,7 +1174,7 @@ const ProductCreate = () => {
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="0.00"
                   />
                 </div>
@@ -1192,7 +1192,7 @@ const ProductCreate = () => {
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="0.00"
                   />
                 </div>
@@ -1215,7 +1215,7 @@ const ProductCreate = () => {
                         onKeyPress={handlePincodeKeyPress}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                          focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          focus:outline-none focus:ring-2 focus:ring-gold-400"
                         placeholder="Enter 6-digit pincode (e.g., 110001)"
                         maxLength="6"
                       />
@@ -1237,7 +1237,7 @@ const ProductCreate = () => {
                           <span
                             key={index}
                             className="inline-flex items-center px-3 py-1 rounded-full text-sm 
-                              bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200
+                              bg-gold-100 dark:bg-blue-900 text-gold-800 dark:text-blue-200
                               border border-blue-300 dark:border-blue-700"
                           >
                             <FiMapPin className="mr-1" size={14} />
@@ -1245,7 +1245,7 @@ const ProductCreate = () => {
                             <button
                               type="button"
                               onClick={() => removePincode(pincode)}
-                              className="ml-2 text-blue-600 dark:text-blue-300 hover:text-blue-800 
+                              className="ml-2 text-gold-700 dark:text-blue-300 hover:text-gold-900 
                                 dark:hover:text-blue-100"
                             >
                               <FiX size={16} />
@@ -1286,7 +1286,7 @@ const ProductCreate = () => {
                     onChange={handleImageChange}
                     className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     accept="image/*"
                     multiple
                     disabled={formData.images.length >= 5}
@@ -1333,7 +1333,7 @@ const ProductCreate = () => {
                           <FiX size={16} />
                         </button>
                         {index === 0 && (
-                          <span className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                          <span className="absolute bottom-2 left-2 bg-gold-500 text-black text-xs px-2 py-1 rounded-full font-semibold">
                             Primary
                           </span>
                         )}
@@ -1354,7 +1354,7 @@ const ProductCreate = () => {
                   onChange={handleVideoChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                    focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    focus:outline-none focus:ring-2 focus:ring-gold-400"
                   accept="video/*"
                 />
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -1403,7 +1403,7 @@ const ProductCreate = () => {
               <button
                 type="submit"
                 disabled={loading || loadingPromotors || loadingSellers || loadingWarehouses || loadingCategories}
-                className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
+                className="px-6 py-3 rounded-full hover:bg-gray-800
                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-white"
                 style={{ backgroundColor: 'black' }}
               >

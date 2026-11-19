@@ -4,6 +4,9 @@ import {
   FiCheck, FiAlertCircle, FiX, FiGrid, FiLayers,
 } from "react-icons/fi";
 import Modal from "../../components/common/Modal";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/ui/PageHeader";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api`;
 
@@ -321,12 +324,9 @@ const HomeSectionsPage = () => {
     <button
       type="button"
       onClick={onClick}
-      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
-      style={{
-        backgroundColor: active ? 'black' : 'white',
-        color: active ? 'white' : '#374151',
-        border: active ? '1px solid black' : '1px solid #d1d5db',
-      }}
+      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${
+        active ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+      }`}
     >
       {icon} {label}
     </button>
@@ -373,22 +373,18 @@ const HomeSectionsPage = () => {
 
   return (
     <div className="p-6">
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Home Page Sections</h1>
-          <p className="text-gray-500 mt-1 text-sm">Curated product rows and festive tile banners shown on the home page — fully configurable, no code changes needed per campaign.</p>
-        </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap"
-          style={{ backgroundColor: 'black', color: 'white' }}
-        >
-          <FiPlus className="w-4 h-4" /> New Section
-        </button>
-      </div>
+      <PageHeader
+        title="Home Page Sections"
+        subtitle="Curated product rows and festive tile banners shown on the home page — fully configurable, no code changes needed per campaign."
+        actions={
+          <Button onClick={openCreate}>
+            <FiPlus className="w-4 h-4" /> New Section
+          </Button>
+        }
+      />
 
       {toast && (
-        <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-green-50 text-green-800 border border-green-200'}`}>
+        <div className={`mb-4 p-3 rounded-2xl flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}`}>
           {toast.type === 'error' ? <FiAlertCircle className="w-4 h-4" /> : <FiCheck className="w-4 h-4" />}
           {toast.message}
         </div>
@@ -397,36 +393,32 @@ const HomeSectionsPage = () => {
       {loading ? (
         <p className="text-sm text-gray-400 py-12 text-center">Loading...</p>
       ) : sections.length === 0 ? (
-        <div className="bg-white rounded-xl shadow p-12 text-center">
+        <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 p-12 text-center">
           <FiLayers className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-gray-500 text-sm">No sections yet. Create one to start curating the home page.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {sections.map((section, index) => (
-            <div key={section._id} className="bg-white rounded-xl shadow p-4 flex items-center gap-4">
+            <div key={section._id} className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 p-4 flex items-center gap-4">
               <div className="flex flex-col gap-1">
-                <button disabled={index === 0} onClick={() => move(index, -1)} className="p-1 rounded disabled:opacity-30" style={{ border: '1px solid #d1d5db' }}>
+                <button disabled={index === 0} onClick={() => move(index, -1)} className="p-1 rounded-lg border border-gray-200 disabled:opacity-30 hover:bg-gray-50">
                   <FiArrowUp className="w-3.5 h-3.5" />
                 </button>
-                <button disabled={index === sections.length - 1} onClick={() => move(index, 1)} className="p-1 rounded disabled:opacity-30" style={{ border: '1px solid #d1d5db' }}>
+                <button disabled={index === sections.length - 1} onClick={() => move(index, 1)} className="p-1 rounded-lg border border-gray-200 disabled:opacity-30 hover:bg-gray-50">
                   <FiArrowDown className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                {section.type === 'product_carousel' ? <FiLayers className="w-5 h-5 text-gray-500" /> : <FiGrid className="w-5 h-5 text-gray-500" />}
+              <div className="w-10 h-10 rounded-xl bg-gold-50 flex items-center justify-center flex-shrink-0">
+                {section.type === 'product_carousel' ? <FiLayers className="w-5 h-5 text-gold-700" /> : <FiGrid className="w-5 h-5 text-gold-700" />}
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-gray-900 text-sm truncate">{section.title}</p>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                    {section.type === 'product_carousel' ? 'Product carousel' : 'Tile grid'}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${section.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                    {section.isActive ? 'Active' : 'Inactive'}
-                  </span>
+                  <Badge variant="outline">{section.type === 'product_carousel' ? 'Product carousel' : 'Tile grid'}</Badge>
+                  <Badge variant={section.isActive ? 'success' : 'outline'}>{section.isActive ? 'Active' : 'Inactive'}</Badge>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   {section.type === 'product_carousel'
@@ -445,15 +437,14 @@ const HomeSectionsPage = () => {
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={() => toggleActive(section)}
-                  className="px-3 py-1.5 rounded-md text-xs font-medium"
-                  style={{ border: '1px solid #d1d5db', color: '#374151' }}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50"
                 >
                   {section.isActive ? 'Deactivate' : 'Activate'}
                 </button>
-                <button onClick={() => openEdit(section)} className="p-2 rounded-md hover:bg-gray-50" style={{ border: '1px solid #d1d5db' }}>
+                <button onClick={() => openEdit(section)} className="p-2 rounded-full border border-gray-200 hover:bg-gray-50">
                   <FiEdit2 className="w-4 h-4 text-gray-600" />
                 </button>
-                <button onClick={() => handleDelete(section._id)} className="p-2 rounded-md hover:bg-red-50" style={{ border: '1px solid #fecaca' }}>
+                <button onClick={() => handleDelete(section._id)} className="p-2 rounded-full border border-red-200 hover:bg-red-50">
                   <FiTrash2 className="w-4 h-4 text-red-500" />
                 </button>
               </div>
@@ -643,17 +634,10 @@ const HomeSectionsPage = () => {
             </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg text-sm font-medium" style={{ border: '1px solid #d1d5db', color: '#374151' }}>
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="px-5 py-2 rounded-lg text-sm font-medium"
-                style={{ backgroundColor: 'black', color: 'white', opacity: saving ? 0.5 : 1 }}
-              >
+              <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
+              <Button onClick={handleSave} disabled={saving}>
                 {saving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Section'}
-              </button>
+              </Button>
             </div>
           </div>
         </Modal>
