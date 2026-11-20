@@ -110,6 +110,7 @@ const AnalyticsDashboard = () => {
   const totals = data?.totals;
   const funnel = data?.funnel || [];
   const funnelTop = funnel[0]?.visitors || 0;
+  const isAppOnly = data?.platformFilter === 'app';
 
   return (
     <div className="p-6">
@@ -167,10 +168,10 @@ const AnalyticsDashboard = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard icon={<FiUsers />} label="Visitors" value={totals.visitors} hint="Unique people" />
             <StatCard icon={<FiActivity />} label="Sessions" value={totals.sessions} />
-            <StatCard icon={<FiEye />} label="Page views" value={totals.pageViews} />
-            <StatCard icon={<FiMousePointer />} label="Product clicks" value={totals.productClicks} hint={`${fmt(totals.productClickVisitors)} visitors`} />
+            <StatCard icon={<FiEye />} label={isAppOnly ? 'App opens' : 'Page views'} value={totals.pageViews} />
+            <StatCard icon={<FiMousePointer />} label={isAppOnly ? 'Product views' : 'Product clicks'} value={totals.productClicks} hint={`${fmt(totals.productClickVisitors)} visitors`} />
             <StatCard icon={<FiShoppingCart />} label="Add to cart" value={totals.addToCart} />
-            <StatCard icon={<FiLogIn />} label="Opened login page" value={totals.loginPageVisitors} hint="Unique visitors" />
+            {!isAppOnly && <StatCard icon={<FiLogIn />} label="Opened login page" value={totals.loginPageVisitors} hint="Unique visitors" />}
             <StatCard icon={<FiUserCheck />} label="Logged in" value={totals.loginSuccess} hint="Unique visitors" />
             <StatCard icon={<FiPackage />} label="Orders placed" value={totals.ordersPlaced} />
             <StatCard icon={<FiDownload />} label="App installs" value={totals.appInstalls} />
@@ -207,7 +208,7 @@ const AnalyticsDashboard = () => {
           </Card>
 
           {/* Trend */}
-          <Card title="Visitors and page views per day">
+          <Card title={isAppOnly ? 'Users and app opens per day' : 'Visitors and page views per day'}>
             {data.daily.length === 0 ? <EmptyRow /> : (
               <div style={{ width: '100%', height: 280 }}>
                 <ResponsiveContainer>
@@ -217,8 +218,8 @@ const AnalyticsDashboard = () => {
                     <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="visitors" name="Visitors" stroke="#0c831f" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="pageViews" name="Page views" stroke="#6b7280" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="visitors" name={isAppOnly ? 'Users' : 'Visitors'} stroke="#d9a61a" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="pageViews" name={isAppOnly ? 'App opens' : 'Page views'} stroke="#111827" strokeWidth={2} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -226,7 +227,7 @@ const AnalyticsDashboard = () => {
           </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card title="Most clicked products">
+            <Card title={isAppOnly ? 'Most viewed products' : 'Most clicked products'}>
               {data.topProducts.length === 0 ? <EmptyRow /> : (
                 <table className="w-full text-sm">
                   <thead>
@@ -249,28 +250,30 @@ const AnalyticsDashboard = () => {
               )}
             </Card>
 
-            <Card title="Top pages">
-              {data.topPages.length === 0 ? <EmptyRow /> : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-xs text-gray-500 uppercase">
-                      <th className="pb-2 font-medium">Page</th>
-                      <th className="pb-2 font-medium text-right">Views</th>
-                      <th className="pb-2 font-medium text-right">Visitors</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {data.topPages.map((row) => (
-                      <tr key={row.path}>
-                        <td className="py-2 pr-2 text-gray-800 truncate max-w-[16rem]">{row.path || '/'}</td>
-                        <td className="py-2 text-right font-semibold">{fmt(row.views)}</td>
-                        <td className="py-2 text-right text-gray-500">{fmt(row.visitors)}</td>
+            {!isAppOnly && (
+              <Card title="Top pages">
+                {data.topPages.length === 0 ? <EmptyRow /> : (
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-500 uppercase">
+                        <th className="pb-2 font-medium">Page</th>
+                        <th className="pb-2 font-medium text-right">Views</th>
+                        <th className="pb-2 font-medium text-right">Visitors</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </Card>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {data.topPages.map((row) => (
+                        <tr key={row.path}>
+                          <td className="py-2 pr-2 text-gray-800 truncate max-w-[16rem]">{row.path || '/'}</td>
+                          <td className="py-2 text-right font-semibold">{fmt(row.views)}</td>
+                          <td className="py-2 text-right text-gray-500">{fmt(row.visitors)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </Card>
+            )}
 
             <Card title="Popular searches">
               {data.topSearches.length === 0 ? <EmptyRow /> : (
@@ -302,6 +305,7 @@ const AnalyticsDashboard = () => {
               )}
             </Card>
 
+            {!isAppOnly && (
             <Card title="Popups">
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
@@ -328,6 +332,7 @@ const AnalyticsDashboard = () => {
                 </div>
               </div>
             </Card>
+            )}
 
             <Card title="Visitors by location">
               {!data.locations || data.locations.length === 0 ? (
