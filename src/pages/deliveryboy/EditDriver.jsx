@@ -255,20 +255,20 @@ const EditDriver = () => {
 
   if (fetching && id) {
     return (
-      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="bg-gold-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-8">
+    <div className="bg-gold-50 dark:bg-gray-900 min-h-screen py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm shadow-black/5 border border-gray-100 p-6">
           <div className="flex items-center mb-6">
             <button
               onClick={() => navigate('/admin/drivers')}
-              className="flex items-center text-blue-600 hover:text-blue-700 mr-4"
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-gold-100 text-gold-800 hover:bg-gold-200 mr-4 flex-shrink-0"
             >
               <FiArrowLeft className="w-5 h-5" />
             </button>
@@ -300,7 +300,7 @@ const EditDriver = () => {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -319,7 +319,7 @@ const EditDriver = () => {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -338,7 +338,7 @@ const EditDriver = () => {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -357,7 +357,7 @@ const EditDriver = () => {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                        focus:outline-none focus:ring-2 focus:ring-gold-400 pl-10"
                       required
                     />
                     <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -374,7 +374,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   >
                     <option value="male">Male</option>
@@ -402,7 +402,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -417,7 +417,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -433,7 +433,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -448,7 +448,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
@@ -468,7 +468,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   >
                     {vehicleTypes.map(vehicle => (
@@ -490,7 +490,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -506,7 +506,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -522,7 +522,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -538,7 +538,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
 
@@ -553,7 +553,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="https://example.com/rc-doc.png"
                   />
                 </div>
@@ -575,7 +575,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -591,7 +591,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="https://example.com/aadhar-front.png"
                   />
                 </div>
@@ -607,7 +607,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="https://example.com/aadhar-back.png"
                   />
                 </div>
@@ -629,7 +629,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -645,7 +645,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -661,7 +661,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="https://example.com/dl-front.png"
                   />
                 </div>
@@ -677,7 +677,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="https://example.com/dl-back.png"
                   />
                 </div>
@@ -701,7 +701,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -717,7 +717,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -733,7 +733,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     required
                   />
                 </div>
@@ -749,7 +749,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
@@ -770,7 +770,7 @@ const EditDriver = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="DRV12345"
                   />
                 </div>
@@ -781,7 +781,7 @@ const EditDriver = () => {
               <button
                 type="button"
                 onClick={() => navigate('/admin/drivers')}
-                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-md 
+                className="px-6 py-3 border border-gray-200 dark:border-gray-600 rounded-full font-semibold
                   bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300
                   hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >
@@ -790,8 +790,8 @@ const EditDriver = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-blue-600 rounded-md hover:bg-blue-700 
-                  disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-black"
+                className="px-6 py-3 bg-gold-500 rounded-full hover:bg-gold-600 font-semibold
+                  disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-gray-900"
               >
                 {loading ? (
                   <>
@@ -811,10 +811,10 @@ const EditDriver = () => {
 
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex flex-col items-center text-center">
-              <div className="bg-green-100 p-3 rounded-full mb-4">
-                <FiCheckCircle className="text-green-600 text-3xl" />
+              <div className="bg-emerald-100 p-3 rounded-full mb-4">
+                <FiCheckCircle className="text-emerald-600 text-3xl" />
               </div>
 
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
@@ -827,7 +827,7 @@ const EditDriver = () => {
 
               <button
                 onClick={closeSuccessModal}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 bg-gold-500 text-gray-900 rounded-full font-semibold hover:bg-gold-600 transition-colors"
               >
                 Back to Drivers
               </button>

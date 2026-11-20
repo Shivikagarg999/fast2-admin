@@ -519,7 +519,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
                         const [itemBase, itemQuery] = item.path.split('?');
                         const isActive = itemQuery
                           ? (pathname === itemBase && location.search.includes(itemQuery))
-                          : (pathname === item.path || (item.path !== '/dashboard' && pathname.startsWith(item.path) && !location.search));
+                          : (pathname === item.path && !location.search) || (item.path !== '/dashboard' && pathname.startsWith(item.path) && !location.search);
                         return (
                           <Link
                             key={item.name}

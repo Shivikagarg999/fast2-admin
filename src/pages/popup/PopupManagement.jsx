@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import Button from "../../components/common/Button";
 import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight, FiClock, FiImage, FiX, FiCheck, FiAlertCircle, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import PageHeader from "../../components/ui/PageHeader";
+import Badge from "../../components/ui/Badge";
 
 const BASE_URL = `${(import.meta.env.DEV ? import.meta.env.VITE_BASE_URL : null) || 'https://admin.gmkart.com/proxy'}/api/admin/popups`;
 const LIMIT = 10;
@@ -196,9 +198,9 @@ const PopupManagement = () => {
   };
 
   const getStatusBadge = (popup) => {
-    if (isLive(popup)) return { label: 'Live', cls: 'bg-green-100 text-green-800' };
-    if (popup.isActive) return { label: 'Scheduled', cls: 'bg-yellow-100 text-yellow-800' };
-    return { label: 'Inactive', cls: 'bg-gray-100 text-gray-600' };
+    if (isLive(popup)) return { label: 'Live', variant: 'success' };
+    if (popup.isActive) return { label: 'Scheduled', variant: 'gold' };
+    return { label: 'Inactive', variant: 'outline' };
   };
 
   const fmt = (d) => new Date(d).toLocaleString();
@@ -210,22 +212,20 @@ const PopupManagement = () => {
   ];
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Popup Management</h1>
-          <p className="text-gray-500 mt-1 text-sm">Manage popups (image, heading, sub heading and button) shown to users during a scheduled time window</p>
-        </div>
-        <Button variant="primary" size="md" onClick={() => { closeForm(); setShowForm(true); }}>
-          <FiPlus className="w-4 h-4" />
-          Create Popup
-        </Button>
-      </div>
+    <div className="p-6 bg-gold-50 min-h-screen">
+      <PageHeader
+        title="Popup Management"
+        subtitle="Manage popups (image, heading, sub heading and button) shown to users during a scheduled time window"
+        actions={
+          <Button variant="primary" size="md" icon={FiPlus} onClick={() => { closeForm(); setShowForm(true); }}>
+            Create Popup
+          </Button>
+        }
+      />
 
       {/* Toast */}
       {toast && (
-        <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-green-50 text-green-800 border border-green-200'}`}>
+        <div className={`mb-4 p-3 rounded-2xl flex items-center gap-2 text-sm ${toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}`}>
           {toast.type === 'error' ? <FiAlertCircle className="w-4 h-4" /> : <FiCheck className="w-4 h-4" />}
           {toast.message}
         </div>
@@ -234,12 +234,12 @@ const PopupManagement = () => {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-xl max-h-[90vh] overflow-hidden shadow-xl">
-            <div className="flex justify-between items-center px-5 py-4 border-b">
+          <div className="bg-white rounded-3xl w-full max-w-xl max-h-[90vh] overflow-hidden shadow-xl">
+            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-900">
                 {editingPopup ? 'Edit Popup' : 'Create Popup'}
               </h2>
-              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600">
+              <button onClick={closeForm} className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors">
                 <FiX className="w-5 h-5" />
               </button>
             </div>
@@ -294,7 +294,7 @@ const PopupManagement = () => {
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                       placeholder="e.g. Flat Rs. 50 off your first order"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-400 focus:border-gold-400"
                     />
                   </div>
                   <div>
@@ -305,7 +305,7 @@ const PopupManagement = () => {
                       value={formData.subtitle}
                       onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
                       placeholder="e.g. Use code WELCOME at checkout"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-400 focus:border-gold-400"
                     />
                   </div>
                 </div>
@@ -321,7 +321,7 @@ const PopupManagement = () => {
                     value={formData.ctaText}
                     onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
                     placeholder="e.g. Shop now"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-400 focus:border-gold-400"
                   />
                 </div>
                 <div>
@@ -332,7 +332,7 @@ const PopupManagement = () => {
                     value={formData.ctaLink}
                     onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
                     placeholder="/category/fruits or https://..."
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-400 focus:border-gold-400"
                   />
                 </div>
               </div>
@@ -349,7 +349,7 @@ const PopupManagement = () => {
                     type="datetime-local"
                     value={formData.startTime}
                     onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-400 focus:border-gold-400"
                     required
                   />
                 </div>
@@ -362,7 +362,7 @@ const PopupManagement = () => {
                     type="datetime-local"
                     value={formData.endTime}
                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-400 focus:border-gold-400"
                     required
                   />
                 </div>
@@ -380,19 +380,18 @@ const PopupManagement = () => {
                 </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t">
+              <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={closeForm}
-                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-sm font-semibold border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 text-sm text-white rounded-lg transition-colors disabled:opacity-60"
-                  style={{ backgroundColor: 'black' }}
+                  className="px-4 py-2 text-sm font-semibold text-black bg-gold-400 rounded-full hover:bg-gold-500 transition-colors disabled:opacity-60"
                 >
                   {submitting ? 'Saving...' : editingPopup ? 'Update Popup' : 'Create Popup'}
                 </button>
@@ -403,23 +402,23 @@ const PopupManagement = () => {
       )}
 
       {/* List */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-hidden">
         {/* Table header with filter tabs */}
-        <div className="px-6 py-4 border-b flex items-center justify-between gap-4 flex-wrap">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
           <h3 className="text-base font-semibold text-gray-900">
             All Popups
             {totalCount > 0 && (
               <span className="ml-2 text-sm font-normal text-gray-400">({totalCount})</span>
             )}
           </h3>
-          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-full">
             {filterTabs.map(({ label, value }) => (
               <button
                 key={value}
                 onClick={() => handleFilterChange(value)}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${
                   filterActive === value
-                    ? 'bg-white text-gray-900 shadow-sm'
+                    ? 'bg-gold-400 text-black'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -431,7 +430,7 @@ const PopupManagement = () => {
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
             <p className="mt-3 text-sm text-gray-500">Loading popups...</p>
           </div>
         ) : popups.length === 0 ? (
@@ -446,7 +445,7 @@ const PopupManagement = () => {
           <>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-100">
-                <thead className="bg-gray-50">
+                <thead className="bg-gold-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Content</th>
@@ -457,7 +456,7 @@ const PopupManagement = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {popups.map((popup) => {
-                    const { label, cls } = getStatusBadge(popup);
+                    const { label, variant } = getStatusBadge(popup);
                     return (
                       <tr key={popup._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
@@ -488,9 +487,7 @@ const PopupManagement = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${cls}`}>
-                            {label}
-                          </span>
+                          <Badge variant={variant}>{label}</Badge>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -541,12 +538,11 @@ const PopupManagement = () => {
                         <button
                           key={item}
                           onClick={() => setPage(item)}
-                          className={`w-8 h-8 rounded-md text-xs font-medium border transition-colors ${
+                          className={`w-8 h-8 rounded-full text-xs font-semibold border transition-colors ${
                             page === item
-                              ? 'text-white border-transparent'
+                              ? 'bg-gold-400 text-black border-gold-400'
                               : 'border-gray-200 hover:bg-gray-50'
                           }`}
-                          style={page === item ? { backgroundColor: 'black' } : {}}
                         >
                           {item}
                         </button>

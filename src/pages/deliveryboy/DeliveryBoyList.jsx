@@ -215,7 +215,7 @@ const DriverList = () => {
   );
 
   const DetailSection = ({ title, icon, children }) => (
-    <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+    <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm shadow-black/5 p-5">
       <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
         {icon}
         {title}
@@ -262,14 +262,16 @@ const DriverList = () => {
   const currentDrivers = filteredDrivers.slice(indexOfFirstDriver, indexOfLastDriver);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
+    <div className="bg-gold-50 dark:bg-gray-900 w-full min-h-screen">
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <FiUser className="w-6 h-6 text-blue-600 mr-2" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Delivery Drivers</h1>
-            <span className="ml-3 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
-              {filteredDrivers.length} drivers
+          <div className="flex items-center mb-4 sm:mb-0 gap-3">
+            <div className="w-10 h-10 rounded-full bg-gold-400 flex items-center justify-center flex-shrink-0">
+              <FiUser className="w-5 h-5 text-gray-900" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Drivers</h1>
+            <span className="px-3 py-1 text-xs font-semibold bg-gold-100 text-gold-800 rounded-full">
+              {filteredDrivers.length} total
             </span>
           </div>
           <Button variant="primary" size="md" onClick={() => navigate('/admin/create-driver')}>
@@ -283,9 +285,9 @@ const DriverList = () => {
             <input
               type="text"
               placeholder="Search drivers by name, phone, email, ID or vehicle number..."
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+              className="w-full px-4 py-2.5 rounded-full border border-gray-200
                 bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-500"
+                focus:outline-none focus:ring-2 focus:ring-gold-400"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -294,9 +296,9 @@ const DriverList = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+              className="w-full px-4 py-2.5 rounded-full border border-gray-200
                 bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-500"
+                focus:outline-none focus:ring-2 focus:ring-gold-400"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -310,9 +312,9 @@ const DriverList = () => {
             <select
               value={availabilityFilter}
               onChange={(e) => setAvailabilityFilter(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+              className="w-full px-4 py-2.5 rounded-full border border-gray-200
                 bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-500"
+                focus:outline-none focus:ring-2 focus:ring-gold-400"
             >
               <option value="all">All Availability</option>
               <option value="online">Online</option>
@@ -323,10 +325,10 @@ const DriverList = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 shadow-sm shadow-black/5 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-900">
+              <thead className="bg-gold-50 dark:bg-gray-900">
                 <tr>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Driver
@@ -353,7 +355,7 @@ const DriverList = () => {
                   <tr>
                     <td colSpan={6} className="text-center py-8">
                       <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gold-500"></div>
                         <span className="ml-2 text-gray-500 dark:text-gray-400">Loading drivers...</span>
                       </div>
                     </td>
@@ -371,7 +373,7 @@ const DriverList = () => {
                               setStatusFilter("all");
                               setAvailabilityFilter("all");
                             }}
-                            className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                            className="mt-2 text-gold-700 hover:text-gold-900 text-sm font-semibold"
                           >
                             Clear filters
                           </button>
@@ -455,7 +457,7 @@ const DriverList = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 
+                className="px-3 py-2 text-sm font-semibold rounded-full border border-gray-200 dark:border-gray-600
                   bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
                   hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed
                   transition-colors"
@@ -478,9 +480,9 @@ const DriverList = () => {
                 return (
                   <button
                     key={pageNum}
-                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
-                      ? "bg-blue-500 text-white border-blue-500"
-                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className={`px-3 py-2 text-sm font-semibold rounded-full border transition-colors ${currentPage === pageNum
+                      ? "bg-gold-500 text-gray-900 border-gold-500"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                       }`}
                     onClick={() => setCurrentPage(pageNum)}
                   >
@@ -492,7 +494,7 @@ const DriverList = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 
+                className="px-3 py-2 text-sm font-semibold rounded-full border border-gray-200 dark:border-gray-600
                   bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
                   hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed
                   transition-colors"
@@ -505,7 +507,7 @@ const DriverList = () => {
 
         {showDeleteModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md">
               <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Delete Driver
@@ -559,7 +561,7 @@ const DriverList = () => {
             className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto"
             style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
           >
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl my-8 max-h-[95vh] overflow-hidden">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl my-8 max-h-[95vh] overflow-hidden">
               <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-white">

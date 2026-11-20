@@ -109,31 +109,27 @@ const AdminForm = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {isEditMode ? 'Edit Admin' : 'Create New Admin'}
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {isEditMode ? 'Update admin details and role' : 'Add a new admin user to the system'}
-        </p>
-      </div>
+    <div className="p-6 bg-gold-50 min-h-screen">
+      <PageHeader
+        title={isEditMode ? 'Edit Admin' : 'Create New Admin'}
+        subtitle={isEditMode ? 'Update admin details and role' : 'Add a new admin user to the system'}
+      />
 
       {error && (
-        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <p className="text-red-800 dark:text-red-200">{error}</p>
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-2xl p-4">
+          <p className="text-red-800">{error}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <Card>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Admin Information
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Name *
               </label>
               <input
@@ -141,13 +137,13 @@ const AdminForm = () => {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                 placeholder="Enter admin name"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email *
               </label>
               <input
@@ -155,13 +151,13 @@ const AdminForm = () => {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                 placeholder="admin@example.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password {isEditMode ? '(leave blank to keep current)' : '*'}
               </label>
               <input
@@ -169,20 +165,20 @@ const AdminForm = () => {
                 required={!isEditMode}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                 placeholder="Enter password"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Role *
               </label>
               <select
                 required
                 value={formData.roleId}
                 onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-gold-400 focus:border-transparent"
               >
                 <option value="">Select a role</option>
                 {roles.map((role) => (
@@ -191,8 +187,8 @@ const AdminForm = () => {
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Permissions are managed through roles. <button type="button" onClick={() => navigate('/admin/roles')} className="text-blue-600 hover:underline">Manage Roles</button>
+              <p className="mt-1.5 text-xs text-gray-500">
+                Permissions are managed through roles. <button type="button" onClick={() => navigate('/admin/roles')} className="text-gold-700 font-semibold hover:underline">Manage Roles</button>
               </p>
             </div>
 
@@ -202,33 +198,25 @@ const AdminForm = () => {
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-gold-600 border-gray-300 rounded focus:ring-gold-400"
                 />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                <span className="ml-2 text-sm text-gray-700">
                   Active (admin can login)
                 </span>
               </label>
             </div>
           </div>
-        </div>
+        </Card>
 
         <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/admin/admins')}
-            className="flex items-center gap-2 px-6 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-          >
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/admins')}>
             <FiX className="w-4 h-4" />
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-          >
+          </Button>
+          <Button type="submit" variant="primary" disabled={loading}>
             <FiSave className="w-4 h-4" />
             {loading ? 'Saving...' : isEditMode ? 'Update Admin' : 'Create Admin'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

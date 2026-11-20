@@ -489,12 +489,14 @@ const ShopsPage = () => {
         <div className="p-6">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <Building2 className="w-8 h-8 text-blue-600" />
-                        Shop Management
-                    </h1>
-                    <p className="text-gray-500 mt-1">Monitor and manage all seller shops across the platform</p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gold-400 flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-5 h-5 text-gray-900" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Shops</h1>
+                        <p className="text-gray-500 mt-0.5 text-sm">Monitor and manage all seller shops across the platform</p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {hasPermission(PERMISSIONS.SHOPS_EDIT) && (
@@ -505,8 +507,8 @@ const ShopsPage = () => {
                     )}
                     <button
                         onClick={() => { setRefreshing(true); fetchShops(pagination.currentPage); }}
-                        className="flex items-center gap-2 px-4 py-2 text-white border border-gray-200 rounded-lg hover:opacity-90 transition-colors"
-                        style={{ backgroundColor: 'black' }}
+                        className="flex items-center gap-2 px-4 py-2 text-white rounded-full hover:bg-black transition-colors text-sm font-semibold"
+                        style={{ backgroundColor: '#111827' }}
                     >
                         <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                         Refresh
@@ -516,44 +518,44 @@ const ShopsPage = () => {
 
             {/* Stats Summary */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                    <p className="text-sm font-medium text-gray-500">Total Shops</p>
+                <div className="bg-gold-400 p-5 rounded-2xl shadow-sm shadow-black/5">
+                    <p className="text-sm font-medium text-black/70">Total Shops</p>
                     <div className="flex items-center justify-between mt-2">
-                        <h3 className="text-2xl font-bold">{pagination.totalShops}</h3>
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <h3 className="text-2xl font-bold text-black">{pagination.totalShops}</h3>
+                        <div className="p-2 bg-black/10 rounded-full text-black">
                             <Building2 className="w-5 h-5" />
                         </div>
                     </div>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm shadow-black/5">
                     <p className="text-sm font-medium text-gray-500">Active Shops</p>
                     <div className="flex items-center justify-between mt-2">
-                        <h3 className="text-2xl font-bold text-green-600">
+                        <h3 className="text-2xl font-bold text-emerald-600">
                             {shops.filter(s => s.isActive).length}
                         </h3>
-                        <div className="p-2 bg-green-50 rounded-lg text-green-600">
+                        <div className="p-2 bg-emerald-50 rounded-full text-emerald-600">
                             <CheckCircle className="w-5 h-5" />
                         </div>
                     </div>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm shadow-black/5">
                     <p className="text-sm font-medium text-gray-500">Verified Shops</p>
                     <div className="flex items-center justify-between mt-2">
-                        <h3 className="text-2xl font-bold text-blue-600">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {shops.filter(s => s.isVerified).length}
                         </h3>
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <div className="p-2 bg-gold-100 rounded-full text-gold-700">
                             <BadgeCheck className="w-5 h-5" />
                         </div>
                     </div>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm shadow-black/5">
                     <p className="text-sm font-medium text-gray-500">Currently Open</p>
                     <div className="flex items-center justify-between mt-2">
-                        <h3 className="text-2xl font-bold text-orange-600">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {shops.filter(s => s.isOpen).length}
                         </h3>
-                        <div className="p-2 bg-orange-50 rounded-lg text-orange-600">
+                        <div className="p-2 bg-gold-100 rounded-full text-gold-700">
                             <Star className="w-5 h-5" />
                         </div>
                     </div>
@@ -570,21 +572,21 @@ const ShopsPage = () => {
             )}
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-6">
-                <div className="flex flex-col md:flex-row gap-4">
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm shadow-black/5 mb-6">
+                <div className="flex flex-col md:flex-row gap-3">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Search by shop name or slug..."
-                            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-gold-400 text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <div className="flex items-center gap-2">
                         <select
-                            className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
                             value={filters.isVerified}
                             onChange={(e) => setFilters(f => ({ ...f, isVerified: e.target.value }))}
                         >
@@ -593,7 +595,7 @@ const ShopsPage = () => {
                             <option value="false">Unverified</option>
                         </select>
                         <select
-                            className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
                             value={filters.isActive}
                             onChange={(e) => setFilters(f => ({ ...f, isActive: e.target.value }))}
                         >
@@ -602,7 +604,7 @@ const ShopsPage = () => {
                             <option value="false">Inactive</option>
                         </select>
                         <select
-                            className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
                             value={filters.sortOrder}
                             onChange={(e) => setFilters(f => ({ ...f, sortOrder: e.target.value }))}
                         >
@@ -614,11 +616,11 @@ const ShopsPage = () => {
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
+                            <tr className="bg-gold-50 border-b border-gray-100">
                                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Shop Info</th>
                                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Seller Details</th>
                                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Location</th>
@@ -783,7 +785,7 @@ const ShopsPage = () => {
                             <button
                                 onClick={() => setPagination(p => ({ ...p, currentPage: Math.max(1, p.currentPage - 1) }))}
                                 disabled={pagination.currentPage === 1 || loading}
-                                className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-white hover:opacity-90 disabled:opacity-50 transition-colors"
+                                className="px-4 py-2 border border-gray-200 rounded-full text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-colors"
                                 style={{ backgroundColor: 'black' }}
                             >
                                 Previous
@@ -794,7 +796,7 @@ const ShopsPage = () => {
                             <button
                                 onClick={() => setPagination(p => ({ ...p, currentPage: Math.min(p.totalPages, p.currentPage + 1) }))}
                                 disabled={pagination.currentPage === pagination.totalPages || loading}
-                                className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-white hover:opacity-90 disabled:opacity-50 transition-colors"
+                                className="px-4 py-2 border border-gray-200 rounded-full text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-colors"
                                 style={{ backgroundColor: 'black' }}
                             >
                                 Next
@@ -811,7 +813,7 @@ const ShopsPage = () => {
                         <form onSubmit={handleSubmit}>
                             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                                 <h2 className="text-xl font-bold flex items-center gap-2">
-                                    {isEditing ? <Edit2 className="w-5 h-5 text-blue-600" /> : <Plus className="w-5 h-5 text-blue-600" />}
+                                    {isEditing ? <Edit2 className="w-5 h-5 text-gold-600" /> : <Plus className="w-5 h-5 text-gold-600" />}
                                     {isEditing ? 'Edit Shop Details' : 'Create New Shop'}
                                 </h2>
                                 <button
@@ -840,7 +842,7 @@ const ShopsPage = () => {
                                     </label>
                                     <select
                                         required
-                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                         value={formData.seller}
                                         onChange={(e) => setFormData(d => ({ ...d, seller: e.target.value }))}
                                     >
@@ -864,7 +866,7 @@ const ShopsPage = () => {
                                         <input
                                             required
                                             type="text"
-                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                             value={formData.shopName}
                                             onChange={(e) => setFormData(d => ({ ...d, shopName: e.target.value }))}
                                         />
@@ -873,7 +875,7 @@ const ShopsPage = () => {
                                         <label className="text-sm font-semibold text-gray-700">Tagline</label>
                                         <input
                                             type="text"
-                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                             value={formData.tagline}
                                             onChange={(e) => setFormData(d => ({ ...d, tagline: e.target.value }))}
                                         />
@@ -882,7 +884,7 @@ const ShopsPage = () => {
                                         <label className="text-sm font-semibold text-gray-700">Shop Type *</label>
                                         <select
                                             required
-                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                             value={formData.shopType}
                                             onChange={(e) => setFormData(d => ({ ...d, shopType: e.target.value }))}
                                         >
@@ -896,7 +898,7 @@ const ShopsPage = () => {
                                     <label className="text-sm font-semibold text-gray-700">Description</label>
                                     <textarea
                                         rows="3"
-                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none resize-none"
                                         value={formData.description}
                                         onChange={(e) => setFormData(d => ({ ...d, description: e.target.value }))}
                                     />
@@ -907,7 +909,7 @@ const ShopsPage = () => {
                                         <label className="text-sm font-semibold text-gray-700">Contact Email</label>
                                         <input
                                             type="email"
-                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                             value={formData.contactEmail}
                                             onChange={(e) => setFormData(d => ({ ...d, contactEmail: e.target.value }))}
                                         />
@@ -916,7 +918,7 @@ const ShopsPage = () => {
                                         <label className="text-sm font-semibold text-gray-700">Contact Phone</label>
                                         <input
                                             type="text"
-                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                             value={formData.contactPhone}
                                             onChange={(e) => setFormData(d => ({ ...d, contactPhone: e.target.value }))}
                                         />
@@ -930,7 +932,7 @@ const ShopsPage = () => {
                                             <label className="text-sm font-semibold text-gray-700">Street Address</label>
                                             <input
                                                 type="text"
-                                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                                 value={formData.address.street}
                                                 onChange={(e) => updateAddressField('street', e.target.value)}
                                             />
@@ -939,7 +941,7 @@ const ShopsPage = () => {
                                             <label className="text-sm font-semibold text-gray-700">City</label>
                                             <input
                                                 type="text"
-                                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                                 value={formData.address.city}
                                                 onChange={(e) => updateAddressField('city', e.target.value)}
                                             />
@@ -948,7 +950,7 @@ const ShopsPage = () => {
                                             <label className="text-sm font-semibold text-gray-700">State</label>
                                             <input
                                                 type="text"
-                                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                                 value={formData.address.state}
                                                 onChange={(e) => updateAddressField('state', e.target.value)}
                                             />
@@ -957,7 +959,7 @@ const ShopsPage = () => {
                                             <label className="text-sm font-semibold text-gray-700">Pincode</label>
                                             <input
                                                 type="text"
-                                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold-400 outline-none"
                                                 value={formData.address.pincode}
                                                 onChange={(e) => updateAddressField('pincode', e.target.value)}
                                             />
@@ -971,7 +973,7 @@ const ShopsPage = () => {
                                             type="button"
                                             onClick={findShopLocationFromAddress}
                                             disabled={detectingLocation}
-                                            className="flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                                            className="flex items-center justify-center gap-2 rounded-full border border-gold-400 bg-gold-500 px-4 py-2 font-semibold text-gray-900 hover:bg-gold-600 disabled:opacity-60"
                                         >
                                             <Search className="w-4 h-4" /> Find Shop Location
                                         </button>
@@ -979,7 +981,7 @@ const ShopsPage = () => {
                                             type="button"
                                             onClick={detectShopLocation}
                                             disabled={detectingLocation}
-                                            className="flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
+                                            className="flex items-center justify-center gap-2 rounded-full border border-gold-200 bg-gold-50 px-4 py-2 font-semibold text-gold-800 hover:bg-gold-100 disabled:opacity-60"
                                         >
                                             {detectingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
                                             {detectingLocation ? 'Detecting shop location...' : 'Use Current Shop Location'}
@@ -998,7 +1000,7 @@ const ShopsPage = () => {
                                                 <div className="col-span-3">
                                                     <input
                                                         type="time"
-                                                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-400 outline-none text-sm"
                                                         value={formData.timings[day].open}
                                                         onChange={(e) => setFormData(d => ({ 
                                                             ...d, 
@@ -1012,7 +1014,7 @@ const ShopsPage = () => {
                                                 <div className="col-span-3">
                                                     <input
                                                         type="time"
-                                                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-400 outline-none text-sm"
                                                         value={formData.timings[day].close}
                                                         onChange={(e) => setFormData(d => ({ 
                                                             ...d, 
@@ -1048,7 +1050,7 @@ const ShopsPage = () => {
                                             </div>
                                             <div className="col-span-9">
                                                 <select
-                                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-400 outline-none text-sm"
                                                     value={formData.timings.timezone}
                                                     onChange={(e) => setFormData(d => ({ 
                                                         ...d, 
@@ -1167,7 +1169,7 @@ const ShopsPage = () => {
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            className="w-4 h-4 text-blue-600 rounded"
+                                            className="w-4 h-4 text-gold-600 rounded"
                                             checked={formData.isVerified}
                                             onChange={(e) => setFormData(d => ({ ...d, isVerified: e.target.checked }))}
                                         />
@@ -1185,7 +1187,7 @@ const ShopsPage = () => {
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            className="w-4 h-4 text-blue-600 rounded"
+                                            className="w-4 h-4 text-gold-600 rounded"
                                             checked={formData.isOpen}
                                             onChange={(e) => setFormData(d => ({ ...d, isOpen: e.target.checked }))}
                                         />
@@ -1198,7 +1200,7 @@ const ShopsPage = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsFormModalOpen(false)}
-                                    className="px-6 py-2 border border-gray-200 rounded-xl font-bold text-sm text-white hover:opacity-90 shadow-sm"
+                                    className="px-6 py-2 border border-gray-200 rounded-full font-bold text-sm text-white hover:opacity-90 shadow-sm"
                                     style={{ backgroundColor: 'black' }}
                                 >
                                     Cancel
@@ -1206,8 +1208,8 @@ const ShopsPage = () => {
                                 <button
                                     type="submit"
                                     disabled={actionLoading === 'submit'}
-                                    className="px-8 py-2 text-white rounded-xl font-bold text-sm hover:opacity-90 shadow-lg flex items-center gap-2 disabled:opacity-70"
-                                    style={{ backgroundColor: 'black' }}
+                                    className="px-8 py-2 text-gray-900 rounded-full font-bold text-sm hover:bg-gold-600 shadow-lg flex items-center gap-2 disabled:opacity-70"
+                                    style={{ backgroundColor: '#f3bf2e' }}
                                 >
                                     {actionLoading === 'submit' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                     {isEditing ? 'Save Changes' : 'Create Shop'}
@@ -1224,7 +1226,7 @@ const ShopsPage = () => {
                     <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden">
                         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                             <h2 className="text-xl font-bold flex items-center gap-2">
-                                <Building2 className="w-5 h-5 text-blue-600" />
+                                <Building2 className="w-5 h-5 text-gold-600" />
                                 Shop Details
                             </h2>
                             <button
@@ -1250,7 +1252,7 @@ const ShopsPage = () => {
                                                 <p className="text-sm text-gray-500">/{selectedShop.shopSlug}</p>
                                                 <div className="mt-2 flex gap-2 flex-wrap">
                                                     {selectedShop.isVerified && (
-                                                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">VERIFIED</span>
+                                                        <span className="bg-gold-100 text-gold-800 px-2 py-0.5 rounded text-[10px] font-bold">VERIFIED</span>
                                                     )}
                                                     {selectedShop.isActive
                                                         ? <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">ACTIVE</span>
@@ -1294,7 +1296,7 @@ const ShopsPage = () => {
                                             {selectedShop.video?.url && (
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-500">Introduction Video</span>
-                                                    <a href={selectedShop.video.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                                    <a href={selectedShop.video.url} target="_blank" rel="noopener noreferrer" className="text-gold-700 hover:underline font-medium">
                                                         View Video
                                                     </a>
                                                 </div>

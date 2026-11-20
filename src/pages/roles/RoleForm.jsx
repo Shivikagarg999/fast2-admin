@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiSave, FiX } from 'react-icons/fi';
+import { FiSave, FiX, FiCheck } from 'react-icons/fi';
 import { PERMISSION_GROUPS, getPermissionLabel } from '../../config/permissions';
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/ui/PageHeader";
 
 const RoleForm = () => {
   const navigate = useNavigate();
@@ -122,26 +126,22 @@ const RoleForm = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {isEditMode ? 'Edit Role' : 'Create New Role'}
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {isEditMode ? 'Update role details and permissions' : 'Create a new role with custom permissions'}
-        </p>
-      </div>
+    <div className="p-6 bg-gold-50 min-h-screen">
+      <PageHeader
+        title={isEditMode ? 'Edit Role' : 'Create New Role'}
+        subtitle={isEditMode ? 'Update role details and permissions' : 'Create a new role with custom permissions'}
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <Card>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Basic Information
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Role Name (System) *
               </label>
               <input
@@ -150,16 +150,16 @@ const RoleForm = () => {
                 disabled={isEditMode}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-gray-900 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-gold-400 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 placeholder="e.g., staff, manager"
               />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-1.5 text-xs text-gray-500">
                 Lowercase, no spaces (use underscores)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Display Name *
               </label>
               <input
@@ -167,20 +167,20 @@ const RoleForm = () => {
                 required
                 value={formData.displayName}
                 onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                 placeholder="e.g., Staff, Manager"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-gold-400 focus:border-transparent"
                 placeholder="Brief description of this role"
               />
             </div>
@@ -191,84 +191,98 @@ const RoleForm = () => {
                 id="isActive"
                 checked={formData.isActive}
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-gold-600 border-gray-300 rounded focus:ring-gold-400"
               />
-              <label htmlFor="isActive" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+              <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
                 Active
               </label>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Permissions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Permissions
-          </h2>
+        <Card>
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Permissions
+            </h2>
+            <span className="text-xs font-semibold text-gray-500">
+              {formData.permissions.length} selected
+            </span>
+          </div>
+          <p className="text-sm text-gray-500 mb-5">
+            Grouped by area — toggle a whole group at once, or pick individual permissions.
+          </p>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {Object.entries(PERMISSION_GROUPS)
               .filter(([groupKey]) => groupKey !== 'admins' && groupKey !== 'roles')
-              .map(([groupKey, group]) => (
-                <div key={groupKey} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {group.label}
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectAllGroup(groupKey)}
-                      className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                      {isGroupFullySelected(groupKey) ? 'Deselect All' : 'Select All'}
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {group.permissions.map((permission) => (
-                      <label
-                        key={permission}
-                        className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded"
+              .map(([groupKey, group]) => {
+                const selectedCount = group.permissions.filter(p => formData.permissions.includes(p)).length;
+                const fullySelected = isGroupFullySelected(groupKey);
+                return (
+                  <div key={groupKey} className="border border-gray-100 rounded-2xl p-4 bg-gold-50/40">
+                    <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-gray-900">
+                          {group.label}
+                        </h3>
+                        <Badge variant={selectedCount === 0 ? 'outline' : fullySelected ? 'gold' : 'pale'}>
+                          {selectedCount}/{group.permissions.length}
+                        </Badge>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectAllGroup(groupKey)}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-gold-700 hover:text-gold-900 bg-white border border-gold-200 rounded-full px-3 py-1"
                       >
-                        <input
-                          type="checkbox"
-                          checked={formData.permissions.includes(permission)}
-                          onChange={() => handlePermissionToggle(permission)}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span>{getPermissionLabel(permission)}</span>
-                      </label>
-                    ))}
+                        <FiCheck className="w-3 h-3" />
+                        {fullySelected ? 'Deselect all' : 'Select all'}
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {group.permissions.map((permission) => {
+                        const checked = formData.permissions.includes(permission);
+                        return (
+                          <label
+                            key={permission}
+                            className={`flex items-center space-x-2 text-sm cursor-pointer p-2 rounded-xl border transition-colors ${
+                              checked ? 'bg-white border-gold-300 text-gray-900 font-medium' : 'border-transparent text-gray-600 hover:bg-white/70'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => handlePermissionToggle(permission)}
+                              className="w-4 h-4 text-gold-600 border-gray-300 rounded focus:ring-gold-400"
+                            />
+                            <span>{getPermissionLabel(permission)}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
           </div>
-        </div>
+        </Card>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl">
             {error}
           </div>
         )}
 
         {/* Actions */}
         <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/admin/roles')}
-            className="flex items-center gap-2 px-6 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-          >
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/roles')}>
             <FiX className="w-4 h-4" />
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-            style={{ backgroundColor: 'black' }}
-          >
+          </Button>
+          <Button type="submit" variant="secondary" disabled={loading}>
             <FiSave className="w-4 h-4" />
             {loading ? 'Saving...' : isEditMode ? 'Update Role' : 'Create Role'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

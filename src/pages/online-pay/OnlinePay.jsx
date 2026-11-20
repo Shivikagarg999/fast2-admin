@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import Button from "../../components/common/Button";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/ui/PageHeader";
 import {
     FiCreditCard,
     FiEye,
@@ -144,37 +147,29 @@ const OnlinePay = () => {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-            confirmed: { color: 'bg-blue-100 text-blue-800', label: 'Confirmed' },
-            processing: { color: 'bg-purple-100 text-purple-800', label: 'Processing' },
-            shipped: { color: 'bg-indigo-100 text-indigo-800', label: 'Shipped' },
-            delivered: { color: 'bg-green-100 text-green-800', label: 'Delivered' },
-            cancelled: { color: 'bg-red-100 text-red-800', label: 'Cancelled' }
+            pending: { variant: 'gold', label: 'Pending' },
+            confirmed: { variant: 'outline', label: 'Confirmed' },
+            processing: { variant: 'pale', label: 'Processing' },
+            shipped: { variant: 'pale', label: 'Shipped' },
+            delivered: { variant: 'success', label: 'Delivered' },
+            cancelled: { variant: 'danger', label: 'Cancelled' }
         };
 
         const config = statusConfig[status] || statusConfig.pending;
-        return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        return <Badge variant={config.variant}>{config.label}</Badge>;
     };
 
     const getPaymentStatusBadge = (status) => {
         const statusConfig = {
-            pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-            paid: { color: 'bg-green-100 text-green-800', label: 'Paid' },
-            failed: { color: 'bg-red-100 text-red-800', label: 'Failed' },
-            refunded: { color: 'bg-gray-100 text-gray-800', label: 'Refunded' },
-            partially_paid: { color: 'bg-orange-100 text-orange-800', label: 'Partial' }
+            pending: { variant: 'gold', label: 'Pending' },
+            paid: { variant: 'success', label: 'Paid' },
+            failed: { variant: 'danger', label: 'Failed' },
+            refunded: { variant: 'outline', label: 'Refunded' },
+            partially_paid: { variant: 'pale', label: 'Partial' }
         };
 
         const config = statusConfig[status] || statusConfig.pending;
-        return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        return <Badge variant={config.variant}>{config.label}</Badge>;
     };
 
     const statusOptions = [
@@ -204,62 +199,54 @@ const OnlinePay = () => {
     };
 
     return (
-        <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
+        <div className="bg-gold-50 min-h-screen">
             <div className="max-w-7xl mx-auto p-6">
-                {/* Header */}
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-                    <div className="flex items-center mb-4 lg:mb-0">
-                        <FiCreditCard className="w-6 h-6 text-blue-600 mr-2" />
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Online Payments</h1>
-                        <span className="ml-3 px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                            {totalOrders} orders
-                        </span>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="flex gap-2">
+                <PageHeader
+                    title="Online Payments"
+                    subtitle={`${totalOrders} orders`}
+                    actions={
+                        <>
+                            <div className="flex gap-1 bg-white rounded-full border border-gray-200 p-1">
+                                <button
+                                    onClick={() => setViewMode("table")}
+                                    className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${viewMode === "table"
+                                        ? "bg-black text-white"
+                                        : "text-gray-600 hover:bg-gray-50"
+                                        }`}
+                                >
+                                    Table
+                                </button>
+                                <button
+                                    onClick={() => setViewMode("grid")}
+                                    className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${viewMode === "grid"
+                                        ? "bg-black text-white"
+                                        : "text-gray-600 hover:bg-gray-50"
+                                        }`}
+                                >
+                                    Grid
+                                </button>
+                            </div>
                             <button
-                                onClick={() => setViewMode("table")}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === "table"
-                                    ? "bg-black text-white"
-                                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                    }`}
-                                style={{ backgroundColor: 'black' }}
+                                onClick={fetchOrders}
+                                className="w-9 h-9 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
+                                title="Refresh"
                             >
-                                Table
+                                <FiRefreshCw className="w-4 h-4" />
                             </button>
-                            <button
-                                onClick={() => setViewMode("grid")}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${viewMode === "grid"
-                                    ? "bg-black text-white"
-                                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                    }`}
-
-                                style={{ backgroundColor: 'black' }}
-                            >
-                                Grid
-                            </button>
-                        </div>
-                        <button
-                            onClick={fetchOrders}
-                            className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                            title="Refresh"
-                        >
-                            <FiRefreshCw className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
+                        </>
+                    }
+                />
 
                 {/* Filters Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
+                <Card className="mb-6 !p-4">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <form onSubmit={handleSearch} className="flex-1">
                             <div className="relative">
-                                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <FiSearch className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                 <input
                                     type="text"
                                     placeholder="Search orders by customer name, email, or order ID..."
-                                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                 />
@@ -273,7 +260,7 @@ const OnlinePay = () => {
                                     setStatusFilter(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400 text-sm"
                             >
                                 {statusOptions.map(option => (
                                     <option key={option.value} value={option.value}>
@@ -288,7 +275,7 @@ const OnlinePay = () => {
                                     setPaymentStatusFilter(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400 text-sm"
                             >
                                 {paymentStatusOptions.map(option => (
                                     <option key={option.value} value={option.value}>
@@ -304,48 +291,48 @@ const OnlinePay = () => {
                                     setDateFilter(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400 text-sm"
                             />
                         </div>
                     </div>
-                </div>
+                </Card>
 
                 {/* Orders Section */}
                 {viewMode === "table" ? (
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                    <Card padded={false} className="overflow-hidden">
                         <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead className="bg-gray-50 dark:bg-gray-900">
+                            <table className="min-w-full divide-y divide-gray-100">
+                                <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             Order Details
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             Customer
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             Amount
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             Status
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             Payment
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             Date
                                         </th>
-                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             Actions
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tbody className="divide-y divide-gray-100">
                                     {loading ? (
                                         <tr>
                                             <td colSpan={7} className="px-6 py-8 text-center">
                                                 <div className="flex justify-center">
-                                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
                                                 </div>
                                                 <p className="mt-2 text-gray-500">Loading orders...</p>
                                             </td>
@@ -353,7 +340,7 @@ const OnlinePay = () => {
                                     ) : orders.length === 0 ? (
                                         <tr>
                                             <td colSpan={7} className="px-6 py-8 text-center">
-                                                <FiCreditCard className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                                <FiCreditCard className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                                                 <p className="text-gray-500">No online payments found</p>
                                                 {(search || statusFilter !== 'all' || paymentStatusFilter !== 'all' || dateFilter) && (
                                                     <button
@@ -364,7 +351,7 @@ const OnlinePay = () => {
                                                             setDateFilter("");
                                                             setCurrentPage(1);
                                                         }}
-                                                        className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                                                        className="mt-2 text-gold-700 hover:text-gold-900 text-sm font-semibold"
                                                     >
                                                         Clear all filters
                                                     </button>
@@ -373,14 +360,14 @@ const OnlinePay = () => {
                                         </tr>
                                     ) : (
                                         orders.map((order) => (
-                                            <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                            <tr key={order._id} className="hover:bg-gold-50/60 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center">
-                                                        <div className="flex-shrink-0 h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                                                        <div className="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center">
                                                             <FiPackage className="h-5 w-5 text-gray-500" />
                                                         </div>
                                                         <div className="ml-4">
-                                                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                            <div className="text-sm font-semibold text-gray-900">
                                                                 {order.orderId}
                                                             </div>
                                                             <div className="text-sm text-gray-500">
@@ -390,7 +377,7 @@ const OnlinePay = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-sm text-gray-900 dark:text-white">
+                                                    <div className="text-sm text-gray-900">
                                                         {order.user?.name || 'N/A'}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
@@ -398,7 +385,7 @@ const OnlinePay = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                    <div className="text-sm font-semibold text-gray-900">
                                                         {formatCurrency(order.finalAmount)}
                                                     </div>
                                                     {order.walletDeduction > 0 && (
@@ -414,7 +401,7 @@ const OnlinePay = () => {
                                                     {getPaymentStatusBadge(order.paymentStatus)}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-sm text-gray-900 dark:text-white">
+                                                    <div className="text-sm text-gray-900">
                                                         {new Date(order.createdAt).toLocaleDateString()}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
@@ -423,10 +410,10 @@ const OnlinePay = () => {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex justify-center gap-2">
-                                                        <Button variant="primary" size="sm" icon={FiEye} onClick={() => openOrderDetails(order)} title="View Details">View</Button>
+                                                        <Button variant="primary" className="!px-3 !py-1.5 text-xs" onClick={() => openOrderDetails(order)} title="View Details"><FiEye className="w-3.5 h-3.5" /> View</Button>
                                                         <select
                                                             onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                                                            className="text-xs border border-gray-300 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                            className="text-xs border border-gray-200 rounded-lg bg-white text-gray-700 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-gold-400"
                                                             defaultValue=""
                                                         >
                                                             <option value="" disabled>Update</option>
@@ -444,14 +431,14 @@ const OnlinePay = () => {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </Card>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {orders.map((order) => (
-                            <div key={order._id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                            <Card key={order._id} className="!p-4">
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
-                                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                                        <h3 className="text-sm font-semibold text-gray-900">
                                             {order.orderId}
                                         </h3>
                                         <p className="text-xs text-gray-500 mt-1">{formatDate(order.createdAt)}</p>
@@ -465,19 +452,19 @@ const OnlinePay = () => {
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2">
                                         <FiUser className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                                        <span className="text-sm text-gray-600">
                                             {order.user?.name || 'N/A'}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <FiShoppingBag className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                                        <span className="text-sm text-gray-600">
                                             {order.items?.length || 0} items
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <FiDollarSign className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                        <span className="text-sm font-semibold text-gray-900">
                                             {formatCurrency(order.finalAmount)}
                                         </span>
                                         {order.walletDeduction > 0 && (
@@ -489,12 +476,12 @@ const OnlinePay = () => {
                                 </div>
 
                                 <div className="flex gap-2 mt-4">
-                                    <Button variant="primary" size="sm" icon={FiEye} onClick={() => openOrderDetails(order)} style={{ flex: 1 }}>
-                                        View
+                                    <Button variant="primary" onClick={() => openOrderDetails(order)} className="flex-1">
+                                        <FiEye className="w-3.5 h-3.5" /> View
                                     </Button>
                                     <select
                                         onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                                        className="flex-1 text-xs border border-gray-300 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="flex-1 text-xs border border-gray-200 rounded-lg bg-white text-gray-700 px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-gold-400"
                                         defaultValue=""
                                     >
                                         <option value="" disabled>Update</option>
@@ -505,7 +492,7 @@ const OnlinePay = () => {
                                         <option value="cancelled">Cancel</option>
                                     </select>
                                 </div>
-                            </div>
+                            </Card>
                         ))}
                     </div>
                 )}
@@ -513,17 +500,17 @@ const OnlinePay = () => {
                 {/* Pagination */}
                 {totalPages > 1 && !loading && orders.length > 0 && (
                     <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div className="text-sm text-gray-700 dark:text-gray-300">
+                        <div className="text-sm text-gray-600">
                             Showing {(currentPage - 1) * ordersPerPage + 1} to{" "}
                             {Math.min(currentPage * ordersPerPage, totalOrders)} of {totalOrders} orders
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1">
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className={`px-3 py-2 text-sm rounded-lg border ${currentPage === 1
-                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                className={`px-3 py-2 text-sm rounded-full border ${currentPage === 1
+                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
                                     }`}
                             >
                                 Previous
@@ -545,9 +532,9 @@ const OnlinePay = () => {
                                     <button
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
-                                        className={`px-3 py-2 text-sm rounded-lg border ${currentPage === pageNum
+                                        className={`w-9 h-9 text-sm rounded-full border ${currentPage === pageNum
                                             ? "bg-black text-white border-black"
-                                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
                                             }`}
                                     >
                                         {pageNum}
@@ -558,9 +545,9 @@ const OnlinePay = () => {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className={`px-3 py-2 text-sm rounded-lg border ${currentPage === totalPages
-                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                className={`px-3 py-2 text-sm rounded-full border ${currentPage === totalPages
+                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
                                     }`}
                             >
                                 Next
@@ -571,20 +558,20 @@ const OnlinePay = () => {
 
                 {/* Order Details Modal */}
                 {showModal && selectedOrder && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <div className="sticky top-0 bg-white border-b border-gray-100 p-6 flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                    <h2 className="text-xl font-semibold text-gray-900">
                                         Order #{selectedOrder.orderId}
                                     </h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    <p className="text-sm text-gray-500 mt-1">
                                         {formatDate(selectedOrder.createdAt)}
                                     </p>
                                 </div>
                                 <button
                                     onClick={closeModal}
-                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
                                 >
                                     <FiX className="w-5 h-5" />
                                 </button>
@@ -593,68 +580,68 @@ const OnlinePay = () => {
                             <div className="p-6 space-y-6">
                                 {/* Order Summary Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                                    <div className="bg-gray-50 p-4 rounded-xl">
                                         <div className="flex items-center gap-2 mb-2">
-                                            <FiUser className="w-4 h-4 text-blue-600" />
-                                            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Customer</span>
+                                            <FiUser className="w-4 h-4 text-gold-600" />
+                                            <span className="text-sm font-semibold text-gray-700">Customer</span>
                                         </div>
-                                        <p className="font-semibold text-gray-900 dark:text-white">{selectedOrder.user?.name || 'N/A'}</p>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">{selectedOrder.user?.email || 'N/A'}</p>
+                                        <p className="font-semibold text-gray-900">{selectedOrder.user?.name || 'N/A'}</p>
+                                        <p className="text-sm text-gray-600">{selectedOrder.user?.email || 'N/A'}</p>
                                     </div>
 
-                                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                                    <div className="bg-emerald-50 p-4 rounded-xl">
                                         <div className="flex items-center gap-2 mb-2">
-                                            <FiDollarSign className="w-4 h-4 text-green-600" />
-                                            <span className="text-sm font-medium text-green-700 dark:text-green-300">Amount</span>
+                                            <FiDollarSign className="w-4 h-4 text-emerald-600" />
+                                            <span className="text-sm font-semibold text-emerald-700">Amount</span>
                                         </div>
-                                        <p className="font-semibold text-gray-900 dark:text-white">{formatCurrency(selectedOrder.finalAmount)}</p>
+                                        <p className="font-semibold text-gray-900">{formatCurrency(selectedOrder.finalAmount)}</p>
                                         {selectedOrder.walletDeduction > 0 && (
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            <p className="text-sm text-gray-600">
                                                 -{formatCurrency(selectedOrder.walletDeduction)} from wallet
                                             </p>
                                         )}
                                     </div>
 
-                                    <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                                    <div className="bg-gold-50 p-4 rounded-xl">
                                         <div className="flex items-center gap-2 mb-2">
-                                            <FiPackage className="w-4 h-4 text-purple-600" />
-                                            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Status</span>
+                                            <FiPackage className="w-4 h-4 text-gold-700" />
+                                            <span className="text-sm font-semibold text-gold-800">Status</span>
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
                                             {getStatusBadge(selectedOrder.status)}
                                             {getPaymentStatusBadge(selectedOrder.paymentStatus)}
                                         </div>
                                     </div>
 
-                                    <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
+                                    <div className="bg-gray-50 p-4 rounded-xl">
                                         <div className="flex items-center gap-2 mb-2">
-                                            <FiShoppingBag className="w-4 h-4 text-orange-600" />
-                                            <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Items</span>
+                                            <FiShoppingBag className="w-4 h-4 text-gray-600" />
+                                            <span className="text-sm font-semibold text-gray-700">Items</span>
                                         </div>
-                                        <p className="font-semibold text-gray-900 dark:text-white">{selectedOrder.items?.length || 0} items</p>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">Online Payment</p>
+                                        <p className="font-semibold text-gray-900">{selectedOrder.items?.length || 0} items</p>
+                                        <p className="text-sm text-gray-600">Online Payment</p>
                                     </div>
                                 </div>
 
                                 {/* Order Items */}
-                                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Order Items</h3>
+                                <div className="bg-gray-50 rounded-xl p-4">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
                                     <div className="space-y-3">
                                         {selectedOrder.items?.map((item, index) => (
-                                            <div key={index} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                            <div key={index} className="flex items-center justify-between p-3 bg-white rounded-xl">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
+                                                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                                                         <FiPackage className="w-5 h-5 text-gray-400" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-medium text-gray-900 dark:text-white">
+                                                        <h4 className="font-semibold text-gray-900">
                                                             {item.product?.name || `Item ${index + 1}`}
                                                         </h4>
                                                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-medium text-gray-900 dark:text-white">
+                                                    <p className="font-semibold text-gray-900">
                                                         {formatCurrency(item.price)}
                                                     </p>
                                                     <p className="text-sm text-gray-500">
@@ -668,14 +655,14 @@ const OnlinePay = () => {
 
                                 {/* Shipping Address */}
                                 {selectedOrder.shippingAddress && (
-                                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Shipping Address</h3>
-                                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                                            <p className="text-gray-900 dark:text-white">{selectedOrder.shippingAddress.addressLine}</p>
-                                            <p className="text-gray-600 dark:text-gray-400">
+                                    <div className="bg-gray-50 rounded-xl p-4">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h3>
+                                        <div className="bg-white p-4 rounded-xl">
+                                            <p className="text-gray-900">{selectedOrder.shippingAddress.addressLine}</p>
+                                            <p className="text-gray-600">
                                                 {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} - {selectedOrder.shippingAddress.pinCode}
                                             </p>
-                                            <p className="text-gray-600 dark:text-gray-400 mt-2">
+                                            <p className="text-gray-600 mt-2">
                                                 Phone: {selectedOrder.shippingAddress.phone}
                                             </p>
                                         </div>
@@ -683,36 +670,36 @@ const OnlinePay = () => {
                                 )}
 
                                 {/* Payment Summary */}
-                                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Summary</h3>
+                                <div className="bg-gray-50 rounded-xl p-4">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Summary</h3>
                                     <div className="space-y-2">
                                         <div className="flex justify-between">
-                                            <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
+                                            <span className="text-gray-600">Subtotal</span>
                                             <span className="font-medium">{formatCurrency(selectedOrder.subtotal || selectedOrder.total)}</span>
                                         </div>
                                         {selectedOrder.deliveryCharges > 0 && (
                                             <div className="flex justify-between">
-                                                <span className="text-gray-600 dark:text-gray-400">Delivery</span>
+                                                <span className="text-gray-600">Delivery</span>
                                                 <span className="font-medium">{formatCurrency(selectedOrder.deliveryCharges)}</span>
                                             </div>
                                         )}
                                         {(selectedOrder.coupon?.discount > 0 || getFreebieText(selectedOrder.coupon)) && (
                                             <div className="flex justify-between">
-                                                <span className="text-gray-600 dark:text-gray-400">
+                                                <span className="text-gray-600">
                                                     {selectedOrder.coupon?.code ? `Coupon (${selectedOrder.coupon.code})` : 'Coupon'}
                                                 </span>
-                                                <span className="font-medium text-green-600">
+                                                <span className="font-medium text-emerald-600">
                                                     {getFreebieText(selectedOrder.coupon) ? `🎁 ${getFreebieText(selectedOrder.coupon)}` : `-${formatCurrency(selectedOrder.coupon.discount)}`}
                                                 </span>
                                             </div>
                                         )}
                                         {selectedOrder.walletDeduction > 0 && (
                                             <div className="flex justify-between">
-                                                <span className="text-gray-600 dark:text-gray-400">Wallet Deduction</span>
-                                                <span className="font-medium text-green-600">-{formatCurrency(selectedOrder.walletDeduction)}</span>
+                                                <span className="text-gray-600">Wallet Deduction</span>
+                                                <span className="font-medium text-emerald-600">-{formatCurrency(selectedOrder.walletDeduction)}</span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                                        <div className="flex justify-between pt-2 border-t border-gray-100">
                                             <span className="font-semibold">Total Amount</span>
                                             <span className="font-bold text-lg">{formatCurrency(selectedOrder.finalAmount)}</span>
                                         </div>
@@ -720,14 +707,10 @@ const OnlinePay = () => {
                                 </div>
                             </div>
 
-                            <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end gap-3">
-                                <button
-                                    onClick={closeModal}
-                                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
+                            <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4 flex justify-end gap-3">
+                                <Button variant="outline" onClick={closeModal}>
                                     Close
-                                </button>
-
+                                </Button>
                             </div>
                         </div>
                     </div>

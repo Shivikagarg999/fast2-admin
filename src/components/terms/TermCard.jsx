@@ -15,11 +15,11 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
 
   const getPolicyTypeColor = (type) => {
     switch(type) {
-      case 'terms': return '#3b82f6';
-      case 'return': return '#10b981';
-      case 'cancellation': return '#ef4444';
-      case 'refund': return '#f59e0b';
-      case 'privacy': return '#2563eb';
+      case 'terms': return '#8c680c';
+      case 'return': return '#d9a61a';
+      case 'cancellation': return '#dc2626';
+      case 'refund': return '#b3860f';
+      case 'privacy': return '#111827';
       default: return '#6b7280';
     }
   };
@@ -27,11 +27,11 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
   return (
     <div style={{
       backgroundColor: '#ffffff',
-      borderRadius: '8px',
-      border: `1px solid ${term.isActive ? '#16a34a' : '#e5e7eb'}`,
+      borderRadius: '16px',
+      border: `1px solid ${term.isActive ? '#f3bf2e' : '#e5e7eb'}`,
       padding: '20px',
       position: 'relative',
-      boxShadow: term.isActive ? '0 0 0 2px rgba(22, 163, 74, 0.1)' : 'none'
+      boxShadow: term.isActive ? '0 0 0 2px rgba(243, 191, 46, 0.25)' : 'none'
     }}>
       {/* Active Badge */}
       {term.isActive && (
@@ -39,8 +39,8 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
           position: 'absolute',
           top: '-8px',
           right: '16px',
-          backgroundColor: '#16a34a',
-          color: '#ffffff',
+          backgroundColor: '#f3bf2e',
+          color: '#111827',
           fontSize: '12px',
           fontWeight: '600',
           padding: '4px 12px',
@@ -206,7 +206,7 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
             <button
               onClick={() => onSetActive(term)}
               style={{
-                backgroundColor: '#dcfce7',
+                backgroundColor: '#fef6dc',
                 border: 'none',
                 borderRadius: '6px',
                 padding: '6px 12px',
@@ -216,7 +216,7 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
                 gap: '4px',
                 fontSize: '12px',
                 fontWeight: '500',
-                color: '#166534'
+                color: '#8c680c'
               }}
             >
               <FiCheckCircle size={14} />
@@ -229,7 +229,7 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
           <button
             onClick={() => onEdit(term)}
             style={{
-              backgroundColor: '#eff6ff',
+              backgroundColor: '#f3f4f6',
               border: 'none',
               borderRadius: '6px',
               padding: '6px 12px',
@@ -239,7 +239,7 @@ const TermCard = ({ term, policyType, onEdit, onDelete, onPreview, onSetActive }
               gap: '4px',
               fontSize: '12px',
               fontWeight: '500',
-              color: '#1d4ed8'
+              color: '#111827'
             }}
           >
             <FiEdit size={14} />

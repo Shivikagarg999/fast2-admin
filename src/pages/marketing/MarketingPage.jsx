@@ -2015,7 +2015,7 @@ const MarketingPage = () => {
                   value={scheduleForm.caption}
                   onChange={(e) => setScheduleForm((prev) => ({ ...prev, caption: e.target.value }))}
                   placeholder="Enter caption with hashtags..."
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gold-500"
                 />
               </div>
 
@@ -2044,7 +2044,7 @@ const MarketingPage = () => {
                   type="button"
                   onClick={handleConfirmSchedule}
                   disabled={submittingSchedule || !scheduleForm.scheduledAt || scheduleForm.platforms.length === 0}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold disabled:opacity-50 shadow-sm transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold-500 hover:bg-gold-600 text-black text-xs font-bold disabled:opacity-50 shadow-sm transition-colors"
                 >
                   {submittingSchedule ? (
                     <><FiLoader className="w-4 h-4 animate-spin" /> Scheduling...</>

@@ -43,55 +43,6 @@ const PoliciesManagement = () => {
     { value: "privacy", label: "Privacy Policy", icon: "🔒" }
   ];
 
-  // Button Styles
-  const buttonStyles = {
-    primary: {
-      backgroundColor: '#000000',
-      color: '#ffffff',
-      border: 'none',
-      borderRadius: '8px',
-      padding: '10px 20px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      fontWeight: '500',
-      transition: 'all 0.2s ease',
-      '&:hover': { backgroundColor: '#374151' }
-    },
-    secondary: {
-      backgroundColor: '#ffffff',
-      color: '#374151',
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
-      padding: '10px 20px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      fontWeight: '500',
-      transition: 'all 0.2s ease',
-      '&:hover': { backgroundColor: '#f9fafb' }
-    },
-    danger: {
-      backgroundColor: '#dc2626',
-      color: '#ffffff',
-      border: 'none',
-      borderRadius: '8px',
-      padding: '10px 20px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      fontWeight: '500',
-      transition: 'all 0.2s ease',
-      '&:hover': { backgroundColor: '#b91c1c' }
-    }
-  };
-
   // Get policy type label
   const getPolicyTypeLabel = (type) => {
     const policy = policyTypes.find(p => p.value === type);

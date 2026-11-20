@@ -345,7 +345,7 @@ const WhatsappInboxPage = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-80px)] flex bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div className="h-[calc(100vh-80px)] flex bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-hidden">
       {/* Conversation list */}
       <div className="w-[340px] border-r border-gray-100 flex flex-col bg-white">
         <div className="px-5 pt-5 pb-4 border-b border-gray-100">
@@ -364,14 +364,14 @@ const WhatsappInboxPage = () => {
           <div className="flex items-center gap-2 mt-3.5">
             <button
               onClick={openBulkModal}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-opacity hover:opacity-90"
               style={{ backgroundColor: '#111827', color: 'white' }}
             >
               <FiUsers className="w-3.5 h-3.5" /> Bulk Message
             </button>
             <button
               onClick={openTemplatesModal}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors hover:bg-gray-50"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-colors hover:bg-gray-50"
               style={{ border: '1px solid #e5e7eb', color: '#374151' }}
             >
               <FiFileText className="w-3.5 h-3.5" /> Templates
@@ -396,8 +396,8 @@ const WhatsappInboxPage = () => {
                   onClick={() => openConversation(c.phone)}
                   className="w-full text-left px-4 py-3.5 flex items-start gap-3 transition-colors"
                   style={{
-                    backgroundColor: isSelected ? '#F0FDF4' : 'transparent',
-                    borderLeft: isSelected ? '3px solid #0C831F' : '3px solid transparent',
+                    backgroundColor: isSelected ? '#fef6dc' : 'transparent',
+                    borderLeft: isSelected ? '3px solid #f3bf2e' : '3px solid transparent',
                     borderBottom: '1px solid #f3f4f6',
                   }}
                 >

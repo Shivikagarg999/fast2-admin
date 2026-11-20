@@ -316,8 +316,8 @@ const PromotorPayouts = () => {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
@@ -334,158 +334,109 @@ const PromotorPayouts = () => {
   const totalCommission = payouts.reduce((sum, p) => sum + (p.commissionAmount || 0), 0);
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Promotor Payouts</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {aggregatedView ? 'Showing total payout per promotor' : 'Showing per-order payouts'}
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Aggregated View</span>
+    <div className="p-6 bg-gold-50 min-h-screen">
+      <PageHeader
+        title="Promotor Payouts"
+        subtitle={aggregatedView ? 'Showing total payout per promotor' : 'Showing per-order payouts'}
+        actions={
+          <>
+            <div className="flex items-center gap-2 bg-white rounded-full border border-gray-200 px-3 py-1.5">
+              <span className="text-sm text-gray-600">Aggregated View</span>
               <button
                 onClick={() => setAggregatedView(!aggregatedView)}
                 className="flex items-center"
               >
                 {aggregatedView ? (
-                  <FiToggleRight className="w-8 h-8" style={{ color: '#9333ea' }} />
+                  <FiToggleRight className="w-7 h-7 text-gold-600" />
                 ) : (
-                  <FiToggleLeft className="w-8 h-8 text-gray-400" />
+                  <FiToggleLeft className="w-7 h-7 text-gray-400" />
                 )}
               </button>
             </div>
-            <button
+            <Button
+              variant="outline"
               onClick={() => {
                 fetchPromotorPayouts();
                 fetchPayoutSummary();
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-              style={{ backgroundColor: "black" }}
               disabled={refreshing}
             >
               <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh'}
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Pending</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {formatCurrency(totalPendingPayout)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {aggregatedView
-                  ? `${payouts.filter(p => (p.pendingOrders || 0) > 0).length} promotors with pending payouts`
-                  : `${payouts.filter(p => p.status === 'pending').length} pending payouts`
-                }
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/40 rounded-full">
-              <FiDollarSign className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Paid</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {formatCurrency(totalPaidPayout)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Completed payouts
-              </p>
-            </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/40 rounded-full">
-              <FiDollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Commission</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {formatCurrency(totalCommission)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                All commission
-              </p>
-            </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-full">
-              <FiUsers className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {aggregatedView ? 'Total Promotors' : 'All Payouts'}
-              </p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {payouts.length}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {aggregatedView ? 'Active promotors' : 'Total payout records'}
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/40 rounded-full">
-              <FiUsers className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-        </div>
+        <StatCard
+          highlight
+          label="Total Pending"
+          value={formatCurrency(totalPendingPayout)}
+          icon={<FiDollarSign className="w-5 h-5" />}
+          hint={aggregatedView
+            ? `${payouts.filter(p => (p.pendingOrders || 0) > 0).length} promotors with pending payouts`
+            : `${payouts.filter(p => p.status === 'pending').length} pending payouts`
+          }
+        />
+        <StatCard
+          label="Total Paid"
+          value={formatCurrency(totalPaidPayout)}
+          icon={<FiDollarSign className="w-5 h-5" />}
+          hint="Completed payouts"
+        />
+        <StatCard
+          label="Total Commission"
+          value={formatCurrency(totalCommission)}
+          icon={<FiUsers className="w-5 h-5" />}
+          hint="All commission"
+        />
+        <StatCard
+          label={aggregatedView ? 'Total Promotors' : 'All Payouts'}
+          value={payouts.length}
+          icon={<FiUsers className="w-5 h-5" />}
+          hint={aggregatedView ? 'Active promotors' : 'Total payout records'}
+        />
       </div>
 
       {summary && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-blue-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Platform Summary</h3>
+        <Card className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Platform Summary</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Platform Fees</p>
-              <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">Platform Fees</p>
+              <p className="text-lg font-bold text-gold-700">
                 {formatCurrency(summary.platformEarnings?.serviceFee || 0)}
               </p>
             </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">GST Collection</p>
-              <p className="text-lg font-bold text-green-600 dark:text-green-400">
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">GST Collection</p>
+              <p className="text-lg font-bold text-emerald-600">
                 {formatCurrency(summary.platformEarnings?.gstCollection || 0)}
               </p>
             </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Pending Payouts</p>
-              <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">Pending Payouts</p>
+              <p className="text-lg font-bold text-amber-600">
                 {formatCurrency(summary.sellerPayouts?.totalAmount || 0)}
               </p>
             </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Orders</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">Total Orders</p>
+              <p className="text-lg font-bold text-gray-900">
                 {summary.sellerPayouts?.totalOrders || 0}
               </p>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <Card padded={false} className="overflow-hidden">
+        <div className="p-6 border-b border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-900">
             {aggregatedView ? 'Promotor Payout Summary' : 'Promotor Payout Details'}
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-600 mt-1">
             {aggregatedView
               ? `Showing ${payouts.length} promotors with payout records`
               : `Showing ${payouts.length} payout records`
@@ -494,92 +445,88 @@ const PromotorPayouts = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
+          <table className="min-w-full divide-y divide-gray-100">
+            <thead className="bg-gray-50">
               <tr>
                 {aggregatedView ? (
                   <>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Promotor</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Orders</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Commission</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Period</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Promotor</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Orders</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Commission</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Period</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                   </>
                 ) : (
                   <>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Promotor</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contact</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Commission Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Created</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Promotor</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Commission Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                   </>
                 )}
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white divide-y divide-gray-100">
               {payouts.length === 0 ? (
                 <tr>
-                  <td colSpan={aggregatedView ? "6" : "6"} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={aggregatedView ? "6" : "6"} className="px-6 py-8 text-center text-gray-500">
                     No payout records found
                   </td>
                 </tr>
               ) : (
                 payouts.map((payout) => (
-                  <tr key={payout._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <tr key={payout._id} className="hover:bg-gold-50/60 transition-colors">
                     {aggregatedView ? (
                       <>
                         <td className="px-6 py-4">
                           <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="text-sm font-semibold text-gray-900">
                               {payout.promotorName}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-gray-500">
                               {payout.promotorEmail}
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-white">
+                          <div className="text-sm text-gray-900">
                             {payout.totalOrders || 0} orders
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-500">
                             {(payout.pendingOrders || 0)} pending
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-semibold" style={{ color: '#9333ea' }}>
+                          <div className="text-sm font-semibold text-gold-700">
                             {formatCurrency(payout.commissionAmount || 0)}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-500">
                             Pending: {formatCurrency(payout.pendingAmount || 0)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 text-xs rounded-full ${(payout.pendingOrders || 0) > 0
-                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            }`}>
+                          <Badge variant={(payout.pendingOrders || 0) > 0 ? 'gold' : 'success'}>
                             {(payout.pendingOrders || 0) > 0 ? 'Pending' : 'Paid'}
-                          </span>
+                          </Badge>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-white">
+                          <div className="text-sm text-gray-900">
                             {formatDate(payout.earliestPayout)}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-500">
                             to {formatDate(payout.latestPayout)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <Button variant="primary" size="sm" icon={FiEye} onClick={() => handleViewDetails(payout)} title="View Details">View</Button>
+                            <Button variant="primary" className="!px-3 !py-1.5 text-xs" onClick={() => handleViewDetails(payout)} title="View Details"><FiEye className="w-3.5 h-3.5" /> View</Button>
                             {(payout.pendingOrders || 0) > 0 && (
                               <button
                                 onClick={() => handleMarkAsPaid(payout)}
-                                className="p-2 rounded transition-colors hover:bg-green-50 dark:hover:bg-green-900/20"
-                                style={{ color: '#10b981' }}
+                                className="p-2 rounded-full transition-colors hover:bg-emerald-50 text-emerald-600"
                                 title="Mark All as Paid"
                               >
                                 <FiCheck className="w-4 h-4" />
@@ -592,48 +539,42 @@ const PromotorPayouts = () => {
                       <>
                         <td className="px-6 py-4">
                           <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="text-sm font-semibold text-gray-900">
                               {payout.promotorName}
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-white">{payout.promotorEmail}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{payout.promotorPhone}</div>
+                          <div className="text-sm text-gray-900">{payout.promotorEmail}</div>
+                          <div className="text-xs text-gray-500">{payout.promotorPhone}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-semibold" style={{ color: payout.status === 'paid' ? '#10b981' : '#8b5cf6' }}>
+                          <div className="text-sm font-semibold" style={{ color: payout.status === 'paid' ? '#10b981' : '#b3860f' }}>
                             {formatCurrency(payout.commissionAmount)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 text-xs rounded-full ${payout.status === 'paid'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : payout.status === 'processing'
-                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                              : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                            }`}>
+                          <Badge variant={payout.status === 'paid' ? 'success' : payout.status === 'processing' ? 'pale' : 'gold'}>
                             {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
-                          </span>
+                          </Badge>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-white">
+                          <div className="text-sm text-gray-900">
                             {formatDate(payout.createdAt)}
                           </div>
                           {payout.paidAt && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-gray-500">
                               Paid: {formatDate(payout.paidAt)}
                             </div>
                           )}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <Button variant="primary" size="sm" icon={FiEye} onClick={() => handleViewDetails(payout)} title="View Details">View</Button>
+                            <Button variant="primary" className="!px-3 !py-1.5 text-xs" onClick={() => handleViewDetails(payout)} title="View Details"><FiEye className="w-3.5 h-3.5" /> View</Button>
                             {payout.status === 'pending' && (
                               <button
                                 onClick={() => handleMarkAsPaid(payout)}
-                                className="p-2 rounded transition-colors hover:bg-green-50 dark:hover:bg-green-900/20"
-                                style={{ color: '#10b981' }}
+                                className="p-2 rounded-full transition-colors hover:bg-emerald-50 text-emerald-600"
                                 title="Mark as Paid"
                               >
                                 <FiCheck className="w-4 h-4" />
@@ -649,46 +590,46 @@ const PromotorPayouts = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {/* Modals remain mostly the same, just update the aggregated view parts */}
       {showPaymentModal && selectedPromotor && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-900">
                 {aggregatedView ? 'Process Bulk Payout' : 'Process Payout'}
               </h2>
               <button
                 onClick={closePaymentModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <FiX className="w-6 h-6" />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="p-4 bg-gold-50 rounded-xl">
+                <p className="text-sm text-gray-600">
                   {aggregatedView ? 'Processing Bulk Payout For' : 'Processing Payout For'}
                 </p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                <p className="text-lg font-bold text-gray-900">
                   {selectedPromotor.promotorName}
                 </p>
                 {aggregatedView ? (
                   <>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500 mt-1">
                       Orders: <span className="font-semibold">{selectedPromotor.pendingOrders} pending orders</span>
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Total Amount: <span className="font-semibold text-green-600 dark:text-green-400">
+                    <p className="text-sm text-gray-500 mt-1">
+                      Total Amount: <span className="font-semibold text-emerald-600">
                         {formatCurrency(selectedPromotor.pendingAmount)}
                       </span>
                     </p>
                   </>
                 ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Amount: <span className="font-semibold text-green-600 dark:text-green-400">
+                  <p className="text-sm text-gray-500 mt-1">
+                    Amount: <span className="font-semibold text-emerald-600">
                       {formatCurrency(selectedPromotor.commissionAmount)}
                     </span>
                   </p>
@@ -696,14 +637,14 @@ const PromotorPayouts = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Payment Method *
                 </label>
                 <select
                   name="paymentMethod"
                   value={paymentForm.paymentMethod}
                   onChange={handlePaymentFormChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
                   required
                 >
                   <option value="bank_transfer">Bank Transfer</option>
@@ -714,7 +655,7 @@ const PromotorPayouts = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Transaction ID / Reference
                 </label>
                 <input
@@ -723,12 +664,12 @@ const PromotorPayouts = () => {
                   value={paymentForm.transactionId}
                   onChange={handlePaymentFormChange}
                   placeholder="Enter transaction ID"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Notes
                 </label>
                 <textarea
@@ -737,22 +678,21 @@ const PromotorPayouts = () => {
                   onChange={handlePaymentFormChange}
                   placeholder="Add any additional notes"
                   rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
 
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={closePaymentModal}
-                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors font-semibold text-sm"
                   disabled={submittingPayment}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmitPayment}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  style={{ backgroundColor: '#10b981', color: 'white' }}
+                  className="flex-1 px-4 py-2 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                   disabled={submittingPayment}
                 >
                   {submittingPayment ? (
@@ -774,15 +714,15 @@ const PromotorPayouts = () => {
       )}
 
       {showDetailsModal && selectedPromotor && promotorDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-900">
                 {promotorDetails.promotor?.name || selectedPromotor.promotorName} - Payout Details
               </h2>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <FiX className="w-6 h-6" />
               </button>
@@ -791,57 +731,57 @@ const PromotorPayouts = () => {
             <div className="p-6">
               {loadingDetails ? (
                 <div className="text-center py-8">
-                  <FiRefreshCw className="w-8 h-8 animate-spin mx-auto text-blue-500" />
-                  <p className="text-gray-600 dark:text-gray-400 mt-2">Loading details...</p>
+                  <FiRefreshCw className="w-8 h-8 animate-spin mx-auto text-gold-500" />
+                  <p className="text-gray-600 mt-2">Loading details...</p>
                 </div>
               ) : promotorDetails ? (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Pending Payout</p>
-                      <p className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+                    <div className="p-4 bg-gold-50 rounded-xl">
+                      <p className="text-sm text-gray-600">Pending Payout</p>
+                      <p className="text-xl font-bold text-amber-600">
                         {formatCurrency(promotorDetails.totalPendingPayout)}
                       </p>
                     </div>
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Paid</p>
-                      <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                    <div className="p-4 bg-emerald-50 rounded-xl">
+                      <p className="text-sm text-gray-600">Total Paid</p>
+                      <p className="text-xl font-bold text-emerald-600">
                         {formatCurrency(promotorDetails.totalPaidPayout)}
                       </p>
                     </div>
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Orders</p>
-                      <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <p className="text-sm text-gray-600">Total Orders</p>
+                      <p className="text-xl font-bold text-gray-900">
                         {promotorDetails.orderCount}
                       </p>
                     </div>
                   </div>
 
                   {promotorDetails.promotor && (
-                    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-3">Promotor Information</h3>
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <h3 className="font-semibold text-gray-900 mb-3">Promotor Information</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Name</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm text-gray-600">Name</p>
+                          <p className="text-sm font-semibold text-gray-900">
                             {promotorDetails.promotor.name}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Email</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm text-gray-600">Email</p>
+                          <p className="text-sm font-semibold text-gray-900">
                             {promotorDetails.promotor.email}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Phone</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm text-gray-600">Phone</p>
+                          <p className="text-sm font-semibold text-gray-900">
                             {promotorDetails.promotor.phone}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Commission Rate</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm text-gray-600">Commission Rate</p>
+                          <p className="text-sm font-semibold text-gray-900">
                             {promotorDetails.promotor.commissionRate || 'N/A'}%
                           </p>
                         </div>
@@ -851,40 +791,40 @@ const PromotorPayouts = () => {
 
                   {promotorDetails.orders && promotorDetails.orders.length > 0 && (
                     <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-3">Payout Details</h3>
+                      <h3 className="font-semibold text-gray-900 mb-3">Payout Details</h3>
                       <div className="space-y-3">
                         {promotorDetails.orders.map((order) => (
-                          <div key={order.orderId} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                          <div key={order.orderId} className="p-4 bg-gray-50 rounded-xl">
                             <div className="flex justify-between items-start mb-3">
                               <div>
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                <p className="text-sm font-semibold text-gray-900">
                                   Order {order.orderId}
                                 </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-gray-500">
                                   {formatDate(order.orderDate)}
                                 </p>
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 <span className={`px-2 py-1 text-xs rounded-full ${order.status === 'paid'
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                  : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                  ? 'bg-emerald-100 text-emerald-700'
+                                  : 'bg-gold-100 text-gold-800'
                                   }`}>
                                   {order.status === 'paid' ? 'Paid' : 'Pending'}
                                 </span>
                                 <div className="text-right">
-                                  <p className="text-sm font-semibold" style={{ color: '#9333ea' }}>
+                                  <p className="text-sm font-semibold text-gold-700">
                                     Commission: {formatCurrency(order.totalCommission)}
                                   </p>
                                 </div>
                                 {order.paidAt && (
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  <p className="text-xs text-gray-500">
                                     Paid: {formatDate(order.paidAt)}
                                   </p>
                                 )}
                               </div>
                             </div>
                             {order.paymentMethod && (
-                              <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+                              <div className="space-y-1 text-xs text-gray-600">
                                 <div className="flex justify-between">
                                   <span>Payment Method:</span>
                                   <span>{order.paymentMethod}</span>
@@ -910,7 +850,7 @@ const PromotorPayouts = () => {
                   )}
                 </div>
               ) : (
-                <p className="text-center text-gray-500 dark:text-gray-400">No details available</p>
+                <p className="text-center text-gray-500">No details available</p>
               )}
             </div>
           </div>

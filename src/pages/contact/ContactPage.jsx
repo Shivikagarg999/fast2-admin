@@ -95,7 +95,7 @@ const Badge = ({ color, label }) => (
 
 const StatCard = ({ icon, label, value, color }) => (
   <div style={{
-    backgroundColor: "#fff", borderRadius: "10px", padding: "16px 20px",
+    backgroundColor: "#fff", borderRadius: "16px", padding: "16px 20px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.08)", display: "flex", alignItems: "center", gap: "14px",
   }} className="dark:bg-gray-800">
     <div style={{ backgroundColor: color + "20", borderRadius: "8px", padding: "10px", flexShrink: 0 }}>
@@ -300,12 +300,12 @@ export default function ContactPage() {
   };
 
   return (
-    <div style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
+    <div className="bg-gold-50 min-h-screen" style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{ backgroundColor: "#eff6ff", borderRadius: "10px", padding: "10px" }}>
-            <FiMail style={{ width: "22px", height: "22px", color: "#2563eb" }} />
+          <div style={{ backgroundColor: "#fef6dc", borderRadius: "10px", padding: "10px" }}>
+            <FiMail style={{ width: "22px", height: "22px", color: "#111827" }} />
           </div>
           <div>
             <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }} className="dark:text-white">
@@ -330,7 +330,7 @@ export default function ContactPage() {
               disabled={exporting}
               style={{
                 display: "flex", alignItems: "center", gap: "6px", padding: "7px 14px",
-                backgroundColor: exporting ? "#9ca3af" : "#2563eb", color: "#fff", border: "none",
+                backgroundColor: exporting ? "#9ca3af" : "#111827", color: "#fff", border: "none",
                 borderRadius: "7px", fontSize: "13px", fontWeight: "500", cursor: exporting ? "not-allowed" : "pointer",
               }}
             >
@@ -352,9 +352,9 @@ export default function ContactPage() {
       {showStats && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "14px", marginBottom: "24px" }}>
           <StatCard
-            icon={<FiMail style={{ width: "18px", height: "18px", color: "#2563eb" }} />}
+            icon={<FiMail style={{ width: "18px", height: "18px", color: "#111827" }} />}
             label="Total" value={statsLoading ? "..." : stats?.counts?.total}
-            color="#2563eb"
+            color="#111827"
           />
           <StatCard
             icon={<FiClock style={{ width: "18px", height: "18px", color: "#d97706" }} />}
@@ -362,9 +362,9 @@ export default function ContactPage() {
             color="#d97706"
           />
           <StatCard
-            icon={<FiUser style={{ width: "18px", height: "18px", color: "#2563eb" }} />}
+            icon={<FiUser style={{ width: "18px", height: "18px", color: "#111827" }} />}
             label="Contacted" value={statsLoading ? "..." : stats?.counts?.contacted}
-            color="#2563eb"
+            color="#111827"
           />
           <StatCard
             icon={<FiCheckCircle style={{ width: "18px", height: "18px", color: "#10b981" }} />}
@@ -388,7 +388,7 @@ export default function ContactPage() {
 
       {/* Filters */}
       <div style={{
-        backgroundColor: "#fff", borderRadius: "10px", padding: "16px 20px",
+        backgroundColor: "#fff", borderRadius: "16px", padding: "16px 20px",
         boxShadow: "0 1px 3px rgba(0,0,0,0.08)", marginBottom: "20px",
       }} className="dark:bg-gray-800">
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
@@ -439,7 +439,7 @@ export default function ContactPage() {
 
       {/* Table */}
       <div style={{
-        backgroundColor: "#fff", borderRadius: "10px",
+        backgroundColor: "#fff", borderRadius: "16px",
         boxShadow: "0 1px 3px rgba(0,0,0,0.08)", overflow: "hidden",
       }} className="dark:bg-gray-800">
         <div style={{ overflowX: "auto" }}>
@@ -560,7 +560,7 @@ export default function ContactPage() {
                     style={{
                       padding: "5px 10px", borderRadius: "6px", fontSize: "13px", cursor: "pointer",
                       border: p === pagination.page ? "none" : "1px solid #d1d5db",
-                      backgroundColor: p === pagination.page ? "#2563eb" : "#fff",
+                      backgroundColor: p === pagination.page ? "#111827" : "#fff",
                       color: p === pagination.page ? "#fff" : "#374151",
                     }}
                     className={p !== pagination.page ? "dark:bg-gray-700 dark:border-gray-600 dark:text-white" : ""}
@@ -593,14 +593,14 @@ export default function ContactPage() {
           display: "flex", alignItems: "center", justifyContent: "center", zIndex: 60, padding: "16px",
         }}>
           <div style={{
-            backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+            backgroundColor: "#fff", borderRadius: "20px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
             width: "100%", maxWidth: "600px", maxHeight: "90vh", overflowY: "auto",
           }} className="dark:bg-gray-800">
             {/* Modal header */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid #f3f4f6" }} className="dark:border-gray-700">
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div style={{ backgroundColor: "#eff6ff", borderRadius: "8px", padding: "8px" }}>
-                  <FiMail style={{ width: "18px", height: "18px", color: "#2563eb" }} />
+                <div style={{ backgroundColor: "#fef6dc", borderRadius: "8px", padding: "8px" }}>
+                  <FiMail style={{ width: "18px", height: "18px", color: "#111827" }} />
                 </div>
                 <div>
                   <h2 style={{ fontSize: "16px", fontWeight: "600", color: "#111827", margin: 0 }} className="dark:text-white">
@@ -681,7 +681,7 @@ export default function ContactPage() {
                 {selected.tags?.length > 0 && (
                   <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "16px" }}>
                     {selected.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: "11px", backgroundColor: "#eff6ff", color: "#1d4ed8", padding: "2px 8px", borderRadius: "12px" }}>
+                      <span key={tag} style={{ fontSize: "11px", backgroundColor: "#fef6dc", color: "#8c680c", padding: "2px 8px", borderRadius: "12px" }}>
                         {tag}
                       </span>
                     ))}
@@ -770,7 +770,7 @@ export default function ContactPage() {
                         onClick={handleUpdate}
                         disabled={saving}
                         style={{
-                          flex: 1, padding: "10px", backgroundColor: saving ? "#93c5fd" : "#2563eb",
+                          flex: 1, padding: "10px", backgroundColor: saving ? "#d1d5db" : "#111827",
                           color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600",
                           fontSize: "14px", cursor: saving ? "not-allowed" : "pointer",
                         }}

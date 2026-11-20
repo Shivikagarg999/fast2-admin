@@ -4,6 +4,9 @@ import axios from "axios";
 import { FiTag, FiPercent, FiPackage, FiX, FiSearch, FiCalendar, FiPlus, FiEdit, FiTrash2, FiClock } from "react-icons/fi";
 import usePermissions from "../../hooks/usePermissions";
 import { PERMISSIONS } from "../../config/permissions";
+import PageHeader from "../../components/ui/PageHeader";
+import StatCard from "../../components/ui/StatCard";
+import Badge from "../../components/ui/Badge";
 
 const DiscountPage = () => {
   const { hasPermission } = usePermissions();
@@ -251,11 +254,11 @@ const DiscountPage = () => {
     const endDate = discount.endDate ? new Date(discount.endDate) : null;
 
     if (startDate > now) {
-      return { status: "Upcoming", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" };
+      return { status: "Upcoming", variant: "gold" };
     } else if (endDate && endDate < now) {
-      return { status: "Expired", color: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300" };
+      return { status: "Expired", variant: "outline" };
     } else {
-      return { status: "Active", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" };
+      return { status: "Active", variant: "success" };
     }
   };
 
@@ -282,110 +285,63 @@ const DiscountPage = () => {
   const currentDiscounts = filteredDiscounts.slice(indexOfFirstDiscount, indexOfLastDiscount);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
+    <div className="bg-gold-50 w-full min-h-screen">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <FiTag className="w-6 h-6 text-blue-600 mr-2" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Discount Management</h1>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={openActiveDiscountsModal}
-              className="flex items-center px-4 py-2 bg-white text-black border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <FiClock className="w-4 h-4 mr-2" />
-              View Active Discounts
-            </button>
-            <Button variant="primary" size="md" onClick={openCreateDiscountModal}>
-              <FiPlus className="w-4 h-4 mr-2" />
-              Create New Discount
-            </Button>
-          </div>
-        </div>
+        <PageHeader
+          title="Discount Management"
+          subtitle="Run category-wide or product-specific discounts"
+          actions={
+            <>
+              <button
+                onClick={openActiveDiscountsModal}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-800 border border-gray-200 rounded-full text-sm font-semibold hover:bg-gray-50 transition-colors"
+              >
+                <FiClock className="w-4 h-4" />
+                View Active Discounts
+              </button>
+              <Button variant="primary" size="md" icon={FiPlus} onClick={openCreateDiscountModal}>
+                Create New Discount
+              </Button>
+            </>
+          }
+        />
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                <FiTag className="w-6 h-6" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Categories</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{categories.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
-                <FiPackage className="w-6 h-6" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Products</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{products.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
-                <FiPercent className="w-6 h-6" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Discounts</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {discounts.filter(d => isDiscountActive(d)).length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400">
-                <FiCalendar className="w-6 h-6" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Discounts</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{discounts.length}</p>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <StatCard label="Total Categories" value={categories.length} icon={<FiTag className="w-5 h-5" />} />
+          <StatCard label="Total Products" value={products.length} icon={<FiPackage className="w-5 h-5" />} />
+          <StatCard label="Active Discounts" value={discounts.filter(d => isDiscountActive(d)).length} icon={<FiPercent className="w-5 h-5" />} highlight />
+          <StatCard label="Total Discounts" value={discounts.length} icon={<FiCalendar className="w-5 h-5" />} />
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+        <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button variant="primary" size="md" onClick={openCreateDiscountModal}>
-              <FiPlus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Category Discount</p>
-            </Button>
+            <button onClick={openCreateDiscountModal} className="p-4 rounded-2xl border border-gray-100 hover:border-gold-300 hover:bg-gold-50 transition-colors text-center">
+              <FiTag className="w-7 h-7 text-gold-600 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-700">Create Category Discount</p>
+            </button>
 
-            <Button variant="primary" size="md" onClick={openCreateDiscountModal}>
-              <FiPackage className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Product Discount</p>
-            </Button>
-
-            <button
-              onClick={openActiveDiscountsModal}
-              className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-center"
-            >
-              <FiClock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">View Active Discounts</p>
+            <button onClick={openCreateDiscountModal} className="p-4 rounded-2xl border border-gray-100 hover:border-gold-300 hover:bg-gold-50 transition-colors text-center">
+              <FiPackage className="w-7 h-7 text-gold-600 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-700">Create Product Discount</p>
             </button>
 
             <button
               onClick={openActiveDiscountsModal}
-              className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-center"
+              className="p-4 rounded-2xl border border-dashed border-gray-200 hover:border-gold-300 hover:bg-gold-50 transition-colors text-center"
             >
-              <FiCalendar className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Manage All Discounts</p>
+              <FiClock className="w-7 h-7 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-700">View Active Discounts</p>
+            </button>
+
+            <button
+              onClick={openActiveDiscountsModal}
+              className="p-4 rounded-2xl border border-dashed border-gray-200 hover:border-gold-300 hover:bg-gold-50 transition-colors text-center"
+            >
+              <FiCalendar className="w-7 h-7 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-700">Manage All Discounts</p>
             </button>
           </div>
         </div>
@@ -393,16 +349,16 @@ const DiscountPage = () => {
         {/* Create Discount Modal */}
         {showCreateDiscountModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[95vh] overflow-y-auto">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <div className="bg-white rounded-3xl shadow-xl w-full max-w-2xl max-h-[95vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900">
                   Create New Discount
                 </h2>
                 <button
                   onClick={closeModals}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
                 >
-                  <FiX className="w-6 h-6" />
+                  <FiX className="w-5 h-5" />
                 </button>
               </div>
 
@@ -423,7 +379,7 @@ const DiscountPage = () => {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                           placeholder="Enter discount name"
                           required
                         />
@@ -443,7 +399,7 @@ const DiscountPage = () => {
                             max="100"
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                               bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                              focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              focus:outline-none focus:ring-2 focus:ring-gold-400"
                             placeholder="Enter percentage (1-100)"
                             required
                           />
@@ -468,7 +424,7 @@ const DiscountPage = () => {
                           onChange={(e) => handleCategoryChange(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                         >
                           <option value="">Select a category (optional)</option>
                           {categories.map(category => (
@@ -581,7 +537,7 @@ const DiscountPage = () => {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                           required
                         />
                       </div>
@@ -598,20 +554,20 @@ const DiscountPage = () => {
                           min={discountForm.startDate}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            focus:outline-none focus:ring-2 focus:ring-gold-400"
                         />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-100">
                   <button
                     type="button"
                     onClick={closeModals}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 
-                      bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
-                      rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                    className="px-4 py-2 text-sm font-semibold text-gray-700
+                      bg-white border border-gray-200
+                      rounded-full hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
@@ -630,16 +586,16 @@ const DiscountPage = () => {
         {/* Active Discounts Modal */}
         {showActiveDiscountsModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <div className="bg-gold-50 rounded-3xl shadow-xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white sticky top-0 z-10">
+                <h2 className="text-xl font-bold text-gray-900">
                   Active Discounts ({filteredDiscounts.length})
                 </h2>
                 <button
                   onClick={closeModals}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
                 >
-                  <FiX className="w-6 h-6" />
+                  <FiX className="w-5 h-5" />
                 </button>
               </div>
 
@@ -647,15 +603,15 @@ const DiscountPage = () => {
                 {/* Search */}
                 <div className="mb-6">
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FiSearch className="text-gray-400" />
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <FiSearch className="text-gray-400 w-4 h-4" />
                     </div>
                     <input
                       type="text"
                       placeholder="Search discounts..."
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200
+                        bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-gold-400"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                     />
@@ -666,19 +622,19 @@ const DiscountPage = () => {
                 {loading ? (
                   <div className="text-center py-8">
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      <span className="ml-2 text-gray-500 dark:text-gray-400">Loading discounts...</span>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
+                      <span className="ml-2 text-gray-500">Loading discounts...</span>
                     </div>
                   </div>
                 ) : currentDiscounts.length === 0 ? (
                   <div className="text-center py-8">
                     <div className="flex flex-col items-center">
-                      <FiTag className="w-12 h-12 text-gray-400 mb-2" />
-                      <span className="text-gray-500 dark:text-gray-400">No discounts found.</span>
+                      <FiTag className="w-12 h-12 text-gray-300 mb-2" />
+                      <span className="text-gray-500">No discounts found.</span>
                       {search && (
                         <button
                           onClick={() => setSearch("")}
-                          className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                          className="mt-2 text-gold-700 hover:text-gold-900 text-sm font-semibold"
                         >
                           Clear search
                         </button>
@@ -690,56 +646,54 @@ const DiscountPage = () => {
                     {currentDiscounts.map((discount) => {
                       const status = getDiscountStatus(discount);
                       return (
-                        <div key={discount._id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
+                        <div key={discount._id} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm shadow-black/5">
                           <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            <h3 className="text-lg font-semibold text-gray-900">
                               {discount.name}
                             </h3>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${status.color}`}>
-                              {status.status}
-                            </span>
+                            <Badge variant={status.variant}>{status.status}</Badge>
                           </div>
 
                           <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm text-gray-600 dark:text-gray-400">Discount:</span>
-                              <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                              <span className="text-sm text-gray-600">Discount:</span>
+                              <span className="text-lg font-bold text-gold-700">
                                 {discount.discountPercentage}% OFF
                               </span>
                             </div>
 
                             <div className="flex justify-between items-center">
-                              <span className="text-sm text-gray-600 dark:text-gray-400">Scope:</span>
-                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                              <span className="text-sm text-gray-600">Scope:</span>
+                              <span className="text-sm font-medium text-gray-900">
                                 {discount.category ? `Category: ${discount.category.name}` : `Products: ${discount.products.length}`}
                               </span>
                             </div>
 
                             <div className="flex justify-between items-center">
-                              <span className="text-sm text-gray-600 dark:text-gray-400">Start Date:</span>
-                              <span className="text-sm text-gray-900 dark:text-white">
+                              <span className="text-sm text-gray-600">Start Date:</span>
+                              <span className="text-sm text-gray-900">
                                 {formatDate(discount.startDate)}
                               </span>
                             </div>
 
                             <div className="flex justify-between items-center">
-                              <span className="text-sm text-gray-600 dark:text-gray-400">End Date:</span>
-                              <span className="text-sm text-gray-900 dark:text-white">
+                              <span className="text-sm text-gray-600">End Date:</span>
+                              <span className="text-sm text-gray-900">
                                 {formatDate(discount.endDate)}
                               </span>
                             </div>
 
                             {discount.products && discount.products.length > 0 && (
                               <div>
-                                <span className="text-sm text-gray-600 dark:text-gray-400">Products:</span>
+                                <span className="text-sm text-gray-600">Products:</span>
                                 <div className="mt-1 space-y-1 max-h-20 overflow-y-auto">
                                   {discount.products.slice(0, 3).map(product => (
-                                    <div key={product._id} className="text-xs text-gray-900 dark:text-white truncate">
+                                    <div key={product._id} className="text-xs text-gray-900 truncate">
                                       • {product.name}
                                     </div>
                                   ))}
                                   {discount.products.length > 3 && (
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                                    <div className="text-xs text-gray-500">
                                       +{discount.products.length - 3} more products
                                     </div>
                                   )}
@@ -748,16 +702,16 @@ const DiscountPage = () => {
                             )}
                           </div>
 
-                          <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                            <span className="text-xs text-gray-500">
                               Created: {new Date(discount.createdAt).toLocaleDateString()}
                             </span>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleToggleDiscountStatus(discount._id, discount.isActive)}
-                                className={`px-2 py-1 text-xs rounded ${discount.isActive
-                                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                                  : 'bg-green-100 text-green-600 hover:bg-green-200'
+                                className={`px-2.5 py-1 text-xs font-semibold rounded-full ${discount.isActive
+                                  ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                                  : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
                                   }`}
                                 title={discount.isActive ? 'Deactivate' : 'Activate'}
                               >
@@ -776,16 +730,16 @@ const DiscountPage = () => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="mt-6 flex items-center justify-between">
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                    <div className="text-sm text-gray-600">
                       Showing {indexOfFirstDiscount + 1} to {Math.min(indexOfLastDiscount, filteredDiscounts.length)} of {filteredDiscounts.length} discounts
                     </div>
                     <div className="flex gap-1">
                       <button
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
-                        className="px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 
-                          bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
-                          hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed
+                        className="px-4 py-2 text-sm font-semibold rounded-full border border-gray-200
+                          bg-white text-gray-700
+                          hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed
                           transition-colors"
                       >
                         Previous
@@ -806,9 +760,9 @@ const DiscountPage = () => {
                         return (
                           <button
                             key={pageNum}
-                            className={`px-3 py-2 text-sm rounded-lg border transition-colors ${currentPage === pageNum
-                              ? "bg-blue-500 text-white border-blue-500"
-                              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            className={`px-3.5 py-2 text-sm font-semibold rounded-full border transition-colors ${currentPage === pageNum
+                              ? "bg-gold-400 text-black border-gold-400"
+                              : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
                               }`}
                             onClick={() => setCurrentPage(pageNum)}
                           >
@@ -820,9 +774,9 @@ const DiscountPage = () => {
                       <button
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
-                        className="px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 
-                          bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
-                          hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed
+                        className="px-4 py-2 text-sm font-semibold rounded-full border border-gray-200
+                          bg-white text-gray-700
+                          hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed
                           transition-colors"
                       >
                         Next

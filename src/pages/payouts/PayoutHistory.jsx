@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { FiDollarSign, FiRefreshCw, FiFilter, FiDownload, FiCheck, FiX, FiClock } from 'react-icons/fi';
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
 
 const PayoutHistory = () => {
   const [payouts, setPayouts] = useState([]);
@@ -125,28 +128,20 @@ const PayoutHistory = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Payout History</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              View all processed and pending payouts
-            </p>
-          </div>
-          <button
-            onClick={fetchPayoutHistory}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            disabled={refreshing}
-          >
+    <div className="p-6 bg-gold-50 min-h-screen">
+      <PageHeader
+        title="Payout History"
+        subtitle="View all processed and pending payouts"
+        actions={
+          <Button variant="secondary" onClick={fetchPayoutHistory} disabled={refreshing}>
             <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? 'Refreshing...' : 'Refresh'}
-          </button>
-        </div>
-      </div>
+          </Button>
+        }
+      />
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+      <Card className="mb-6">
         <div className="flex items-center gap-4">
           <FiFilter className="w-5 h-5 text-gray-500 dark:text-gray-400" />
           <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -182,10 +177,10 @@ const PayoutHistory = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Payouts Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <Card padded={false} className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
@@ -222,7 +217,7 @@ const PayoutHistory = () => {
                 </tr>
               ) : (
                 payouts.map((payout) => (
-                  <tr key={payout._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <tr key={payout._id} className="hover:bg-gold-50/50 dark:hover:bg-gray-700 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                       {formatDate(payout.createdAt)}
                     </td>
@@ -274,14 +269,14 @@ const PayoutHistory = () => {
                 <button
                   onClick={() => handlePageChange(filters.page - 1)}
                   disabled={!pagination.hasPrev}
-                  className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="px-3 py-1.5 border border-gray-200 rounded-full text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => handlePageChange(filters.page + 1)}
                   disabled={!pagination.hasNext}
-                  className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="px-3 py-1.5 border border-gray-200 rounded-full text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Next
                 </button>
@@ -289,7 +284,7 @@ const PayoutHistory = () => {
             </div>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 };

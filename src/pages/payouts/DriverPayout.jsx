@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
-import Button from "../../components/common/Button";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import StatCard from "../../components/ui/StatCard";
+import PageHeader from "../../components/ui/PageHeader";
 import { FiDollarSign, FiUsers, FiRefreshCw, FiEye, FiX, FiCheck, FiPackage, FiToggleLeft, FiToggleRight, FiTruck, FiFilter } from 'react-icons/fi';
 
 const DriverPayouts = () => {
@@ -576,42 +580,34 @@ const DriverPayouts = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      earned: { color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200', text: 'Pending' },
-      paid: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', text: 'Paid' },
-      cancelled: { color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200', text: 'Cancelled' },
-      pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', text: 'Pending' }
+      earned: { variant: 'gold', text: 'Pending' },
+      paid: { variant: 'success', text: 'Paid' },
+      cancelled: { variant: 'danger', text: 'Cancelled' },
+      pending: { variant: 'gold', text: 'Pending' }
     };
 
     const config = statusConfig[status] || statusConfig.pending;
-    return (
-      <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>
-        {config.text}
-      </span>
-    );
+    return <Badge variant={config.variant}>{config.text}</Badge>;
   };
 
   const getTypeBadge = (type) => {
     const typeConfig = {
-      delivery: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', text: 'Delivery' },
-      bonus: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', text: 'Bonus' },
-      penalty: { color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200', text: 'Penalty' },
-      other: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200', text: 'Other' }
+      delivery: { variant: 'outline', text: 'Delivery' },
+      bonus: { variant: 'success', text: 'Bonus' },
+      penalty: { variant: 'danger', text: 'Penalty' },
+      other: { variant: 'pale', text: 'Other' }
     };
 
     const config = typeConfig[type] || typeConfig.other;
-    return (
-      <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>
-        {config.text}
-      </span>
-    );
+    return <Badge variant={config.variant}>{config.text}</Badge>;
   };
 
   if (loading) {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
@@ -628,18 +624,14 @@ const DriverPayouts = () => {
   const totalPayoutAmount = payouts.reduce((sum, p) => sum + (p.amount || p.totalAmount || 0), 0);
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Driver Earnings & Payouts</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {aggregatedView ? 'Showing earnings aggregated by driver' : 'Showing all individual earnings'}
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Aggregated View</span>
+    <div className="p-6 bg-gold-50 min-h-screen">
+      <PageHeader
+        title="Driver Earnings & Payouts"
+        subtitle={aggregatedView ? 'Showing earnings aggregated by driver' : 'Showing all individual earnings'}
+        actions={
+          <>
+            <div className="flex items-center gap-2 bg-white rounded-full border border-gray-200 px-3 py-1.5">
+              <span className="text-sm text-gray-600">Aggregated View</span>
               <button
                 onClick={() => {
                   setAggregatedView(!aggregatedView);
@@ -648,49 +640,45 @@ const DriverPayouts = () => {
                 className="flex items-center"
               >
                 {aggregatedView ? (
-                  <FiToggleRight className="w-8 h-8" style={{ color: '#9333ea' }} />
+                  <FiToggleRight className="w-7 h-7 text-gold-600" />
                 ) : (
-                  <FiToggleLeft className="w-8 h-8 text-gray-400" />
+                  <FiToggleLeft className="w-7 h-7 text-gray-400" />
                 )}
               </button>
             </div>
             {!aggregatedView && (
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
+              <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
                 <FiFilter className="w-4 h-4" />
                 Filters
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              variant="outline"
               onClick={() => {
                 fetchAllEarnings();
                 fetchEarningsSummary();
               }}
-              className="flex items-center text-white gap-2 px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: '#000000' }}
               disabled={refreshing}
             >
               <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh'}
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </>
+        }
+      />
 
       {showFilters && !aggregatedView && (
-        <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <Card className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Status
               </label>
               <select
                 name="status"
                 value={filters.status}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
               >
                 <option value="">All Status</option>
                 <option value="earned">Pending</option>
@@ -699,14 +687,14 @@ const DriverPayouts = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Type
               </label>
               <select
                 name="type"
                 value={filters.type}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
               >
                 <option value="">All Types</option>
                 <option value="delivery">Delivery</option>
@@ -716,7 +704,7 @@ const DriverPayouts = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 From Date
               </label>
               <input
@@ -724,11 +712,11 @@ const DriverPayouts = () => {
                 name="startDate"
                 value={filters.startDate}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 To Date
               </label>
               <input
@@ -736,7 +724,7 @@ const DriverPayouts = () => {
                 name="endDate"
                 value={filters.endDate}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
               />
             </div>
           </div>
@@ -748,157 +736,110 @@ const DriverPayouts = () => {
                 value={filters.search}
                 onChange={handleFilterChange}
                 placeholder="Search by driver name, email, phone, or order ID..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
               />
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={resetFilters}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
+              <Button variant="outline" onClick={resetFilters}>
                 Reset
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
                 onClick={() => {
                   setPagination(prev => ({ ...prev, currentPage: 1 }));
                   setShowFilters(false);
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Apply Filters
-              </button>
+              </Button>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Pending</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {formatCurrency(totalPendingPayout)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {aggregatedView
-                  ? `${payouts.filter(p => (p.pendingAmount || 0) > 0).length} drivers`
-                  : `${payouts.filter(p => p.status === 'earned').length} earnings`
-                }
-              </p>
-            </div>
-            <div className="p-3 rounded-full" style={{ backgroundColor: 'rgba(147, 51, 234, 0.1)' }}>
-              <FiDollarSign className="w-6 h-6" style={{ color: '#9333ea' }} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Paid</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {formatCurrency(totalPaidPayout)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Completed payments
-              </p>
-            </div>
-            <div className="p-3 rounded-full" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)' }}>
-              <FiDollarSign className="w-6 h-6" style={{ color: '#22c55e' }} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Earnings</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {formatCurrency(totalPayoutAmount)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                All driver earnings
-              </p>
-            </div>
-            <div className="p-3 rounded-full" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
-              <FiTruck className="w-6 h-6" style={{ color: '#3b82f6' }} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {aggregatedView ? 'Total Drivers' : 'Total Records'}
-              </p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {payouts.length}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {aggregatedView ? 'With pending earnings' : 'Earnings found'}
-              </p>
-            </div>
-            <div className="p-3 rounded-full" style={{ backgroundColor: 'rgba(234, 179, 8, 0.1)' }}>
-              <FiUsers className="w-6 h-6" style={{ color: '#eab308' }} />
-            </div>
-          </div>
-        </div>
+        <StatCard
+          highlight
+          label="Total Pending"
+          value={formatCurrency(totalPendingPayout)}
+          icon={<FiDollarSign className="w-5 h-5" />}
+          hint={aggregatedView
+            ? `${payouts.filter(p => (p.pendingAmount || 0) > 0).length} drivers`
+            : `${payouts.filter(p => p.status === 'earned').length} earnings`
+          }
+        />
+        <StatCard
+          label="Total Paid"
+          value={formatCurrency(totalPaidPayout)}
+          icon={<FiDollarSign className="w-5 h-5" />}
+          hint="Completed payments"
+        />
+        <StatCard
+          label="Total Earnings"
+          value={formatCurrency(totalPayoutAmount)}
+          icon={<FiTruck className="w-5 h-5" />}
+          hint="All driver earnings"
+        />
+        <StatCard
+          label={aggregatedView ? 'Total Drivers' : 'Total Records'}
+          value={payouts.length}
+          icon={<FiUsers className="w-5 h-5" />}
+          hint={aggregatedView ? 'With pending earnings' : 'Earnings found'}
+        />
       </div>
 
       {summary && (
-        <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: 'rgba(237, 233, 254, 0.5)', borderColor: '#c4b5fd' }}>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Platform Earnings Summary</h3>
+        <Card className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Platform Earnings Summary</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Earnings</p>
-              <p className="text-lg font-bold" style={{ color: '#9333ea' }}>
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">Total Earnings</p>
+              <p className="text-lg font-bold text-gold-700">
                 {formatCurrency(summary.totalEarnings || 0)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500">
                 {summary.totalTransactions || 0} transactions
               </p>
             </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Pending Payout</p>
-              <p className="text-lg font-bold" style={{ color: '#3b82f6' }}>
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">Pending Payout</p>
+              <p className="text-lg font-bold text-gray-900">
                 {formatCurrency(summary.pendingPayout || 0)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500">
                 {summary.totalDrivers || 0} drivers
               </p>
             </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Today's Earnings</p>
-              <p className="text-lg font-bold" style={{ color: '#10b981' }}>
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">Today's Earnings</p>
+              <p className="text-lg font-bold text-emerald-600">
                 {formatCurrency(summary.todayEarnings || 0)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500">
                 Today's total
               </p>
             </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Paid Out</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">Paid Out</p>
+              <p className="text-lg font-bold text-gray-900">
                 {formatCurrency(summary.completedPayout || 0)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500">
                 Completed payouts
               </p>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <Card padded={false} className="overflow-hidden">
+        <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-gray-900">
                 {aggregatedView ? 'Driver Earnings Summary' : 'All Driver Earnings'}
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-sm text-gray-600 mt-1">
                 {aggregatedView
                   ? `Showing ${payouts.length} drivers with earnings`
                   : `Page ${pagination.currentPage} of ${pagination.totalPages} - ${pagination.totalItems} total records`
@@ -910,17 +851,17 @@ const DriverPayouts = () => {
                 <button
                   onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}
                   disabled={!pagination.hasPrev}
-                  className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 border border-gray-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   Previous
                 </button>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="text-sm text-gray-600">
                   {pagination.currentPage} / {pagination.totalPages}
                 </span>
                 <button
                   onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))}
                   disabled={!pagination.hasNext}
-                  className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 border border-gray-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   Next
                 </button>
@@ -930,73 +871,73 @@ const DriverPayouts = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
+          <table className="min-w-full divide-y divide-gray-100">
+            <thead className="bg-gray-50">
               <tr>
                 {aggregatedView ? (
                   <>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Earnings Summary</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount Details</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Driver</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Earnings Summary</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount Details</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                   </>
                 ) : (
                   <>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Order/Earning</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order/Earning</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Driver</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                   </>
                 )}
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white divide-y divide-gray-100">
               {payouts.length === 0 ? (
                 <tr>
-                  <td colSpan={aggregatedView ? "5" : "7"} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={aggregatedView ? "5" : "7"} className="px-6 py-8 text-center text-gray-500">
                     No earnings records found
                   </td>
                 </tr>
               ) : (
                 payouts.map((payout) => (
-                  <tr key={payout._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <tr key={payout._id} className="hover:bg-gold-50/60 transition-colors">
                     {aggregatedView ? (
                       <>
                         <td className="px-6 py-4">
                           <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="text-sm font-semibold text-gray-900">
                               {payout.driverName}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-gray-500">
                               {payout.driverPhone} {payout.driverEmail && `• ${payout.driverEmail}`}
                             </div>
                             {payout.vehicleNumber && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <div className="text-xs text-gray-500">
                                 Vehicle: {payout.vehicleNumber}
                               </div>
                             )}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-white">
+                          <div className="text-sm text-gray-900">
                             {payout.totalOrders || 0} total earnings
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-500">
                             {payout.pendingOrders || 0} pending • {payout.paidOrders || 0} paid
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-semibold" style={{ color: '#9333ea' }}>
+                          <div className="text-sm font-semibold text-gold-700">
                             Total: {formatCurrency(payout.totalAmount || 0)}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-500">
                             Pending: {formatCurrency(payout.pendingAmount || 0)}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-500">
                             Paid: {formatCurrency(payout.paidAmount || 0)}
                           </div>
                         </td>
@@ -1005,12 +946,11 @@ const DriverPayouts = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <Button variant="primary" size="sm" icon={FiEye} onClick={() => handleViewDetails(payout)} title="View Details">View</Button>
+                            <Button variant="primary" className="!px-3 !py-1.5 text-xs" onClick={() => handleViewDetails(payout)} title="View Details"><FiEye className="w-3.5 h-3.5" /> View</Button>
                             {(payout.pendingAmount || 0) > 0 && (
                               <button
                                 onClick={() => handleMarkAsPaid(payout)}
-                                className="p-2 rounded transition-colors hover:bg-green-50 dark:hover:bg-green-900/20"
-                                style={{ color: '#10b981' }}
+                                className="p-2 rounded-full transition-colors hover:bg-emerald-50 text-emerald-600"
                                 title="Mark All Pending as Paid"
                               >
                                 <FiCheck className="w-4 h-4" />
@@ -1023,26 +963,26 @@ const DriverPayouts = () => {
                       <>
                         <td className="px-6 py-4">
                           <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="text-sm font-semibold text-gray-900">
                               {payout.orderId || payout.batchId}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                            <div className="text-xs text-gray-500 truncate max-w-xs">
                               {payout.description}
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="text-sm font-semibold text-gray-900">
                               {payout.driverName}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-gray-500">
                               {payout.driverPhone}
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-semibold" style={{ color: payout.status === 'paid' ? '#10b981' : '#8b5cf6' }}>
+                          <div className="text-sm font-semibold" style={{ color: payout.status === 'paid' ? '#10b981' : '#b3860f' }}>
                             {formatCurrency(payout.amount)}
                           </div>
                         </td>
@@ -1053,18 +993,17 @@ const DriverPayouts = () => {
                           {getStatusBadge(payout.status)}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-white">
+                          <div className="text-sm text-gray-900">
                             {formatDate(payout.transactionDate)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <Button variant="primary" size="sm" icon={FiEye} onClick={() => handleViewDetails(payout)} title="View Details">View</Button>
+                            <Button variant="primary" className="!px-3 !py-1.5 text-xs" onClick={() => handleViewDetails(payout)} title="View Details"><FiEye className="w-3.5 h-3.5" /> View</Button>
                             {payout.status === 'earned' && (
                               <button
                                 onClick={() => handleMarkAsPaid(payout)}
-                                className="p-2 rounded transition-colors hover:bg-green-50 dark:hover:bg-green-900/20"
-                                style={{ color: '#10b981' }}
+                                className="p-2 rounded-full transition-colors hover:bg-emerald-50 text-emerald-600"
                                 title="Mark as Paid"
                               >
                                 <FiCheck className="w-4 h-4" />
@@ -1080,46 +1019,46 @@ const DriverPayouts = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {/* Payment Modal */}
       {showPaymentModal && selectedDriver && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-900">
                 {aggregatedView ? 'Mark Earnings as Paid' : 'Mark Earning as Paid'}
               </h2>
               <button
                 onClick={closePaymentModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <FiX className="w-6 h-6" />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(147, 51, 234, 0.1)' }}>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="p-4 bg-gold-50 rounded-xl">
+                <p className="text-sm text-gray-600">
                   {aggregatedView ? 'Processing Payment For' : 'Processing Payment'}
                 </p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                <p className="text-lg font-bold text-gray-900">
                   {selectedDriver.driverName}
                 </p>
                 {aggregatedView ? (
                   <>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500 mt-1">
                       Earnings: <span className="font-semibold">{selectedDriver.pendingOrders} pending</span>
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Total: <span className="font-semibold" style={{ color: '#9333ea' }}>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Total: <span className="font-semibold text-gold-700">
                         {formatCurrency(selectedDriver.pendingAmount)}
                       </span>
                     </p>
                   </>
                 ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Amount: <span className="font-semibold" style={{ color: '#9333ea' }}>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Amount: <span className="font-semibold text-gold-700">
                       {formatCurrency(selectedDriver.amount)}
                     </span>
                   </p>
@@ -1127,14 +1066,14 @@ const DriverPayouts = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Payment Method *
                 </label>
                 <select
                   name="paymentMethod"
                   value={paymentForm.paymentMethod}
                   onChange={handlePaymentFormChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
                   required
                 >
                   <option value="upi">UPI</option>
@@ -1145,7 +1084,7 @@ const DriverPayouts = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Transaction ID / Reference
                 </label>
                 <input
@@ -1154,12 +1093,12 @@ const DriverPayouts = () => {
                   value={paymentForm.transactionId}
                   onChange={handlePaymentFormChange}
                   placeholder="Enter transaction ID"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Payment Proof URL (Optional)
                 </label>
                 <input
@@ -1168,12 +1107,12 @@ const DriverPayouts = () => {
                   value={paymentForm.paymentProof}
                   onChange={handlePaymentFormChange}
                   placeholder="Enter screenshot/URL"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Notes
                 </label>
                 <textarea
@@ -1182,22 +1121,21 @@ const DriverPayouts = () => {
                   onChange={handlePaymentFormChange}
                   placeholder="Add any additional notes"
                   rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
 
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={closePaymentModal}
-                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors font-semibold text-sm"
                   disabled={submittingPayment}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmitPayment}
-                  className="flex-1 px-4 py-2 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  style={{ backgroundColor: '#10b981', color: 'white' }}
+                  className="flex-1 px-4 py-2 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                   disabled={submittingPayment}
                 >
                   {submittingPayment ? (
@@ -1220,15 +1158,15 @@ const DriverPayouts = () => {
 
       {/* Details Modal */}
       {showDetailsModal && selectedDriver && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-900">
                 {selectedDriver.driverName} - Earnings Details
               </h2>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <FiX className="w-6 h-6" />
               </button>
@@ -1237,57 +1175,57 @@ const DriverPayouts = () => {
             <div className="p-6">
               {loadingDetails ? (
                 <div className="text-center py-8">
-                  <FiRefreshCw className="w-8 h-8 animate-spin mx-auto" style={{ color: '#3b82f6' }} />
-                  <p className="text-gray-600 dark:text-gray-400 mt-2">Loading details...</p>
+                  <FiRefreshCw className="w-8 h-8 animate-spin mx-auto text-gold-500" />
+                  <p className="text-gray-600 mt-2">Loading details...</p>
                 </div>
               ) : driverDetails ? (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(147, 51, 234, 0.1)' }}>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Pending Earnings</p>
-                      <p className="text-xl font-bold" style={{ color: '#9333ea' }}>
+                    <div className="p-4 bg-gold-50 rounded-xl">
+                      <p className="text-sm text-gray-600">Pending Earnings</p>
+                      <p className="text-xl font-bold text-gold-700">
                         {formatCurrency(driverDetails.summary?.pendingPayout || 0)}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="text-xs text-gray-500 mt-1">
                         To be paid
                       </p>
                     </div>
-                    <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)' }}>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Earnings</p>
-                      <p className="text-xl font-bold" style={{ color: '#22c55e' }}>
+                    <div className="p-4 bg-emerald-50 rounded-xl">
+                      <p className="text-sm text-gray-600">Total Earnings</p>
+                      <p className="text-xl font-bold text-emerald-600">
                         {formatCurrency(driverDetails.summary?.totalEarnings || 0)}
                       </p>
                     </div>
-                    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Orders</p>
-                      <p className="text-xl font-bold text-gray-900 dark:text-white">
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <p className="text-sm text-gray-600">Total Orders</p>
+                      <p className="text-xl font-bold text-gray-900">
                         {driverDetails.summary?.totalDeliveries || 0}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="text-xs text-gray-500 mt-1">
                         Delivered orders
                       </p>
                     </div>
                   </div>
 
                   {driverDetails.driver && (
-                    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-3">Driver Information</h3>
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <h3 className="font-semibold text-gray-900 mb-3">Driver Information</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Name</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm text-gray-600">Name</p>
+                          <p className="text-sm font-semibold text-gray-900">
                             {driverDetails.driver.name || driverDetails.driver.fullName || 'Unknown'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Phone</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm text-gray-600">Phone</p>
+                          <p className="text-sm font-semibold text-gray-900">
                             {driverDetails.driver.phone || driverDetails.driver.phoneNumber || 'N/A'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Vehicle</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm text-gray-600">Vehicle</p>
+                          <p className="text-sm font-semibold text-gray-900">
                             {driverDetails.driver.vehicleNumber || 'N/A'}
                           </p>
                         </div>
@@ -1297,28 +1235,28 @@ const DriverPayouts = () => {
 
                   {driverDetails.earnings && driverDetails.earnings.length > 0 ? (
                     <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-3">Earnings Details ({driverDetails.earnings.length})</h3>
+                      <h3 className="font-semibold text-gray-900 mb-3">Earnings Details ({driverDetails.earnings.length})</h3>
                       <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                          <thead className="bg-gray-50 dark:bg-gray-900">
+                        <table className="min-w-full divide-y divide-gray-100">
+                          <thead className="bg-gray-50">
                             <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Order ID</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Amount</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Type</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Status</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Date</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Order ID</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Amount</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Type</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Status</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Date</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                          <tbody className="divide-y divide-gray-100">
                             {driverDetails.earnings.map((earning) => (
                               <tr key={earning._id || earning.id}>
                                 <td className="px-4 py-3">
-                                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                  <div className="text-sm font-semibold text-gray-900">
                                     {earning.orderId}
                                   </div>
                                 </td>
                                 <td className="px-4 py-3">
-                                  <div className="text-sm font-semibold" style={{ color: '#9333ea' }}>
+                                  <div className="text-sm font-semibold text-gold-700">
                                     {formatCurrency(earning.amount)}
                                   </div>
                                 </td>
@@ -1329,7 +1267,7 @@ const DriverPayouts = () => {
                                   {getStatusBadge(earning.status)}
                                 </td>
                                 <td className="px-4 py-3">
-                                  <div className="text-sm text-gray-900 dark:text-white">
+                                  <div className="text-sm text-gray-900">
                                     {formatDateTime(earning.date || earning.transactionDate)}
                                   </div>
                                 </td>
@@ -1341,12 +1279,12 @@ const DriverPayouts = () => {
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-gray-500 dark:text-gray-400">No earnings found for this driver</p>
+                      <p className="text-gray-500">No earnings found for this driver</p>
                     </div>
                   )}
                 </div>
               ) : (
-                <p className="text-center text-gray-500 dark:text-gray-400">No details available</p>
+                <p className="text-center text-gray-500">No details available</p>
               )}
             </div>
           </div>

@@ -272,31 +272,30 @@ export default function ScratchCardsPage() {
   const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   return (
-    <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div className="bg-gold-50" style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{ backgroundColor: "#fef3c7", borderRadius: "10px", padding: "10px" }}>
-            <FiGift style={{ width: "22px", height: "22px", color: "#d97706" }} />
+          <div style={{ backgroundColor: "#fef6dc", borderRadius: "14px", padding: "10px" }}>
+            <FiGift style={{ width: "22px", height: "22px", color: "#b3860f" }} />
           </div>
           <div>
-            <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }} className="dark:text-white">
+            <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }}>
               Scratch Card Coupons
             </h1>
-            <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }} className="dark:text-gray-400">
+            <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>
               Coupons in this pool are randomly assigned as scratch card rewards
             </p>
           </div>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <button onClick={fetchCoupons}
-            style={{ display: "flex", alignItems: "center", gap: "6px", padding: "7px 12px", border: "1px solid #d1d5db", borderRadius: "7px", fontSize: "13px", backgroundColor: "#fff", cursor: "pointer" }}
-            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-full text-sm bg-white hover:bg-gray-50 transition-colors">
             <FiRefreshCw style={{ width: "14px", height: "14px" }} /> Refresh
           </button>
           {hasPermission(PERMISSIONS.COUPONS_CREATE) && (
-            <Button variant="primary" size="md" onClick={openCreate}>
-              <FiPlus style={{ width: "14px", height: "14px" }} /> Add Coupon
+            <Button variant="primary" size="md" icon={FiPlus} onClick={openCreate}>
+              Add Coupon
             </Button>
           )}
         </div>
@@ -304,13 +303,13 @@ export default function ScratchCardsPage() {
 
       {/* How it works banner */}
       <div style={{
-        backgroundColor: "#fffbeb", border: "1px solid #fde68a", borderRadius: "10px",
+        backgroundColor: "#fffcf2", border: "1px solid #fadc7e", borderRadius: "16px",
         padding: "14px 18px", marginBottom: "24px", display: "flex", gap: "12px", alignItems: "flex-start",
       }}>
-        <FiInfo style={{ width: "16px", height: "16px", color: "#d97706", flexShrink: 0, marginTop: "1px" }} />
+        <FiInfo style={{ width: "16px", height: "16px", color: "#b3860f", flexShrink: 0, marginTop: "1px" }} />
         <div>
-          <p style={{ fontSize: "13px", fontWeight: "600", color: "#92400e", margin: "0 0 4px 0" }}>How Scratch Cards Work</p>
-          <p style={{ fontSize: "13px", color: "#78350f", margin: 0, lineHeight: "1.6" }}>
+          <p style={{ fontSize: "13px", fontWeight: "600", color: "#6b4f09", margin: "0 0 4px 0" }}>How Scratch Cards Work</p>
+          <p style={{ fontSize: "13px", color: "#8c680c", margin: 0, lineHeight: "1.6" }}>
             When a user places an order with subtotal &gt; ₹200, the system automatically picks a <strong>random active coupon</strong> from this pool and attaches it as a scratch card. The user can scratch and reveal the coupon code only after the order is delivered.
           </p>
         </div>
@@ -318,24 +317,22 @@ export default function ScratchCardsPage() {
 
       {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "14px", marginBottom: "24px" }}>
-        <StatCard icon={<FiTag style={{ width: "18px", height: "18px", color: "#2563eb" }} />} label="Total Coupons" value={loading ? "..." : coupons.length} color="#2563eb" />
+        <StatCard icon={<FiTag style={{ width: "18px", height: "18px", color: "#b3860f" }} />} label="Total Coupons" value={loading ? "..." : coupons.length} color="#f3bf2e" />
         <StatCard icon={<FiCheckCircle style={{ width: "18px", height: "18px", color: "#10b981" }} />} label="Eligible for Scratch" value={loading ? "..." : eligibleCount} color="#10b981" />
         <StatCard icon={<FiAlertCircle style={{ width: "18px", height: "18px", color: "#ef4444" }} />} label="Expired" value={loading ? "..." : expiredCount} color="#ef4444" />
         <StatCard icon={<FiClock style={{ width: "18px", height: "18px", color: "#6b7280" }} />} label="Inactive" value={loading ? "..." : coupons.filter(c => !c.isActive).length} color="#6b7280" />
       </div>
 
       {/* Filters */}
-      <div style={{
-        backgroundColor: "#fff", borderRadius: "10px", padding: "14px 20px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.08)", marginBottom: "20px",
+      <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100" style={{
+        padding: "14px 20px", marginBottom: "20px",
         display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center",
-      }} className="dark:bg-gray-800">
+      }}>
         <div style={{ position: "relative", flex: "1", minWidth: "200px" }}>
           <FiSearch style={{ position: "absolute", left: "9px", top: "50%", transform: "translateY(-50%)", color: "#9ca3af", width: "14px", height: "14px" }} />
           <input type="text" placeholder="Search coupon code or description..."
             value={search} onChange={e => setSearch(e.target.value)}
-            style={{ ...inputStyle, paddingLeft: "30px" }}
-            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+            style={{ ...inputStyle, paddingLeft: "30px", borderRadius: "9999px" }} />
         </div>
         {[
           { val: "all", label: "All" },
@@ -344,24 +341,24 @@ export default function ScratchCardsPage() {
           { val: "expired", label: "Expired" },
         ].map(({ val, label }) => (
           <button key={val} onClick={() => setFilterStatus(val)} style={{
-            padding: "7px 14px", borderRadius: "7px", fontSize: "13px", fontWeight: "500", cursor: "pointer", border: "none",
-            backgroundColor: filterStatus === val ? "#f59e0b" : "#f3f4f6",
-            color: filterStatus === val ? "#fff" : "#374151",
-          }} className={filterStatus !== val ? "dark:bg-gray-700 dark:text-gray-300" : ""}>
+            padding: "7px 14px", borderRadius: "9999px", fontSize: "13px", fontWeight: "600", cursor: "pointer", border: "none",
+            backgroundColor: filterStatus === val ? "#f3bf2e" : "#f3f4f6",
+            color: filterStatus === val ? "#111827" : "#374151",
+          }}>
             {label}
           </button>
         ))}
-        <span style={{ fontSize: "13px", color: "#6b7280", marginLeft: "auto" }} className="dark:text-gray-400">
+        <span style={{ fontSize: "13px", color: "#6b7280", marginLeft: "auto" }}>
           {filtered.length} coupon{filtered.length !== 1 ? "s" : ""}
         </span>
       </div>
 
       {/* Table */}
-      <div style={{ backgroundColor: "#fff", borderRadius: "10px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", overflow: "hidden" }} className="dark:bg-gray-800">
+      <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100" style={{ overflow: "hidden" }}>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
             <thead>
-              <tr style={{ backgroundColor: "#f9fafb", borderBottom: "1px solid #e5e7eb" }} className="dark:bg-gray-700">
+              <tr style={{ backgroundColor: "#fffcf2", borderBottom: "1px solid #f3f4f6" }}>
                 {["Code", "Description", "Discount", "Min. Order", "Valid Until", "Pool Status", "Actions"].map(h => (
                   <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontWeight: "600", color: "#374151", whiteSpace: "nowrap" }} className="dark:text-gray-300">{h}</th>
                 ))}
@@ -467,21 +464,21 @@ export default function ScratchCardsPage() {
       {modal && (
         <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 60, padding: "16px" }}>
           <div style={{
-            backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+            backgroundColor: "#fff", borderRadius: "20px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
             width: "100%", maxWidth: "520px", maxHeight: "90vh", overflowY: "auto",
-          }} className="dark:bg-gray-800">
+          }}>
             {/* Modal header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid #f3f4f6" }} className="dark:border-gray-700">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid #f3f4f6" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div style={{ backgroundColor: "#fef3c7", borderRadius: "8px", padding: "8px" }}>
-                  <FiGift style={{ width: "18px", height: "18px", color: "#d97706" }} />
+                <div style={{ backgroundColor: "#fef6dc", borderRadius: "12px", padding: "8px" }}>
+                  <FiGift style={{ width: "18px", height: "18px", color: "#b3860f" }} />
                 </div>
-                <h2 style={{ fontSize: "16px", fontWeight: "600", color: "#111827", margin: 0 }} className="dark:text-white">
+                <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111827", margin: 0 }}>
                   {modal === "edit" ? "Edit Coupon" : "New Scratch Card Coupon"}
                 </h2>
               </div>
-              <button onClick={closeModal} style={{ padding: "4px", border: "none", background: "none", color: "#9ca3af", cursor: "pointer" }}>
-                <FiX style={{ width: "20px", height: "20px" }} />
+              <button onClick={closeModal} style={{ padding: "6px", borderRadius: "9999px", border: "none", background: "#f9fafb", color: "#6b7280", cursor: "pointer" }}>
+                <FiX style={{ width: "18px", height: "18px" }} />
               </button>
             </div>
 
@@ -610,12 +607,11 @@ export default function ScratchCardsPage() {
               {/* Actions */}
               <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
                 <button onClick={handleSave} disabled={formSaving}
-                  style={{ flex: 1, padding: "10px", border: "none", borderRadius: "8px", backgroundColor: formSaving ? "#fbbf24" : "#f59e0b", color: "#fff", fontWeight: "600", fontSize: "14px", cursor: formSaving ? "not-allowed" : "pointer" }}>
+                  style={{ flex: 1, padding: "10px", border: "none", borderRadius: "9999px", backgroundColor: formSaving ? "#fadc7e" : "#f3bf2e", color: "#111827", fontWeight: "700", fontSize: "14px", cursor: formSaving ? "not-allowed" : "pointer" }}>
                   {formSaving ? "Saving..." : modal === "edit" ? "Save Changes" : "Create Coupon"}
                 </button>
                 <button onClick={closeModal}
-                  style={{ padding: "10px 16px", border: "none", borderRadius: "8px", backgroundColor: "#f3f4f6", color: "#374151", fontSize: "14px", cursor: "pointer" }}
-                  className="dark:bg-gray-700 dark:text-gray-300">
+                  style={{ padding: "10px 16px", border: "none", borderRadius: "9999px", backgroundColor: "#f3f4f6", color: "#374151", fontSize: "14px", fontWeight: "600", cursor: "pointer" }}>
                   Cancel
                 </button>
               </div>

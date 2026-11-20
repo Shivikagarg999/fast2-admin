@@ -237,9 +237,9 @@ const ReportsPage = () => {
       const config = {
         delivered: { bg: "bg-green-100", text: "text-green-800", icon: FiCheckCircle, label: "Delivered" },
         cancelled: { bg: "bg-red-100", text: "text-red-800", icon: FiXCircle, label: "Cancelled" },
-        "picked-up": { bg: "bg-purple-100", text: "text-purple-800", icon: FiTruck, label: "Picked Up" },
-        accepted: { bg: "bg-blue-100", text: "text-blue-800", icon: FiClock, label: "Accepted" },
-        pending: { bg: "bg-yellow-100", text: "text-yellow-800", icon: FiClock, label: "Pending" }
+        "picked-up": { bg: "bg-gold-400", text: "text-black", icon: FiTruck, label: "Picked Up" },
+        accepted: { bg: "bg-gold-100", text: "text-gold-800", icon: FiClock, label: "Accepted" },
+        pending: { bg: "bg-gray-100", text: "text-gray-700", icon: FiClock, label: "Pending" }
       };
       const cfg = config[status] || config.pending;
       const Icon = cfg.icon;
@@ -271,18 +271,18 @@ const ReportsPage = () => {
   };
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 w-full min-h-screen">
+    <div className="bg-gold-50 dark:bg-gray-900 w-full min-h-screen">
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center mb-4 sm:mb-0">
-            <FiBarChart2 className="w-6 h-6 text-blue-600 mr-2" />
+            <FiBarChart2 className="w-6 h-6 text-gold-700 mr-2" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
           </div>
           <div className="flex gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
               style={{ backgroundColor: "#000000" }}
-              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors hover:opacity-90"
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-full transition-colors hover:opacity-90"
             >
               <FiFilter className="w-4 h-4" />
               {showFilters ? "Hide Filters" : "Show Filters"}
@@ -291,7 +291,7 @@ const ReportsPage = () => {
               onClick={downloadCSV}
               disabled={downloading}
               style={{ backgroundColor: "#000000" }}
-              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-full transition-colors hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {downloading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
@@ -324,7 +324,7 @@ const ReportsPage = () => {
         </div>
 
         {showFilters && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 shadow-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-6 shadow-sm shadow-black/5">
             <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Filters</h3>
             
             {activeTab === "orders" && (
@@ -380,7 +380,7 @@ const ReportsPage = () => {
                   <button
                     onClick={applyFilters}
                     style={{ backgroundColor: "#000000" }}
-                    className="px-4 py-2 text-white rounded-lg hover:opacity-90"
+                    className="px-4 py-2 text-white rounded-full hover:opacity-90"
                   >
                     Apply Filters
                   </button>
@@ -407,7 +407,7 @@ const ReportsPage = () => {
                   <button
                     onClick={applyFilters}
                     style={{ backgroundColor: "#000000" }}
-                    className="px-4 py-2 text-white rounded-lg hover:opacity-90"
+                    className="px-4 py-2 text-white rounded-full hover:opacity-90"
                   >
                     Apply Filters
                   </button>
@@ -433,7 +433,7 @@ const ReportsPage = () => {
                   <button
                     onClick={applyFilters}
                     style={{ backgroundColor: "#000000" }}
-                    className="px-4 py-2 text-white rounded-lg hover:opacity-90"
+                    className="px-4 py-2 text-white rounded-full hover:opacity-90"
                   >
                     Apply Filters
                   </button>
@@ -479,7 +479,7 @@ const ReportsPage = () => {
                   <button
                     onClick={applyFilters}
                     style={{ backgroundColor: "#000000" }}
-                    className="px-4 py-2 text-white rounded-lg hover:opacity-90"
+                    className="px-4 py-2 text-white rounded-full hover:opacity-90"
                   >
                     Apply Filters
                   </button>
@@ -493,16 +493,16 @@ const ReportsPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {activeTab === "orders" && (
               <>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Orders</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.totalOrders || 0}</p>
                     </div>
-                    <FiPackage className="w-8 h-8 text-blue-500 opacity-50" />
+                    <FiPackage className="w-8 h-8 text-gold-600 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
@@ -511,22 +511,22 @@ const ReportsPage = () => {
                     <FiDollarSign className="w-8 h-8 text-green-500 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Platform Fees</p>
-                      <p className="text-2xl font-bold text-blue-600">{formatCurrency(summary.totalPlatformFees || 0)}</p>
+                      <p className="text-2xl font-bold text-gold-700">{formatCurrency(summary.totalPlatformFees || 0)}</p>
                     </div>
-                    <FiDollarSign className="w-8 h-8 text-blue-500 opacity-50" />
+                    <FiDollarSign className="w-8 h-8 text-gold-600 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Promotor Commission</p>
-                      <p className="text-2xl font-bold text-purple-600">{formatCurrency(summary.totalPromotorCommission || 0)}</p>
+                      <p className="text-2xl font-bold text-gold-700">{formatCurrency(summary.totalPromotorCommission || 0)}</p>
                     </div>
-                    <FiUsers className="w-8 h-8 text-purple-500 opacity-50" />
+                    <FiUsers className="w-8 h-8 text-gold-500 opacity-50" />
                   </div>
                 </div>
               </>
@@ -534,16 +534,16 @@ const ReportsPage = () => {
 
             {activeTab === "sellers" && (
               <>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Sellers</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.totalSellers || 0}</p>
                     </div>
-                    <FiUsers className="w-8 h-8 text-blue-500 opacity-50" />
+                    <FiUsers className="w-8 h-8 text-gold-600 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Sales</p>
@@ -552,22 +552,22 @@ const ReportsPage = () => {
                     <FiDollarSign className="w-8 h-8 text-green-500 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Payout</p>
-                      <p className="text-2xl font-bold text-blue-600">{formatCurrency(summary.totalPayout || 0)}</p>
+                      <p className="text-2xl font-bold text-gold-700">{formatCurrency(summary.totalPayout || 0)}</p>
                     </div>
-                    <FiDollarSign className="w-8 h-8 text-blue-500 opacity-50" />
+                    <FiDollarSign className="w-8 h-8 text-gold-600 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
-                      <p className="text-2xl font-bold text-purple-600">{summary.totalProducts || 0}</p>
+                      <p className="text-2xl font-bold text-gold-700">{summary.totalProducts || 0}</p>
                     </div>
-                    <FiPackage className="w-8 h-8 text-purple-500 opacity-50" />
+                    <FiPackage className="w-8 h-8 text-gold-500 opacity-50" />
                   </div>
                 </div>
               </>
@@ -575,16 +575,16 @@ const ReportsPage = () => {
 
             {activeTab === "promotors" && (
               <>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Promotors</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.totalPromotors || 0}</p>
                     </div>
-                    <FiUsers className="w-8 h-8 text-blue-500 opacity-50" />
+                    <FiUsers className="w-8 h-8 text-gold-600 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Commission</p>
@@ -593,22 +593,22 @@ const ReportsPage = () => {
                     <FiDollarSign className="w-8 h-8 text-green-500 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Sales</p>
-                      <p className="text-2xl font-bold text-blue-600">{formatCurrency(summary.totalSales || 0)}</p>
+                      <p className="text-2xl font-bold text-gold-700">{formatCurrency(summary.totalSales || 0)}</p>
                     </div>
-                    <FiDollarSign className="w-8 h-8 text-blue-500 opacity-50" />
+                    <FiDollarSign className="w-8 h-8 text-gold-600 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Active Promotors</p>
-                      <p className="text-2xl font-bold text-purple-600">{summary.activePromotors || 0}</p>
+                      <p className="text-2xl font-bold text-gold-700">{summary.activePromotors || 0}</p>
                     </div>
-                    <FiUserCheck className="w-8 h-8 text-purple-500 opacity-50" />
+                    <FiUserCheck className="w-8 h-8 text-gold-500 opacity-50" />
                   </div>
                 </div>
               </>
@@ -616,16 +616,16 @@ const ReportsPage = () => {
 
             {activeTab === "products" && (
               <>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.totalProducts || 0}</p>
                     </div>
-                    <FiPackage className="w-8 h-8 text-blue-500 opacity-50" />
+                    <FiPackage className="w-8 h-8 text-gold-600 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
@@ -634,16 +634,16 @@ const ReportsPage = () => {
                     <FiDollarSign className="w-8 h-8 text-green-500 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Quantity Sold</p>
-                      <p className="text-2xl font-bold text-blue-600">{summary.totalQuantitySold || 0}</p>
+                      <p className="text-2xl font-bold text-gold-700">{summary.totalQuantitySold || 0}</p>
                     </div>
-                    <FiPackage className="w-8 h-8 text-blue-500 opacity-50" />
+                    <FiPackage className="w-8 h-8 text-gold-600 opacity-50" />
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm shadow-black/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Out of Stock</p>
@@ -657,7 +657,7 @@ const ReportsPage = () => {
           </div>
         )}
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-x-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm shadow-black/5 overflow-x-auto">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-900">
@@ -782,7 +782,7 @@ const ReportsPage = () => {
                           <td className="px-6 py-4 text-sm text-gray-900">{item.email}</td>
                           <td className="px-6 py-4 text-sm text-gray-900">{item.phone}</td>
                           <td className="px-6 py-4 text-sm text-gray-900">{item.commissionRate}%</td>
-                          <td className="px-6 py-4 text-sm font-medium text-purple-600">{formatCurrency(item.totalCommissionEarned)}</td>
+                          <td className="px-6 py-4 text-sm font-medium text-gold-700">{formatCurrency(item.totalCommissionEarned)}</td>
                           <td className="px-6 py-4 text-sm text-gray-900">{item.totalSellers}</td>
                           <td className="px-6 py-4">
                             <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${
@@ -833,7 +833,7 @@ const ReportsPage = () => {
                 onClick={() => handlePageChange(1)}
                 disabled={pagination.currentPage === 1}
                 style={{ backgroundColor: "#000000" }}
-                className="px-3 py-2 text-sm text-white rounded-lg transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 text-sm text-white rounded-full transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 First
               </button>
@@ -841,7 +841,7 @@ const ReportsPage = () => {
                 onClick={() => handlePageChange(pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
                 style={{ backgroundColor: "#000000" }}
-                className="flex items-center gap-1 px-3 py-2 text-sm text-white rounded-lg transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1 px-3 py-2 text-sm text-white rounded-full transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FiChevronLeft className="w-4 h-4" />
                 Prev
@@ -866,7 +866,7 @@ const ReportsPage = () => {
                       backgroundColor: pagination.currentPage === pageNum ? "#000000" : "#e5e7eb",
                       color: pagination.currentPage === pageNum ? "#ffffff" : "#374151"
                     }}
-                    className="px-3 py-2 text-sm rounded-lg transition-colors hover:opacity-90"
+                    className="px-3 py-2 text-sm rounded-full transition-colors hover:opacity-90"
                   >
                     {pageNum}
                   </button>
@@ -877,7 +877,7 @@ const ReportsPage = () => {
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                 disabled={pagination.currentPage === pagination.totalPages}
                 style={{ backgroundColor: "#000000" }}
-                className="flex items-center gap-1 px-3 py-2 text-sm text-white rounded-lg transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1 px-3 py-2 text-sm text-white rounded-full transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
                 <FiChevronRight className="w-4 h-4" />
@@ -886,7 +886,7 @@ const ReportsPage = () => {
                 onClick={() => handlePageChange(pagination.totalPages)}
                 disabled={pagination.currentPage === pagination.totalPages}
                 style={{ backgroundColor: "#000000" }}
-                className="px-3 py-2 text-sm text-white rounded-lg transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 text-sm text-white rounded-full transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Last
               </button>

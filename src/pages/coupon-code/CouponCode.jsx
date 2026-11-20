@@ -1270,7 +1270,7 @@ const CouponsPage = () => {
           }}>
             <div style={{
               backgroundColor: '#ffffff',
-              borderRadius: '8px',
+              borderRadius: '20px',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               width: '100%',
               maxWidth: '500px',
@@ -1282,16 +1282,16 @@ const CouponsPage = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '24px',
-                borderBottom: '1px solid #e5e7eb'
+                borderBottom: '1px solid #f3f4f6'
               }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>
                   {formData.benefitType === "free_quantity" ? "Add Freebie Coupon" : "Add Discount Coupon"}
                 </h2>
                 <button
                   onClick={closeAddCouponModal}
-                  style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+                  style={{ color: '#6b7280', padding: '6px', borderRadius: '9999px', border: 'none', backgroundColor: '#f9fafb', cursor: 'pointer' }}
                 >
-                  <FiX style={{ width: '24px', height: '24px' }} />
+                  <FiX style={{ width: '20px', height: '20px' }} />
                 </button>
               </div>
 
@@ -1679,7 +1679,7 @@ const CouponsPage = () => {
           }}>
             <div style={{
               backgroundColor: '#ffffff',
-              borderRadius: '8px',
+              borderRadius: '20px',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               width: '100%',
               maxWidth: '500px',
@@ -1691,16 +1691,16 @@ const CouponsPage = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '24px',
-                borderBottom: '1px solid #e5e7eb'
+                borderBottom: '1px solid #f3f4f6'
               }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>
                   {formData.benefitType === "free_quantity" ? "Edit Freebie Coupon" : "Edit Discount Coupon"}
                 </h2>
                 <button
                   onClick={closeEditCouponModal}
-                  style={{ color: '#9ca3af', padding: '4px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+                  style={{ color: '#6b7280', padding: '6px', borderRadius: '9999px', border: 'none', backgroundColor: '#f9fafb', cursor: 'pointer' }}
                 >
-                  <FiX style={{ width: '24px', height: '24px' }} />
+                  <FiX style={{ width: '20px', height: '20px' }} />
                 </button>
               </div>
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiX, FiSave } from "react-icons/fi";
+import Button from "../common/Button";
 
 const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -43,8 +44,8 @@ const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             {editingTerm ? 'Edit Terms & Conditions' : 'Create New Terms & Conditions'}
@@ -68,7 +69,7 @@ const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-gold-400"
                 placeholder="e.g., Terms and Conditions"
               />
             </div>
@@ -82,7 +83,7 @@ const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
                 required
                 value={formData.version}
                 onChange={(e) => setFormData({ ...formData, version: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-gold-400"
                 placeholder="e.g., 1.0"
               />
             </div>
@@ -97,7 +98,7 @@ const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
               required
               value={formData.effectiveDate}
               onChange={(e) => setFormData({ ...formData, effectiveDate: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-gold-400"
             />
           </div>
 
@@ -110,7 +111,7 @@ const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
               rows={12}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-gold-400 font-mono text-sm"
               placeholder="Enter terms and conditions content here..."
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -124,7 +125,7 @@ const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
                 type="checkbox"
                 checked={formData.isActive}
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 text-gold-500 focus:ring-gold-400"
               />
               <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                 Set as Active (will deactivate other versions)
@@ -133,21 +134,12 @@ const TermFormModal = ({ show, editingTerm, onClose, onSubmit }) => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-            >
+            <Button type="button" variant="secondary" size="md" onClick={onClose}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              style={{backgroundColor: 'black'}}
-           >
-              <FiSave className="w-4 h-4" />
+            </Button>
+            <Button type="submit" variant="primary" size="md" icon={FiSave}>
               {editingTerm ? 'Update' : 'Create'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
