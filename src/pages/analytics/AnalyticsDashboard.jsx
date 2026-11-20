@@ -168,7 +168,7 @@ const AnalyticsDashboard = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard icon={<FiUsers />} label="Visitors" value={totals.visitors} hint="Unique people" />
             <StatCard icon={<FiActivity />} label="Sessions" value={totals.sessions} />
-            <StatCard icon={<FiEye />} label={isAppOnly ? 'App opens' : 'Page views'} value={totals.pageViews} />
+            {!isAppOnly && <StatCard icon={<FiEye />} label="Page views" value={totals.pageViews} />}
             <StatCard icon={<FiMousePointer />} label={isAppOnly ? 'Product views' : 'Product clicks'} value={totals.productClicks} hint={`${fmt(totals.productClickVisitors)} visitors`} />
             <StatCard icon={<FiShoppingCart />} label="Add to cart" value={totals.addToCart} />
             {!isAppOnly && <StatCard icon={<FiLogIn />} label="Opened login page" value={totals.loginPageVisitors} hint="Unique visitors" />}
@@ -364,6 +364,7 @@ const AnalyticsDashboard = () => {
               )}
             </Card>
 
+            {!isAppOnly && (
             <Card title="Website vs App (unique visitors)">
               {!data.platforms || data.platforms.length === 0 ? <EmptyRow /> : (
                 <div className="space-y-3">
@@ -385,7 +386,9 @@ const AnalyticsDashboard = () => {
                 </div>
               )}
             </Card>
+            )}
 
+            {!isAppOnly && (
             <Card title="Devices (unique visitors)">
               {data.devices.length === 0 ? <EmptyRow /> : (
                 <div className="space-y-3">
@@ -406,6 +409,7 @@ const AnalyticsDashboard = () => {
                 </div>
               )}
             </Card>
+            )}
           </div>
         </div>
       )}
