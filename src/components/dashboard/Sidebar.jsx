@@ -68,7 +68,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           permission: PERMISSIONS.DASHBOARD_VIEW,
         },
         {
-          name: "Live Map",
+          name: "Live Users",
           path: "/admin/live-map",
           icon: <FiMapPin className="w-4 h-4" />,
           permission: PERMISSIONS.DASHBOARD_VIEW,

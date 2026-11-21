@@ -106,7 +106,7 @@ const LiveMapPage = () => {
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <FiMapPin /> Live Activity Map
+            <FiMapPin /> Live Users
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
             App users active recently, shown at their last saved delivery location. Not continuous GPS — refreshes every 30s.
