@@ -39,6 +39,7 @@ import DriverPayouts from "./pages/payouts/DriverPayout";
 import PopupManagement from "./pages/popup/PopupManagement";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import AnalyticsDashboard from "./pages/analytics/AnalyticsDashboard";
+import LiveMapPage from "./pages/analytics/LiveMapPage";
 import ContactPage from "./pages/contact/ContactPage";
 import ScratchCardsPage from "./pages/scratch-cards/ScratchCardsPage";
 import ReportsPage from "./pages/reports/Reports";
@@ -385,6 +386,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
                 <AnalyticsDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Live Activity Map */}
+          <Route
+            path="/admin/live-map"
+            element={
+              <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
+                <LiveMapPage />
               </ProtectedRoute>
             }
           />

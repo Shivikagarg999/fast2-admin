@@ -34,6 +34,7 @@ import {
   FiMessageCircle,
   FiClock,
   FiCalendar,
+  FiMapPin,
 } from "react-icons/fi";
 
 const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
@@ -64,6 +65,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed }) => {
           name: "Analytics",
           path: "/admin/analytics",
           icon: <FiBarChart2 className="w-4 h-4" />,
+          permission: PERMISSIONS.DASHBOARD_VIEW,
+        },
+        {
+          name: "Live Map",
+          path: "/admin/live-map",
+          icon: <FiMapPin className="w-4 h-4" />,
           permission: PERMISSIONS.DASHBOARD_VIEW,
         },
         {
