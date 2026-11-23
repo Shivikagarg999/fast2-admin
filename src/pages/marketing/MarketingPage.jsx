@@ -408,7 +408,7 @@ const MarketingPage = () => {
     const category = categories.find((c) => c._id === vidCategoryId);
     const subject = product?.name || category?.name;
     if (subject && !hindiScript.trim()) {
-      setHindiScript(`${subject} ab GMKart par available hai! Abhi order karein aur paayein fresh grocery seedha apne ghar tak.`);
+      setHindiScript(`Gwalior walo, ab ${subject} mangwana hua super aasan! GMKart par order karein aur paayein fastest delivery seedha apne ghar tak, Gwalior mein kahin bhi.`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vidProductId, vidCategoryId]);
