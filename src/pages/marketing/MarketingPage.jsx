@@ -115,6 +115,17 @@ const MarketingPage = () => {
   const [lsResult, setLsResult] = useState(null);
   const [lsError, setLsError] = useState('');
 
+  // --- AI Video post (paid — Pollinations Veo + Google Cloud TTS Hindi voiceover) ---
+  const [vidCategoryId, setVidCategoryId] = useState('');
+  const [vidProducts, setVidProducts] = useState([]);
+  const [loadingVidProducts, setLoadingVidProducts] = useState(false);
+  const [vidProductId, setVidProductId] = useState('');
+  const [vidScenePrompt, setVidScenePrompt] = useState('');
+  const [hindiScript, setHindiScript] = useState('');
+  const [vidGenerating, setVidGenerating] = useState(false);
+  const [vidResult, setVidResult] = useState(null);
+  const [vidError, setVidError] = useState('');
+
   // --- One-off Scheduled Posts state ---
   const [scheduledPosts, setScheduledPosts] = useState([]);
   const [loadingScheduledPosts, setLoadingScheduledPosts] = useState(false);
@@ -122,6 +133,8 @@ const MarketingPage = () => {
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [scheduleForm, setScheduleForm] = useState({
     imageUrl: '',
+    videoUrl: '',
+    mediaType: 'image',
     caption: '',
     title: '',
     postType: 'lifestyle',
@@ -142,10 +155,12 @@ const MarketingPage = () => {
     return `${y}-${m}-${d}T${hh}:${mm}`;
   };
 
-  const openScheduleModal = ({ imageUrl, caption = '', title = '', postType = 'lifestyle', platforms = ['facebook', 'instagram'] }) => {
+  const openScheduleModal = ({ imageUrl = '', videoUrl = '', mediaType = 'image', caption = '', title = '', postType = 'lifestyle', platforms = ['facebook', 'instagram'] }) => {
     const nextHour = new Date(Date.now() + 60 * 60 * 1000);
     setScheduleForm({
       imageUrl,
+      videoUrl,
+      mediaType,
       caption,
       title,
       postType,
@@ -197,8 +212,8 @@ const MarketingPage = () => {
 
   const handleConfirmSchedule = async (e) => {
     if (e) e.preventDefault();
-    if (!scheduleForm.imageUrl) {
-      setScheduleFeedback({ type: 'error', message: 'Image URL is required' });
+    if (scheduleForm.mediaType === 'video' ? !scheduleForm.videoUrl : !scheduleForm.imageUrl) {
+      setScheduleFeedback({ type: 'error', message: scheduleForm.mediaType === 'video' ? 'Video URL is required' : 'Image URL is required' });
       return;
     }
     if (!scheduleForm.scheduledAt) {
@@ -362,6 +377,42 @@ const MarketingPage = () => {
     fetchProducts();
   }, [lsCategoryId]);
 
+  useEffect(() => {
+    if (!vidCategoryId) {
+      setVidProducts([]);
+      setVidProductId('');
+      return;
+    }
+    const fetchVidProducts = async () => {
+      setLoadingVidProducts(true);
+      setVidProductId('');
+      try {
+        const res = await fetch(`${BASE_URL}/admin/marketing/category-products/${vidCategoryId}`, { headers: getHeaders() });
+        const data = await res.json();
+        const prods = data.products || [];
+        setVidProducts(prods);
+        if (prods.length > 0) setVidProductId(prods[0]._id);
+      } catch (err) {
+        console.error('Error fetching products for video:', err);
+      } finally {
+        setLoadingVidProducts(false);
+      }
+    };
+    fetchVidProducts();
+  }, [vidCategoryId]);
+
+  // Pre-fills an editable Hindi script template whenever the subject changes —
+  // admin can freely rewrite it before generating (no AI text-writing step).
+  useEffect(() => {
+    const product = vidProducts.find((p) => p._id === vidProductId);
+    const category = categories.find((c) => c._id === vidCategoryId);
+    const subject = product?.name || category?.name;
+    if (subject && !hindiScript.trim()) {
+      setHindiScript(`${subject} ab GMKart par available hai! Abhi order karein aur paayein fresh grocery seedha apne ghar tak.`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vidProductId, vidCategoryId]);
+
   const toggleProductSelect = (id) => {
     if (selectedProductIds.includes(id)) {
       setSelectedProductIds(selectedProductIds.filter((pId) => pId !== id));
@@ -474,7 +525,50 @@ const MarketingPage = () => {
     }
   };
 
-  const handleManualPublish = async (imageUrl, defaultCaption) => {
+  const handleGenerateVideo = async () => {
+    if (!vidProductId && !vidCategoryId) {
+      setVidError('Pick a category or product first.');
+      return;
+    }
+    if (!hindiScript.trim()) {
+      setVidError('The Hindi voiceover script is required.');
+      return;
+    }
+    setVidGenerating(true);
+    setVidError('');
+    setVidResult(null);
+    setPublishStatus(null);
+    try {
+      const res = await fetch(`${BASE_URL}/admin/marketing/generate-video-post`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          ...(vidProductId && { productId: vidProductId }),
+          ...(vidCategoryId && { categoryId: vidCategoryId }),
+          ...(vidScenePrompt.trim() && { scenePrompt: vidScenePrompt.trim() }),
+          hindiScript: hindiScript.trim(),
+          autoPublish,
+          publishPlatforms,
+          ...(customCaption.trim() && { caption: customCaption.trim() }),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setVidResult(data.data);
+        if (data.data.publishResults) {
+          setPublishStatus(data.data.publishResults);
+        }
+      } else {
+        setVidError(data.message || 'Failed to generate video post');
+      }
+    } catch {
+      setVidError('Failed to generate video post. Please try again.');
+    } finally {
+      setVidGenerating(false);
+    }
+  };
+
+  const handleManualPublish = async (imageUrl, defaultCaption, mediaType = 'image') => {
     setPublishing(true);
     setPublishStatus(null);
     try {
@@ -482,7 +576,7 @@ const MarketingPage = () => {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify({
-          imageUrl,
+          ...(mediaType === 'video' ? { videoUrl: imageUrl, mediaType: 'video' } : { imageUrl }),
           caption: customCaption.trim() || defaultCaption,
           platforms: publishPlatforms,
         }),
@@ -819,6 +913,15 @@ const MarketingPage = () => {
                 }`}
               >
                 <FiZap className="w-4 h-4" /> AI Photo Post
+              </button>
+
+              <button
+                onClick={() => setSocialSubTab('video')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  socialSubTab === 'video' ? 'bg-black text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <FiPlay className="w-4 h-4" /> AI Video Post
               </button>
 
               <button
@@ -1636,6 +1739,239 @@ const MarketingPage = () => {
               </>
             )}
 
+            {/* ================= SUBTAB: AI VIDEO POST ================= */}
+            {socialSubTab === 'video' && (
+              <>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-4 mb-4 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={autoPublish}
+                        onChange={(e) => setAutoPublish(e.target.checked)}
+                        className="w-4 h-4 text-gold-600 rounded"
+                      />
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                        Auto-Publish to Social Media upon Generation
+                      </span>
+                    </label>
+
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-medium text-gray-500">Publish to:</span>
+                      <button
+                        type="button"
+                        onClick={() => togglePlatform('instagram')}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border ${
+                          publishPlatforms.includes('instagram')
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white border-transparent'
+                            : 'bg-gray-100 text-gray-600 border-gray-300'
+                        }`}
+                      >
+                        <FaInstagram className="w-3.5 h-3.5" /> Instagram (Reels)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => togglePlatform('facebook')}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border ${
+                          publishPlatforms.includes('facebook')
+                            ? 'bg-blue-600 text-white border-transparent'
+                            : 'bg-gray-100 text-gray-600 border-gray-300'
+                        }`}
+                      >
+                        <FaFacebook className="w-3.5 h-3.5" /> Facebook
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Custom Caption (Optional — leaves default if blank)
+                    </label>
+                    <input
+                      type="text"
+                      value={customCaption}
+                      onChange={(e) => setCustomCaption(e.target.value)}
+                      placeholder="e.g. Fresh grocery deals! Order now on GMKart for 10-min delivery. #Grocery #FastDelivery"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                      <select
+                        value={vidCategoryId}
+                        onChange={(e) => setVidCategoryId(e.target.value)}
+                        disabled={loadingCategories}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                      >
+                        <option value="">{loadingCategories ? 'Loading...' : 'Select a category'}</option>
+                        {categories.map((c) => (
+                          <option key={c._id} value={c._id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Product (optional)</label>
+                      <select
+                        value={vidProductId}
+                        onChange={(e) => setVidProductId(e.target.value)}
+                        disabled={!vidCategoryId || loadingVidProducts}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                      >
+                        <option value="">{!vidCategoryId ? 'Pick a category first' : loadingVidProducts ? 'Loading...' : 'Whole category (no specific product)'}</option>
+                        {vidProducts.map((p) => (
+                          <option key={p._id} value={p._id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Scene description (optional)
+                    </label>
+                    <textarea
+                      value={vidScenePrompt}
+                      onChange={(e) => setVidScenePrompt(e.target.value)}
+                      placeholder='e.g. "a vibrant Indian kitchen with warm morning light, smooth slow camera pan"'
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Hindi voiceover script (edit freely before generating)
+                    </label>
+                    <textarea
+                      value={hindiScript}
+                      onChange={(e) => setHindiScript(e.target.value)}
+                      placeholder="जैसे: ताज़ा सब्ज़ियां अब GMKart पर उपलब्ध हैं! अभी ऑर्डर करें।"
+                      rows={3}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">This is read aloud by an AI voice and also burned into the video as captions — not written by AI, written/edited by you.</p>
+                  </div>
+
+                  {/* Cost warning — video generation is paid, unlike the free image posts */}
+                  <div className="rounded-xl p-3 border bg-amber-50 border-amber-200">
+                    <p className="text-xs font-semibold text-amber-800">⚠️ This costs real money per generation</p>
+                    <p className="text-[11px] text-amber-700 mt-1">
+                      Each video generated here uses a paid AI video model (~$0.60–0.80 per video). The Hindi voiceover itself is free (Google's free tier). Only generate when you're ready to actually post — avoid repeated test generations.
+                    </p>
+                  </div>
+
+                  {vidError && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">{vidError}</div>
+                  )}
+
+                  <button
+                    onClick={handleGenerateVideo}
+                    disabled={vidGenerating || (!vidProductId && !vidCategoryId) || !hindiScript.trim()}
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-medium disabled:opacity-50"
+                    style={{ backgroundColor: 'black' }}
+                  >
+                    {vidGenerating ? (
+                      <><FiLoader className="w-4 h-4 animate-spin" /> Generating video + Hindi voiceover (can take a minute)...</>
+                    ) : autoPublish ? (
+                      'Generate Video & Auto-Publish'
+                    ) : (
+                      'Generate AI Video Post'
+                    )}
+                  </button>
+                </div>
+
+                {vidResult && (
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-black/5 p-5 mt-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-5">
+                      <video
+                        src={vidResult.url}
+                        controls
+                        className="w-full sm:w-80 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
+                      />
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+                          {vidResult.subjectLabel}
+                        </h3>
+                        <p className="text-xs text-gold-700 font-medium mb-4">
+                          AI video (Veo) + Hindi voiceover, generated just now.
+                        </p>
+
+                        <div className="flex flex-wrap items-center gap-3 mb-4">
+                          <a
+                            href={vidResult.url}
+                            download="gmkart-video-post.mp4"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-sm transition-colors cursor-pointer"
+                            style={{ textDecoration: 'none' }}
+                          >
+                            <FiDownload className="w-4 h-4 text-gray-700 dark:text-gray-200" />
+                            <span className="font-semibold text-gray-800 dark:text-gray-100">Download Video</span>
+                          </a>
+
+                          <button
+                            onClick={() => handleManualPublish(
+                              vidResult.url,
+                              customCaption || `${vidResult.subjectLabel} — Order now on GMKart! ⚡ Fresh groceries delivered in minutes. #GMKart #QuickCommerce`,
+                              'video'
+                            )}
+                            disabled={publishing}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gold-500 text-black hover:bg-gold-600 disabled:opacity-50 transition-colors shadow-sm"
+                          >
+                            {publishing ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSend className="w-4 h-4" />}
+                            Publish to {publishPlatforms.join(' & ')}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => openScheduleModal({
+                              videoUrl: vidResult.url,
+                              mediaType: 'video',
+                              caption: customCaption || `${vidResult.subjectLabel} — Order now on GMKart! ⚡ Fresh groceries delivered in minutes. #GMKart #QuickCommerce`,
+                              title: `${vidResult.subjectLabel} — Video`,
+                              postType: 'video',
+                              platforms: publishPlatforms
+                            })}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-gold-300 bg-gold-50 text-gold-800 hover:bg-gold-100 shadow-sm transition-colors cursor-pointer"
+                          >
+                            <FiClock className="w-4 h-4 text-gold-600" />
+                            <span className="font-semibold">Schedule Post (Date/Time)</span>
+                          </button>
+                        </div>
+
+                        {publishStatus && (
+                          <div className="mt-3 p-3 rounded-lg border text-xs bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                            <div className="font-semibold text-gray-800 dark:text-gray-200 mb-1">Publish Status:</div>
+                            {publishStatus.error ? (
+                              <div className="text-red-600">{publishStatus.error}</div>
+                            ) : (
+                              Object.entries(publishStatus).map(([plt, res]) => (
+                                <div key={plt} className="flex items-center gap-2 mt-0.5">
+                                  <span className="capitalize font-medium">{plt}:</span>
+                                  {res.success ? (
+                                    <span className="text-green-600 flex items-center gap-1 font-medium">
+                                      <FiCheck className="w-3.5 h-3.5" /> Published (ID: {res.postId})
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-500">{res.error || 'Failed'}</span>
+                                  )}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             {/* ================= SUBTAB: SCHEDULED POSTS QUEUE ================= */}
             {socialSubTab === 'scheduled' && (
               <div className="space-y-4">
@@ -1730,11 +2066,19 @@ const MarketingPage = () => {
                           <div>
                             {/* Card Top Image & Badges */}
                             <div className="relative aspect-square bg-gray-100 dark:bg-gray-900">
-                              <img
-                                src={post.imageUrl}
-                                alt={post.title}
-                                className="w-full h-full object-cover"
-                              />
+                              {post.mediaType === 'video' ? (
+                                <video
+                                  src={post.videoUrl}
+                                  muted
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <img
+                                  src={post.imageUrl}
+                                  alt={post.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
                               <div className="absolute top-2 left-2 flex gap-1">
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shadow-sm ${
                                   post.status === 'scheduled'
@@ -1752,7 +2096,7 @@ const MarketingPage = () => {
                               </div>
 
                               <a
-                                href={post.imageUrl}
+                                href={post.mediaType === 'video' ? post.videoUrl : post.imageUrl}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/90 transition-colors"
@@ -1886,13 +2230,21 @@ const MarketingPage = () => {
                 </button>
               </div>
 
-              {/* Image Preview & Title */}
+              {/* Image/Video Preview & Title */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700">
-                <img
-                  src={scheduleForm.imageUrl}
-                  alt="Post preview"
-                  className="w-16 h-16 rounded-lg object-cover border border-gray-200 shadow-sm"
-                />
+                {scheduleForm.mediaType === 'video' ? (
+                  <video
+                    src={scheduleForm.videoUrl}
+                    muted
+                    className="w-16 h-16 rounded-lg object-cover border border-gray-200 shadow-sm"
+                  />
+                ) : (
+                  <img
+                    src={scheduleForm.imageUrl}
+                    alt="Post preview"
+                    className="w-16 h-16 rounded-lg object-cover border border-gray-200 shadow-sm"
+                  />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-gray-900 dark:text-white truncate">
                     {scheduleForm.title || 'Social Post'}
