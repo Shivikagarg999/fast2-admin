@@ -62,31 +62,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-screen w-screen bg-slate-50 flex items-center justify-center p-4 overflow-hidden">
+    <div className="h-screen w-screen bg-gold-50 flex items-center justify-center p-4 overflow-hidden">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <img
-            src={Logo}
-            alt="GMKart Logo"
-            className="h-32 lg:h-36 object-contain"
-          />
+          <div className="bg-white rounded-2xl shadow-sm px-6 py-4">
+            <img
+              src={Logo}
+              alt="GMKart Logo"
+              className="h-24 lg:h-28 object-contain"
+            />
+          </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 lg:p-8">
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm shadow-black/5 p-6 lg:p-8">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-slate-900">Admin login</h1>
-            <p className="text-slate-500 text-sm mt-1">Sign in to your admin account</p>
+            <h1 className="text-2xl font-bold text-gray-900">Admin login</h1>
+            <p className="text-gray-500 text-sm mt-1">Sign in to your admin account</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-gray-700">
                 Email Address
               </label>
               <input
                 type="email"
                 required
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-900 placeholder-slate-400 transition-all duration-200"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-gold-100 focus:border-gold-400 text-gray-900 placeholder-gray-400 transition-colors"
                 placeholder="admin@gmkart.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -94,13 +96,13 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <input
                 type="password"
                 required
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-900 placeholder-slate-400 transition-all duration-200"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-gold-100 focus:border-gold-400 text-gray-900 placeholder-gray-400 transition-colors"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -116,15 +118,14 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              style={{ backgroundColor: "blue" }}
-              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 ${loading
+              className={`w-full py-3 px-4 rounded-full font-semibold text-black bg-gold-500 transition-all duration-200 ${loading
                 ? "cursor-not-allowed opacity-60"
-                : "transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+                : "hover:bg-gold-600 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
                 }`}
             >
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
                   <span>Signing In...</span>
                 </div>
               ) : (
@@ -134,7 +135,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-6">
+        <p className="text-center text-xs text-gray-400 mt-6">
           © {new Date().getFullYear()} GMKart Delivery. All rights reserved.
         </p>
       </div>
